@@ -1,0 +1,45 @@
+{
+  "Common": {
+    "brand": "GrandChangan",
+    "home": "Bosh sahifa",
+    "menu": "Menyu",
+    "reservation": "Joy band qilish",
+    "gallery": "Galereya",
+    "blog": "Blog",
+    "events": "Tadbirlar",
+    "about": "Biz haqimizda",
+    "contact": "Aloqa",
+    "login": "Kirish",
+    "logout": "Chiqish",
+    "account": "Kabinet"
+  },
+  "Home": {
+    "hero_title": "GrandChangan",
+    "hero_subtitle": "Haqiqiy Xitoy taomlari va an'anaviy atmosfera",
+    "view_menu": "Menyuni ko'rish",
+    "book_table": "Stol band qilish"
+  },
+  "Admin": {
+    "panel": "Boshqaruv paneli",
+    "dashboard": "Dashboard",
+    "reservations": "Bronlar",
+    "orders": "Buyurtmalar",
+    "menu": "Menyu",
+    "tables": "Zallar va stollar",
+    "reviews": "Sharhlar",
+    "blog": "Blog",
+    "banners": "Bannerlar",
+    "promotions": "Aksiyalar",
+    "customers": "Mijozlar",
+    "payments": "To'lovlar",
+    "events": "Tadbir so'rovlari",
+    "gallery": "Galereya",
+    "settings": "Sozlamalar",
+    "login_title": "Admin panelga kirish",
+    "email": "Email",
+    "password": "Parol",
+    "signin": "Kirish",
+    "coming_soon": "Bu bo'lim tez orada tayyor bo'ladi",
+    "logout": "Chiqish"
+  }
+}

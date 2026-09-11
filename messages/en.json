@@ -1,0 +1,45 @@
+{
+  "Common": {
+    "brand": "GrandChangan",
+    "home": "Home",
+    "menu": "Menu",
+    "reservation": "Reservation",
+    "gallery": "Gallery",
+    "blog": "Blog",
+    "events": "Events",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Sign in",
+    "logout": "Sign out",
+    "account": "Account"
+  },
+  "Home": {
+    "hero_title": "GrandChangan",
+    "hero_subtitle": "Authentic Chinese cuisine and atmosphere",
+    "view_menu": "View menu",
+    "book_table": "Book a table"
+  },
+  "Admin": {
+    "panel": "Admin panel",
+    "dashboard": "Dashboard",
+    "reservations": "Reservations",
+    "orders": "Orders",
+    "menu": "Menu",
+    "tables": "Halls & tables",
+    "reviews": "Reviews",
+    "blog": "Blog",
+    "banners": "Banners",
+    "promotions": "Promotions",
+    "customers": "Customers",
+    "payments": "Payments",
+    "events": "Event inquiries",
+    "gallery": "Gallery",
+    "settings": "Settings",
+    "login_title": "Sign in to admin panel",
+    "email": "Email",
+    "password": "Password",
+    "signin": "Sign in",
+    "coming_soon": "This section is coming soon",
+    "logout": "Sign out"
+  }
+}

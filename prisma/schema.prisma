@@ -1,0 +1,558 @@
+// ============================================================
+// GrandChangan — Restoran CRM + Sayt
+// Prisma schema (PostgreSQL) — DINE-IN fokusli (yetkazib berish yo'q)
+// Ko'p tilli matn fieldlari Json: { "uz": "...", "ru": "...", "en": "...", "zh": "..." }
+// Narxlar Decimal(12,2), valyuta default UZS.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------- ENUMS ----------------------
+enum UserRole {
+  CUSTOMER
+  WAITER
+  KITCHEN
+  MANAGER
+  ADMIN
+  SUPERADMIN
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  SEATED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ReservationSource {
+  WEB
+  PHONE
+  WALK_IN
+  ADMIN
+  TELEGRAM
+}
+
+enum TableStatus {
+  AVAILABLE
+  RESERVED
+  OCCUPIED
+  MAINTENANCE
+}
+
+enum TableShape {
+  ROUND
+  SQUARE
+  RECT
+  BOOTH
+}
+
+enum OrderType {
+  DINE_IN
+  PREORDER
+}
+
+enum OrderStatus {
+  NEW
+  CONFIRMED
+  PREPARING
+  READY
+  SERVED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentProvider {
+  CLICK
+  PAYME
+  UZUM
+  VISA
+  MASTERCARD
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum SpicyLevel {
+  NONE
+  MILD
+  MEDIUM
+  HOT
+  EXTRA_HOT
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BannerPosition {
+  HERO
+  HOME_SECONDARY
+  MENU_TOP
+  POPUP
+  PROMO_STRIP
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
+  FREE_ITEM
+}
+
+// ---------------------- USERS / AUTH ----------------------
+model User {
+  id            String    @id @default(cuid())
+  phone         String    @unique
+  email         String?   @unique
+  name          String?
+  passwordHash  String?
+  role          UserRole  @default(CUSTOMER)
+  isBlocked     Boolean   @default(false)
+  phoneVerified Boolean   @default(false)
+  emailVerified DateTime?
+  avatarUrl     String?
+  locale        String    @default("uz")
+  loyaltyPoints Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  reservations Reservation[]
+  orders       Order[]
+  reviews      Review[]
+  posts        BlogPost[]
+  otpCodes     OtpCode[]
+  auditLogs    AuditLog[]
+
+  @@index([role])
+}
+
+model OtpCode {
+  id        String    @id @default(cuid())
+  userId    String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone     String
+  code      String
+  purpose   String    @default("login")
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([phone])
+}
+
+// ---------------------- ZONES / TABLES / FLOOR PLAN ----------------------
+model Zone {
+  id          String   @id @default(cuid())
+  name        Json
+  description Json?
+  floor       Int      @default(1)
+  imageUrl    String?
+  mapWidth    Int      @default(1000)
+  mapHeight   Int      @default(700)
+  mapBgUrl    String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tables Table[]
+}
+
+model Table {
+  id        String      @id @default(cuid())
+  zoneId    String
+  zone      Zone        @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  number    String
+  seats     Int         @default(4)
+  minSeats  Int         @default(1)
+  shape     TableShape  @default(ROUND)
+  isVip     Boolean     @default(false)
+  minSpend  Decimal?    @db.Decimal(12, 2)
+  posX      Float       @default(0)
+  posY      Float       @default(0)
+  width     Float       @default(80)
+  height    Float       @default(80)
+  rotation  Float       @default(0)
+  color     String?
+  status    TableStatus @default(AVAILABLE)
+  isActive  Boolean     @default(true)
+  note      Json?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  reservations Reservation[]
+  orders       Order[]
+
+  @@unique([zoneId, number])
+  @@index([status])
+}
+
+// ---------------------- RESERVATIONS ----------------------
+model Reservation {
+  id             String            @id @default(cuid())
+  code           String            @unique
+  userId         String?
+  user           User?             @relation(fields: [userId], references: [id])
+  tableId        String?
+  table          Table?            @relation(fields: [tableId], references: [id])
+  guestName      String
+  guestPhone     String
+  partySize      Int
+  date           DateTime          @db.Date
+  startTime      DateTime
+  endTime        DateTime
+  status         ReservationStatus @default(PENDING)
+  source         ReservationSource @default(WEB)
+  specialRequest String?
+  occasion       String?
+  depositAmount  Decimal?          @db.Decimal(12, 2)
+  depositPaid    Boolean           @default(false)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  payment  Payment?
+  preOrder Order?
+
+  @@index([date])
+  @@index([status])
+  @@index([tableId, date])
+}
+
+// ---------------------- MENU ----------------------
+model MenuCategory {
+  id          String         @id @default(cuid())
+  parentId    String?
+  parent      MenuCategory?  @relation("CategoryTree", fields: [parentId], references: [id])
+  children    MenuCategory[] @relation("CategoryTree")
+  name        Json
+  slug        String         @unique
+  description Json?
+  imageUrl    String?
+  iconUrl     String?
+  sortOrder   Int            @default(0)
+  isActive    Boolean        @default(true)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  items MenuItem[]
+}
+
+model MenuItem {
+  id            String       @id @default(cuid())
+  categoryId    String
+  category      MenuCategory @relation(fields: [categoryId], references: [id])
+  name          Json
+  slug          String       @unique
+  description   Json?
+  ingredients   Json?
+  price         Decimal      @db.Decimal(12, 2)
+  discountPrice Decimal?     @db.Decimal(12, 2)
+  imageUrl      String?
+  gallery       String[]
+  weightGrams   Int?
+  calories      Int?
+  prepTimeMin   Int?
+  spicyLevel    SpicyLevel   @default(NONE)
+  isVegetarian  Boolean      @default(false)
+  isHalal       Boolean      @default(true)
+  isFeatured    Boolean      @default(false)
+  isNew         Boolean      @default(false)
+  isAvailable   Boolean      @default(true)
+  allergens     String[]
+  tags          String[]
+  sortOrder     Int          @default(0)
+  soldCount     Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  variants       MenuItemVariant[]
+  modifierGroups ModifierGroup[]
+  orderItems     OrderItem[]
+  reviews        Review[]
+
+  @@index([categoryId])
+  @@index([isFeatured])
+  @@index([isAvailable])
+}
+
+model MenuItemVariant {
+  id         String   @id @default(cuid())
+  itemId     String
+  item       MenuItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  name       Json
+  priceDelta Decimal  @default(0) @db.Decimal(12, 2)
+  isDefault  Boolean  @default(false)
+  sortOrder  Int      @default(0)
+}
+
+model ModifierGroup {
+  id        String     @id @default(cuid())
+  itemId    String
+  item      MenuItem   @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  name      Json
+  minSelect Int        @default(0)
+  maxSelect Int        @default(1)
+  sortOrder Int        @default(0)
+  options   Modifier[]
+}
+
+model Modifier {
+  id        String        @id @default(cuid())
+  groupId   String
+  group     ModifierGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  name      Json
+  price     Decimal       @default(0) @db.Decimal(12, 2)
+  sortOrder Int           @default(0)
+}
+
+// ---------------------- ORDERS (dine-in / pre-order) ----------------------
+model Order {
+  id            String       @id @default(cuid())
+  code          String       @unique
+  userId        String?
+  user          User?        @relation(fields: [userId], references: [id])
+  type          OrderType    @default(DINE_IN)
+  status        OrderStatus  @default(NEW)
+  tableId       String?
+  table         Table?       @relation(fields: [tableId], references: [id])
+  reservationId String?      @unique
+  reservation   Reservation? @relation(fields: [reservationId], references: [id])
+
+  guestName  String?
+  guestPhone String?
+
+  subtotal      Decimal @db.Decimal(12, 2)
+  serviceCharge Decimal @default(0) @db.Decimal(12, 2)
+  discount      Decimal @default(0) @db.Decimal(12, 2)
+  total         Decimal @db.Decimal(12, 2)
+
+  couponId     String?
+  coupon       Coupon?   @relation(fields: [couponId], references: [id])
+  note         String?
+  scheduledFor DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  items   OrderItem[]
+  payment Payment?
+  review  Review?
+
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId   String
+  menuItem     MenuItem @relation(fields: [menuItemId], references: [id])
+  nameSnapshot Json
+  unitPrice    Decimal  @db.Decimal(12, 2)
+  quantity     Int      @default(1)
+  variant      Json?
+  modifiers    Json?
+  note         String?
+  subtotal     Decimal  @db.Decimal(12, 2)
+
+  @@index([orderId])
+}
+
+// ---------------------- PAYMENTS ----------------------
+model Payment {
+  id            String          @id @default(cuid())
+  provider      PaymentProvider
+  status        PaymentStatus   @default(PENDING)
+  amount        Decimal         @db.Decimal(12, 2)
+  currency      String          @default("UZS")
+  orderId       String?         @unique
+  order         Order?          @relation(fields: [orderId], references: [id])
+  reservationId String?         @unique
+  reservation   Reservation?    @relation(fields: [reservationId], references: [id])
+  providerTxnId String?
+  providerState Int?
+  rawPayload    Json?
+  paidAt        DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([provider, status])
+  @@index([providerTxnId])
+}
+
+// ---------------------- REVIEWS ----------------------
+model Review {
+  id         String       @id @default(cuid())
+  userId     String?
+  user       User?        @relation(fields: [userId], references: [id])
+  menuItemId String?
+  menuItem   MenuItem?    @relation(fields: [menuItemId], references: [id])
+  orderId    String?      @unique
+  order      Order?       @relation(fields: [orderId], references: [id])
+  authorName String
+  rating     Int
+  comment    String?
+  images     String[]
+  status     ReviewStatus @default(PENDING)
+  reply      String?
+  repliedAt  DateTime?
+  createdAt  DateTime     @default(now())
+
+  @@index([status])
+  @@index([menuItemId])
+}
+
+// ---------------------- BLOG ----------------------
+model BlogCategory {
+  id    String     @id @default(cuid())
+  name  Json
+  slug  String     @unique
+  posts BlogPost[]
+}
+
+model BlogPost {
+  id          String        @id @default(cuid())
+  authorId    String?
+  author      User?         @relation(fields: [authorId], references: [id])
+  categoryId  String?
+  category    BlogCategory? @relation(fields: [categoryId], references: [id])
+  title       Json
+  slug        String        @unique
+  excerpt     Json?
+  content     Json
+  coverImage  String?
+  tags        String[]
+  status      PostStatus    @default(DRAFT)
+  views       Int           @default(0)
+  metaTitle   Json?
+  metaDesc    Json?
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([status])
+}
+
+// ---------------------- BANNERS / PROMOS ----------------------
+model Banner {
+  id             String         @id @default(cuid())
+  title          Json?
+  subtitle       Json?
+  imageUrl       String
+  mobileImageUrl String?
+  linkUrl        String?
+  buttonText     Json?
+  position       BannerPosition @default(HERO)
+  sortOrder      Int            @default(0)
+  isActive       Boolean        @default(true)
+  startAt        DateTime?
+  endAt          DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([position, isActive])
+}
+
+model Coupon {
+  id           String       @id @default(cuid())
+  code         String       @unique
+  type         DiscountType @default(PERCENT)
+  value        Decimal      @db.Decimal(12, 2)
+  minOrder     Decimal?     @db.Decimal(12, 2)
+  maxDiscount  Decimal?     @db.Decimal(12, 2)
+  usageLimit   Int?
+  usedCount    Int          @default(0)
+  perUserLimit Int?
+  validFrom    DateTime?
+  validTo      DateTime?
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+
+  orders Order[]
+}
+
+// ---------------------- CONTENT / SETTINGS ----------------------
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model WorkingHour {
+  id        String  @id @default(cuid())
+  dayOfWeek Int     @unique
+  openTime  String
+  closeTime String
+  isClosed  Boolean @default(false)
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  caption   Json?
+  category  String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model EventInquiry {
+  id            String    @id @default(cuid())
+  name          String
+  phone         String
+  eventType     String
+  guestCount    Int
+  preferredDate DateTime?
+  message       String?
+  status        String    @default("NEW")
+  createdAt     DateTime  @default(now())
+}
+
+// ---------------------- SYSTEM ----------------------
+model NotificationLog {
+  id        String   @id @default(cuid())
+  channel   String
+  target    String
+  template  String?
+  payload   Json?
+  status    String   @default("SENT")
+  error     String?
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([entity])
+}

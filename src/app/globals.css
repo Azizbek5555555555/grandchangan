@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   GrandChangan — dizayn tizimi
+   Uslub: kinematik, elegant, madaniyat-showcase (marakand-teatr uslubida).
+   Palitra: chuqur ink + oltin + imperator qizili (aksent).
+   ========================================================================== */
+@theme {
+  --color-brand-red: #b31217;
+  --color-brand-red-dark: #7a0c10;
+  --color-brand-gold: #c8a24b;
+  --color-brand-gold-light: #e3c67e;
+  --color-brand-ink: #14100e;
+  --color-brand-ink-soft: #1e1815;
+  --color-brand-cream: #f7f1e6;
+  --color-brand-cream-dim: #e7dcc8;
+
+  --font-sans: var(--font-sans-var), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif-var), "Times New Roman", ui-serif, Georgia, serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #14100e;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+/* Lenis smooth-scroll bilan mos: html scroll-behavior o'chiriladi */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Sarlavhalar — serif display */
+.font-display {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+/* Tanlash rangi */
+::selection {
+  background: var(--color-brand-gold);
+  color: var(--color-brand-ink);
+}
+
+/* Nozik oltin ajratgich */
+.hairline-gold {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-brand-gold), transparent);
+}
+
+/* Hero ustidagi qoraytiruvchi qatlam */
+.hero-scrim {
+  background:
+    linear-gradient(to top, rgba(20, 16, 14, 0.92) 0%, rgba(20, 16, 14, 0.35) 45%, rgba(20, 16, 14, 0.55) 100%);
+}
+
+/* Reveal — JS ishlamasa ham kontent ko'rinadigan xavfsiz default (no-js) */
+[data-reveal] {
+  opacity: 1;
+}
+html.reveal-ready [data-reveal] {
+  opacity: 0;
+}
+
+/* Kingdom-uslub yorug'lik nuqtasi */
+.gold-glow {
+  box-shadow: 0 0 0 1px rgba(200, 162, 75, 0.25), 0 20px 60px -20px rgba(200, 162, 75, 0.25);
+}
+
+/* Swiper — oltin nuqtalar */
+.swiper-pagination-bullet {
+  background: var(--color-brand-gold) !important;
+}
+.swiper-button-next,
+.swiper-button-prev {
+  color: var(--color-brand-gold) !important;
+}

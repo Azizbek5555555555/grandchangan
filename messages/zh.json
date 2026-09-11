@@ -1,0 +1,45 @@
+{
+  "Common": {
+    "brand": "长安大酒楼",
+    "home": "首页",
+    "menu": "菜单",
+    "reservation": "预订",
+    "gallery": "相册",
+    "blog": "博客",
+    "events": "活动",
+    "about": "关于我们",
+    "contact": "联系",
+    "login": "登录",
+    "logout": "退出",
+    "account": "个人中心"
+  },
+  "Home": {
+    "hero_title": "长安大酒楼",
+    "hero_subtitle": "正宗中式美食与氛围",
+    "view_menu": "查看菜单",
+    "book_table": "预订餐桌"
+  },
+  "Admin": {
+    "panel": "管理面板",
+    "dashboard": "仪表盘",
+    "reservations": "预订",
+    "orders": "订单",
+    "menu": "菜单",
+    "tables": "大厅与餐桌",
+    "reviews": "评价",
+    "blog": "博客",
+    "banners": "横幅",
+    "promotions": "促销",
+    "customers": "客户",
+    "payments": "支付",
+    "events": "活动咨询",
+    "gallery": "相册",
+    "settings": "设置",
+    "login_title": "登录管理面板",
+    "email": "邮箱",
+    "password": "密码",
+    "signin": "登录",
+    "coming_soon": "此部分即将上线",
+    "logout": "退出"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "Common": {
+    "brand": "GrandChangan",
+    "home": "Главная",
+    "menu": "Меню",
+    "reservation": "Бронирование",
+    "gallery": "Галерея",
+    "blog": "Блог",
+    "events": "Мероприятия",
+    "about": "О нас",
+    "contact": "Контакты",
+    "login": "Войти",
+    "logout": "Выйти",
+    "account": "Кабинет"
+  },
+  "Home": {
+    "hero_title": "GrandChangan",
+    "hero_subtitle": "Настоящая китайская кухня и атмосфера",
+    "view_menu": "Смотреть меню",
+    "book_table": "Забронировать стол"
+  },
+  "Admin": {
+    "panel": "Панель управления",
+    "dashboard": "Дашборд",
+    "reservations": "Брони",
+    "orders": "Заказы",
+    "menu": "Меню",
+    "tables": "Залы и столы",
+    "reviews": "Отзывы",
+    "blog": "Блог",
+    "banners": "Баннеры",
+    "promotions": "Акции",
+    "customers": "Клиенты",
+    "payments": "Платежи",
+    "events": "Заявки на мероприятия",
+    "gallery": "Галерея",
+    "settings": "Настройки",
+    "login_title": "Вход в админ-панель",
+    "email": "Email",
+    "password": "Пароль",
+    "signin": "Войти",
+    "coming_soon": "Этот раздел скоро будет готов",
+    "logout": "Выйти"
+  }
+}
