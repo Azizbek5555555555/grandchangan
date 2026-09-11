@@ -6,3 +6,7 @@ node_modules
 .DS_Store
 next-env.d.ts
 /prisma/migrations/dev.db*
+
+# Yuklangan rasmlar repoda saqlanmasin (Cloudinary/S3 ga o'tiladi)
+/public/uploads/*
+!/public/uploads/.gitkeep
