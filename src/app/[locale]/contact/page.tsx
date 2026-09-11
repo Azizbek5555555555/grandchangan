@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { t } from "@/lib/utils";
 import { Phone, Mail, MapPin } from "lucide-react";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
@@ -24,7 +25,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
           <Reveal className="space-y-5">
             {g.phones ? <p className="flex items-center gap-3 text-neutral-700"><span className="rounded-full bg-brand-red/10 p-2.5"><Phone size={18} className="text-brand-red" /></span> {(g.phones as string[]).join(", ")}</p> : null}
             {g.email ? <p className="flex items-center gap-3 text-neutral-700"><span className="rounded-full bg-brand-red/10 p-2.5"><Mail size={18} className="text-brand-red" /></span> {String(g.email)}</p> : null}
-            {g.address ? <p className="flex items-center gap-3 text-neutral-700"><span className="rounded-full bg-brand-red/10 p-2.5"><MapPin size={18} className="text-brand-red" /></span> {String(g.address)}</p> : null}
+            {g.address ? <p className="flex items-center gap-3 text-neutral-700"><span className="rounded-full bg-brand-red/10 p-2.5"><MapPin size={18} className="text-brand-red" /></span> {t(g.address, locale)}</p> : null}
           </Reveal>
           <Reveal delay={0.1}>
             <h2 className="mb-4 font-display text-2xl text-brand-ink">Ish vaqti</h2>
