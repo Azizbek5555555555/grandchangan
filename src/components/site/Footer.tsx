@@ -38,7 +38,6 @@ export default async function SiteFooter({ locale }: { locale: string }) {
             <li><Link href="/menu" className="transition hover:text-brand-gold-light">{t("menu")}</Link></li>
             <li><Link href="/reservation" className="transition hover:text-brand-gold-light">{t("reservation")}</Link></li>
             <li><Link href="/gallery" className="transition hover:text-brand-gold-light">{t("gallery")}</Link></li>
-            <li><Link href="/events" className="transition hover:text-brand-gold-light">{t("events")}</Link></li>
             <li><Link href="/blog" className="transition hover:text-brand-gold-light">{t("blog")}</Link></li>
           </ul>
         </div>

@@ -23,7 +23,7 @@ export default function SiteHeader(_props?: { locale?: string }) {
     { href: "/menu", label: t("menu") },
     { href: "/reservation", label: t("reservation") },
     { href: "/gallery", label: t("gallery") },
-    { href: "/events", label: t("events") },
+    { href: "/blog", label: t("blog") },
     { href: "/about", label: t("about") },
     { href: "/contact", label: t("contact") },
   ] as const;

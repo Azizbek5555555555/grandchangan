@@ -81,72 +81,7 @@ async function main() {
   }
   console.log(`✔ ${categories.length} menu categories`);
 
-  // ---------- 5. Namuna taomlar ----------
-  const items = [
-    {
-      slug: "peking-duck",
-      categorySlug: "hot",
-      name: { uz: "Pekin o'rdagi", ru: "Утка по-пекински", en: "Peking duck", zh: "北京烤鸭" },
-      description: { uz: "An'anaviy xrustik terili o'rdak", ru: "Хрустящая утка", en: "Crispy roasted duck", zh: "皮脆肉嫩" },
-      price: 180000,
-      spicyLevel: "NONE" as const,
-      isFeatured: true,
-    },
-    {
-      slug: "kung-pao-chicken",
-      categorySlug: "hot",
-      name: { uz: "Gongbao tovuq", ru: "Курица Гунбао", en: "Kung Pao chicken", zh: "宫保鸡丁" },
-      description: { uz: "Achchiq-nordon tovuq, yeryong'oq bilan", ru: "Острая курица с арахисом", en: "Spicy chicken with peanuts", zh: "花生辣子鸡" },
-      price: 65000,
-      spicyLevel: "HOT" as const,
-      isFeatured: true,
-    },
-    {
-      slug: "veg-spring-rolls",
-      categorySlug: "cold",
-      name: { uz: "Sabzavotli roll", ru: "Спринг-роллы", en: "Spring rolls", zh: "春卷" },
-      description: { uz: "Xrustik sabzavotli rulon", ru: "Хрустящие овощные роллы", en: "Crispy veg rolls", zh: "蔬菜春卷" },
-      price: 35000,
-      spicyLevel: "NONE" as const,
-      isVegetarian: true,
-    },
-    {
-      slug: "hot-sour-soup",
-      categorySlug: "soup",
-      name: { uz: "Achchiq-nordon sho'rva", ru: "Кисло-острый суп", en: "Hot & sour soup", zh: "酸辣汤" },
-      description: { uz: "Klassik Xitoy sho'rvasi", ru: "Классический суп", en: "Classic Chinese soup", zh: "经典酸辣汤" },
-      price: 40000,
-      spicyLevel: "MEDIUM" as const,
-    },
-    {
-      slug: "jasmine-tea",
-      categorySlug: "tea",
-      name: { uz: "Yasemin choyi", ru: "Жасминовый чай", en: "Jasmine tea", zh: "茉莉花茶" },
-      description: { uz: "Xushbo'y yashil choy", ru: "Ароматный чай", en: "Fragrant green tea", zh: "香茶" },
-      price: 20000,
-      spicyLevel: "NONE" as const,
-      isVegetarian: true,
-    },
-  ];
-  for (let i = 0; i < items.length; i++) {
-    const it = items[i];
-    await prisma.menuItem.upsert({
-      where: { slug: it.slug },
-      update: {},
-      create: {
-        slug: it.slug,
-        categoryId: catIds[it.categorySlug],
-        name: it.name,
-        description: it.description,
-        price: it.price,
-        spicyLevel: it.spicyLevel,
-        isVegetarian: it.isVegetarian ?? false,
-        isFeatured: it.isFeatured ?? false,
-        sortOrder: i,
-      },
-    });
-  }
-  console.log(`✔ ${items.length} sample menu items`);
+  // ---------- 5. Taomlar admin paneldan qo'lda qo'shiladi (namuna yo'q) ----------
 
   // ---------- 6. Zone + tables (vizual xarita uchun) ----------
   const zone = await prisma.zone.upsert({
