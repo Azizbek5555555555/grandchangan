@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
+import { t as tt } from "@/lib/utils";
 import { Instagram, Send, Phone, MapPin } from "lucide-react";
 
 export default async function SiteFooter({ locale }: { locale: string }) {
@@ -48,7 +49,7 @@ export default async function SiteFooter({ locale }: { locale: string }) {
             {phones.map((p) => (
               <li key={p} className="flex items-center gap-2"><Phone size={15} className="text-brand-gold/70" /> {p}</li>
             ))}
-            {g.address ? <li className="flex items-start gap-2"><MapPin size={15} className="mt-0.5 text-brand-gold/70" /> {String(g.address)}</li> : null}
+            {g.address ? <li className="flex items-start gap-2"><MapPin size={15} className="mt-0.5 text-brand-gold/70" /> {tt(g.address, locale)}</li> : null}
           </ul>
         </div>
 

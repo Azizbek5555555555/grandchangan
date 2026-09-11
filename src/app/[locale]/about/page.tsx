@@ -1,5 +1,6 @@
 import { setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { t } from "@/lib/utils";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import PageHero from "@/components/site/PageHero";
@@ -27,7 +28,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             mahalliy didga moslab tayyorlaydi. Barcha mahsulotlar halal.
           </p>
         </Reveal>
-        {g.address ? <p className="mt-10 text-sm text-neutral-500">Manzil: {String(g.address)}</p> : null}
+        {g.address ? <p className="mt-10 text-sm text-neutral-500">Manzil: {t(g.address, locale)}</p> : null}
       </div>
       <SiteFooter locale={locale} />
     </>

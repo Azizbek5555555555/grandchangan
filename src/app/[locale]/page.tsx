@@ -27,7 +27,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const g = (general?.value as Record<string, unknown>) || {};
   const phone = Array.isArray(g.phones) ? (g.phones as string[])[0] : "+998 66 000 00 00";
-  const address = (g.address as string) || "Samarqand markazi";
+  const address = t(g.address, locale) || "Samarqand markazi";
   // Faqat haqiqiy yuklangan rasmni ko'rsatamiz (buzuq placeholder yo'l emas)
   const heroImg = hero?.imageUrl && (hero.imageUrl.startsWith("/uploads") || hero.imageUrl.startsWith("http"))
     ? hero.imageUrl : null;
