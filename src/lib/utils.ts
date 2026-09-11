@@ -19,7 +19,11 @@ export function t(value: unknown, locale: string, fallback = "uz"): string {
 export function formatMoney(value: number | string, currency = "so'm"): string {
   const n = typeof value === "string" ? Number(value) : value;
   if (Number.isNaN(n)) return "0 " + currency;
-  return new Intl.NumberFormat("uz-UZ").format(n) + " " + currency;
+  // Deterministik formatlash (server va klient bir xil bo'lishi uchun — Intl locale
+  // farqi hydration xatosiga sabab bo'lardi). Bo'shliq ajratgich.
+  const rounded = Math.round(n);
+  const grouped = String(Math.abs(rounded)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  return (rounded < 0 ? "-" : "") + grouped + " " + currency;
 }
 
 /** Kod generatsiya: GC-000123 */
