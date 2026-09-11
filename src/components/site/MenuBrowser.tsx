@@ -74,12 +74,18 @@ export default function MenuBrowser({
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((it) => (
           <div key={it.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:shadow-lg">
-            {it.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={it.imageUrl} alt="" className="h-44 w-full object-cover" />
-            ) : (
-              <div className="flex h-44 w-full items-center justify-center bg-neutral-100 text-neutral-300">GrandChangan</div>
-            )}
+            <div className="relative h-44 w-full bg-neutral-100">
+              <div className="absolute inset-0 flex items-center justify-center text-neutral-300">GrandChangan</div>
+              {it.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={it.imageUrl}
+                  alt=""
+                  className="relative h-44 w-full object-cover"
+                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                />
+              ) : null}
+            </div>
             <div className="p-4">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-brand-ink">{t(it.name, locale)}</h3>
