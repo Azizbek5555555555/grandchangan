@@ -1,16 +1,29 @@
+import TextReveal from "@/components/motion/TextReveal";
+import Parallax from "@/components/motion/Parallax";
+import Reveal from "@/components/motion/Reveal";
+
 export default function PageHero({
-  title, subtitle,
-}: { title: string; subtitle?: string }) {
+  title, subtitle, bgImage,
+}: { title: string; subtitle?: string; bgImage?: string | null }) {
   return (
-    <section className="relative overflow-hidden bg-brand-ink pt-32 pb-16 text-center">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.07]"
-        style={{ backgroundImage: "radial-gradient(circle at 50% 0%, #c8a24b 0%, transparent 60%)" }}
-      />
-      <div className="relative z-10 mx-auto max-w-3xl px-5">
-        <h1 className="font-display text-4xl text-brand-cream sm:text-5xl">{title}</h1>
-        {subtitle && <p className="mt-3 text-brand-cream/60">{subtitle}</p>}
-        <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
+    <section className="relative flex min-h-[54vh] items-end overflow-hidden bg-brand-ink pb-16 pt-32">
+      {bgImage ? (
+        <Parallax className="absolute -inset-y-[15%] inset-x-0" speed={12}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={bgImage} alt="" className="h-full w-full object-cover opacity-40 animate-kenburns" />
+        </Parallax>
+      ) : (
+        <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(60% 90% at 50% 0%, rgba(200,162,75,0.12) 0%, transparent 60%)" }} />
+      )}
+      <div className="absolute inset-0 hero-scrim" />
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-6 text-center">
+        <TextReveal as="h1" trigger="load" text={title} className="font-display text-5xl text-brand-cream sm:text-7xl" />
+        {subtitle && (
+          <Reveal delay={0.25}>
+            <p className="mt-4 text-brand-cream/60">{subtitle}</p>
+          </Reveal>
+        )}
+        <div className="mx-auto mt-7 h-px w-24 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
       </div>
     </section>
   );

@@ -3,23 +3,43 @@ import { prisma } from "@/lib/prisma";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import PageHero from "@/components/site/PageHero";
+import ZoomImage from "@/components/motion/ZoomImage";
+import RevealGroup from "@/components/motion/RevealGroup";
+
 export const dynamic = "force-dynamic";
+const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
+
 export default async function GalleryPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const images = await prisma.galleryImage.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } });
+  const urls = images.map((i) => i.url).filter((u) => usable(u)) as string[];
+  const feat = urls.slice(0, 2);
+  const rest = urls.slice(2);
+
   return (
     <>
       <SiteHeader />
-      <PageHero title="Galereya" subtitle="Interyer, taomlar va tadbirlar" />
-      <div className="mx-auto max-w-6xl px-5 py-16">
-        <div className="columns-2 gap-4 sm:columns-3 lg:columns-4">
-          {images.map((im) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={im.id} src={im.url} alt="" className="mb-4 w-full rounded-2xl transition duration-500 hover:brightness-110" />
-          ))}
-        </div>
-        {images.length === 0 && <p className="text-center text-neutral-400">Tez orada rasmlar qo'shiladi.</p>}
+      <PageHero title="Galereya" subtitle="Interyer, taomlar va tadbirlar" bgImage={urls[0] || null} />
+      <div className="mx-auto max-w-7xl px-5 py-16 lg:py-24">
+        {feat.length > 0 && (
+          <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {feat.map((u, i) => (
+              <ZoomImage key={i} src={u} className="h-[340px] w-full rounded-3xl sm:h-[460px]" />
+            ))}
+          </div>
+        )}
+        {rest.length > 0 && (
+          <RevealGroup className="columns-2 gap-4 sm:columns-3 lg:columns-4" stagger={0.05} y={30}>
+            {rest.map((u, i) => (
+              <div key={i} className="mb-4 overflow-hidden rounded-2xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={u} alt="" className="w-full transition duration-700 hover:scale-105" />
+              </div>
+            ))}
+          </RevealGroup>
+        )}
+        {images.length === 0 && <p className="text-center text-neutral-400">Tez orada rasmlar qo&apos;shiladi.</p>}
       </div>
       <SiteFooter locale={locale} />
     </>

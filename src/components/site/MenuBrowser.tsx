@@ -73,15 +73,15 @@ export default function MenuBrowser({
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((it) => (
-          <div key={it.id} className="overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:shadow-lg">
-            <div className="relative h-44 w-full bg-neutral-100">
+          <div key={it.id} className="group overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:border-brand-gold/40 hover:shadow-xl">
+            <div className="relative h-44 w-full overflow-hidden bg-neutral-100">
               <div className="absolute inset-0 flex items-center justify-center text-neutral-300">GrandChangan</div>
               {it.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={it.imageUrl}
                   alt=""
-                  className="relative h-44 w-full object-cover"
+                  className="relative h-44 w-full object-cover transition duration-700 group-hover:scale-110"
                   onError={(e) => { e.currentTarget.style.display = "none"; }}
                 />
               ) : null}

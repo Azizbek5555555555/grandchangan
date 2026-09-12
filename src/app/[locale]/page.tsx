@@ -14,6 +14,7 @@ import Counter from "@/components/motion/Counter";
 import Marquee from "@/components/motion/Marquee";
 import ZoomImage from "@/components/motion/ZoomImage";
 import HorizontalScroll from "@/components/motion/HorizontalScroll";
+import RotateOnScroll from "@/components/motion/RotateOnScroll";
 
 export const dynamic = "force-dynamic";
 
@@ -114,6 +115,50 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <Reveal y={16} delay={0.2}>
               <Link href="/about" className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-brand-red">Batafsil <ArrowRight size={16} /></Link>
             </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* ==================== 3.5 SIGNATURE PLATE (aylanadigan tarelka) ==================== */}
+      <section className="relative overflow-hidden bg-white py-28 lg:py-40">
+        <div className="mx-auto max-w-6xl px-6 text-center">
+          <Reveal y={14}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">Har bir tarelka</p></Reveal>
+          <div className="flex flex-wrap items-baseline justify-center gap-x-4">
+            <TextReveal text="Bir" className="font-display text-5xl text-brand-ink sm:text-6xl" />
+            <TextReveal text="hikoya" className="font-display text-5xl accent-gold sm:text-6xl" delay={0.1} />
+          </div>
+        </div>
+        <div className="relative mx-auto mt-16 flex h-[400px] max-w-5xl items-center justify-center sm:h-[560px]">
+          {g[5] ? (
+            <Parallax speed={30} className="absolute left-2 top-4 hidden w-40 -rotate-6 sm:block lg:left-12">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={g[5]} alt="" className="h-48 w-40 rounded-lg border-4 border-white object-cover shadow-2xl" />
+            </Parallax>
+          ) : null}
+          {g[6] ? (
+            <Parallax speed={-24} className="absolute bottom-2 right-2 hidden w-40 rotate-6 sm:block lg:right-12">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={g[6]} alt="" className="h-48 w-40 rounded-lg border-4 border-white object-cover shadow-2xl" />
+            </Parallax>
+          ) : null}
+
+          <RotateOnScroll deg={180} scaleFrom={0.75} className="relative h-72 w-72 sm:h-[440px] sm:w-[440px]">
+            <div className="absolute inset-0 rounded-full border-[3px] border-brand-gold/60" />
+            <div className="absolute inset-4 overflow-hidden rounded-full shadow-2xl">
+              {g[2] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={g[2]} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-brand-cream font-display text-xl text-brand-gold/30">GrandChangan</div>
+              )}
+            </div>
+          </RotateOnScroll>
+
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div className="rounded-full bg-brand-ink/75 px-7 py-5 text-center backdrop-blur-sm">
+              <p className="font-display text-2xl text-brand-cream sm:text-3xl">GrandChangan</p>
+              <p className="mt-1 text-[10px] uppercase tracking-[0.35em] text-brand-gold">signature</p>
+            </div>
           </div>
         </div>
       </section>
