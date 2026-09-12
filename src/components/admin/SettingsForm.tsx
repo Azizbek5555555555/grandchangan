@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/primitives";
 import { saveSetting, saveWorkingHours } from "@/lib/settings/actions";
 
-type General = { name?: string; email?: string; phones?: string[]; address?: string; instagram?: string; telegram?: string };
+type General = { name?: string; email?: string; phones?: string[]; address?: string; instagram?: string; telegram?: string; mapQuery?: string; mapLink?: string };
 type Hour = { dayOfWeek: number; openTime: string | null; closeTime: string | null; isClosed: boolean };
 const DAYS = ["Yakshanba", "Dushanba", "Seshanba", "Chorshanba", "Payshanba", "Juma", "Shanba"];
 
@@ -27,6 +27,8 @@ export default function SettingsForm({ general, hours }: { general: General; hou
         <label className="block"><span className="mb-1 block text-sm">Telefonlar (vergul bilan)</span><input value={phones} onChange={(e) => setPhones(e.target.value)} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" /></label>
         <label className="block"><span className="mb-1 block text-sm">Manzil</span><input value={g.address || ""} onChange={(e) => setG({ ...g, address: e.target.value })} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" /></label>
         <label className="block"><span className="mb-1 block text-sm">Instagram</span><input value={g.instagram || ""} onChange={(e) => setG({ ...g, instagram: e.target.value })} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" /></label>
+        <label className="block"><span className="mb-1 block text-sm">Xarita: joy nomi yoki manzil (Google Maps qidiruvi)</span><input value={g.mapQuery || ""} onChange={(e) => setG({ ...g, mapQuery: e.target.value })} placeholder="Grand Changan Restaurant, Ibn Xoldun 10B, Samarqand" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" /></label>
+        <label className="block"><span className="mb-1 block text-sm">Xarita havolasi (Google Maps share link)</span><input value={g.mapLink || ""} onChange={(e) => setG({ ...g, mapLink: e.target.value })} placeholder="https://maps.app.goo.gl/..." className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" /></label>
         <Button onClick={async () => { await saveSetting("general", { ...g, phones: phones.split(",").map((s) => s.trim()).filter(Boolean) }); setSaved(true); }}>Saqlash</Button>
       </section>
 
