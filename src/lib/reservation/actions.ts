@@ -170,7 +170,7 @@ export async function createReservation(input: {
   );
 
   revalidatePath("/[locale]/admin/reservations", "page");
-  return { ok: true, code };
+  return { ok: true, code, reservationId: reservation.id };
 }
 
 // ---------- STATUS (admin) ----------

@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "@/components/ui/primitives";
+import { Badge, Modal } from "@/components/ui/primitives";
+import { UtensilsCrossed } from "lucide-react";
+import { t, formatMoney } from "@/lib/utils";
 import { updateReservationStatus } from "@/lib/reservation/actions";
 
+type PreOrderItem = { name: unknown; quantity: number; unitPrice: number };
+type PreOrder = { code: string; status: string; total: number; items: PreOrderItem[] };
 type Res = {
   id: string; code: string; guestName: string; guestPhone: string; partySize: number;
-  date: string; startTime: string; status: string; tableNumber?: string | null; occasion?: string | null;
+  date: string; startTime: string; status: string; tableNumber?: string | null;
+  occasion?: string | null; preOrder?: PreOrder | null;
 };
 
 const STATUSES = ["PENDING", "CONFIRMED", "SEATED", "COMPLETED", "CANCELLED", "NO_SHOW"];
@@ -16,6 +21,7 @@ const COLOR: Record<string, string> = {
 
 export default function ReservationsTable({ reservations }: { reservations: Res[] }) {
   const [filter, setFilter] = useState("all");
+  const [detail, setDetail] = useState<Res | null>(null);
   const shown = filter === "all" ? reservations : reservations.filter((r) => r.status === filter);
 
   return (
@@ -42,6 +48,7 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
               <th className="px-4 py-3">Kishi</th>
               <th className="px-4 py-3">Sana / vaqt</th>
               <th className="px-4 py-3">Stol</th>
+              <th className="px-4 py-3">Buyurtma</th>
               <th className="px-4 py-3">Holat</th>
               <th className="px-4 py-3">Amal</th>
             </tr>
@@ -59,6 +66,19 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
                   {new Date(r.startTime).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                 </td>
                 <td className="px-4 py-3">{r.tableNumber || "—"}</td>
+                <td className="px-4 py-3">
+                  {r.preOrder ? (
+                    <button
+                      onClick={() => setDetail(r)}
+                      className="inline-flex items-center gap-1 rounded-full bg-brand-red/10 px-2.5 py-1 text-xs font-medium text-brand-red hover:bg-brand-red/20"
+                    >
+                      <UtensilsCrossed size={12} />
+                      {r.preOrder.items.length} taom · {formatMoney(r.preOrder.total)}
+                    </button>
+                  ) : (
+                    <span className="text-xs text-neutral-300">—</span>
+                  )}
+                </td>
                 <td className="px-4 py-3"><Badge color={COLOR[r.status]}>{r.status}</Badge></td>
                 <td className="px-4 py-3">
                   <select
@@ -72,11 +92,39 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
               </tr>
             ))}
             {shown.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-neutral-400">Bron yo'q</td></tr>
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-neutral-400">Bron yo&apos;q</td></tr>
             )}
           </tbody>
         </table>
       </div>
+
+      {detail?.preOrder && (
+        <Modal open onClose={() => setDetail(null)} title={`Oldindan buyurtma — ${detail.code}`}>
+          <div className="mb-3 rounded-lg bg-brand-cream p-3 text-sm">
+            <p><b>Mehmon:</b> {detail.guestName} · {detail.guestPhone}</p>
+            <p><b>Vaqt:</b> {new Date(detail.startTime).toLocaleString("uz-UZ")} · <b>Stol:</b> {detail.tableNumber || "—"}</p>
+            <p><b>Buyurtma kodi:</b> <span className="font-mono">{detail.preOrder.code}</span></p>
+          </div>
+          <table className="w-full text-sm">
+            <tbody>
+              {detail.preOrder.items.map((it, i) => (
+                <tr key={i} className="border-b border-neutral-100">
+                  <td className="py-2">{t(it.name, "uz")}</td>
+                  <td className="py-2 text-center text-neutral-500">×{it.quantity}</td>
+                  <td className="py-2 text-right">{formatMoney(it.unitPrice * it.quantity)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td className="pt-3 font-semibold" colSpan={2}>Jami</td>
+                <td className="pt-3 text-right font-bold text-brand-red">{formatMoney(detail.preOrder.total)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <p className="mt-3 text-xs text-neutral-400">To&apos;lov restoranda amalga oshiriladi (dine-in).</p>
+        </Modal>
+      )}
     </div>
   );
 }

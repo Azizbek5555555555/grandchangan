@@ -7,12 +7,23 @@ export default async function AdminReservationsPage() {
   const rows = await prisma.reservation.findMany({
     orderBy: { startTime: "desc" },
     take: 200,
-    include: { table: { select: { number: true } } },
+    include: {
+      table: { select: { number: true } },
+      preOrder: { include: { items: true } },
+    },
   });
   const plain = rows.map((r) => ({
     id: r.id, code: r.code, guestName: r.guestName, guestPhone: r.guestPhone,
     partySize: r.partySize, date: r.date.toISOString(), startTime: r.startTime.toISOString(),
     status: r.status, tableNumber: r.table?.number ?? null, occasion: r.occasion,
+    preOrder: r.preOrder ? {
+      code: r.preOrder.code,
+      status: r.preOrder.status,
+      total: Number(r.preOrder.total),
+      items: r.preOrder.items.map((it) => ({
+        name: it.nameSnapshot, quantity: it.quantity, unitPrice: Number(it.unitPrice),
+      })),
+    } : null,
   }));
   return <ReservationsTable reservations={plain} />;
 }
