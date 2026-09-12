@@ -91,3 +91,38 @@ html.reveal-ready [data-reveal] {
 .swiper-button-prev {
   color: var(--color-brand-gold) !important;
 }
+
+/* ---- Kinematik effektlar (Bosqich 8 dizayn) ---- */
+@keyframes kenburns {
+  from { transform: scale(1.08); }
+  to { transform: scale(1.2); }
+}
+.animate-kenburns {
+  animation: kenburns 22s ease-out forwards;
+}
+
+@keyframes scrollCue {
+  0% { transform: translateY(0); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+.scroll-cue-dot {
+  animation: scrollCue 1.8s ease-in-out infinite;
+}
+
+/* Oltin tugma yaltirashi */
+.btn-gold-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.btn-gold-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(120deg, transparent 20%, rgba(255,255,255,0.35) 50%, transparent 80%);
+  transition: transform 0.7s ease;
+}
+.btn-gold-sheen:hover::after {
+  transform: translateX(120%);
+}
