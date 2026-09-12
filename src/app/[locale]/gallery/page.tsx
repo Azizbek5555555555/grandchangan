@@ -4,7 +4,7 @@ import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import PageHero from "@/components/site/PageHero";
 import ZoomImage from "@/components/motion/ZoomImage";
-import RevealGroup from "@/components/motion/RevealGroup";
+import Reveal3D from "@/components/motion/Reveal3D";
 
 export const dynamic = "force-dynamic";
 const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
@@ -30,14 +30,14 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
           </div>
         )}
         {rest.length > 0 && (
-          <RevealGroup className="columns-2 gap-4 sm:columns-3 lg:columns-4" stagger={0.05} y={30}>
+          <Reveal3D className="columns-2 gap-4 sm:columns-3 lg:columns-4" stagger={0.06}>
             {rest.map((u, i) => (
               <div key={i} className="mb-4 overflow-hidden rounded-2xl">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={u} alt="" className="w-full transition duration-700 hover:scale-105" />
               </div>
             ))}
-          </RevealGroup>
+          </Reveal3D>
         )}
         {images.length === 0 && <p className="text-center text-neutral-400">Tez orada rasmlar qo&apos;shiladi.</p>}
       </div>

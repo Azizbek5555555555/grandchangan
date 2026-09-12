@@ -11,7 +11,6 @@ import RevealGroup from "@/components/motion/RevealGroup";
 import TextReveal from "@/components/motion/TextReveal";
 import Parallax from "@/components/motion/Parallax";
 import Counter from "@/components/motion/Counter";
-import Marquee from "@/components/motion/Marquee";
 import ZoomImage from "@/components/motion/ZoomImage";
 import HorizontalScroll from "@/components/motion/HorizontalScroll";
 import RotateOnScroll from "@/components/motion/RotateOnScroll";
@@ -89,11 +88,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
-      {/* ==================== 2. MARQUEE ==================== */}
-      <div className="border-y border-brand-gold/20 bg-brand-ink py-5 font-display text-2xl text-brand-cream/80 sm:text-3xl">
-        <Marquee items={["GrandChangan", "中国餐厅", "Sichuan", "Kanton", "Halal", "Samarqand", "Dim Sum", "An'ana"]} />
-      </div>
-
       {/* ==================== 3. STORY ==================== */}
       <section className="overflow-hidden bg-brand-cream py-24 lg:py-36">
         <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2">
@@ -130,15 +124,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
         <div className="relative mx-auto mt-16 flex h-[400px] max-w-5xl items-center justify-center sm:h-[560px]">
           {g[5] ? (
-            <Parallax speed={30} className="absolute left-2 top-4 hidden w-40 -rotate-6 sm:block lg:left-12">
+            <Parallax speed={34} className="absolute -left-2 top-0 hidden w-56 -rotate-6 sm:block lg:left-4 lg:w-72">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={g[5]} alt="" className="h-48 w-40 rounded-lg border-4 border-white object-cover shadow-2xl" />
+              <img src={g[5]} alt="" className="h-72 w-56 rounded-xl border-4 border-white object-cover shadow-2xl lg:h-96 lg:w-72" />
             </Parallax>
           ) : null}
           {g[6] ? (
-            <Parallax speed={-24} className="absolute bottom-2 right-2 hidden w-40 rotate-6 sm:block lg:right-12">
+            <Parallax speed={-28} className="absolute -right-2 bottom-0 hidden w-56 rotate-6 sm:block lg:right-4 lg:w-72">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={g[6]} alt="" className="h-48 w-40 rounded-lg border-4 border-white object-cover shadow-2xl" />
+              <img src={g[6]} alt="" className="h-72 w-56 rounded-xl border-4 border-white object-cover shadow-2xl lg:h-96 lg:w-72" />
             </Parallax>
           ) : null}
 
@@ -226,40 +220,45 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ==================== 6. HORIZONTAL EXPERIENCES ==================== */}
       <section className="bg-brand-ink text-brand-cream">
-        <HorizontalScroll>
-          {/* intro panel */}
-          <div className="flex h-screen w-screen shrink-0 flex-col justify-center px-8 sm:w-[60vw] sm:px-16">
-            <p className="mb-4 text-xs uppercase tracking-[0.3em] text-brand-gold">Tajribalar</p>
-            <h2 className="font-display text-5xl leading-tight sm:text-7xl">Sizni nima<br /><span className="accent-gold">kutmoqda</span></h2>
-            <p className="mt-6 max-w-md text-brand-cream/60">Yon tomonga suring →</p>
+        <div className="mx-auto max-w-7xl px-6 pt-24 text-center">
+          <p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-gold">Tajribalar</p>
+          <div className="flex flex-wrap items-baseline justify-center gap-x-4">
+            <TextReveal text="Sizni nima" className="font-display text-5xl sm:text-6xl" />
+            <TextReveal text="kutmoqda" className="font-display text-5xl accent-gold sm:text-6xl" delay={0.1} />
           </div>
+          <p className="mt-4 text-sm text-brand-cream/40">Pastga suring — kartalar navbat bilan o'tadi →</p>
+        </div>
+        <HorizontalScroll>
+          <div className="w-[6vw] shrink-0" />
           {EXPERIENCES.map((e, i) => {
-            const img = g[(i % g.length + g.length) % Math.max(g.length, 1)];
+            const img = g.length ? g[i % g.length] : null;
             return (
-              <div key={i} className="flex h-screen w-[88vw] shrink-0 items-center px-4 sm:w-[520px] sm:px-6">
-                <div className="w-full overflow-hidden rounded-3xl border border-brand-gold/20 bg-brand-ink-soft">
-                  <div className="relative h-72 overflow-hidden">
+              <div key={i} data-hs-card className="mx-4 flex h-[78vh] w-[80vw] shrink-0 items-center sm:mx-6 sm:w-[680px]">
+                <div className="w-full overflow-hidden rounded-[2rem] border border-brand-gold/20 bg-brand-ink-soft">
+                  <div className="relative h-[46vh] overflow-hidden sm:h-[420px]">
                     {img ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={img} alt="" className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full items-center justify-center bg-brand-ink"><e.icon size={44} className="text-brand-gold/40" /></div>
+                      <div className="flex h-full items-center justify-center bg-brand-ink"><e.icon size={64} className="text-brand-gold/40" /></div>
                     )}
-                    <div className="absolute left-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-brand-ink/70 text-brand-gold"><e.icon size={20} /></div>
-                    <span className="absolute right-5 top-4 font-display text-5xl text-brand-cream/15">0{i + 1}</span>
+                    <div className="absolute inset-0 bg-gradient-to-t from-brand-ink-soft via-transparent to-transparent" />
+                    <div className="absolute left-6 top-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-ink/70 text-brand-gold backdrop-blur"><e.icon size={26} /></div>
+                    <span className="absolute right-7 top-5 font-display text-7xl text-brand-cream/15">0{i + 1}</span>
                   </div>
-                  <div className="p-7">
-                    <h3 className="font-display text-3xl text-brand-cream">{e.title}</h3>
-                    <p className="mt-3 text-brand-cream/60">{e.text}</p>
+                  <div className="p-9">
+                    <h3 className="font-display text-4xl text-brand-cream">{e.title}</h3>
+                    <p className="mt-4 max-w-md text-lg text-brand-cream/60">{e.text}</p>
                   </div>
                 </div>
               </div>
             );
           })}
-          {/* end CTA panel */}
-          <div className="flex h-screen w-screen shrink-0 flex-col items-center justify-center px-8 text-center sm:w-[50vw]">
-            <h2 className="font-display text-4xl sm:text-5xl">Tayyormisiz?</h2>
-            <Link href="/reservation" className="btn-gold-sheen mt-8 inline-flex items-center gap-2 rounded-full bg-brand-red px-9 py-4 font-medium text-white hover:bg-brand-red-dark">Stol band qilish <ArrowRight size={18} /></Link>
+          <div className="flex h-[78vh] w-[80vw] shrink-0 items-center justify-center px-8 text-center sm:w-[50vw]">
+            <div>
+              <h2 className="font-display text-4xl sm:text-5xl">Tayyormisiz?</h2>
+              <Link href="/reservation" className="btn-gold-sheen mt-8 inline-flex items-center gap-2 rounded-full bg-brand-red px-9 py-4 font-medium text-white hover:bg-brand-red-dark">Stol band qilish <ArrowRight size={18} /></Link>
+            </div>
           </div>
         </HorizontalScroll>
       </section>

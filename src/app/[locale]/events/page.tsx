@@ -6,6 +6,7 @@ import PageHero from "@/components/site/PageHero";
 import EventForm from "@/components/site/EventForm";
 import Reveal from "@/components/motion/Reveal";
 import RevealGroup from "@/components/motion/RevealGroup";
+import Reveal3D from "@/components/motion/Reveal3D";
 import TextReveal from "@/components/motion/TextReveal";
 import { PartyPopper, Crown, Cake, Users } from "lucide-react";
 
@@ -35,7 +36,7 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
           <Reveal y={14}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">Imkoniyatlar</p></Reveal>
           <TextReveal text="Har qanday tadbir uchun" className="font-display text-4xl text-brand-ink sm:text-5xl" />
         </div>
-        <RevealGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" stagger={0.1} y={40}>
+        <Reveal3D className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4" stagger={0.12}>
           {KINDS.map((k, i) => (
             <div key={i} className="rounded-3xl border border-neutral-200 bg-white p-7 text-center transition hover:border-brand-gold/40 hover:shadow-xl">
               <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand-red/10"><k.icon size={24} className="text-brand-red" /></span>
@@ -43,7 +44,7 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
               <p className="mt-2 text-sm text-neutral-500">{k.text}</p>
             </div>
           ))}
-        </RevealGroup>
+        </Reveal3D>
       </section>
 
       <section className="bg-brand-cream py-24">

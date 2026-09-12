@@ -16,6 +16,7 @@ export default function HorizontalScroll({ children }: { children: React.ReactNo
       const w = wrap.current, tr = track.current;
       if (!w || !tr) return;
       const distance = () => Math.max(0, tr.scrollWidth - window.innerWidth);
+
       const tween = gsap.to(tr, {
         x: () => -distance(),
         ease: "none",
@@ -29,14 +30,31 @@ export default function HorizontalScroll({ children }: { children: React.ReactNo
           invalidateOnRefresh: true,
         },
       });
-      return () => { tween.scrollTrigger?.kill(); tween.kill(); };
+
+      // Fokusdagi kartani aniqlash — markazga kelgani rangli+katta bo'ladi
+      const cards = gsap.utils.toArray<HTMLElement>(tr.querySelectorAll("[data-hs-card]"));
+      const triggers = cards.map((card) =>
+        ScrollTrigger.create({
+          trigger: card,
+          containerAnimation: tween,
+          start: "left center",
+          end: "right center",
+          onToggle: (self) => card.classList.toggle("hs-active", self.isActive),
+        })
+      );
+
+      return () => {
+        triggers.forEach((t) => t.kill());
+        tween.scrollTrigger?.kill();
+        tween.kill();
+      };
     },
     { scope: wrap }
   );
 
   return (
     <div ref={wrap} className="relative overflow-hidden">
-      <div ref={track} className="flex w-max flex-nowrap items-stretch will-change-transform">
+      <div ref={track} className="flex w-max flex-nowrap items-center will-change-transform">
         {children}
       </div>
     </div>
