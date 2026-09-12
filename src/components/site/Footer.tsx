@@ -8,7 +8,7 @@ export default async function SiteFooter({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "Common" });
   const general = await prisma.siteSetting.findUnique({ where: { key: "general" } });
   const g = (general?.value as Record<string, unknown>) || {};
-  const phones = Array.isArray(g.phones) ? (g.phones as string[]) : ["+998 66 000 00 00"];
+  const phones = Array.isArray(g.phones) ? (g.phones as string[]) : ["+998 90 503 15 68"];
 
   return (
     <footer className="relative overflow-hidden bg-brand-ink text-brand-cream">
@@ -49,7 +49,7 @@ export default async function SiteFooter({ locale }: { locale: string }) {
             {phones.map((p) => (
               <li key={p} className="flex items-center gap-2"><Phone size={15} className="text-brand-gold/70" /> {p}</li>
             ))}
-            {g.address ? <li className="flex items-start gap-2"><MapPin size={15} className="mt-0.5 text-brand-gold/70" /> {tt(g.address, locale)}</li> : null}
+            <li className="flex items-start gap-2"><MapPin size={15} className="mt-0.5 text-brand-gold/70" /> {tt(g.address, locale) || "Ibn Xoldun 10B, Samarqand"}</li>
           </ul>
         </div>
 
