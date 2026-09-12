@@ -6,7 +6,7 @@ export default function PageHero({
   title, subtitle, bgImage,
 }: { title: string; subtitle?: string; bgImage?: string | null }) {
   return (
-    <section className="relative flex min-h-[54vh] items-end overflow-hidden bg-brand-ink pb-16 pt-32">
+    <section className="relative flex min-h-[34vh] items-end overflow-hidden bg-brand-ink pb-12 pt-28">
       {bgImage ? (
         <Parallax className="absolute -inset-y-[15%] inset-x-0" speed={12}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -17,13 +17,13 @@ export default function PageHero({
       )}
       <div className="absolute inset-0 hero-scrim" />
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6 text-center">
-        <TextReveal as="h1" trigger="load" text={title} className="font-display text-5xl text-brand-cream sm:text-7xl" />
+        <TextReveal as="h1" trigger="load" text={title} className="font-display text-4xl text-brand-cream sm:text-6xl" />
         {subtitle && (
           <Reveal delay={0.25}>
             <p className="mt-4 text-brand-cream/60">{subtitle}</p>
           </Reveal>
         )}
-        <div className="mx-auto mt-7 h-px w-24 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
+        <div className="mx-auto mt-5 h-px w-20 bg-gradient-to-r from-transparent via-brand-gold to-transparent" />
       </div>
     </section>
   );

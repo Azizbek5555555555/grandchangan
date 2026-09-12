@@ -137,3 +137,19 @@ html.reveal-ready [data-reveal] {
 
 /* Gold italic accent (sarlavha ichidagi so'z) */
 .accent-gold { color: var(--color-brand-gold-light); font-style: italic; }
+
+/* ---- Horizontal scroll: fokusdagi karta rangli+katta, qolganlari kulrang ---- */
+[data-hs-card] {
+  transition: transform 0.5s var(--ease-out-expo), filter 0.5s ease, opacity 0.5s ease;
+  transform: scale(0.86);
+  filter: grayscale(1) brightness(0.65);
+  opacity: 0.45;
+}
+[data-hs-card].hs-active {
+  transform: scale(1);
+  filter: grayscale(0) brightness(1);
+  opacity: 1;
+}
+
+/* ---- 3D perspective reveal ---- */
+.perspective-1000 { perspective: 1000px; }
