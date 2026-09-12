@@ -24,7 +24,9 @@ export function ImageUpload({
       const data = await res.json();
       onChange(data.url);
     } else {
-      alert("Yuklashda xatolik");
+      let msg = "Yuklashda xatolik";
+      try { const d = await res.json(); if (d?.error) msg = d.error; } catch {}
+      alert(msg);
     }
   }
 
