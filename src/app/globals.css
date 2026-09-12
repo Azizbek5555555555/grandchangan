@@ -126,3 +126,14 @@ html.reveal-ready [data-reveal] {
 .btn-gold-sheen:hover::after {
   transform: translateX(120%);
 }
+
+/* ---- Marquee (harakatlanuvchi lenta) ---- */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 28s linear infinite; }
+.animate-marquee-rev { animation: marquee 28s linear infinite reverse; }
+
+/* Gold italic accent (sarlavha ichidagi so'z) */
+.accent-gold { color: var(--color-brand-gold-light); font-style: italic; }
