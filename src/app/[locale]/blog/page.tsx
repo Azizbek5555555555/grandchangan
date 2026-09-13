@@ -1,4 +1,4 @@
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { t } from "@/lib/utils";
@@ -6,15 +6,19 @@ import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import PageHero from "@/components/site/PageHero";
 import RevealGroup from "@/components/motion/RevealGroup";
+
 export const dynamic = "force-dynamic";
+
 export default async function BlogListPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const st = await getTranslations({ locale, namespace: "Site" });
+  const tc = await getTranslations({ locale, namespace: "Common" });
   const posts = await prisma.blogPost.findMany({ where: { status: "PUBLISHED" }, orderBy: { publishedAt: "desc" } });
   return (
     <>
       <SiteHeader />
-      <PageHero title="Blog" subtitle="Yangiliklar va hikoyalar" />
+      <PageHero title={tc("blog")} subtitle={st("blogSub")} />
       <div className="mx-auto max-w-6xl px-5 py-16">
         <RevealGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((p) => (
@@ -27,7 +31,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
             </Link>
           ))}
         </RevealGroup>
-        {posts.length === 0 && <p className="text-center text-neutral-400">Tez orada maqolalar chiqadi.</p>}
+        {posts.length === 0 && <p className="text-center text-neutral-400">{st("blogSoon")}</p>}
       </div>
       <SiteFooter locale={locale} />
     </>

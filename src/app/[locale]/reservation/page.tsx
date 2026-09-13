@@ -1,4 +1,4 @@
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import ReservationFlow from "@/components/site/ReservationFlow";
 import SiteHeader from "@/components/site/Header";
@@ -10,6 +10,8 @@ export const dynamic = "force-dynamic";
 export default async function ReservationPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const st = await getTranslations({ locale, namespace: "Site" });
+  const tc = await getTranslations({ locale, namespace: "Common" });
 
   const [categories, items] = await Promise.all([
     prisma.menuCategory.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" }, select: { id: true, name: true } }),
@@ -27,7 +29,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
   return (
     <>
       <SiteHeader />
-      <PageHero title="Stol band qilish" subtitle="Zal xaritasidan stolingizni tanlang" />
+      <PageHero title={tc("reservation")} subtitle={st("reservationSub")} />
       <ReservationFlow locale={locale} menu={menu} />
       <SiteFooter locale={locale} />
     </>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Flame, Leaf, Search } from "lucide-react";
 import { t, formatMoney } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ const spicyDots = (level: string) => {
 export default function MenuBrowser({
   categories, items, locale,
 }: { categories: Cat[]; items: Item[]; locale: string }) {
+  const T = useTranslations("Site");
   const [active, setActive] = useState<string>("all");
   const [q, setQ] = useState("");
   const [vegOnly, setVegOnly] = useState(false);
@@ -43,13 +45,13 @@ export default function MenuBrowser({
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Taom qidirish..."
+            placeholder={T("menuSearch")}
             className="w-full rounded-full border border-neutral-300 py-2 pl-10 pr-4 text-sm outline-none focus:border-brand-red"
           />
         </div>
         <label className="flex items-center gap-2 text-sm text-neutral-600">
           <input type="checkbox" checked={vegOnly} onChange={(e) => setVegOnly(e.target.checked)} />
-          <Leaf size={14} className="text-green-600" /> Faqat vegetarian
+          <Leaf size={14} className="text-green-600" /> {T("menuVegOnly")}
         </label>
       </div>
 
@@ -58,7 +60,7 @@ export default function MenuBrowser({
           onClick={() => setActive("all")}
           className={`rounded-full px-4 py-1.5 text-sm ${active === "all" ? "bg-brand-red text-white" : "bg-neutral-100"}`}
         >
-          Barchasi
+          {T("menuAll")}
         </button>
         {categories.map((c) => (
           <button
@@ -100,13 +102,13 @@ export default function MenuBrowser({
               </div>
               <div className="mt-3 flex items-center justify-between">
                 <span className="text-lg font-bold text-brand-red">{formatMoney(it.price)}</span>
-                {it.isHalal && <span className="text-xs text-green-600">Halal</span>}
+                {it.isHalal && <span className="text-xs text-green-600">{T("halal")}</span>}
               </div>
             </div>
           </div>
         ))}
       </div>
-      {filtered.length === 0 && <p className="mt-10 text-center text-neutral-400">Hech narsa topilmadi.</p>}
+      {filtered.length === 0 && <p className="mt-10 text-center text-neutral-400">{T("menuNothing")}</p>}
     </div>
   );
 }
