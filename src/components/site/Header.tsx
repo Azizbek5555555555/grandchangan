@@ -12,7 +12,6 @@ const NAV = [
   { href: "/menu", label: "Menyu" },
   { href: "/reservation", label: "Stol band qilish" },
   { href: "/gallery", label: "Galereya" },
-  { href: "/events", label: "Tadbirlar" },
   { href: "/blog", label: "Blog" },
   { href: "/about", label: "Biz haqimizda" },
   { href: "/contact", label: "Aloqa" },

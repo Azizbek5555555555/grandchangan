@@ -153,3 +153,16 @@ html.reveal-ready [data-reveal] {
 
 /* ---- 3D perspective reveal ---- */
 .perspective-1000 { perspective: 1000px; }
+
+/* ---- Harakatlanuvchi oltin chiziq ---- */
+@keyframes lineSlide {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+.animated-line {
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, var(--color-brand-gold) 50%, transparent);
+  background-size: 200% 100%;
+  animation: lineSlide 3.5s linear infinite;
+}
