@@ -40,14 +40,34 @@
   --foreground: var(--content);
 }
 .dark {
-  --surface: #14100e;
-  --surface-2: #1e1815;
-  --card: #1e1815;
-  --content: #f4ede0;
-  --muted: rgba(244, 237, 224, 0.6);
-  --line: rgba(255, 255, 255, 0.10);
+  --surface: #0f0b09;
+  --surface-2: #221a13;
+  --card: #2a2019;
+  --content: #f6efe3;
+  --muted: rgba(246, 239, 227, 0.56);
+  --line: rgba(200, 162, 75, 0.18);
 }
 html { background: var(--surface); }
+
+/* Qorong'i tema — iliq oltin chuqurlik va xarakter (yorug'dan aniq farqli) */
+.dark body {
+  background-color: var(--surface);
+  background-image:
+    radial-gradient(75% 45% at 50% -10%, rgba(200, 162, 75, 0.08) 0%, transparent 60%),
+    radial-gradient(60% 55% at 100% 105%, rgba(179, 18, 23, 0.07) 0%, transparent 55%);
+  background-attachment: fixed;
+}
+/* Qorong'ida kartalar chuqurroq soya bilan ko'tarilib turadi */
+.dark .shadow-sm,
+.dark .shadow-lg,
+.dark .shadow-xl,
+.dark .shadow-2xl {
+  box-shadow: 0 18px 50px -16px rgba(0, 0, 0, 0.7) !important;
+}
+/* Oltin ajratgich chiziqlari qorong'ida yorqinroq */
+.dark .hairline-gold {
+  opacity: 0.5;
+}
 
 * {
   -webkit-font-smoothing: antialiased;
