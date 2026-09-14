@@ -15,6 +15,14 @@
   --color-brand-cream: #f7f1e6;
   --color-brand-cream-dim: #e7dcc8;
 
+  /* Semantik tema ranglari (yorug'/qorong'i) */
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-card: var(--card);
+  --color-content: var(--content);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+
   --font-sans: var(--font-sans-var), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-serif-var), "Times New Roman", ui-serif, Georgia, serif;
 
@@ -22,9 +30,24 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #14100e;
+  --surface: #ffffff;
+  --surface-2: #f7f1e6;
+  --card: #ffffff;
+  --content: #14100e;
+  --muted: #57534e;
+  --line: #e7e5e4;
+  --background: var(--surface);
+  --foreground: var(--content);
 }
+.dark {
+  --surface: #14100e;
+  --surface-2: #1e1815;
+  --card: #1e1815;
+  --content: #f4ede0;
+  --muted: rgba(244, 237, 224, 0.6);
+  --line: rgba(255, 255, 255, 0.10);
+}
+html { background: var(--surface); }
 
 * {
   -webkit-font-smoothing: antialiased;
@@ -32,9 +55,10 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--surface);
+  color: var(--content);
   font-family: var(--font-sans);
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 /* Lenis smooth-scroll bilan mos: html scroll-behavior o'chiriladi */

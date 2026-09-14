@@ -66,14 +66,14 @@ export default function MenuManager({ categories, items }: { categories: Cat[]; 
             <button
               onClick={() => setActiveCat(c.id)}
               className={`rounded-full px-4 py-1.5 text-sm ${
-                activeCat === c.id ? "bg-brand-red text-white" : "bg-neutral-100 text-neutral-600"
+                activeCat === c.id ? "bg-brand-red text-white" : "bg-surface-2 text-muted"
               }`}
             >
               {c.name.uz || c.name.en}
             </button>
             <button
               onClick={() => { setCatNew(false); setCatModal(c); }}
-              className="absolute -right-1 -top-1 hidden rounded-full bg-white p-1 shadow group-hover:block"
+              className="absolute -right-1 -top-1 hidden rounded-full bg-card p-1 shadow group-hover:block"
             >
               <Pencil size={10} />
             </button>
@@ -84,13 +84,13 @@ export default function MenuManager({ categories, items }: { categories: Cat[]; 
       {/* Items grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {shownItems.map((it) => (
-          <div key={it.id} className="rounded-xl border border-neutral-200 bg-white p-4">
+          <div key={it.id} className="rounded-xl border border-line bg-card p-4">
             <div className="flex gap-3">
               {it.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={it.imageUrl} alt="" className="h-16 w-16 rounded-lg object-cover" />
               ) : (
-                <div className="h-16 w-16 rounded-lg bg-neutral-100" />
+                <div className="h-16 w-16 rounded-lg bg-surface-2" />
               )}
               <div className="flex-1">
                 <p className="font-medium">{it.name.uz || it.name.en}</p>
@@ -106,16 +106,16 @@ export default function MenuManager({ categories, items }: { categories: Cat[]; 
                 </div>
               </div>
             </div>
-            <div className="mt-3 flex items-center justify-between border-t border-neutral-100 pt-3">
+            <div className="mt-3 flex items-center justify-between border-t border-line pt-3">
               <button
                 onClick={() => toggleItemAvailability(it.id, !it.isAvailable)}
-                className={`flex items-center gap-1 text-xs ${it.isAvailable ? "text-green-600" : "text-neutral-400"}`}
+                className={`flex items-center gap-1 text-xs ${it.isAvailable ? "text-green-600" : "text-muted"}`}
               >
                 {it.isAvailable ? <Eye size={14} /> : <EyeOff size={14} />}
                 {it.isAvailable ? "Mavjud" : "Yashirin"}
               </button>
               <div className="flex gap-1">
-                <button onClick={() => { setItemNew(false); setItemModal(it); }} className="rounded p-1 hover:bg-neutral-100">
+                <button onClick={() => { setItemNew(false); setItemModal(it); }} className="rounded p-1 hover:bg-surface-2">
                   <Pencil size={14} />
                 </button>
                 <button
@@ -128,7 +128,7 @@ export default function MenuManager({ categories, items }: { categories: Cat[]; 
             </div>
           </div>
         ))}
-        {shownItems.length === 0 && <p className="text-neutral-400">Bu kategoriyada taom yo'q.</p>}
+        {shownItems.length === 0 && <p className="text-muted">Bu kategoriyada taom yo'q.</p>}
       </div>
 
       {catModal && (
@@ -217,26 +217,26 @@ function ItemModal({
           <LocalizedInput label="Nomi" value={name} onChange={setName} />
           <LocalizedInput label="Tavsif" value={desc} onChange={setDesc} textarea />
           <label className="block">
-            <span className="mb-1 block text-sm font-medium text-neutral-700">Narxi (so'm)</span>
+            <span className="mb-1 block text-sm font-medium text-content">Narxi (so'm)</span>
             <input
               type="number"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-brand-red"
+              className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand-red"
             />
           </label>
         </div>
         <div className="space-y-4">
           <div>
-            <span className="mb-1 block text-sm font-medium text-neutral-700">Rasm</span>
+            <span className="mb-1 block text-sm font-medium text-content">Rasm</span>
             <ImageUpload value={image} onChange={setImage} />
           </div>
           <label className="block">
-            <span className="mb-1 block text-sm font-medium text-neutral-700">Achchiqlik</span>
+            <span className="mb-1 block text-sm font-medium text-content">Achchiqlik</span>
             <select
               value={spicy}
               onChange={(e) => setSpicy(e.target.value)}
-              className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-line px-3 py-2 text-sm"
             >
               {SPICY.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>

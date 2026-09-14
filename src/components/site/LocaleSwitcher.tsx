@@ -24,7 +24,7 @@ export default function LocaleSwitcher() {
         <Globe size={16} /> {current.toUpperCase()}
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-32 rounded-lg border border-neutral-200 bg-white py-1 shadow-lg">
+        <div className="absolute right-0 top-full mt-1 w-32 rounded-lg border border-line bg-card py-1 shadow-lg">
           {routing.locales.map((l) => (
             <button
               key={l}
@@ -33,7 +33,7 @@ export default function LocaleSwitcher() {
                 // @ts-expect-error next-intl typed pathname
                 router.replace(pathname, { locale: l });
               }}
-              className={`block w-full px-3 py-1.5 text-left text-sm text-brand-ink hover:bg-neutral-100 ${l === current ? "font-bold" : ""}`}
+              className={`block w-full px-3 py-1.5 text-left text-sm text-content hover:bg-surface-2 ${l === current ? "font-bold" : ""}`}
             >
               {LABELS[l]}
             </button>

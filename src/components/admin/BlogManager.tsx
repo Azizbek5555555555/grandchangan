@@ -22,7 +22,7 @@ export default function BlogManager({ posts }: { posts: Post[] }) {
       </div>
       <div className="space-y-2">
         {posts.map((p) => (
-          <div key={p.id} className="flex items-center justify-between rounded-xl border border-neutral-200 bg-white p-4">
+          <div key={p.id} className="flex items-center justify-between rounded-xl border border-line bg-card p-4">
             <div className="flex items-center gap-3">
               {p.coverImage && /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.coverImage} alt="" className="h-12 w-16 rounded object-cover" />}
               <div>
@@ -31,13 +31,13 @@ export default function BlogManager({ posts }: { posts: Post[] }) {
               </div>
             </div>
             <div className="flex gap-1">
-              <button onClick={() => togglePublish(p.id, p.status !== "PUBLISHED")} className="rounded p-1.5 hover:bg-neutral-100">{p.status === "PUBLISHED" ? <EyeOff size={16} /> : <Globe size={16} />}</button>
-              <button onClick={() => { setIsNew(false); setModal(p); }} className="rounded p-1.5 hover:bg-neutral-100"><Pencil size={16} /></button>
+              <button onClick={() => togglePublish(p.id, p.status !== "PUBLISHED")} className="rounded p-1.5 hover:bg-surface-2">{p.status === "PUBLISHED" ? <EyeOff size={16} /> : <Globe size={16} />}</button>
+              <button onClick={() => { setIsNew(false); setModal(p); }} className="rounded p-1.5 hover:bg-surface-2"><Pencil size={16} /></button>
               <button onClick={() => confirm("O'chirilsinmi?") && deletePost(p.id)} className="rounded p-1.5 text-red-500 hover:bg-red-50"><Trash2 size={16} /></button>
             </div>
           </div>
         ))}
-        {posts.length === 0 && <p className="text-neutral-400">Maqola yo'q.</p>}
+        {posts.length === 0 && <p className="text-muted">Maqola yo'q.</p>}
       </div>
       {modal && <PostModal isNew={isNew} data={modal} onClose={() => setModal(null)} />}
     </div>

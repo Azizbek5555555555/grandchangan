@@ -45,7 +45,7 @@ export function ImageUpload({
           </button>
         </div>
       ) : (
-        <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-neutral-300 text-neutral-400 hover:border-brand-red">
+        <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-line text-muted hover:border-brand-red">
           <Upload size={20} />
           <span className="text-xs">{loading ? "..." : "Rasm"}</span>
           <input type="file" accept="image/*" className="hidden" onChange={onFile} />

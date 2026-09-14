@@ -1,4 +1,4 @@
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
@@ -12,6 +12,8 @@ const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.start
 export default async function GalleryPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const st = await getTranslations({ locale, namespace: "Site" });
+  const tc = await getTranslations({ locale, namespace: "Common" });
   const images = await prisma.galleryImage.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } });
   const urls = images.map((i) => i.url).filter((u) => usable(u)) as string[];
   const feat = urls.slice(0, 2);
@@ -20,13 +22,11 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
   return (
     <>
       <SiteHeader />
-      <PageHero title="Galereya" subtitle="Interyer, taomlar va tadbirlar" bgImage={urls[0] || null} />
+      <PageHero title={tc("gallery")} subtitle={st("gallerySub")} bgImage={urls[0] || null} />
       <div className="mx-auto max-w-7xl px-5 py-16 lg:py-24">
         {feat.length > 0 && (
           <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {feat.map((u, i) => (
-              <ZoomImage key={i} src={u} className="h-[340px] w-full rounded-3xl sm:h-[460px]" />
-            ))}
+            {feat.map((u, i) => <ZoomImage key={i} src={u} className="h-[340px] w-full rounded-3xl sm:h-[460px]" />)}
           </div>
         )}
         {rest.length > 0 && (
@@ -39,7 +39,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
             ))}
           </Reveal3D>
         )}
-        {images.length === 0 && <p className="text-center text-neutral-400">Tez orada rasmlar qo&apos;shiladi.</p>}
+        {images.length === 0 && <p className="text-center text-muted">{st("gallerySoon")}</p>}
       </div>
       <SiteFooter locale={locale} />
     </>

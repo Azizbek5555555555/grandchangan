@@ -32,26 +32,26 @@ export default function AdminLoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-brand-ink px-4">
-      <div className="w-full max-w-sm rounded-2xl border border-brand-gold/20 bg-white p-8 shadow-xl">
-        <h1 className="mb-1 text-center text-2xl font-bold text-brand-ink">
+      <div className="w-full max-w-sm rounded-2xl border border-brand-gold/20 bg-card p-8 shadow-xl">
+        <h1 className="mb-1 text-center text-2xl font-bold text-content">
           {t("panel")}
         </h1>
-        <p className="mb-6 text-center text-sm text-neutral-500">
+        <p className="mb-6 text-center text-sm text-muted">
           {t("login_title")}
         </p>
 
-        <label className="mb-1 block text-sm font-medium text-neutral-700">
+        <label className="mb-1 block text-sm font-medium text-content">
           {t("email")}
         </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mb-4 w-full rounded-lg border border-neutral-300 px-3 py-2 outline-none focus:border-brand-red"
+          className="mb-4 w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-red"
           placeholder="admin@grandchangan.uz"
         />
 
-        <label className="mb-1 block text-sm font-medium text-neutral-700">
+        <label className="mb-1 block text-sm font-medium text-content">
           {t("password")}
         </label>
         <input
@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSubmit()}
-          className="mb-4 w-full rounded-lg border border-neutral-300 px-3 py-2 outline-none focus:border-brand-red"
+          className="mb-4 w-full rounded-lg border border-line px-3 py-2 outline-none focus:border-brand-red"
           placeholder="••••••••"
         />
 

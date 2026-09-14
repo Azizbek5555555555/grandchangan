@@ -32,16 +32,16 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
           <button
             key={s}
             onClick={() => setFilter(s)}
-            className={`rounded-full px-3 py-1 text-xs ${filter === s ? "bg-brand-red text-white" : "bg-neutral-100"}`}
+            className={`rounded-full px-3 py-1 text-xs ${filter === s ? "bg-brand-red text-white" : "bg-surface-2"}`}
           >
             {s}
           </button>
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-neutral-200 bg-white">
+      <div className="overflow-x-auto rounded-xl border border-line bg-card">
         <table className="w-full text-sm">
-          <thead className="border-b border-neutral-200 bg-neutral-50 text-left text-neutral-500">
+          <thead className="border-b border-line bg-surface-2 text-left text-muted">
             <tr>
               <th className="px-4 py-3">Kod</th>
               <th className="px-4 py-3">Mehmon</th>
@@ -55,11 +55,11 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
           </thead>
           <tbody>
             {shown.map((r) => (
-              <tr key={r.id} className="border-b border-neutral-100">
+              <tr key={r.id} className="border-b border-line">
                 <td className="px-4 py-3 font-mono text-xs">{r.code}</td>
                 <td className="px-4 py-3">
                   <div className="font-medium">{r.guestName}</div>
-                  <div className="text-xs text-neutral-400">{r.guestPhone}</div>
+                  <div className="text-xs text-muted">{r.guestPhone}</div>
                 </td>
                 <td className="px-4 py-3">{r.partySize}</td>
                 <td className="px-4 py-3 text-xs">
@@ -76,7 +76,7 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
                       {r.preOrder.items.length} taom · {formatMoney(r.preOrder.total)}
                     </button>
                   ) : (
-                    <span className="text-xs text-neutral-300">—</span>
+                    <span className="text-xs text-muted">—</span>
                   )}
                 </td>
                 <td className="px-4 py-3"><Badge color={COLOR[r.status]}>{r.status}</Badge></td>
@@ -84,7 +84,7 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
                   <select
                     value={r.status}
                     onChange={(e) => updateReservationStatus(r.id, e.target.value as never)}
-                    className="rounded border border-neutral-300 px-2 py-1 text-xs"
+                    className="rounded border border-line px-2 py-1 text-xs"
                   >
                     {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
@@ -92,7 +92,7 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
               </tr>
             ))}
             {shown.length === 0 && (
-              <tr><td colSpan={8} className="px-4 py-8 text-center text-neutral-400">Bron yo&apos;q</td></tr>
+              <tr><td colSpan={8} className="px-4 py-8 text-center text-muted">Bron yo&apos;q</td></tr>
             )}
           </tbody>
         </table>
@@ -100,7 +100,7 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
 
       {detail?.preOrder && (
         <Modal open onClose={() => setDetail(null)} title={`Oldindan buyurtma — ${detail.code}`}>
-          <div className="mb-3 rounded-lg bg-brand-cream p-3 text-sm">
+          <div className="mb-3 rounded-lg bg-surface-2 p-3 text-sm">
             <p><b>Mehmon:</b> {detail.guestName} · {detail.guestPhone}</p>
             <p><b>Vaqt:</b> {new Date(detail.startTime).toLocaleString("uz-UZ")} · <b>Stol:</b> {detail.tableNumber || "—"}</p>
             <p><b>Buyurtma kodi:</b> <span className="font-mono">{detail.preOrder.code}</span></p>
@@ -108,9 +108,9 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
           <table className="w-full text-sm">
             <tbody>
               {detail.preOrder.items.map((it, i) => (
-                <tr key={i} className="border-b border-neutral-100">
+                <tr key={i} className="border-b border-line">
                   <td className="py-2">{t(it.name, "uz")}</td>
-                  <td className="py-2 text-center text-neutral-500">×{it.quantity}</td>
+                  <td className="py-2 text-center text-muted">×{it.quantity}</td>
                   <td className="py-2 text-right">{formatMoney(it.unitPrice * it.quantity)}</td>
                 </tr>
               ))}
@@ -122,7 +122,7 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
               </tr>
             </tfoot>
           </table>
-          <p className="mt-3 text-xs text-neutral-400">To&apos;lov restoranda amalga oshiriladi (dine-in).</p>
+          <p className="mt-3 text-xs text-muted">To&apos;lov restoranda amalga oshiriladi (dine-in).</p>
         </Modal>
       )}
     </div>

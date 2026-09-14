@@ -27,7 +27,7 @@ export function LocalizedInput({
   return (
     <div>
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-sm font-medium text-neutral-700">{label}</span>
+        <span className="text-sm font-medium text-content">{label}</span>
         <div className="flex gap-1">
           {LOCALES.map((l) => (
             <button
@@ -36,7 +36,7 @@ export function LocalizedInput({
               onClick={() => setActive(l.code)}
               className={cn(
                 "rounded px-2 py-0.5 text-xs",
-                active === l.code ? "bg-brand-red text-white" : "bg-neutral-100 text-neutral-500"
+                active === l.code ? "bg-brand-red text-white" : "bg-surface-2 text-muted"
               )}
             >
               {l.label}
@@ -49,13 +49,13 @@ export function LocalizedInput({
           value={value[active as keyof LocalizedValue] || ""}
           onChange={(e) => onChange({ ...value, [active]: e.target.value })}
           rows={3}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-brand-red"
+          className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand-red"
         />
       ) : (
         <input
           value={value[active as keyof LocalizedValue] || ""}
           onChange={(e) => onChange({ ...value, [active]: e.target.value })}
-          className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-brand-red"
+          className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand-red"
         />
       )}
     </div>

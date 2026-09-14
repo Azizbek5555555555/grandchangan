@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Flame, Leaf, Search } from "lucide-react";
 import { t, formatMoney } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ const spicyDots = (level: string) => {
 export default function MenuBrowser({
   categories, items, locale,
 }: { categories: Cat[]; items: Item[]; locale: string }) {
+  const T = useTranslations("Site");
   const [active, setActive] = useState<string>("all");
   const [q, setQ] = useState("");
   const [vegOnly, setVegOnly] = useState(false);
@@ -39,32 +41,32 @@ export default function MenuBrowser({
     <div className="mx-auto max-w-6xl px-4 py-14">
       <div className="mb-6 flex flex-col items-center gap-4">
         <div className="relative w-full max-w-md">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Taom qidirish..."
-            className="w-full rounded-full border border-neutral-300 py-2 pl-10 pr-4 text-sm outline-none focus:border-brand-red"
+            placeholder={T("menuSearch")}
+            className="w-full rounded-full border border-line py-2 pl-10 pr-4 text-sm outline-none focus:border-brand-red"
           />
         </div>
-        <label className="flex items-center gap-2 text-sm text-neutral-600">
+        <label className="flex items-center gap-2 text-sm text-muted">
           <input type="checkbox" checked={vegOnly} onChange={(e) => setVegOnly(e.target.checked)} />
-          <Leaf size={14} className="text-green-600" /> Faqat vegetarian
+          <Leaf size={14} className="text-green-600" /> {T("menuVegOnly")}
         </label>
       </div>
 
       <div className="mb-8 flex flex-wrap justify-center gap-2">
         <button
           onClick={() => setActive("all")}
-          className={`rounded-full px-4 py-1.5 text-sm ${active === "all" ? "bg-brand-red text-white" : "bg-neutral-100"}`}
+          className={`rounded-full px-4 py-1.5 text-sm ${active === "all" ? "bg-brand-red text-white" : "bg-surface-2"}`}
         >
-          Barchasi
+          {T("menuAll")}
         </button>
         {categories.map((c) => (
           <button
             key={c.id}
             onClick={() => setActive(c.id)}
-            className={`rounded-full px-4 py-1.5 text-sm ${active === c.id ? "bg-brand-red text-white" : "bg-neutral-100"}`}
+            className={`rounded-full px-4 py-1.5 text-sm ${active === c.id ? "bg-brand-red text-white" : "bg-surface-2"}`}
           >
             {t(c.name, locale)}
           </button>
@@ -73,9 +75,9 @@ export default function MenuBrowser({
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((it) => (
-          <div key={it.id} className="group overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:border-brand-gold/40 hover:shadow-xl">
-            <div className="relative h-44 w-full overflow-hidden bg-neutral-100">
-              <div className="absolute inset-0 flex items-center justify-center text-neutral-300">GrandChangan</div>
+          <div key={it.id} className="group overflow-hidden rounded-2xl border border-line bg-card transition hover:border-brand-gold/40 hover:shadow-xl">
+            <div className="relative h-44 w-full overflow-hidden bg-surface-2">
+              <div className="absolute inset-0 flex items-center justify-center text-muted">GrandChangan</div>
               {it.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -88,10 +90,10 @@ export default function MenuBrowser({
             </div>
             <div className="p-4">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-semibold text-brand-ink">{t(it.name, locale)}</h3>
-                {it.isNew && <span className="rounded bg-brand-gold px-1.5 py-0.5 text-[10px] font-bold text-brand-ink">NEW</span>}
+                <h3 className="font-semibold text-content">{t(it.name, locale)}</h3>
+                {it.isNew && <span className="rounded bg-brand-gold px-1.5 py-0.5 text-[10px] font-bold text-content">NEW</span>}
               </div>
-              {it.description ? <p className="mt-1 line-clamp-2 text-sm text-neutral-500">{t(it.description, locale)}</p> : null}
+              {it.description ? <p className="mt-1 line-clamp-2 text-sm text-muted">{t(it.description, locale)}</p> : null}
               <div className="mt-2 flex items-center gap-2">
                 {Array.from({ length: spicyDots(it.spicyLevel) }).map((_, i) => (
                   <Flame key={i} size={13} className="text-brand-red" />
@@ -100,13 +102,13 @@ export default function MenuBrowser({
               </div>
               <div className="mt-3 flex items-center justify-between">
                 <span className="text-lg font-bold text-brand-red">{formatMoney(it.price)}</span>
-                {it.isHalal && <span className="text-xs text-green-600">Halal</span>}
+                {it.isHalal && <span className="text-xs text-green-600">{T("halal")}</span>}
               </div>
             </div>
           </div>
         ))}
       </div>
-      {filtered.length === 0 && <p className="mt-10 text-center text-neutral-400">Hech narsa topilmadi.</p>}
+      {filtered.length === 0 && <p className="mt-10 text-center text-muted">{T("menuNothing")}</p>}
     </div>
   );
 }
