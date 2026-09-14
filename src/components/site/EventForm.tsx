@@ -23,15 +23,15 @@ export default function EventForm() {
   );
 
   return (
-    <div className="mx-auto max-w-md space-y-4 rounded-2xl border border-neutral-200 bg-white p-8">
-      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ismingiz" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
-      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
-      <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm">
+    <div className="mx-auto max-w-md space-y-4 rounded-2xl border border-line bg-card p-8">
+      <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ismingiz" className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
+      <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
+      <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm">
         {TYPES.map((t2) => <option key={t2} value={t2}>{t2}</option>)}
       </select>
-      <input type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Mehmonlar soni" className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
-      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
-      <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Qo'shimcha izoh" rows={3} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
+      <input type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Mehmonlar soni" className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
+      <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
+      <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Qo'shimcha izoh" rows={3} className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
       <button
         onClick={async () => { setLoading(true); const r = await submitInquiry({ name, phone, eventType, guestCount: Number(guestCount) || 1, preferredDate: date || undefined, message }); setLoading(false); if (r.ok) setDone(true); }}
         disabled={loading || !name || phone.length < 7}

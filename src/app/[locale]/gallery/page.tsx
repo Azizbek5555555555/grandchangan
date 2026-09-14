@@ -39,7 +39,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
             ))}
           </Reveal3D>
         )}
-        {images.length === 0 && <p className="text-center text-neutral-400">{st("gallerySoon")}</p>}
+        {images.length === 0 && <p className="text-center text-muted">{st("gallerySoon")}</p>}
       </div>
       <SiteFooter locale={locale} />
     </>

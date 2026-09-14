@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { X, Instagram, Send, Phone, MapPin, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import LocaleSwitcher from "./LocaleSwitcher";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV = [
   { href: "/", label: "Bosh sahifa" },
@@ -42,8 +43,8 @@ export default function SiteHeader(_props?: { locale?: string }) {
           <button onClick={() => setOpen(true)} className="group flex items-center gap-3 justify-self-start text-brand-cream">
             <span className="flex flex-col gap-[5px]">
               <span className="h-[2px] w-7 bg-brand-gold transition-all group-hover:w-5" />
-              <span className="h-[2px] w-5 bg-brand-cream transition-all group-hover:w-7" />
-              <span className="h-[2px] w-6 bg-brand-cream transition-all group-hover:w-4" />
+              <span className="h-[2px] w-5 bg-surface-2 transition-all group-hover:w-7" />
+              <span className="h-[2px] w-6 bg-surface-2 transition-all group-hover:w-4" />
             </span>
             <span className="hidden text-xs font-medium uppercase tracking-[0.25em] text-brand-cream/90 sm:inline">Menyu</span>
           </button>
@@ -56,7 +57,8 @@ export default function SiteHeader(_props?: { locale?: string }) {
           {/* O'ng: til + bron */}
           <div className="flex items-center gap-3 justify-self-end text-brand-cream">
             <div className="hidden sm:block"><LocaleSwitcher /></div>
-            <Link href="/reservation" className="rounded-full border border-brand-gold/60 px-5 py-2 text-xs font-medium uppercase tracking-wider text-brand-gold-light transition hover:bg-brand-gold hover:text-brand-ink">
+            <ThemeToggle className="hidden h-9 w-9 items-center justify-center rounded-full text-brand-cream transition hover:bg-white/10 sm:flex" />
+            <Link href="/reservation" className="rounded-full border border-brand-gold/60 px-5 py-2 text-xs font-medium uppercase tracking-wider text-brand-gold-light transition hover:bg-brand-gold hover:text-content">
               {t("reservation")}
             </Link>
           </div>
@@ -85,6 +87,7 @@ export default function SiteHeader(_props?: { locale?: string }) {
             </nav>
             <div className="mt-10 flex items-center gap-3">
               <div className="text-brand-cream"><LocaleSwitcher /></div>
+              <ThemeToggle className="flex h-9 w-9 items-center justify-center rounded-full text-brand-cream transition hover:bg-white/10" />
             </div>
           </div>
 
@@ -105,8 +108,8 @@ export default function SiteHeader(_props?: { locale?: string }) {
               <div>
                 <p className="mb-3 text-xs uppercase tracking-[0.25em] text-brand-gold">Ijtimoiy tarmoqlar</p>
                 <div className="flex gap-3">
-                  <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-brand-ink"><Instagram size={18} /></a>
-                  <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-brand-ink"><Send size={18} /></a>
+                  <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-content"><Instagram size={18} /></a>
+                  <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-content"><Send size={18} /></a>
                 </div>
               </div>
             </div>

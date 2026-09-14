@@ -87,12 +87,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
         <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-center">
           <p className="mb-2 text-[10px] uppercase tracking-[0.3em] text-brand-cream/50">{st("scrollCue")}</p>
-          <div className="mx-auto h-10 w-px bg-brand-cream/20"><div className="mx-auto h-2 w-px bg-brand-gold scroll-cue-dot" /></div>
+          <div className="mx-auto h-10 w-px bg-surface-2/20"><div className="mx-auto h-2 w-px bg-brand-gold scroll-cue-dot" /></div>
         </div>
       </section>
 
       {/* ==================== 3. STORY ==================== */}
-      <section className="overflow-hidden bg-brand-cream py-24 lg:py-36">
+      <section className="overflow-hidden bg-surface-2 py-24 lg:py-36">
         <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2">
           <div className="relative h-[440px] rounded-3xl lg:h-[600px]">
             {g[0] ? (
@@ -103,11 +103,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
           <div>
             <Reveal y={16}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">{st("storyEyebrow")}</p></Reveal>
-            <TextReveal text={st("storyTitle1")} className="font-display text-5xl leading-tight text-brand-ink sm:text-6xl" />
+            <TextReveal text={st("storyTitle1")} className="font-display text-5xl leading-tight text-content sm:text-6xl" />
             <TextReveal text={st("storyTitle2")} className="font-display text-5xl leading-tight accent-gold sm:text-6xl" delay={0.1} />
             <RevealGroup className="mt-8 space-y-5 text-lg" stagger={0.15} y={24}>
-              <p className="text-neutral-600">{st("storyP1")}</p>
-              <p className="text-neutral-600">{st("storyP2")}</p>
+              <p className="text-muted">{st("storyP1")}</p>
+              <p className="text-muted">{st("storyP2")}</p>
             </RevealGroup>
             <Reveal y={16} delay={0.2}>
               <Link href="/about" className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-brand-red">{st("more")} <ArrowRight size={16} /></Link>
@@ -117,11 +117,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* ==================== 3.5 SIGNATURE PLATE (aylanadigan tarelka) ==================== */}
-      <section className="relative overflow-hidden bg-white py-28 lg:py-40">
+      <section className="relative overflow-hidden bg-card py-28 lg:py-40">
         <div className="mx-auto max-w-6xl px-6 text-center">
           <Reveal y={14}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">{st("plateEyebrow")}</p></Reveal>
           <div className="flex flex-wrap items-baseline justify-center gap-x-4">
-            <TextReveal text={st("plateTitle1")} className="font-display text-5xl text-brand-ink sm:text-6xl" />
+            <TextReveal text={st("plateTitle1")} className="font-display text-5xl text-content sm:text-6xl" />
             <TextReveal text={st("plateTitle2")} className="font-display text-5xl accent-gold sm:text-6xl" delay={0.1} />
           </div>
         </div>
@@ -159,7 +159,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={g[2]} alt="" className="h-full w-full object-cover" />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-brand-cream font-display text-xl text-brand-gold/30">GrandChangan</div>
+                <div className="flex h-full w-full items-center justify-center bg-surface-2 font-display text-xl text-brand-gold/30">GrandChangan</div>
               )}
             </div>
           </RotateOnScroll>
@@ -196,7 +196,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <div className="mb-16 text-center">
           <Reveal y={14}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">{st("dishesEyebrow")}</p></Reveal>
           <div className="flex flex-wrap items-baseline justify-center gap-x-4">
-            <TextReveal text={st("dishesTitle1")} className="font-display text-5xl text-brand-ink sm:text-6xl" />
+            <TextReveal text={st("dishesTitle1")} className="font-display text-5xl text-content sm:text-6xl" />
             <TextReveal text={st("dishesTitle2")} className="font-display text-5xl accent-gold sm:text-6xl" delay={0.1} />
           </div>
         </div>
@@ -205,7 +205,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             {featured.map((it) => {
               const img = usable(it.imageUrl);
               return (
-                <div key={it.id} className="group overflow-hidden rounded-3xl border border-neutral-200 bg-white transition hover:border-brand-gold/40 hover:shadow-2xl">
+                <div key={it.id} className="group overflow-hidden rounded-3xl border border-line bg-card transition hover:border-brand-gold/40 hover:shadow-2xl">
                   <div className="relative h-64 overflow-hidden bg-brand-ink">
                     {img ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -216,10 +216,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </div>
                   <div className="p-6">
                     <div className="flex items-start justify-between gap-3">
-                      <h3 className="font-display text-2xl text-brand-ink">{t(it.name, locale)}</h3>
+                      <h3 className="font-display text-2xl text-content">{t(it.name, locale)}</h3>
                       <span className="whitespace-nowrap font-semibold text-brand-red">{formatMoney(Number(it.discountPrice ?? it.price))}</span>
                     </div>
-                    {it.description ? <p className="mt-2 line-clamp-2 text-sm text-neutral-500">{t(it.description, locale)}</p> : null}
+                    {it.description ? <p className="mt-2 line-clamp-2 text-sm text-muted">{t(it.description, locale)}</p> : null}
                     <div className="mt-3 flex items-center gap-2">
                       {Array.from({ length: spicyCount(it.spicyLevel) }).map((_, i) => <Flame key={i} size={13} className="text-brand-red" />)}
                       {it.isVegetarian && <Leaf size={13} className="text-green-600" />}
@@ -230,7 +230,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             })}
           </RevealGroup>
         ) : (
-          <p className="rounded-3xl border border-dashed border-neutral-300 p-12 text-center text-neutral-400">{st("dishesEmpty")}</p>
+          <p className="rounded-3xl border border-dashed border-line p-12 text-center text-muted">{st("dishesEmpty")}</p>
         )}
       </section>
 
@@ -277,24 +277,24 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* ==================== 7. STATS ==================== */}
-      <section className="bg-brand-cream py-24">
+      <section className="bg-surface-2 py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid grid-cols-2 gap-y-12 md:grid-cols-4">
             <div className="text-center">
               <div className="flex items-center justify-center gap-1 font-display text-5xl text-brand-red sm:text-6xl"><Counter to={avgRating} decimals={1} /><Star size={24} className="fill-brand-gold text-brand-gold" /></div>
-              <p className="mt-2 text-xs uppercase tracking-wider text-neutral-400">{st("statRating")}</p>
+              <p className="mt-2 text-xs uppercase tracking-wider text-muted">{st("statRating")}</p>
             </div>
             <div className="text-center">
               <div className="font-display text-5xl text-brand-red sm:text-6xl"><Counter to={Math.max(reviewCount, 12)} suffix="+" /></div>
-              <p className="mt-2 text-xs uppercase tracking-wider text-neutral-400">{st("statReviews")}</p>
+              <p className="mt-2 text-xs uppercase tracking-wider text-muted">{st("statReviews")}</p>
             </div>
             <div className="text-center">
               <div className="font-display text-5xl text-brand-red sm:text-6xl"><Counter to={Math.max(dishesCount, 20)} suffix="+" /></div>
-              <p className="mt-2 text-xs uppercase tracking-wider text-neutral-400">{st("statDishes")}</p>
+              <p className="mt-2 text-xs uppercase tracking-wider text-muted">{st("statDishes")}</p>
             </div>
             <div className="text-center">
               <div className="font-display text-5xl text-brand-red sm:text-6xl">4</div>
-              <p className="mt-2 text-xs uppercase tracking-wider text-neutral-400">{st("statLangs")}</p>
+              <p className="mt-2 text-xs uppercase tracking-wider text-muted">{st("statLangs")}</p>
             </div>
           </div>
         </div>
@@ -302,11 +302,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       {/* ==================== 8. ATMOSPHERE ==================== */}
       {g.length >= 3 && (
-        <section className="overflow-hidden bg-brand-cream pb-28">
+        <section className="overflow-hidden bg-surface-2 pb-28">
           <div className="mx-auto max-w-7xl px-6">
             <div className="mb-12 text-center">
               <Reveal y={14}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">{st("atmoEyebrow")}</p></Reveal>
-              <TextReveal text={st("atmoTitle")} className="font-display text-5xl text-brand-ink sm:text-6xl" />
+              <TextReveal text={st("atmoTitle")} className="font-display text-5xl text-content sm:text-6xl" />
             </div>
             <div className="grid grid-cols-3 gap-4 sm:gap-6">
               <Parallax className="col-span-1" speed={16}><ZoomImage src={g[0]} className="h-64 w-full rounded-2xl sm:h-80" /></Parallax>
@@ -314,7 +314,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <Parallax className="col-span-1" speed={12}><ZoomImage src={g[2]} className="h-64 w-full rounded-2xl sm:h-80" /></Parallax>
             </div>
             <div className="mt-12 text-center">
-              <Link href="/gallery" className="inline-flex items-center gap-2 rounded-full border border-brand-ink/20 px-8 py-3 text-sm font-medium text-brand-ink transition hover:bg-brand-ink hover:text-brand-cream">{st("fullGallery")} <ArrowRight size={16} /></Link>
+              <Link href="/gallery" className="inline-flex items-center gap-2 rounded-full border border-brand-ink/20 px-8 py-3 text-sm font-medium text-content transition hover:bg-brand-ink hover:text-brand-cream">{st("fullGallery")} <ArrowRight size={16} /></Link>
             </div>
           </div>
         </section>

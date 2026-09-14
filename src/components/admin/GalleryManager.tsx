@@ -17,7 +17,7 @@ export default function GalleryManager({ images }: { images: Img[] }) {
           <span className="mb-1 block text-sm font-medium">Yangi rasm</span>
           <ImageUpload value={null} onChange={(url) => url && addImage(url, cat)} />
         </div>
-        <select value={cat} onChange={(e) => setCat(e.target.value)} className="rounded-lg border border-neutral-300 px-3 py-2 text-sm">
+        <select value={cat} onChange={(e) => setCat(e.target.value)} className="rounded-lg border border-line px-3 py-2 text-sm">
           {CATS.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
       </div>
@@ -29,7 +29,7 @@ export default function GalleryManager({ images }: { images: Img[] }) {
             <button onClick={() => deleteImage(im.id)} className="absolute right-1 top-1 hidden rounded-full bg-red-600 p-1 text-white group-hover:block"><Trash2 size={12} /></button>
           </div>
         ))}
-        {images.length === 0 && <p className="text-neutral-400">Rasm yo'q.</p>}
+        {images.length === 0 && <p className="text-muted">Rasm yo'q.</p>}
       </div>
     </div>
   );

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logoutAction } from "@/lib/auth/actions";
+import ThemeToggle from "@/components/site/ThemeToggle";
 
 const items = [
   { key: "dashboard", href: "dashboard", icon: LayoutDashboard },
@@ -53,7 +54,7 @@ export default function AdminSidebar({ userName }: { userName: string }) {
   }
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-neutral-200 bg-brand-ink text-brand-cream">
+    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-line bg-brand-ink text-brand-cream">
       <div className="border-b border-white/10 px-5 py-5">
         <p className="text-lg font-bold text-brand-gold-light">GrandChangan</p>
         <p className="text-xs text-brand-cream/50">{t("panel")}</p>
@@ -82,7 +83,10 @@ export default function AdminSidebar({ userName }: { userName: string }) {
       </nav>
 
       <div className="border-t border-white/10 px-3 py-4">
-        <p className="mb-2 px-3 text-xs text-brand-cream/50">{userName}</p>
+        <div className="mb-2 flex items-center justify-between px-3">
+          <p className="text-xs text-brand-cream/50">{userName}</p>
+          <ThemeToggle className="flex h-8 w-8 items-center justify-center rounded-full text-brand-cream/70 transition hover:bg-white/10" />
+        </div>
         <button
           onClick={onLogout}
           className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-brand-cream/70 transition hover:bg-white/5 hover:text-brand-cream"

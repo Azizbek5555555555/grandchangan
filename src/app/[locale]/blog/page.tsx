@@ -22,16 +22,16 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
       <div className="mx-auto max-w-6xl px-5 py-16">
         <RevealGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {posts.map((p) => (
-            <Link key={p.id} href={`/blog/${p.slug}`} className="group overflow-hidden rounded-3xl border border-neutral-200 bg-white transition hover:shadow-xl">
-              {p.coverImage ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.coverImage} alt="" className="h-44 w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-44 bg-neutral-100" />}
+            <Link key={p.id} href={`/blog/${p.slug}`} className="group overflow-hidden rounded-3xl border border-line bg-card transition hover:shadow-xl">
+              {p.coverImage ? /* eslint-disable-next-line @next/next/no-img-element */ <img src={p.coverImage} alt="" className="h-44 w-full object-cover transition duration-500 group-hover:scale-105" /> : <div className="h-44 bg-surface-2" />}
               <div className="p-5">
-                <h3 className="font-display text-xl text-brand-ink">{t(p.title, locale)}</h3>
-                {p.excerpt ? <p className="mt-2 line-clamp-2 text-sm text-neutral-500">{t(p.excerpt, locale)}</p> : null}
+                <h3 className="font-display text-xl text-content">{t(p.title, locale)}</h3>
+                {p.excerpt ? <p className="mt-2 line-clamp-2 text-sm text-muted">{t(p.excerpt, locale)}</p> : null}
               </div>
             </Link>
           ))}
         </RevealGroup>
-        {posts.length === 0 && <p className="text-center text-neutral-400">{st("blogSoon")}</p>}
+        {posts.length === 0 && <p className="text-center text-muted">{st("blogSoon")}</p>}
       </div>
       <SiteFooter locale={locale} />
     </>

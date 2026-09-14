@@ -40,8 +40,13 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale} className={`${serif.variable} ${sans.variable}`}>
+    <html lang={locale} suppressHydrationWarning className={`${serif.variable} ${sans.variable}`}>
       <body className="min-h-screen antialiased">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark');}catch(e){}`,
+          }}
+        />
         <NextIntlClientProvider>
           <SmoothScroll>{children}</SmoothScroll>
         </NextIntlClientProvider>

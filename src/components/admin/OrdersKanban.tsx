@@ -41,26 +41,26 @@ export default function OrdersKanban({
           return (
             <div key={col} className="w-64 shrink-0">
               <div className="mb-2 flex items-center justify-between px-1">
-                <span className="text-sm font-semibold text-neutral-600">{TITLES[col]}</span>
-                <span className="rounded-full bg-neutral-200 px-2 text-xs">{list.length}</span>
+                <span className="text-sm font-semibold text-muted">{TITLES[col]}</span>
+                <span className="rounded-full bg-surface-2 px-2 text-xs">{list.length}</span>
               </div>
               <div className="space-y-2">
                 {list.map((o) => (
-                  <div key={o.id} className="rounded-xl border border-neutral-200 bg-white p-3 shadow-sm">
+                  <div key={o.id} className="rounded-xl border border-line bg-card p-3 shadow-sm">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs text-neutral-500">{o.code}</span>
+                      <span className="font-mono text-xs text-muted">{o.code}</span>
                       <span className="text-xs">{o.tableNumber ? `Stol ${o.tableNumber}` : o.type}</span>
                     </div>
-                    <ul className="mt-2 space-y-0.5 text-xs text-neutral-600">
+                    <ul className="mt-2 space-y-0.5 text-xs text-muted">
                       {o.items.slice(0, 4).map((it, idx) => (
                         <li key={idx}>{it.quantity}× {t(it.nameSnapshot, locale)}</li>
                       ))}
-                      {o.items.length > 4 && <li className="text-neutral-400">+{o.items.length - 4} ...</li>}
+                      {o.items.length > 4 && <li className="text-muted">+{o.items.length - 4} ...</li>}
                     </ul>
                     <p className="mt-2 text-sm font-bold text-brand-red">{formatMoney(o.total)}</p>
                     <div className="mt-2 flex items-center justify-between">
                       <div className="flex gap-1">
-                        {prev(o.status) && <button onClick={() => updateOrderStatus(o.id, prev(o.status) as never)} className="rounded p-1 hover:bg-neutral-100"><ChevronLeft size={14} /></button>}
+                        {prev(o.status) && <button onClick={() => updateOrderStatus(o.id, prev(o.status) as never)} className="rounded p-1 hover:bg-surface-2"><ChevronLeft size={14} /></button>}
                         {next(o.status) && <button onClick={() => updateOrderStatus(o.id, next(o.status) as never)} className="rounded bg-brand-red/10 p-1 text-brand-red hover:bg-brand-red/20"><ChevronRight size={14} /></button>}
                       </div>
                       <div className="flex gap-1">
@@ -102,14 +102,14 @@ function NewOrderModal({
     <Modal open onClose={onClose} wide title="Yangi buyurtma">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <select value={tableId} onChange={(e) => setTableId(e.target.value)} className="mb-3 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm">
+          <select value={tableId} onChange={(e) => setTableId(e.target.value)} className="mb-3 w-full rounded-lg border border-line px-3 py-2 text-sm">
             <option value="">Stol tanlang (ixtiyoriy)</option>
             {tables.map((t2) => <option key={t2.id} value={t2.id}>Stol {t2.number}</option>)}
           </select>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Taom qidirish..." className="mb-3 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Taom qidirish..." className="mb-3 w-full rounded-lg border border-line px-3 py-2 text-sm" />
           <div className="max-h-72 space-y-1 overflow-y-auto">
             {filtered.map((m) => (
-              <button key={m.id} onClick={() => add(m.id)} className="flex w-full items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 text-left text-sm hover:border-brand-red">
+              <button key={m.id} onClick={() => add(m.id)} className="flex w-full items-center justify-between rounded-lg border border-line px-3 py-2 text-left text-sm hover:border-brand-red">
                 <span>{t(m.name, locale)}</span>
                 <span className="text-brand-red">{formatMoney(m.price)}</span>
               </button>
@@ -122,17 +122,17 @@ function NewOrderModal({
             {Object.entries(cart).map(([id, qty]) => {
               const mi = menuItems.find((m) => m.id === id)!;
               return (
-                <div key={id} className="flex items-center justify-between rounded-lg bg-neutral-50 px-3 py-2 text-sm">
+                <div key={id} className="flex items-center justify-between rounded-lg bg-surface-2 px-3 py-2 text-sm">
                   <span className="flex-1">{t(mi.name, locale)}</span>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => sub(id)} className="h-6 w-6 rounded bg-neutral-200">−</button>
+                    <button onClick={() => sub(id)} className="h-6 w-6 rounded bg-surface-2">−</button>
                     <span>{qty}</span>
-                    <button onClick={() => add(id)} className="h-6 w-6 rounded bg-neutral-200">+</button>
+                    <button onClick={() => add(id)} className="h-6 w-6 rounded bg-surface-2">+</button>
                   </div>
                 </div>
               );
             })}
-            {Object.keys(cart).length === 0 && <p className="text-sm text-neutral-400">Bo'sh</p>}
+            {Object.keys(cart).length === 0 && <p className="text-sm text-muted">Bo'sh</p>}
           </div>
           <p className="mt-4 text-right text-lg font-bold text-brand-red">{formatMoney(total)}</p>
           <Button

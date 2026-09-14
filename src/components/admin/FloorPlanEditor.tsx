@@ -83,7 +83,7 @@ export default function FloorPlanEditor({ zones, locale }: { zones: Zone[]; loca
           <button
             key={z.id}
             onClick={() => setActiveZone(z.id)}
-            className={`rounded-full px-4 py-1.5 text-sm ${activeZone === z.id ? "bg-brand-red text-white" : "bg-neutral-100"}`}
+            className={`rounded-full px-4 py-1.5 text-sm ${activeZone === z.id ? "bg-brand-red text-white" : "bg-surface-2"}`}
           >
             {t(z.name, locale)}
           </button>
@@ -95,7 +95,7 @@ export default function FloorPlanEditor({ zones, locale }: { zones: Zone[]; loca
           ref={canvasRef}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          className="relative rounded-xl border border-neutral-300 bg-[linear-gradient(90deg,rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(rgba(0,0,0,0.04)_1px,transparent_1px)] bg-[size:40px_40px]"
+          className="relative rounded-xl border border-line bg-[linear-gradient(90deg,rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(rgba(0,0,0,0.04)_1px,transparent_1px)] bg-[size:40px_40px]"
           style={{ width: "100%", maxWidth: zone.mapWidth, height: zone.mapHeight }}
         >
           {zoneTables.map((tb) => (
@@ -104,7 +104,7 @@ export default function FloorPlanEditor({ zones, locale }: { zones: Zone[]; loca
               onPointerDown={(e) => onPointerDown(e, tb)}
               onDoubleClick={() => { setTableNew(false); setTableModal(tb); }}
               className={`absolute flex cursor-move select-none flex-col items-center justify-center text-xs font-medium text-white shadow ${
-                tb.isVip ? "bg-brand-gold text-brand-ink" : "bg-brand-red"
+                tb.isVip ? "bg-brand-gold text-content" : "bg-brand-red"
               } ${tb.shape === "SQUARE" || tb.shape === "RECT" ? "rounded-lg" : "rounded-full"}`}
               style={{ left: tb.posX, top: tb.posY, width: tb.width, height: tb.height }}
             >
@@ -115,7 +115,7 @@ export default function FloorPlanEditor({ zones, locale }: { zones: Zone[]; loca
         </div>
       )}
 
-      <p className="mt-3 text-sm text-neutral-400">
+      <p className="mt-3 text-sm text-muted">
         Stolni suring — joyini o'zgartiring. Ikki marta bosing — tahrirlash.
       </p>
 
@@ -145,15 +145,15 @@ function TableModal({ isNew, data, zoneId, onClose }: { isNew: boolean; data: Ta
       <div className="space-y-4">
         <label className="block">
           <span className="mb-1 block text-sm font-medium">Raqam / nomi</span>
-          <input value={number} onChange={(e) => setNumber(e.target.value)} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
+          <input value={number} onChange={(e) => setNumber(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
         </label>
         <label className="block">
           <span className="mb-1 block text-sm font-medium">O'rin soni</span>
-          <input type="number" value={seats} onChange={(e) => setSeats(e.target.value)} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
+          <input type="number" value={seats} onChange={(e) => setSeats(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
         </label>
         <label className="block">
           <span className="mb-1 block text-sm font-medium">Shakl</span>
-          <select value={shape} onChange={(e) => setShape(e.target.value)} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm">
+          <select value={shape} onChange={(e) => setShape(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm">
             <option value="ROUND">Dumaloq</option>
             <option value="SQUARE">Kvadrat</option>
             <option value="RECT">To'rtburchak</option>

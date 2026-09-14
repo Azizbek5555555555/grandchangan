@@ -16,12 +16,12 @@ export default function CustomerLoginPage() {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-cream px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold text-brand-ink">Kirish</h1>
+    <div className="flex min-h-screen items-center justify-center bg-surface-2 px-4">
+      <div className="w-full max-w-sm rounded-2xl bg-card p-8 shadow-lg">
+        <h1 className="mb-6 text-center text-2xl font-bold text-content">Kirish</h1>
         {step === 1 ? (
           <div className="space-y-4">
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="w-full rounded-lg border border-neutral-300 px-3 py-2.5" />
+            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="w-full rounded-lg border border-line px-3 py-2.5" />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               onClick={async () => { setError(null); setLoading(true); const r = await requestOtpAction(phone); setLoading(false); if (r.ok) setStep(2); else setError(r.error || "Xatolik"); }}
@@ -33,8 +33,8 @@ export default function CustomerLoginPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ismingiz" className="w-full rounded-lg border border-neutral-300 px-3 py-2.5" />
-            <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="SMS kod" className="w-full rounded-lg border border-neutral-300 px-3 py-2.5 text-center text-lg tracking-widest" />
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ismingiz" className="w-full rounded-lg border border-line px-3 py-2.5" />
+            <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="SMS kod" className="w-full rounded-lg border border-line px-3 py-2.5 text-center text-lg tracking-widest" />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               onClick={async () => { setError(null); setLoading(true); const r = await verifyOtpAction(phone, name, code); setLoading(false); if (r.ok) router.replace("/account"); else setError(r.error || "Xatolik"); }}
@@ -43,7 +43,7 @@ export default function CustomerLoginPage() {
             >
               {loading ? "..." : "Tasdiqlash"}
             </button>
-            <button onClick={() => setStep(1)} className="w-full text-sm text-neutral-500">← Raqamni o'zgartirish</button>
+            <button onClick={() => setStep(1)} className="w-full text-sm text-muted">← Raqamni o'zgartirish</button>
           </div>
         )}
       </div>

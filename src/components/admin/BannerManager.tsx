@@ -28,19 +28,19 @@ export default function BannerManager({ banners }: { banners: Banner[] }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {banners.map((b) => (
-          <div key={b.id} className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
+          <div key={b.id} className="overflow-hidden rounded-xl border border-line bg-card">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            {b.imageUrl ? <img src={b.imageUrl} alt="" className="h-32 w-full object-cover" /> : <div className="h-32 bg-neutral-100" />}
+            {b.imageUrl ? <img src={b.imageUrl} alt="" className="h-32 w-full object-cover" /> : <div className="h-32 bg-surface-2" />}
             <div className="p-3">
               <div className="mb-2 flex items-center justify-between">
                 <Badge color="blue">{b.position}</Badge>
-                <button onClick={() => toggleBanner(b.id, !b.isActive)} className={b.isActive ? "text-green-600" : "text-neutral-400"}>
+                <button onClick={() => toggleBanner(b.id, !b.isActive)} className={b.isActive ? "text-green-600" : "text-muted"}>
                   {b.isActive ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
               </div>
               <p className="text-sm font-medium">{b.title?.uz || "—"}</p>
               <div className="mt-2 flex gap-1">
-                <button onClick={() => { setIsNew(false); setModal(b); }} className="rounded p-1 hover:bg-neutral-100"><Pencil size={14} /></button>
+                <button onClick={() => { setIsNew(false); setModal(b); }} className="rounded p-1 hover:bg-surface-2"><Pencil size={14} /></button>
                 <button onClick={() => confirm("O'chirilsinmi?") && deleteBanner(b.id)} className="rounded p-1 text-red-500 hover:bg-red-50"><Trash2 size={14} /></button>
               </div>
             </div>
@@ -71,13 +71,13 @@ function BannerModal({ isNew, data, onClose }: { isNew: boolean; data: Banner; o
         <LocalizedInput label="Tavsif" value={subtitle} onChange={setSubtitle} textarea />
         <label className="block">
           <span className="mb-1 block text-sm font-medium">Joylashuv</span>
-          <select value={position} onChange={(e) => setPosition(e.target.value)} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm">
+          <select value={position} onChange={(e) => setPosition(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm">
             {POSITIONS.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
         </label>
         <label className="block">
           <span className="mb-1 block text-sm font-medium">Havola (ixtiyoriy)</span>
-          <input value={link} onChange={(e) => setLink(e.target.value)} className="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm" />
+          <input value={link} onChange={(e) => setLink(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
         </label>
         <div className="flex justify-end">
           <Button

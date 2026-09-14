@@ -19,7 +19,7 @@ export default async function AdminDashLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-neutral-50 text-brand-ink">
+    <div className="flex min-h-screen bg-surface-2 text-content">
       <AdminSidebar userName={user.name || user.email || "Admin"} />
       <main className="flex-1 overflow-x-hidden">{children}</main>
     </div>

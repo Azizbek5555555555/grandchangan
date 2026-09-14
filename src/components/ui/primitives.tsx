@@ -12,8 +12,8 @@ export function Button({
 }) {
   const styles = {
     primary: "bg-brand-red text-white hover:bg-brand-red-dark",
-    outline: "border border-neutral-300 text-brand-ink hover:bg-neutral-50",
-    ghost: "text-neutral-600 hover:bg-neutral-100",
+    outline: "border border-line text-content hover:bg-surface-2",
+    ghost: "text-muted hover:bg-surface-2",
     danger: "bg-red-600 text-white hover:bg-red-700",
   }[variant];
   return (
@@ -37,10 +37,10 @@ export function TextField({
 }: React.InputHTMLAttributes<HTMLInputElement> & { label?: string }) {
   return (
     <label className="block">
-      {label && <span className="mb-1 block text-sm font-medium text-neutral-700">{label}</span>}
+      {label && <span className="mb-1 block text-sm font-medium text-content">{label}</span>}
       <input
         className={cn(
-          "w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-brand-red",
+          "w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand-red",
           className
         )}
         {...props}
@@ -56,10 +56,10 @@ export function TextArea({
 }: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: string }) {
   return (
     <label className="block">
-      {label && <span className="mb-1 block text-sm font-medium text-neutral-700">{label}</span>}
+      {label && <span className="mb-1 block text-sm font-medium text-content">{label}</span>}
       <textarea
         className={cn(
-          "w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm outline-none focus:border-brand-red",
+          "w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand-red",
           className
         )}
         {...props}
@@ -86,12 +86,12 @@ export function Modal({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
       <div
         className={cn(
-          "max-h-[90vh] w-full overflow-y-auto rounded-2xl bg-white p-6 shadow-xl",
+          "max-h-[90vh] w-full overflow-y-auto rounded-2xl bg-card p-6 shadow-xl",
           wide ? "max-w-3xl" : "max-w-lg"
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {title && <h2 className="mb-4 text-lg font-bold text-brand-ink">{title}</h2>}
+        {title && <h2 className="mb-4 text-lg font-bold text-content">{title}</h2>}
         {children}
       </div>
     </div>
@@ -100,7 +100,7 @@ export function Modal({
 
 export function Badge({ children, color = "gray" }: { children: React.ReactNode; color?: string }) {
   const map: Record<string, string> = {
-    gray: "bg-neutral-100 text-neutral-700",
+    gray: "bg-surface-2 text-content",
     green: "bg-green-100 text-green-700",
     red: "bg-red-100 text-red-700",
     gold: "bg-amber-100 text-amber-800",

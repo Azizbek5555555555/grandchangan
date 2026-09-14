@@ -37,8 +37,8 @@ export default async function SiteFooter({ locale }: { locale: string }) {
             {String((g.name as string) || "Haqiqiy Xitoy taomlari")} · {st("fTagline")}
           </p>
           <div className="mt-6 flex gap-3">
-            <a href={g.instagram ? String(g.instagram) : "#"} target="_blank" rel="noreferrer" className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-brand-ink"><Instagram size={18} /></a>
-            <a href={g.telegram ? String(g.telegram) : "#"} target="_blank" rel="noreferrer" className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-brand-ink"><Send size={18} /></a>
+            <a href={g.instagram ? String(g.instagram) : "#"} target="_blank" rel="noreferrer" className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-content"><Instagram size={18} /></a>
+            <a href={g.telegram ? String(g.telegram) : "#"} target="_blank" rel="noreferrer" className="flex h-11 w-11 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-content"><Send size={18} /></a>
           </div>
         </div>
 
