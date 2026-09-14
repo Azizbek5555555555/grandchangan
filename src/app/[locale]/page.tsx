@@ -2,7 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { t, formatMoney } from "@/lib/utils";
-import { Star, ArrowRight, Flame, Leaf, UtensilsCrossed } from "lucide-react";
+import { Star, ArrowRight, Flame, Leaf, UtensilsCrossed, MessageSquare, Languages } from "lucide-react";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import ReviewForm from "@/components/site/ReviewForm";
@@ -277,26 +277,37 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* ==================== 7. STATS ==================== */}
-      <section className="bg-surface-2 py-24">
-        <div className="mx-auto max-w-6xl px-6">
-          <div className="grid grid-cols-2 gap-y-12 md:grid-cols-4">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-1 font-display text-5xl text-brand-red sm:text-6xl"><Counter to={avgRating} decimals={1} /><Star size={24} className="fill-brand-gold text-brand-gold" /></div>
-              <p className="mt-2 text-xs uppercase tracking-wider text-muted">{st("statRating")}</p>
+      <section className="relative overflow-hidden bg-brand-ink py-24">
+        <span className="pointer-events-none absolute inset-0" style={{ backgroundImage: "radial-gradient(60% 60% at 50% 0%, rgba(200,162,75,0.10) 0%, transparent 60%)" }} />
+        <div className="relative mx-auto max-w-5xl px-6">
+          <Reveal className="mb-10 text-center">
+            <p className="text-xs uppercase tracking-[0.35em] text-brand-gold">Raqamlarda</p>
+            <div className="mx-auto mt-4 w-24"><div className="animated-line" /></div>
+          </Reveal>
+          <Reveal>
+            <div className="grid grid-cols-2 divide-y divide-brand-gold/15 overflow-hidden rounded-[2rem] border border-brand-gold/20 bg-brand-ink-soft/40 sm:divide-y-0 md:grid-cols-4 md:divide-x">
+              <div className="flex flex-col items-center px-6 py-12">
+                <Star size={22} className="mb-4 text-brand-gold" />
+                <div className="flex items-baseline gap-1 font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={avgRating} decimals={1} /><Star size={20} className="fill-brand-gold text-brand-gold" /></div>
+                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statRating")}</p>
+              </div>
+              <div className="flex flex-col items-center px-6 py-12">
+                <MessageSquare size={22} className="mb-4 text-brand-gold" />
+                <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={Math.max(reviewCount, 12)} suffix="+" /></div>
+                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statReviews")}</p>
+              </div>
+              <div className="flex flex-col items-center px-6 py-12">
+                <UtensilsCrossed size={22} className="mb-4 text-brand-gold" />
+                <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={Math.max(dishesCount, 20)} suffix="+" /></div>
+                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statDishes")}</p>
+              </div>
+              <div className="flex flex-col items-center px-6 py-12">
+                <Languages size={22} className="mb-4 text-brand-gold" />
+                <div className="font-display text-6xl text-brand-gold-light sm:text-7xl">4</div>
+                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statLangs")}</p>
+              </div>
             </div>
-            <div className="text-center">
-              <div className="font-display text-5xl text-brand-red sm:text-6xl"><Counter to={Math.max(reviewCount, 12)} suffix="+" /></div>
-              <p className="mt-2 text-xs uppercase tracking-wider text-muted">{st("statReviews")}</p>
-            </div>
-            <div className="text-center">
-              <div className="font-display text-5xl text-brand-red sm:text-6xl"><Counter to={Math.max(dishesCount, 20)} suffix="+" /></div>
-              <p className="mt-2 text-xs uppercase tracking-wider text-muted">{st("statDishes")}</p>
-            </div>
-            <div className="text-center">
-              <div className="font-display text-5xl text-brand-red sm:text-6xl">4</div>
-              <p className="mt-2 text-xs uppercase tracking-wider text-muted">{st("statLangs")}</p>
-            </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
