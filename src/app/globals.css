@@ -40,35 +40,33 @@
   --foreground: var(--content);
 }
 .dark {
-  --surface: #0f0b09;
-  --surface-2: #221a13;
-  --card: #2a2019;
-  --content: #f6efe3;
-  --muted: rgba(246, 239, 227, 0.56);
-  --line: rgba(200, 162, 75, 0.18);
+  --surface: #130d08;
+  --surface-2: #271b11;
+  --card: #33241a;
+  --content: #f9f2e7;
+  --muted: rgba(249, 242, 231, 0.6);
+  --line: rgba(200, 162, 75, 0.32);
 }
 html { background: var(--surface); }
 
-/* Qorong'i tema — iliq oltin chuqurlik va xarakter (yorug'dan aniq farqli) */
+/* Qorong'i tema — kuchli iliq oltin xarakter (yorug'dan aniq ajralib turadi) */
 .dark body {
   background-color: var(--surface);
   background-image:
-    radial-gradient(75% 45% at 50% -10%, rgba(200, 162, 75, 0.08) 0%, transparent 60%),
-    radial-gradient(60% 55% at 100% 105%, rgba(179, 18, 23, 0.07) 0%, transparent 55%);
+    radial-gradient(95% 60% at 50% -8%, rgba(200, 162, 75, 0.16) 0%, transparent 55%),
+    radial-gradient(75% 65% at 108% 110%, rgba(179, 18, 23, 0.14) 0%, transparent 50%),
+    radial-gradient(60% 50% at -8% 40%, rgba(200, 162, 75, 0.08) 0%, transparent 55%);
   background-attachment: fixed;
 }
-/* Qorong'ida kartalar chuqurroq soya bilan ko'tarilib turadi */
-.dark .shadow-sm,
-.dark .shadow-lg,
-.dark .shadow-xl,
-.dark .shadow-2xl {
-  box-shadow: 0 18px 50px -16px rgba(0, 0, 0, 0.7) !important;
+/* Qorong'ida kartalar oltin chegara va chuqur soya bilan ko'tariladi */
+.dark .rounded-2xl,
+.dark .rounded-3xl,
+.dark .rounded-\[2rem\] {
+  box-shadow: 0 20px 55px -18px rgba(0, 0, 0, 0.75);
 }
-/* Oltin ajratgich chiziqlari qorong'ida yorqinroq */
 .dark .hairline-gold {
-  opacity: 0.5;
+  opacity: 0.6;
 }
-
 * {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
