@@ -6,6 +6,7 @@ import { Star, ArrowRight, Flame, Leaf, UtensilsCrossed, MessageSquare, Language
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import ReviewForm from "@/components/site/ReviewForm";
+import Petals from "@/components/site/Petals";
 import Reveal from "@/components/motion/Reveal";
 import RevealGroup from "@/components/motion/RevealGroup";
 import TextReveal from "@/components/motion/TextReveal";
@@ -64,6 +65,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(60% 60% at 78% 12%, rgba(200,162,75,0.18) 0%, transparent 60%), radial-gradient(55% 55% at 8% 92%, rgba(179,18,23,0.22) 0%, transparent 55%)" }} />
         )}
         <div className="absolute inset-0 hero-scrim" />
+        <Petals />
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6 text-center">
           <Reveal y={20}>
             <div className="mb-6 flex items-center justify-center gap-3">

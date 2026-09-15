@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import SmoothScroll from "@/components/motion/SmoothScroll";
+import CustomCursor from "@/components/site/CustomCursor";
 import "../globals.css";
 
 const serif = Playfair_Display({
@@ -47,6 +48,7 @@ export default async function LocaleLayout({
             __html: `try{if(localStorage.getItem('theme')==='dark')document.documentElement.classList.add('dark');}catch(e){}`,
           }}
         />
+        <CustomCursor />
         <NextIntlClientProvider>
           <SmoothScroll>{children}</SmoothScroll>
         </NextIntlClientProvider>

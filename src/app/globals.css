@@ -208,3 +208,16 @@ html.reveal-ready [data-reveal] {
   background-size: 200% 100%;
   animation: lineSlide 3.5s linear infinite;
 }
+
+/* ---- Maxsus kursor ---- */
+body.cursor-none, body.cursor-none * { cursor: none !important; }
+#cursor-ring.cursor-ring-active { width: 56px !important; height: 56px !important; background: rgba(200,162,75,0.12); }
+
+/* ---- Sakura gullari ---- */
+@keyframes petalFall {
+  0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+  12% { opacity: 0.9; }
+  88% { opacity: 0.9; }
+  100% { transform: translateY(112vh) translateX(60px) rotate(340deg); opacity: 0; }
+}
+.petal { animation-name: petalFall; animation-iteration-count: infinite; animation-timing-function: linear; will-change: transform; }
