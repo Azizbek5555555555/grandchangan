@@ -7,6 +7,7 @@ import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import ReviewForm from "@/components/site/ReviewForm";
 import Petals from "@/components/site/Petals";
+import PeelReveal from "@/components/motion/PeelReveal";
 import Fold3D from "@/components/motion/Fold3D";
 import Reveal from "@/components/motion/Reveal";
 import RevealGroup from "@/components/motion/RevealGroup";
@@ -338,7 +339,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ==================== 9. RESERVE CTA ==================== */}
-      <section id="reserve-fold" className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center" style={{ transformStyle: "preserve-3d" }}>
+      <PeelReveal>
+      <section id="reserve-fold" className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center">
         {reserveImg ? (
           <Parallax className="absolute -inset-y-[18%] inset-x-0" speed={12}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -357,6 +359,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </Reveal>
         </div>
       </section>
+      </PeelReveal>
 
       {/* ==================== 10. REVIEWS ==================== */}
       <section className="relative -mt-12 rounded-t-[2.75rem] shadow-[0_-50px_90px_-30px_rgba(0,0,0,0.6)] overflow-hidden bg-brand-ink py-28 text-brand-cream">
