@@ -57,7 +57,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <SiteHeader />
 
       {/* ==================== 1. HERO ==================== */}
-      <section className="relative flex min-h-screen items-center overflow-hidden bg-brand-ink">
+      <section className="sticky top-0 z-0 flex min-h-screen items-center overflow-hidden bg-brand-ink">
         {heroImg ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={heroImg} alt="" className="absolute inset-0 h-full w-full object-cover animate-kenburns" />
@@ -93,8 +93,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
+      {/* ===== KONTENT VARAG'I — hero ustiga ko'tariladi ===== */}
+      <div className="relative z-10">
       {/* ==================== 3. STORY ==================== */}
-      <section className="overflow-hidden bg-surface-2 py-24 lg:py-36">
+      <section className="relative -mt-12 overflow-hidden rounded-t-[2.75rem] bg-surface-2 py-24 shadow-[0_-50px_90px_-30px_rgba(0,0,0,0.6)] lg:py-36">
         <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2">
           <div className="relative h-[440px] rounded-3xl lg:h-[600px]">
             {g[0] ? (
@@ -176,7 +178,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* ==================== 4. PARALLAX QUOTE BAND ==================== */}
-      <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center">
+      <section className="relative -mt-12 rounded-t-[2.75rem] shadow-[0_-50px_90px_-30px_rgba(0,0,0,0.6)] flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center">
         {bandImg ? (
           <Parallax className="absolute -inset-y-[18%] inset-x-0" speed={14}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -334,7 +336,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       {/* ==================== 9. RESERVE CTA ==================== */}
-      <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center">
+      <section className="relative -mt-12 rounded-t-[2.75rem] shadow-[0_-50px_90px_-30px_rgba(0,0,0,0.6)] flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center">
         {reserveImg ? (
           <Parallax className="absolute -inset-y-[18%] inset-x-0" speed={12}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -355,7 +357,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       {/* ==================== 10. REVIEWS ==================== */}
-      <section className="relative overflow-hidden bg-brand-ink py-28 text-brand-cream">
+      <section className="relative -mt-12 rounded-t-[2.75rem] shadow-[0_-50px_90px_-30px_rgba(0,0,0,0.6)] overflow-hidden bg-brand-ink py-28 text-brand-cream">
         <span className="pointer-events-none absolute -left-10 bottom-0 select-none font-display text-[14rem] leading-none text-white/[0.03]">评价</span>
         <div className="relative mx-auto max-w-7xl px-6">
           <div className="mb-14 text-center">
@@ -395,6 +397,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
+            </div>
             <SiteFooter locale={locale} />
     </>
   );
