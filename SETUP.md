@@ -100,7 +100,8 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 2. **New project**: nom `grandchangan`, parolni saqlab qo'ying, **Region: Central EU (Frankfurt)**
    (O'zbekistonga eng yaqin), tarif **Free**.
 3. Loyiha ochilgach: **Project Settings → API Keys**:
-   - **Project URL** → `.env` dagi `SUPABASE_URL`
+   - **Project URL** → `.env` dagi `SUPABASE_URL` — faqat `https://xxxx.supabase.co`
+     (oxiriga `/rest/v1/` qo'shilgan bo'lsa ham kod o'zi tozalaydi)
    - **Secret key** (`sb_secret_...`) → `SUPABASE_SECRET_KEY`
      (eski loyihalarda "service_role" kaliti — u ham ishlaydi)
 4. Bucket yaratish **shart emas** — birinchi rasm yuklanganda `images` bucket o'zi yaratiladi.
@@ -197,4 +198,8 @@ git pull origin main
 | `Can't reach database server` | `DATABASE_URL` da *Public network* (proxy.rlwy.net) URL ishlating, internal emas |
 | `Port 3000 is in use` | boshqa `npm run dev` ochiq — uni yoping yoki `npm run dev -- -p 3001` |
 | Admin'ga kirib bo'lmaydi: "Juda ko'p urinish" | 5 marta noto'g'ri parol — 15 daqiqa kuting (himoya) |
+| Admin'ga kirib bo'lmaydi: "Login yoki parol noto'g'ri" | `npm run admin:password` — bazadagi xodim emaillari; `npm run admin:password -- <email> <YangiParol>` — parolni tiklaydi (boshqa ma'lumotlarga tegmaydi) |
+| `Next.js inferred your workspace root ... multiple lockfiles` | `C:\Users\Concept\Desktop` papkasida (loyihadan **tashqarida**) tasodifan qolgan `package-lock.json` (va `package.json`, `node_modules`) bor — ularni o'chiring |
+| `PGRST125 Invalid path specified in request URL` | `SUPABASE_URL` noto'g'ri — `https://xxxx.supabase.co` bo'lishi kerak (yangi kodda avtomatik tuzatiladi) |
+| `package-lock.json` VS Code'da **M** (o'zgargan) | `npm install` dan keyin bo'ladi — commit qilmang: `git restore package-lock.json` |
 | Rasm yuklanmaydi | `.env` da `SUPABASE_URL` / `SUPABASE_SECRET_KEY` to'g'riligini tekshiring, `npm run dev` ni qayta ishga tushiring |
