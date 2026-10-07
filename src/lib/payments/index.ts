@@ -20,7 +20,8 @@ export interface CheckoutParams {
 const KEYS = {
   PAYME: { merchantId: process.env.PAYME_MERCHANT_ID, key: process.env.PAYME_KEY },
   CLICK: { merchantId: process.env.CLICK_MERCHANT_ID, serviceId: process.env.CLICK_SERVICE_ID, secret: process.env.CLICK_SECRET_KEY },
-  UZUM: { merchantId: process.env.UZUM_MERCHANT_ID, key: process.env.UZUM_KEY },
+  // .env.example dagi nom — UZUM_SECRET_KEY (eski UZUM_KEY ham qabul qilinadi)
+  UZUM: { merchantId: process.env.UZUM_MERCHANT_ID, key: process.env.UZUM_SECRET_KEY || process.env.UZUM_KEY },
 };
 
 export function isConfigured(provider: PaymentProvider): boolean {
