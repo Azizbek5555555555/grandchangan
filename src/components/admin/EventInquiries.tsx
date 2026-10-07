@@ -2,6 +2,7 @@
 import { Badge } from "@/components/ui/primitives";
 import { Trash2 } from "lucide-react";
 import { updateInquiryStatus, deleteInquiry } from "@/lib/event/actions";
+import { formatRestaurant } from "@/lib/time";
 
 type Inquiry = { id: string; name: string; phone: string; eventType: string; guestCount: number; preferredDate?: string | null; message?: string | null; status: string; createdAt: string };
 const STATUSES = ["NEW", "CONTACTED", "CONFIRMED", "CLOSED"];
@@ -21,7 +22,7 @@ export default function EventInquiries({ inquiries }: { inquiries: Inquiry[] }) 
                   <Badge color={COLOR[q.status]}>{q.status}</Badge>
                 </div>
                 <p className="text-sm text-muted">{q.phone} · {q.eventType} · {q.guestCount} kishi</p>
-                {q.preferredDate && <p className="text-xs text-muted">Sana: {new Date(q.preferredDate).toLocaleDateString("uz-UZ")}</p>}
+                {q.preferredDate && <p className="text-xs text-muted">Sana: {formatRestaurant(q.preferredDate, { day: "2-digit", month: "2-digit", year: "numeric" })}</p>}
                 {q.message && <p className="mt-1 text-sm text-muted">{q.message}</p>}
               </div>
               <div className="flex items-center gap-2">

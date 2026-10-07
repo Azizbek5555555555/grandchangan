@@ -5,6 +5,7 @@ import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
 import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
+import { restaurantDateTime, calendarDate } from "../time";
 import { sendSms } from "../sms/eskiz";
 import { notifyTelegram } from "../telegram/notify";
 import type { ReservationStatus, TableShape } from "@prisma/client";
@@ -82,7 +83,7 @@ export async function saveLayout(positions: { id: string; posX: number; posY: nu
 
 // ---------- AVAILABILITY ----------
 export async function getAvailability(dateStr: string, timeStr: string, partySize: number) {
-  const start = new Date(`${dateStr}T${timeStr}:00`);
+  const start = restaurantDateTime(dateStr, timeStr);
   const end = new Date(start.getTime() + SLOT_MINUTES * 60 * 1000);
 
   const zones = await prisma.zone.findMany({
@@ -136,7 +137,7 @@ export async function createReservation(input: {
   dateStr: string; timeStr: string; specialRequest?: string; occasion?: string;
 }) {
   const phone = normalizePhone(input.guestPhone);
-  const start = new Date(`${input.dateStr}T${input.timeStr}:00`);
+  const start = restaurantDateTime(input.dateStr, input.timeStr);
   const end = new Date(start.getTime() + SLOT_MINUTES * 60 * 1000);
 
   // Server tomonda qayta tekshirish
@@ -152,7 +153,7 @@ export async function createReservation(input: {
   });
   if (clash) return { ok: false, error: "Bu stol tanlangan vaqtda band" };
 
-  const dateOnly = new Date(`${input.dateStr}T00:00:00`);
+  const dateOnly = calendarDate(input.dateStr);
 
   const reservation = await createWithCode("reservation", "GC", (code) =>
     prisma.reservation.create({

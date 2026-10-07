@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/utils";
+import { formatRestaurant } from "@/lib/time";
 import { Badge } from "@/components/ui/primitives";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +24,7 @@ export default async function AdminPaymentsPage() {
           <tbody>
             {rows.map((p) => (
               <tr key={p.id} className="border-b border-line">
-                <td className="px-4 py-3 text-xs">{p.createdAt.toLocaleString("uz-UZ")}</td>
+                <td className="px-4 py-3 text-xs">{formatRestaurant(p.createdAt)}</td>
                 <td className="px-4 py-3">{p.provider}</td>
                 <td className="px-4 py-3">{formatMoney(Number(p.amount))}</td>
                 <td className="px-4 py-3"><Badge color={COLOR[p.status]}>{p.status}</Badge></td>

@@ -5,6 +5,7 @@ import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
 import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
+import { formatRestaurant } from "../time";
 import { notifyTelegram } from "../telegram/notify";
 import type { OrderStatus, OrderType } from "@prisma/client";
 
@@ -128,7 +129,7 @@ export async function createPreorderForReservation(input: {
   );
 
   await notifyTelegram(
-    `🍽 <b>Pre-order</b> (bron ${reservation.code})\n${orderItems.length} xil taom · ${subtotal.toLocaleString()} so'm\nVaqt: ${new Date(reservation.startTime).toLocaleString("uz-UZ")}`
+    `🍽 <b>Pre-order</b> (bron ${reservation.code})\n${orderItems.length} xil taom · ${subtotal.toLocaleString()} so'm\nVaqt: ${formatRestaurant(reservation.startTime)}`
   );
   revalidatePath("/[locale]/admin/reservations", "page");
   return { ok: true, orderCode: order.code, total: subtotal };
