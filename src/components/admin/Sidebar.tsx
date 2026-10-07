@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useParams } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import {
   LayoutDashboard,
@@ -42,14 +42,13 @@ const items = [
 
 export default function AdminSidebar({ userName }: { userName: string }) {
   const t = useTranslations("Admin");
+  // next-intl navigatsiyasi: pathname til prefiksisiz keladi (uz standart tilda URL'da /uz yo'q)
   const pathname = usePathname();
   const router = useRouter();
-  const params = useParams();
-  const locale = (params?.locale as string) || "uz";
 
   async function onLogout() {
     await logoutAction();
-    router.replace(`/${locale}/admin/login`);
+    router.replace("/admin/login");
     router.refresh();
   }
 
@@ -62,7 +61,7 @@ export default function AdminSidebar({ userName }: { userName: string }) {
 
       <nav className="flex-1 overflow-y-auto px-3 py-4">
         {items.map(({ key, href, icon: Icon }) => {
-          const full = `/${locale}/admin/${href}`;
+          const full = `/admin/${href}`;
           const active = pathname === full;
           return (
             <button
