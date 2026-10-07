@@ -21,6 +21,9 @@ export const dynamic = "force-dynamic";
 
 const spicyCount = (lvl: string) => ({ NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 }[lvl] ?? 0);
 const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
+/** Haqiqiy son: 20 dan kichigi aniq, kattasi o'nlikka pastga yaxlitlab "+" bilan (97 -> 90+) */
+const statValue = (n: number) => (n < 20 ? { to: n, suffix: "" } : { to: Math.floor(n / 10) * 10, suffix: "+" });
+const STAT_COLS: Record<number, string> = { 1: "md:grid-cols-1", 2: "md:grid-cols-2", 3: "md:grid-cols-3", 4: "md:grid-cols-4" };
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -39,8 +42,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ]);
 
   const heroImg = usable(hero?.imageUrl);
-  const avgRating = Number(reviewAgg._avg.rating ?? 4.8);
+  // Faqat haqiqiy ma'lumot: tasdiqlangan sharh bo'lmasa reyting/sharhlar plitkasi ko'rsatilmaydi
   const reviewCount = reviewAgg._count || 0;
+  const avgRating = reviewCount > 0 ? Number(reviewAgg._avg.rating ?? 0) : null;
+  const dishesStat = statValue(dishesCount);
+  const reviewsStat = statValue(reviewCount);
+  const statCount = 2 + (avgRating !== null ? 2 : 0) - (dishesCount > 0 ? 0 : 1);
   const g = gallery.map((x) => usable(x.url)).filter(Boolean) as string[];
   const bandImg = g[3] || g[0] || heroImg;
   const reserveImg = g[4] || g[1] || heroImg;
@@ -291,22 +298,28 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="mx-auto mt-4 w-24"><div className="animated-line" /></div>
           </Reveal>
           <Reveal>
-            <div className="grid grid-cols-2 divide-y divide-brand-gold/15 overflow-hidden rounded-[2rem] border border-brand-gold/20 bg-brand-ink-soft/40 sm:divide-y-0 md:grid-cols-4 md:divide-x">
-              <div className="flex flex-col items-center px-6 py-12">
-                <Star size={22} className="mb-4 text-brand-gold" />
-                <div className="flex items-baseline gap-1 font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={avgRating} decimals={1} /><Star size={20} className="fill-brand-gold text-brand-gold" /></div>
-                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statRating")}</p>
-              </div>
-              <div className="flex flex-col items-center px-6 py-12">
-                <MessageSquare size={22} className="mb-4 text-brand-gold" />
-                <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={Math.max(reviewCount, 12)} suffix="+" /></div>
-                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statReviews")}</p>
-              </div>
-              <div className="flex flex-col items-center px-6 py-12">
-                <UtensilsCrossed size={22} className="mb-4 text-brand-gold" />
-                <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={Math.max(dishesCount, 20)} suffix="+" /></div>
-                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statDishes")}</p>
-              </div>
+            <div className={`grid grid-cols-2 divide-y divide-brand-gold/15 overflow-hidden rounded-[2rem] border border-brand-gold/20 bg-brand-ink-soft/40 sm:divide-y-0 md:divide-x ${STAT_COLS[statCount] || "md:grid-cols-4"}`}>
+              {avgRating !== null && (
+                <div className="flex flex-col items-center px-6 py-12">
+                  <Star size={22} className="mb-4 text-brand-gold" />
+                  <div className="flex items-baseline gap-1 font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={avgRating} decimals={1} /><Star size={20} className="fill-brand-gold text-brand-gold" /></div>
+                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statRating")}</p>
+                </div>
+              )}
+              {avgRating !== null && (
+                <div className="flex flex-col items-center px-6 py-12">
+                  <MessageSquare size={22} className="mb-4 text-brand-gold" />
+                  <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={reviewsStat.to} suffix={reviewsStat.suffix} /></div>
+                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statReviews")}</p>
+                </div>
+              )}
+              {dishesCount > 0 && (
+                <div className="flex flex-col items-center px-6 py-12">
+                  <UtensilsCrossed size={22} className="mb-4 text-brand-gold" />
+                  <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={dishesStat.to} suffix={dishesStat.suffix} /></div>
+                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statDishes")}</p>
+                </div>
+              )}
               <div className="flex flex-col items-center px-6 py-12">
                 <Languages size={22} className="mb-4 text-brand-gold" />
                 <div className="font-display text-6xl text-brand-gold-light sm:text-7xl">4</div>
