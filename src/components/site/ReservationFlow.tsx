@@ -6,6 +6,7 @@ import { Check, Search, Plus, Minus, UtensilsCrossed, ChevronLeft, ChevronRight 
 import { t, formatMoney } from "@/lib/utils";
 import { getAvailability, createReservation } from "@/lib/reservation/actions";
 import { createPreorderForReservation } from "@/lib/order/actions";
+import { RESTAURANT_TZ, restaurantDay } from "@/lib/time";
 
 type TableAvail = {
   id: string; number: string; seats: number; isVip: boolean;
@@ -20,6 +21,12 @@ const TIMES = ["11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "1
 const STATE_COLOR: Record<string, string> = { free: "bg-green-500", busy: "bg-red-500", small: "bg-orange-400", maintenance: "bg-neutral-400" };
 const pad = (n: number) => String(n).padStart(2, "0");
 const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+/** Bugun tanlangan bo'lsa, restoran vaqti bo'yicha o'tib ketgan soatlar */
+const isPastSlot = (dateStr: string, tm: string) => {
+  if (dateStr !== restaurantDay()) return dateStr < restaurantDay();
+  const now = new Intl.DateTimeFormat("en-GB", { timeZone: RESTAURANT_TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
+  return tm <= now;
+};
 
 type Phase = "form" | "prompt" | "menu" | "done";
 
@@ -182,11 +189,14 @@ export default function ReservationFlow({
         <div className="rounded-3xl border border-line bg-card p-8 text-center">
           <h2 className="mb-8 font-display text-3xl text-content">{T("rWhichTime")}</h2>
           <div className="mx-auto grid max-w-md grid-cols-4 gap-3">
-            {TIMES.map((tm) => <button key={tm} onClick={() => setTime(tm)} className={`rounded-full py-3 text-sm transition ${time === tm ? "bg-brand-red text-white" : "bg-surface-2 text-content hover:bg-surface-2"}`}>{tm}</button>)}
+            {TIMES.map((tm) => {
+              const past = isPastSlot(date, tm);
+              return <button key={tm} disabled={past} onClick={() => setTime(tm)} className={`rounded-full py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-30 ${time === tm && !past ? "bg-brand-red text-white" : "bg-surface-2 text-content hover:bg-surface-2"}`}>{tm}</button>;
+            })}
           </div>
           <div className="mt-8 flex items-center justify-between">
             <button onClick={() => setStep(2)} className="text-sm text-muted">← {T("rBack")}</button>
-            <button onClick={goToTables} disabled={!time || loading} className="rounded-full bg-brand-red px-7 py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-40">{loading ? "..." : T("rSelectTable")}</button>
+            <button onClick={goToTables} disabled={!time || isPastSlot(date, time) || loading} className="rounded-full bg-brand-red px-7 py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-40">{loading ? "..." : T("rSelectTable")}</button>
           </div>
         </div>
       )}

@@ -136,8 +136,19 @@ export async function createReservation(input: {
   tableId: string; guestName: string; guestPhone: string; partySize: number;
   dateStr: string; timeStr: string; specialRequest?: string; occasion?: string;
 }) {
-  const phone = normalizePhone(input.guestPhone);
+  const phone = normalizePhone(input.guestPhone || "");
+  const guestName = (input.guestName || "").trim();
+  if (!guestName) return { ok: false, error: "Ismingizni kiriting" };
+  if (phone.length < 12) return { ok: false, error: "Telefon raqam noto'g'ri" };
+  if (!Number.isInteger(input.partySize) || input.partySize < 1 || input.partySize > 50) {
+    return { ok: false, error: "Mehmonlar soni noto'g'ri" };
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dateStr) || !/^\d{2}:\d{2}$/.test(input.timeStr)) {
+    return { ok: false, error: "Sana yoki vaqt noto'g'ri" };
+  }
   const start = restaurantDateTime(input.dateStr, input.timeStr);
+  if (Number.isNaN(start.getTime())) return { ok: false, error: "Sana yoki vaqt noto'g'ri" };
+  if (start.getTime() < Date.now()) return { ok: false, error: "Bu vaqt o'tib ketgan — boshqa vaqtni tanlang" };
   const end = new Date(start.getTime() + SLOT_MINUTES * 60 * 1000);
 
   // Server tomonda qayta tekshirish
@@ -158,7 +169,7 @@ export async function createReservation(input: {
   const reservation = await createWithCode("reservation", "GC", (code) =>
     prisma.reservation.create({
       data: {
-        code, tableId: input.tableId, guestName: input.guestName, guestPhone: phone,
+        code, tableId: input.tableId, guestName, guestPhone: phone,
         partySize: input.partySize, date: dateOnly, startTime: start, endTime: end,
         status: "PENDING", source: "WEB",
         specialRequest: input.specialRequest || null, occasion: input.occasion || null,
