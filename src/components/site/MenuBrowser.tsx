@@ -83,6 +83,8 @@ export default function MenuBrowser({
                 <img
                   src={it.imageUrl}
                   alt=""
+                  loading="lazy"
+                  decoding="async"
                   className="relative h-44 w-full object-cover transition duration-700 group-hover:scale-110"
                   onError={(e) => { e.currentTarget.style.display = "none"; }}
                 />

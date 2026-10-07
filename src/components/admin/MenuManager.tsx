@@ -88,7 +88,7 @@ export default function MenuManager({ categories, items }: { categories: Cat[]; 
             <div className="flex gap-3">
               {it.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={it.imageUrl} alt="" className="h-16 w-16 rounded-lg object-cover" />
+                <img src={it.imageUrl} alt="" loading="lazy" decoding="async" className="h-16 w-16 rounded-lg object-cover" />
               ) : (
                 <div className="h-16 w-16 rounded-lg bg-surface-2" />
               )}

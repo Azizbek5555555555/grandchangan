@@ -299,7 +299,7 @@ function PreorderMenu({
                 <div className="absolute inset-0 flex items-center justify-center text-[8px] text-muted">GC</div>
                 {it.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={it.imageUrl} alt="" className="relative h-14 w-14 object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                  <img src={it.imageUrl} alt="" loading="lazy" decoding="async" className="relative h-14 w-14 object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
                 ) : null}
               </div>
               <div className="min-w-0 flex-1"><p className="truncate font-medium text-content">{t(it.name, locale)}</p><p className="text-sm text-brand-red">{formatMoney(it.price)}</p></div>
