@@ -10,3 +10,4 @@ next-env.d.ts
 # Yuklangan rasmlar repoda saqlanmasin (Cloudinary/S3 ga o'tiladi)
 /public/uploads/*
 !/public/uploads/.gitkeep
+*.tsbuildinfo
