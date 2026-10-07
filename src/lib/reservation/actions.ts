@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
-import { genCode, normalizePhone } from "../utils";
+import { normalizePhone } from "../utils";
+import { createWithCode } from "../codes";
 import { sendSms } from "../sms/eskiz";
 import { notifyTelegram } from "../telegram/notify";
 import type { ReservationStatus, TableShape } from "@prisma/client";
@@ -151,18 +152,19 @@ export async function createReservation(input: {
   });
   if (clash) return { ok: false, error: "Bu stol tanlangan vaqtda band" };
 
-  const count = await prisma.reservation.count();
-  const code = genCode("GC", count + 1);
   const dateOnly = new Date(`${input.dateStr}T00:00:00`);
 
-  const reservation = await prisma.reservation.create({
-    data: {
-      code, tableId: input.tableId, guestName: input.guestName, guestPhone: phone,
-      partySize: input.partySize, date: dateOnly, startTime: start, endTime: end,
-      status: "PENDING", source: "WEB",
-      specialRequest: input.specialRequest || null, occasion: input.occasion || null,
-    },
-  });
+  const reservation = await createWithCode("reservation", "GC", (code) =>
+    prisma.reservation.create({
+      data: {
+        code, tableId: input.tableId, guestName: input.guestName, guestPhone: phone,
+        partySize: input.partySize, date: dateOnly, startTime: start, endTime: end,
+        status: "PENDING", source: "WEB",
+        specialRequest: input.specialRequest || null, occasion: input.occasion || null,
+      },
+    })
+  );
+  const code = reservation.code;
 
   await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${code}. ${input.dateStr} ${input.timeStr}`);
   await notifyTelegram(
