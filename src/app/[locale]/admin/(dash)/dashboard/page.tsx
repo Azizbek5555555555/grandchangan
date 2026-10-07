@@ -97,7 +97,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
               <span className="font-mono text-xs text-muted">{r.code}</span>
               <span>{r.guestName}</span>
               <span className="text-muted">Stol {r.table?.number ?? "—"}</span>
-              <span className="text-xs text-muted">{formatRestaurant(r.startTime, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
+              <span className="text-xs text-muted">{formatRestaurant(r.startTime, { year: false })}</span>
             </div>
           ))}
           {recentReservations.length === 0 && <p className="text-muted">Hozircha bron yo'q.</p>}

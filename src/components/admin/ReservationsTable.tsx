@@ -64,7 +64,7 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
                 </td>
                 <td className="px-4 py-3">{r.partySize}</td>
                 <td className="px-4 py-3 text-xs">
-                  {formatRestaurant(r.startTime, { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  {formatRestaurant(r.startTime, { year: false })}
                 </td>
                 <td className="px-4 py-3">{r.tableNumber || "—"}</td>
                 <td className="px-4 py-3">

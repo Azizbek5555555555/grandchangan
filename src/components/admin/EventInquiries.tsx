@@ -22,7 +22,7 @@ export default function EventInquiries({ inquiries }: { inquiries: Inquiry[] }) 
                   <Badge color={COLOR[q.status]}>{q.status}</Badge>
                 </div>
                 <p className="text-sm text-muted">{q.phone} · {q.eventType} · {q.guestCount} kishi</p>
-                {q.preferredDate && <p className="text-xs text-muted">Sana: {formatRestaurant(q.preferredDate, { day: "2-digit", month: "2-digit", year: "numeric" })}</p>}
+                {q.preferredDate && <p className="text-xs text-muted">Sana: {formatRestaurant(q.preferredDate, { time: false })}</p>}
                 {q.message && <p className="mt-1 text-sm text-muted">{q.message}</p>}
               </div>
               <div className="flex items-center gap-2">
