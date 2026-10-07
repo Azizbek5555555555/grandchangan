@@ -350,8 +350,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
       )}
 
+      {/* ===== 9–10: RESERVE varaq bo'lib buklanadi, ostidan SHARHLAR ochiladi (Fold3D) ===== */}
+      <div className="relative bg-brand-ink">
       {/* ==================== 9. RESERVE CTA ==================== */}
-      <section id="reserve-fold" className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center" style={{ transformStyle: "preserve-3d" }}>
+      <section id="reserve-fold" className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center">
         {reserveImg ? (
           <Parallax className="absolute -inset-y-[18%] inset-x-0" speed={12}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -411,6 +413,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="mt-16"><Reveal><ReviewForm /></Reveal></div>
         </div>
       </section>
+      </div>
 
             </div>
             <SiteFooter locale={locale} />
