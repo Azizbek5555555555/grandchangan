@@ -6,7 +6,7 @@ import { createOtp, verifyOtp, invalidateOtps } from "./otp";
 import { createSession, destroySession } from "./session";
 import { sendSms } from "../sms/eskiz";
 import { normalizePhone } from "../utils";
-import { ADMIN_ROLES } from "./guard";
+import { STAFF_ROLES, ensureRoles } from "./guard";
 import { rateLimit, clearLimit, clientIp, MINUTE, HOUR, TOO_MANY } from "../security/rate-limit";
 import type { UserRole } from "@prisma/client";
 
@@ -76,12 +76,25 @@ export async function adminLoginAction(
     return { ok: false, error: "Login yoki parol noto'g'ri" };
   }
   clearLimit(`login:${email}`);
-  if (!ADMIN_ROLES.includes(user.role as UserRole)) {
+  if (!STAFF_ROLES.includes(user.role as UserRole)) {
     return { ok: false, error: "Ruxsat yo'q" };
   }
   if (user.isBlocked) return { ok: false, error: "Hisob bloklangan" };
 
   await createSession({ userId: user.id, role: user.role, phone: user.phone });
+  return { ok: true };
+}
+
+/** Xodim: o'z parolini o'zgartirish (joriy parol talab qilinadi) */
+export async function changeOwnPasswordAction(current: string, next: string): Promise<Result> {
+  const me = await ensureRoles(STAFF_ROLES);
+  if (!rateLimit(`pwd:${me.id}`, 5, 15 * MINUTE)) return { ok: false, error: TOO_MANY };
+  if (!me.passwordHash || !(await bcrypt.compare(current || "", me.passwordHash))) {
+    return { ok: false, error: "Joriy parol noto'g'ri" };
+  }
+  if ((next || "").length < 8) return { ok: false, error: "Yangi parol kamida 8 belgi bo'lsin" };
+  await prisma.user.update({ where: { id: me.id }, data: { passwordHash: await bcrypt.hash(next, 10) } });
+  clearLimit(`pwd:${me.id}`);
   return { ok: true };
 }
 

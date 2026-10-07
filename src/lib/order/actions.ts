@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
-import { ensureAdmin } from "../auth/guard";
+import { ensureAdmin, ensureRoles, ensureSection } from "../auth/guard";
+import { MANAGEMENT } from "../auth/permissions";
 import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
 import { formatRestaurant } from "../time";
@@ -15,7 +16,7 @@ export async function createOrder(input: {
   note?: string;
   items: { menuItemId: string; quantity: number; note?: string }[];
 }) {
-  await ensureAdmin();
+  await ensureRoles([...MANAGEMENT, "WAITER"]);
   if (!input.items?.length) return { ok: false, error: "Taomlar tanlanmagan" };
 
   const ids = input.items.map((i) => i.menuItemId);
@@ -58,7 +59,7 @@ export async function createOrder(input: {
 }
 
 export async function updateOrderStatus(id: string, status: OrderStatus) {
-  await ensureAdmin();
+  await ensureSection("orders");
   await prisma.order.update({ where: { id }, data: { status } });
   revalidatePath("/[locale]/admin/orders", "page");
   return { ok: true };

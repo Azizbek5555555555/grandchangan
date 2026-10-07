@@ -1,10 +1,12 @@
 import { setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import OrdersKanban from "@/components/admin/OrdersKanban";
+import { requireSection } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminOrdersPage({ params }: { params: Promise<{ locale: string }> }) {
+  const me = await requireSection("orders");
   const { locale } = await params;
   setRequestLocale(locale);
   const [orders, menuItems, tables] = await Promise.all([
@@ -26,5 +28,5 @@ export default async function AdminOrdersPage({ params }: { params: Promise<{ lo
   const plainMenu = menuItems.map((m) => ({ id: m.id, name: m.name, price: Number(m.discountPrice ?? m.price) }));
   const plainTables = tables.map((t2) => ({ id: t2.id, number: t2.number }));
 
-  return <OrdersKanban orders={plainOrders} menuItems={plainMenu} tables={plainTables} locale={locale} />;
+  return <OrdersKanban orders={plainOrders} menuItems={plainMenu} tables={plainTables} locale={locale} role={me.role} />;
 }

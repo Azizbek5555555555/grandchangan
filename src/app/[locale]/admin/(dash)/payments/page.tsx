@@ -2,12 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/utils";
 import { formatRestaurant } from "@/lib/time";
 import { Badge } from "@/components/ui/primitives";
+import { requireSection } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
 const COLOR: Record<string, string> = { PAID: "green", PENDING: "gold", FAILED: "red", REFUNDED: "blue", CANCELLED: "gray" };
 
 export default async function AdminPaymentsPage() {
+  await requireSection("payments");
   const rows = await prisma.payment.findMany({ orderBy: { createdAt: "desc" }, take: 200 });
   return (
     <div className="p-6">

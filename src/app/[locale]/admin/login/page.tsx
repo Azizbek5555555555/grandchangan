@@ -23,7 +23,7 @@ export default function AdminLoginPage() {
     const res = await adminLoginAction(email, password);
     setLoading(false);
     if (res.ok) {
-      router.replace(`/${locale}/admin/dashboard`);
+      router.replace(`/${locale}/admin`);
       router.refresh();
     } else {
       setError(res.error || "Xatolik");

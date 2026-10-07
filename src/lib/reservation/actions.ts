@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
-import { ensureAdmin } from "../auth/guard";
+import { ensureAdmin, ensureSection } from "../auth/guard";
 import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
 import { restaurantDateTime, calendarDate } from "../time";
@@ -195,7 +195,7 @@ export async function createReservation(input: {
 
 // ---------- STATUS (admin) ----------
 export async function updateReservationStatus(id: string, status: ReservationStatus, tableId?: string) {
-  await ensureAdmin();
+  await ensureSection("reservations");
   await prisma.reservation.update({
     where: { id },
     data: { status, ...(tableId ? { tableId } : {}) },

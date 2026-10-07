@@ -1,10 +1,12 @@
 import { setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import FloorPlanEditor from "@/components/admin/FloorPlanEditor";
+import { requireSection } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminTablesPage({ params }: { params: Promise<{ locale: string }> }) {
+  await requireSection("tables");
   const { locale } = await params;
   setRequestLocale(locale);
   const zones = await prisma.zone.findMany({
