@@ -7,6 +7,7 @@ import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
 import { formatRestaurant } from "../time";
 import { notifyTelegram } from "../telegram/notify";
+import { rateLimit, clientIp, HOUR, TOO_MANY } from "../security/rate-limit";
 import type { OrderStatus, OrderType } from "@prisma/client";
 
 export async function createOrder(input: {
@@ -78,6 +79,7 @@ export async function createPreorderForReservation(input: {
   items: { menuItemId: string; quantity: number }[];
 }) {
   if (!input.items?.length) return { ok: false, error: "Taomlar tanlanmagan" };
+  if (!rateLimit(`preorder-ip:${await clientIp()}`, 20, HOUR)) return { ok: false, error: TOO_MANY };
 
   const reservation = await prisma.reservation.findUnique({
     where: { id: input.reservationId },
@@ -85,6 +87,9 @@ export async function createPreorderForReservation(input: {
   });
   if (!reservation) return { ok: false, error: "Bron topilmadi" };
   if (reservation.preOrder) return { ok: false, error: "Bu bronga allaqachon buyurtma biriktirilgan" };
+  if (!["PENDING", "CONFIRMED"].includes(reservation.status) || reservation.startTime.getTime() < Date.now()) {
+    return { ok: false, error: "Bu bronga endi buyurtma qo'shib bo'lmaydi" };
+  }
 
   const ids = input.items.map((i) => i.menuItemId);
   const menuItems = await prisma.menuItem.findMany({ where: { id: { in: ids }, isAvailable: true } });
@@ -92,7 +97,7 @@ export async function createPreorderForReservation(input: {
 
   let subtotal = 0;
   const orderItems = input.items
-    .filter((i) => byId.has(i.menuItemId) && i.quantity > 0)
+    .filter((i) => byId.has(i.menuItemId) && Number.isInteger(i.quantity) && i.quantity > 0 && i.quantity <= 100)
     .map((i) => {
       const mi = byId.get(i.menuItemId)!;
       const unit = Number(mi.discountPrice ?? mi.price);

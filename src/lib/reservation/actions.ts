@@ -7,6 +7,7 @@ import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
 import { restaurantDateTime, calendarDate } from "../time";
 import { sendSms } from "../sms/eskiz";
+import { rateLimit, clientIp, HOUR, TOO_MANY } from "../security/rate-limit";
 import { notifyTelegram, escapeHtml } from "../telegram/notify";
 import type { ReservationStatus, TableShape } from "@prisma/client";
 
@@ -137,7 +138,7 @@ export async function createReservation(input: {
   dateStr: string; timeStr: string; specialRequest?: string; occasion?: string;
 }) {
   const phone = normalizePhone(input.guestPhone || "");
-  const guestName = (input.guestName || "").trim();
+  const guestName = (input.guestName || "").trim().slice(0, 80);
   if (!guestName) return { ok: false, error: "Ismingizni kiriting" };
   if (phone.length < 12) return { ok: false, error: "Telefon raqam noto'g'ri" };
   if (!Number.isInteger(input.partySize) || input.partySize < 1 || input.partySize > 50) {
@@ -149,6 +150,10 @@ export async function createReservation(input: {
   const start = restaurantDateTime(input.dateStr, input.timeStr);
   if (Number.isNaN(start.getTime())) return { ok: false, error: "Sana yoki vaqt noto'g'ri" };
   if (start.getTime() < Date.now()) return { ok: false, error: "Bu vaqt o'tib ketgan — boshqa vaqtni tanlang" };
+  // Spam va SMS isrofiga qarshi (keng chegara: gid bir nechta guruhga bron qila oladi)
+  if (!rateLimit(`resv-ip:${await clientIp()}`, 20, HOUR) || !rateLimit(`resv-phone:${phone}`, 10, HOUR)) {
+    return { ok: false, error: TOO_MANY };
+  }
   const end = new Date(start.getTime() + SLOT_MINUTES * 60 * 1000);
 
   // Server tomonda qayta tekshirish
@@ -172,7 +177,8 @@ export async function createReservation(input: {
         code, tableId: input.tableId, guestName, guestPhone: phone,
         partySize: input.partySize, date: dateOnly, startTime: start, endTime: end,
         status: "PENDING", source: "WEB",
-        specialRequest: input.specialRequest || null, occasion: input.occasion || null,
+        specialRequest: input.specialRequest?.trim().slice(0, 500) || null,
+        occasion: input.occasion?.trim().slice(0, 100) || null,
       },
     })
   );

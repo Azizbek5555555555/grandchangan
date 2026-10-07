@@ -2,19 +2,30 @@
 
 import bcrypt from "bcryptjs";
 import { prisma } from "../prisma";
-import { createOtp, verifyOtp } from "./otp";
+import { createOtp, verifyOtp, invalidateOtps } from "./otp";
 import { createSession, destroySession } from "./session";
 import { sendSms } from "../sms/eskiz";
 import { normalizePhone } from "../utils";
 import { ADMIN_ROLES } from "./guard";
+import { rateLimit, clearLimit, clientIp, MINUTE, HOUR, TOO_MANY } from "../security/rate-limit";
 import type { UserRole } from "@prisma/client";
 
 type Result = { ok: boolean; error?: string };
+
+// Foydalanuvchi topilmasa ham bcrypt ishlaydi — javob vaqtidan email mavjudligini bilib bo'lmasin
+const DUMMY_HASH = "$2a$10$pEchvsPHKvqjNiJQ2zFh/OjilShzacn5L/bmzoLkpHHROaoq9iGae";
 
 /** Mijoz: telefonga OTP kod yuborish */
 export async function requestOtpAction(phoneRaw: string): Promise<Result> {
   const phone = normalizePhone(phoneRaw);
   if (phone.length < 12) return { ok: false, error: "Telefon raqam noto'g'ri" };
+  // SMS bombardimon va pul isrofiga qarshi: raqamga 1 daqiqada 1 ta, 10 daqiqada 3 ta kod
+  if (!rateLimit(`otp-cd:${phone}`, 1, MINUTE)) {
+    return { ok: false, error: "Kod yuborildi. Yangi kodni 1 daqiqadan keyin so'rashingiz mumkin." };
+  }
+  if (!rateLimit(`otp-req:${phone}`, 3, 10 * MINUTE) || !rateLimit(`otp-ip:${await clientIp()}`, 15, HOUR)) {
+    return { ok: false, error: TOO_MANY };
+  }
   const code = await createOtp(phone, "login");
   const sent = await sendSms(phone, `GrandChangan. Tasdiqlash kodi: ${code}`);
   if (!sent.ok) return { ok: false, error: "SMS yuborilmadi. Birozdan keyin qayta urinib ko'ring." };
@@ -28,8 +39,16 @@ export async function verifyOtpAction(
   code: string
 ): Promise<Result> {
   const phone = normalizePhone(phoneRaw);
-  const valid = await verifyOtp(phone, code, "login");
+  const cleanCode = (code || "").trim();
+  // Kodni terib topishga qarshi: 15 daqiqada 5 urinish, keyin faol kodlar bekor qilinadi
+  if (!rateLimit(`otp-verify:${phone}`, 5, 15 * MINUTE)) {
+    await invalidateOtps(phone, "login");
+    return { ok: false, error: TOO_MANY };
+  }
+  const valid = /^\d{6}$/.test(cleanCode) && (await verifyOtp(phone, cleanCode, "login"));
   if (!valid) return { ok: false, error: "Kod noto'g'ri yoki muddati o'tgan" };
+  clearLimit(`otp-verify:${phone}`);
+  name = (name || "").trim().slice(0, 80);
 
   const user = await prisma.user.upsert({
     where: { phone },
@@ -43,15 +62,20 @@ export async function verifyOtpAction(
 
 /** Admin/xodim: email + parol orqali kirish */
 export async function adminLoginAction(
-  email: string,
+  emailRaw: string,
   password: string
 ): Promise<Result> {
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || !user.passwordHash) {
+  const email = (emailRaw || "").trim().toLowerCase();
+  // Parolni terib topishga qarshi: email uchun 15 daqiqada 5, IP uchun 20 urinish
+  if (!rateLimit(`login:${email}`, 5, 15 * MINUTE) || !rateLimit(`login-ip:${await clientIp()}`, 20, 15 * MINUTE)) {
+    return { ok: false, error: TOO_MANY };
+  }
+  const user = email ? await prisma.user.findUnique({ where: { email } }) : null;
+  const match = await bcrypt.compare(password || "", user?.passwordHash || DUMMY_HASH);
+  if (!user || !user.passwordHash || !match) {
     return { ok: false, error: "Login yoki parol noto'g'ri" };
   }
-  const match = await bcrypt.compare(password, user.passwordHash);
-  if (!match) return { ok: false, error: "Login yoki parol noto'g'ri" };
+  clearLimit(`login:${email}`);
   if (!ADMIN_ROLES.includes(user.role as UserRole)) {
     return { ok: false, error: "Ruxsat yo'q" };
   }

@@ -14,6 +14,7 @@ export default function EventForm() {
   const [message, setMessage] = useState("");
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (done) return (
     <div className="mx-auto max-w-md rounded-2xl border border-green-200 bg-green-50 p-8 text-center">
@@ -31,9 +32,15 @@ export default function EventForm() {
       </select>
       <input type="number" value={guestCount} onChange={(e) => setGuestCount(e.target.value)} placeholder="Mehmonlar soni" className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
       <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
+      {error && <p className="text-sm text-brand-red">{error}</p>}
       <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Qo'shimcha izoh" rows={3} className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
       <button
-        onClick={async () => { setLoading(true); const r = await submitInquiry({ name, phone, eventType, guestCount: Number(guestCount) || 1, preferredDate: date || undefined, message }); setLoading(false); if (r.ok) setDone(true); }}
+        onClick={async () => {
+          setLoading(true); setError(null);
+          try { const r = await submitInquiry({ name, phone, eventType, guestCount: Number(guestCount) || 1, preferredDate: date || undefined, message }); if (r.ok) setDone(true); else setError(r.error || "Xatolik"); }
+          catch { setError("Xatolik. Qayta urinib ko'ring."); }
+          finally { setLoading(false); }
+        }}
         disabled={loading || !name || phone.length < 7}
         className="w-full rounded-lg bg-brand-red py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-50"
       >

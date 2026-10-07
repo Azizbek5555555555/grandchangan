@@ -11,6 +11,7 @@ export default function ReviewForm() {
   const [comment, setComment] = useState("");
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (done) return (
     <div className="mx-auto max-w-lg rounded-3xl border border-brand-gold/30 bg-brand-ink-soft p-10 text-center">
@@ -34,8 +35,14 @@ export default function ReviewForm() {
         className="mb-3 w-full rounded-xl border border-white/10 bg-brand-ink/40 px-4 py-3 text-brand-cream placeholder:text-brand-cream/30 outline-none focus:border-brand-gold/50" />
       <textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Fikringiz..." rows={3}
         className="mb-4 w-full rounded-xl border border-white/10 bg-brand-ink/40 px-4 py-3 text-brand-cream placeholder:text-brand-cream/30 outline-none focus:border-brand-gold/50" />
+      {error && <p className="mb-3 text-center text-sm text-brand-gold-light">{error}</p>}
       <button
-        onClick={async () => { setLoading(true); const r = await submitReview({ authorName: name, rating, comment }); setLoading(false); if (r.ok) setDone(true); }}
+        onClick={async () => {
+          setLoading(true); setError(null);
+          try { const r = await submitReview({ authorName: name, rating, comment }); if (r.ok) setDone(true); else setError(r.error || "Xatolik"); }
+          catch { setError("Xatolik. Qayta urinib ko'ring."); }
+          finally { setLoading(false); }
+        }}
         disabled={loading}
         className="btn-gold-sheen w-full rounded-full bg-brand-red py-3.5 font-medium text-white transition hover:bg-brand-red-dark disabled:opacity-60"
       >
