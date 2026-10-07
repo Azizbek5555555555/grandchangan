@@ -30,7 +30,6 @@ export default function LocaleSwitcher() {
               key={l}
               onClick={() => {
                 setOpen(false);
-                // @ts-expect-error next-intl typed pathname
                 router.replace(pathname, { locale: l });
               }}
               className={`block w-full px-3 py-1.5 text-left text-sm text-content hover:bg-surface-2 ${l === current ? "font-bold" : ""}`}
