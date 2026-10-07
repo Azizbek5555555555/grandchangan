@@ -5,6 +5,8 @@ import { Plus, ChevronRight, ChevronLeft, X, Trash2 } from "lucide-react";
 import { Button, Modal } from "@/components/ui/primitives";
 import { t, formatMoney } from "@/lib/utils";
 import { createOrder, updateOrderStatus, deleteOrder } from "@/lib/order/actions";
+import { MANAGEMENT } from "@/lib/auth/permissions";
+import type { UserRole } from "@prisma/client";
 
 const FLOW = ["NEW", "CONFIRMED", "PREPARING", "READY", "SERVED", "COMPLETED"] as const;
 const TITLES: Record<string, string> = {
@@ -21,9 +23,12 @@ type MenuItem = { id: string; name: unknown; price: number };
 type Table = { id: string; number: string };
 
 export default function OrdersKanban({
-  orders, menuItems, tables, locale,
-}: { orders: Order[]; menuItems: MenuItem[]; tables: Table[]; locale: string }) {
+  orders, menuItems, tables, locale, role,
+}: { orders: Order[]; menuItems: MenuItem[]; tables: Table[]; locale: string; role: UserRole }) {
   const [newOpen, setNewOpen] = useState(false);
+  // Oshxona faqat holatni o'zgartiradi; buyurtma yaratish — ofitsiant va boshqaruv; o'chirish — boshqaruv
+  const canCreate = role !== "KITCHEN";
+  const canDelete = MANAGEMENT.includes(role);
 
   function next(status: string) { const i = FLOW.indexOf(status as never); return i >= 0 && i < FLOW.length - 1 ? FLOW[i + 1] : null; }
   function prev(status: string) { const i = FLOW.indexOf(status as never); return i > 0 ? FLOW[i - 1] : null; }
@@ -32,7 +37,7 @@ export default function OrdersKanban({
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Buyurtmalar</h1>
-        <Button onClick={() => setNewOpen(true)}><Plus size={16} /> Yangi buyurtma</Button>
+        {canCreate && <Button onClick={() => setNewOpen(true)}><Plus size={16} /> Yangi buyurtma</Button>}
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -65,7 +70,7 @@ export default function OrdersKanban({
                       </div>
                       <div className="flex gap-1">
                         <button onClick={() => updateOrderStatus(o.id, "CANCELLED" as never)} className="rounded p-1 text-orange-500 hover:bg-orange-50"><X size={14} /></button>
-                        <button onClick={() => confirm("O'chirilsinmi?") && deleteOrder(o.id)} className="rounded p-1 text-red-500 hover:bg-red-50"><Trash2 size={14} /></button>
+                        {canDelete && <button onClick={() => confirm("O'chirilsinmi?") && deleteOrder(o.id)} className="rounded p-1 text-red-500 hover:bg-red-50"><Trash2 size={14} /></button>}
                       </div>
                     </div>
                   </div>

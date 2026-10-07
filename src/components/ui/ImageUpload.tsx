@@ -15,18 +15,24 @@ export function ImageUpload({
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = ""; // o'sha faylni qayta tanlash mumkin bo'lsin
     setLoading(true);
-    const fd = new FormData();
-    fd.append("file", file);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    setLoading(false);
-    if (res.ok) {
-      const data = await res.json();
-      onChange(data.url);
-    } else {
-      let msg = "Yuklashda xatolik";
-      try { const d = await res.json(); if (d?.error) msg = d.error; } catch {}
-      alert(msg);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (res.ok) {
+        const data = await res.json();
+        onChange(data.url);
+      } else {
+        let msg = "Yuklashda xatolik";
+        try { const d = await res.json(); if (d?.error) msg = d.error; } catch {}
+        alert(msg);
+      }
+    } catch {
+      alert("Internet aloqasi yo'q yoki server javob bermadi");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -48,7 +54,7 @@ export function ImageUpload({
         <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-line text-muted hover:border-brand-red">
           <Upload size={20} />
           <span className="text-xs">{loading ? "..." : "Rasm"}</span>
-          <input type="file" accept="image/*" className="hidden" onChange={onFile} />
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" className="hidden" onChange={onFile} />
         </label>
       )}
     </div>

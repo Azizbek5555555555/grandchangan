@@ -34,7 +34,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
             {rest.map((u, i) => (
               <div key={i} className="mb-4 overflow-hidden rounded-2xl">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={u} alt="" className="w-full transition duration-700 hover:scale-105" />
+                <img src={u} alt="" loading="lazy" decoding="async" className="w-full transition duration-700 hover:scale-105" />
               </div>
             ))}
           </Reveal3D>

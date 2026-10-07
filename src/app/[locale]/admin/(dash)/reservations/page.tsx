@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import ReservationsTable from "@/components/admin/ReservationsTable";
+import { requireSection } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminReservationsPage() {
+  await requireSection("reservations");
   const rows = await prisma.reservation.findMany({
     orderBy: { startTime: "desc" },
     take: 200,

@@ -21,6 +21,9 @@ export const dynamic = "force-dynamic";
 
 const spicyCount = (lvl: string) => ({ NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 }[lvl] ?? 0);
 const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
+/** Haqiqiy son: 20 dan kichigi aniq, kattasi o'nlikka pastga yaxlitlab "+" bilan (97 -> 90+) */
+const statValue = (n: number) => (n < 20 ? { to: n, suffix: "" } : { to: Math.floor(n / 10) * 10, suffix: "+" });
+const STAT_COLS: Record<number, string> = { 1: "md:grid-cols-1", 2: "md:grid-cols-2", 3: "md:grid-cols-3", 4: "md:grid-cols-4" };
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -39,13 +42,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ]);
 
   const heroImg = usable(hero?.imageUrl);
-  const avgRating = Number(reviewAgg._avg.rating ?? 4.8);
+  // Faqat haqiqiy ma'lumot: tasdiqlangan sharh bo'lmasa reyting/sharhlar plitkasi ko'rsatilmaydi
   const reviewCount = reviewAgg._count || 0;
+  const avgRating = reviewCount > 0 ? Number(reviewAgg._avg.rating ?? 0) : null;
+  const dishesStat = statValue(dishesCount);
+  const reviewsStat = statValue(reviewCount);
+  const statCount = 2 + (avgRating !== null ? 2 : 0) - (dishesCount > 0 ? 0 : 1);
   const g = gallery.map((x) => usable(x.url)).filter(Boolean) as string[];
   const bandImg = g[3] || g[0] || heroImg;
   const reserveImg = g[4] || g[1] || heroImg;
   const showcase = showcaseBanners.length
-    ? showcaseBanners.map((b, i) => ({ title: t(b.title, locale) || `Karta ${i + 1}`, text: b.subtitle ? t(b.subtitle, locale) : "", img: usable(b.imageUrl) }))
+    ? showcaseBanners.map((b, i) => ({ title: t(b.title, locale), text: b.subtitle ? t(b.subtitle, locale) : "", img: usable(b.imageUrl) }))
     : [
         { title: st("sc1t"), text: st("sc1x") },
         { title: st("sc2t"), text: st("sc2x") },
@@ -72,7 +79,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <Reveal y={20}>
             <div className="mb-6 flex items-center justify-center gap-3">
               <span className="h-px w-10 bg-brand-gold" />
-              <span className="text-xs uppercase tracking-[0.4em] text-brand-gold">Samarqand · 中国餐厅</span>
+              <span className="text-xs uppercase tracking-[0.4em] text-brand-gold">{st("heroTag")}</span>
               <span className="h-px w-10 bg-brand-gold" />
             </div>
           </Reveal>
@@ -275,7 +282,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="flex h-[80vh] w-[70vw] shrink-0 items-center justify-center px-8 text-center sm:w-[46vw]">
             <div>
               <h2 className="font-display text-4xl sm:text-5xl">{st("scCta1")}<br /><span className="accent-gold">{st("scCta2")}</span></h2>
-              <Link href="/reservation" className="btn-gold-sheen mt-8 inline-flex items-center gap-2 rounded-full bg-brand-red px-9 py-4 font-medium text-white hover:bg-brand-red-dark">Stol band qilish <ArrowRight size={18} /></Link>
+              <Link href="/reservation" className="btn-gold-sheen mt-8 inline-flex items-center gap-2 rounded-full bg-brand-red px-9 py-4 font-medium text-white hover:bg-brand-red-dark">{tr("book_table")} <ArrowRight size={18} /></Link>
             </div>
           </div>
           <div className="h-1 w-[10vw] shrink-0" />
@@ -287,26 +294,32 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <span className="pointer-events-none absolute inset-0" style={{ backgroundImage: "radial-gradient(60% 60% at 50% 0%, rgba(200,162,75,0.10) 0%, transparent 60%)" }} />
         <div className="relative mx-auto max-w-5xl px-6">
           <Reveal className="mb-10 text-center">
-            <p className="text-xs uppercase tracking-[0.35em] text-brand-gold">Raqamlarda</p>
+            <p className="text-xs uppercase tracking-[0.35em] text-brand-gold">{st("statsEyebrow")}</p>
             <div className="mx-auto mt-4 w-24"><div className="animated-line" /></div>
           </Reveal>
           <Reveal>
-            <div className="grid grid-cols-2 divide-y divide-brand-gold/15 overflow-hidden rounded-[2rem] border border-brand-gold/20 bg-brand-ink-soft/40 sm:divide-y-0 md:grid-cols-4 md:divide-x">
-              <div className="flex flex-col items-center px-6 py-12">
-                <Star size={22} className="mb-4 text-brand-gold" />
-                <div className="flex items-baseline gap-1 font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={avgRating} decimals={1} /><Star size={20} className="fill-brand-gold text-brand-gold" /></div>
-                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statRating")}</p>
-              </div>
-              <div className="flex flex-col items-center px-6 py-12">
-                <MessageSquare size={22} className="mb-4 text-brand-gold" />
-                <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={Math.max(reviewCount, 12)} suffix="+" /></div>
-                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statReviews")}</p>
-              </div>
-              <div className="flex flex-col items-center px-6 py-12">
-                <UtensilsCrossed size={22} className="mb-4 text-brand-gold" />
-                <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={Math.max(dishesCount, 20)} suffix="+" /></div>
-                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statDishes")}</p>
-              </div>
+            <div className={`grid grid-cols-2 divide-y divide-brand-gold/15 overflow-hidden rounded-[2rem] border border-brand-gold/20 bg-brand-ink-soft/40 sm:divide-y-0 md:divide-x ${STAT_COLS[statCount] || "md:grid-cols-4"}`}>
+              {avgRating !== null && (
+                <div className="flex flex-col items-center px-6 py-12">
+                  <Star size={22} className="mb-4 text-brand-gold" />
+                  <div className="flex items-baseline gap-1 font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={avgRating} decimals={1} /><Star size={20} className="fill-brand-gold text-brand-gold" /></div>
+                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statRating")}</p>
+                </div>
+              )}
+              {avgRating !== null && (
+                <div className="flex flex-col items-center px-6 py-12">
+                  <MessageSquare size={22} className="mb-4 text-brand-gold" />
+                  <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={reviewsStat.to} suffix={reviewsStat.suffix} /></div>
+                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statReviews")}</p>
+                </div>
+              )}
+              {dishesCount > 0 && (
+                <div className="flex flex-col items-center px-6 py-12">
+                  <UtensilsCrossed size={22} className="mb-4 text-brand-gold" />
+                  <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={dishesStat.to} suffix={dishesStat.suffix} /></div>
+                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statDishes")}</p>
+                </div>
+              )}
               <div className="flex flex-col items-center px-6 py-12">
                 <Languages size={22} className="mb-4 text-brand-gold" />
                 <div className="font-display text-6xl text-brand-gold-light sm:text-7xl">4</div>
@@ -337,8 +350,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
       )}
 
+      {/* ===== 9–10: RESERVE varaq bo'lib buklanadi, ostidan SHARHLAR ochiladi (Fold3D) ===== */}
+      <div className="relative bg-brand-ink">
       {/* ==================== 9. RESERVE CTA ==================== */}
-      <section id="reserve-fold" className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center" style={{ transformStyle: "preserve-3d" }}>
+      <section id="reserve-fold" className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center">
         {reserveImg ? (
           <Parallax className="absolute -inset-y-[18%] inset-x-0" speed={12}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -398,6 +413,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="mt-16"><Reveal><ReviewForm /></Reveal></div>
         </div>
       </section>
+      </div>
 
             </div>
             <SiteFooter locale={locale} />

@@ -13,9 +13,10 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
   const st = await getTranslations({ locale, namespace: "Site" });
   const tc = await getTranslations({ locale, namespace: "Common" });
 
-  const [categories, items] = await Promise.all([
+  const [categories, items, hours] = await Promise.all([
     prisma.menuCategory.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" }, select: { id: true, name: true } }),
     prisma.menuItem.findMany({ where: { isAvailable: true }, orderBy: { sortOrder: "asc" }, select: { id: true, categoryId: true, name: true, price: true, discountPrice: true, imageUrl: true } }),
+    prisma.workingHour.findMany({ select: { dayOfWeek: true, openTime: true, closeTime: true, isClosed: true } }),
   ]);
 
   const menu = {
@@ -30,7 +31,7 @@ export default async function ReservationPage({ params }: { params: Promise<{ lo
     <>
       <SiteHeader />
       <PageHero title={tc("reservation")} subtitle={st("reservationSub")} />
-      <ReservationFlow locale={locale} menu={menu} />
+      <ReservationFlow locale={locale} menu={menu} hours={hours} />
       <SiteFooter locale={locale} />
     </>
   );

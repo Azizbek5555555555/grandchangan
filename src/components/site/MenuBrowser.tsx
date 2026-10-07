@@ -83,6 +83,8 @@ export default function MenuBrowser({
                 <img
                   src={it.imageUrl}
                   alt=""
+                  loading="lazy"
+                  decoding="async"
                   className="relative h-44 w-full object-cover transition duration-700 group-hover:scale-110"
                   onError={(e) => { e.currentTarget.style.display = "none"; }}
                 />
@@ -91,7 +93,7 @@ export default function MenuBrowser({
             <div className="p-4">
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-content">{t(it.name, locale)}</h3>
-                {it.isNew && <span className="rounded bg-brand-gold px-1.5 py-0.5 text-[10px] font-bold text-content">NEW</span>}
+                {it.isNew && <span className="rounded bg-brand-gold px-1.5 py-0.5 text-[10px] font-bold text-content">{T("badgeNew")}</span>}
               </div>
               {it.description ? <p className="mt-1 line-clamp-2 text-sm text-muted">{t(it.description, locale)}</p> : null}
               <div className="mt-2 flex items-center gap-2">

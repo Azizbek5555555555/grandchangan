@@ -2,12 +2,20 @@ import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/navigation";
 import { t as tt } from "@/lib/utils";
+import { hoursFor, sameEveryDay } from "@/lib/hours";
 import { Instagram, Send, Phone, MapPin, ArrowUpRight, Clock } from "lucide-react";
 
 export default async function SiteFooter({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: "Common" });
   const st = await getTranslations({ locale, namespace: "Site" });
-  const general = await prisma.siteSetting.findUnique({ where: { key: "general" } });
+  const [general, hours] = await Promise.all([
+    prisma.siteSetting.findUnique({ where: { key: "general" } }),
+    prisma.workingHour.findMany({ select: { dayOfWeek: true, openTime: true, closeTime: true, isClosed: true } }),
+  ]);
+  // Ish vaqti admin Sozlamalar'idan: hamma kun bir xil bo'lsa — bitta qator, aks holda kunma-kun
+  const everyDay = sameEveryDay(hours);
+  const dayName = (dow: number) => new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(Date.UTC(2024, 0, 7 + dow)));
+  const week = [1, 2, 3, 4, 5, 6, 0].map((d) => hoursFor(hours, d));
   const g = (general?.value as Record<string, unknown>) || {};
   const phones = Array.isArray(g.phones) && g.phones.length ? (g.phones as string[]) : ["+998 90 503 15 68"];
 
@@ -65,11 +73,22 @@ export default async function SiteFooter({ locale }: { locale: string }) {
 
         <div>
           <p className="mb-5 text-xs uppercase tracking-[0.25em] text-brand-gold">{st("fHours")}</p>
-          <div className="rounded-2xl border border-brand-gold/15 p-5">
-            <p className="flex items-center gap-2 text-sm text-brand-cream/60"><Clock size={15} className="text-brand-gold/70" /> {st("fEveryday")}</p>
-            <p className="mt-2 font-display text-3xl text-brand-cream">11:00 — 23:00</p>
-            <p className="mt-1 text-xs text-brand-cream/40">{st("fOpen")}</p>
-          </div>
+          {everyDay ? (
+            <div className="rounded-2xl border border-brand-gold/15 p-5">
+              <p className="flex items-center gap-2 text-sm text-brand-cream/60"><Clock size={15} className="text-brand-gold/70" /> {st("fEveryday")}</p>
+              <p className="mt-2 font-display text-3xl text-brand-cream">{everyDay.openTime} — {everyDay.closeTime}</p>
+              <p className="mt-1 text-xs text-brand-cream/40">{st("fOpen")}</p>
+            </div>
+          ) : (
+            <ul className="space-y-1.5 rounded-2xl border border-brand-gold/15 p-5 text-sm">
+              {week.map((h) => (
+                <li key={h.dayOfWeek} className="flex justify-between gap-4">
+                  <span className="capitalize text-brand-cream/50">{dayName(h.dayOfWeek)}</span>
+                  <span className={h.isClosed ? "text-brand-cream/40" : "text-brand-cream"}>{h.isClosed ? st("closed") : `${h.openTime} — ${h.closeTime}`}</span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
 

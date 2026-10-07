@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/utils";
 import { restaurantDay, restaurantDateTime, addDays, formatRestaurant } from "@/lib/time";
 import { CalendarClock, ClipboardList, Users, Wallet, Star, MessageSquare } from "lucide-react";
+import { requireSection } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,7 @@ function StatCard({ label, value, icon: Icon, hint }: { label: string; value: st
 }
 
 export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+  await requireSection("dashboard");
   const { locale } = await params;
   setRequestLocale(locale);
 

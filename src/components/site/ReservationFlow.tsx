@@ -7,6 +7,7 @@ import { t, formatMoney } from "@/lib/utils";
 import { getAvailability, createReservation } from "@/lib/reservation/actions";
 import { createPreorderForReservation } from "@/lib/order/actions";
 import { RESTAURANT_TZ, restaurantDay } from "@/lib/time";
+import { slotsForDay, hoursFor, type DayHours } from "@/lib/hours";
 
 type TableAvail = {
   id: string; number: string; seats: number; isVip: boolean;
@@ -17,7 +18,6 @@ type ZoneAvail = { id: string; name: unknown; mapWidth: number; mapHeight: numbe
 type MenuCat = { id: string; name: unknown };
 type MenuItm = { id: string; categoryId: string; name: unknown; price: number; imageUrl?: string | null };
 
-const TIMES = ["11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"];
 const STATE_COLOR: Record<string, string> = { free: "bg-green-500", busy: "bg-red-500", small: "bg-orange-400", maintenance: "bg-neutral-400" };
 const pad = (n: number) => String(n).padStart(2, "0");
 const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -31,8 +31,8 @@ const isPastSlot = (dateStr: string, tm: string) => {
 type Phase = "form" | "prompt" | "menu" | "done";
 
 export default function ReservationFlow({
-  locale, menu,
-}: { locale: string; menu: { categories: MenuCat[]; items: MenuItm[] } }) {
+  locale, menu, hours,
+}: { locale: string; menu: { categories: MenuCat[]; items: MenuItm[] }; hours: DayHours[] }) {
   const T = useTranslations("Site");
   const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
   const STEPS = [T("rGuests"), T("rDate"), T("rTime"), T("rTable"), T("rInfo")];
@@ -74,10 +74,12 @@ export default function ReservationFlow({
     const res = await createReservation({ tableId: selectedTable.id, guestName: name, guestPhone: phone, partySize: party, dateStr: date, timeStr: time, specialRequest: request });
     setLoading(false);
     if (res.ok) { setCode(res.code!); setReservationId(res.reservationId!); setPhase("prompt"); }
-    else setError(res.error || "Xatolik");
+    else setError(res.error || T("errGeneric"));
   }
 
   const zone = zones.find((z) => z.id === activeZone);
+  // Bron soatlari — admin Sozlamalar'dagi ish vaqtidan (yopiq kun bo'sh)
+  const times = date ? slotsForDay(hoursFor(hours, new Date(`${date}T12:00:00Z`).getUTCDay())) : [];
   const year = calMonth.getFullYear(), month = calMonth.getMonth();
   const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
   const daysCount = new Date(year, month + 1, 0).getDate();
@@ -128,7 +130,7 @@ export default function ReservationFlow({
           const items = Object.entries(cart).map(([menuItemId, quantity]) => ({ menuItemId, quantity }));
           const res = await createPreorderForReservation({ reservationId, items });
           setLoading(false);
-          if (res.ok) { setOrderTotal(res.total ?? 0); setPhase("done"); } else setError(res.error || "Xatolik");
+          if (res.ok) { setOrderTotal(res.total ?? 0); setPhase("done"); } else setError(res.error || T("errGeneric"));
         }}
         loading={loading} error={error} />
     );
@@ -177,7 +179,7 @@ export default function ReservationFlow({
             {cells.map((d, i) => {
               if (d === null) return <span key={i} />;
               const cellDate = new Date(year, month, d); const ds = ymd(cellDate);
-              const disabled = cellDate < today; const selected = ds === date;
+              const disabled = cellDate < today || slotsForDay(hoursFor(hours, cellDate.getDay())).every((tm) => isPastSlot(ds, tm)); const selected = ds === date;
               return <button key={i} disabled={disabled} onClick={() => { setDate(ds); setStep(3); }} className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full text-sm transition ${selected ? "bg-brand-red text-white" : disabled ? "text-muted" : "text-content hover:bg-surface-2"}`}>{d}</button>;
             })}
           </div>
@@ -189,7 +191,7 @@ export default function ReservationFlow({
         <div className="rounded-3xl border border-line bg-card p-8 text-center">
           <h2 className="mb-8 font-display text-3xl text-content">{T("rWhichTime")}</h2>
           <div className="mx-auto grid max-w-md grid-cols-4 gap-3">
-            {TIMES.map((tm) => {
+            {times.map((tm) => {
               const past = isPastSlot(date, tm);
               return <button key={tm} disabled={past} onClick={() => setTime(tm)} className={`rounded-full py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-30 ${time === tm && !past ? "bg-brand-red text-white" : "bg-surface-2 text-content hover:bg-surface-2"}`}>{tm}</button>;
             })}
@@ -297,7 +299,7 @@ function PreorderMenu({
                 <div className="absolute inset-0 flex items-center justify-center text-[8px] text-muted">GC</div>
                 {it.imageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={it.imageUrl} alt="" className="relative h-14 w-14 object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                  <img src={it.imageUrl} alt="" loading="lazy" decoding="async" className="relative h-14 w-14 object-cover" onError={(e) => { e.currentTarget.style.display = "none"; }} />
                 ) : null}
               </div>
               <div className="min-w-0 flex-1"><p className="truncate font-medium text-content">{t(it.name, locale)}</p><p className="text-sm text-brand-red">{formatMoney(it.price)}</p></div>

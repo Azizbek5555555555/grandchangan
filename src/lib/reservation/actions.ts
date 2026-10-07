@@ -1,16 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "../prisma";
-import { ensureAdmin } from "../auth/guard";
+import { ensureAdmin, ensureSection } from "../auth/guard";
 import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
 import { restaurantDateTime, calendarDate } from "../time";
+import { SLOT_MINUTES, dayOfWeekOf, hoursFor, slotsForDay, type DayHours } from "../hours";
 import { sendSms } from "../sms/eskiz";
+import { rateLimit, clientIp, HOUR } from "../security/rate-limit";
 import { notifyTelegram, escapeHtml } from "../telegram/notify";
 import type { ReservationStatus, TableShape } from "@prisma/client";
 
-const SLOT_MINUTES = 120;
 const ACTIVE: ReservationStatus[] = ["PENDING", "CONFIRMED", "SEATED"];
 
 type Localized = Record<string, string>;
@@ -136,25 +138,36 @@ export async function createReservation(input: {
   tableId: string; guestName: string; guestPhone: string; partySize: number;
   dateStr: string; timeStr: string; specialRequest?: string; occasion?: string;
 }) {
+  const e = await getTranslations("Errors");
   const phone = normalizePhone(input.guestPhone || "");
-  const guestName = (input.guestName || "").trim();
-  if (!guestName) return { ok: false, error: "Ismingizni kiriting" };
-  if (phone.length < 12) return { ok: false, error: "Telefon raqam noto'g'ri" };
+  const guestName = (input.guestName || "").trim().slice(0, 80);
+  if (!guestName) return { ok: false, error: e("nameRequired") };
+  if (phone.length < 12) return { ok: false, error: e("phoneInvalid") };
   if (!Number.isInteger(input.partySize) || input.partySize < 1 || input.partySize > 50) {
-    return { ok: false, error: "Mehmonlar soni noto'g'ri" };
+    return { ok: false, error: e("guestsInvalid") };
   }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dateStr) || !/^\d{2}:\d{2}$/.test(input.timeStr)) {
-    return { ok: false, error: "Sana yoki vaqt noto'g'ri" };
+    return { ok: false, error: e("dateInvalid") };
   }
   const start = restaurantDateTime(input.dateStr, input.timeStr);
-  if (Number.isNaN(start.getTime())) return { ok: false, error: "Sana yoki vaqt noto'g'ri" };
-  if (start.getTime() < Date.now()) return { ok: false, error: "Bu vaqt o'tib ketgan — boshqa vaqtni tanlang" };
+  if (Number.isNaN(start.getTime())) return { ok: false, error: e("dateInvalid") };
+  if (start.getTime() < Date.now()) return { ok: false, error: e("pastTime") };
+  // Ish vaqti (admin -> Sozlamalar) bo'yicha: yopiq kun yoki ish vaqtidan tashqari soat rad etiladi
+  const dayRow = await prisma.workingHour.findUnique({ where: { dayOfWeek: dayOfWeekOf(input.dateStr) } });
+  const dayHours = dayRow ?? hoursFor([], dayOfWeekOf(input.dateStr));
+  if (!slotsForDay(dayHours as DayHours).includes(input.timeStr)) {
+    return { ok: false, error: dayHours.isClosed ? e("closedDay") : e("outsideHours") };
+  }
+  // Spam va SMS isrofiga qarshi (keng chegara: gid bir nechta guruhga bron qila oladi)
+  if (!rateLimit(`resv-ip:${await clientIp()}`, 20, HOUR) || !rateLimit(`resv-phone:${phone}`, 10, HOUR)) {
+    return { ok: false, error: e("tooMany") };
+  }
   const end = new Date(start.getTime() + SLOT_MINUTES * 60 * 1000);
 
   // Server tomonda qayta tekshirish
   const table = await prisma.table.findUnique({ where: { id: input.tableId } });
-  if (!table || !table.isActive) return { ok: false, error: "Stol topilmadi" };
-  if (table.seats < input.partySize) return { ok: false, error: "Stol sig'imi yetarli emas" };
+  if (!table || !table.isActive) return { ok: false, error: e("tableNotFound") };
+  if (table.seats < input.partySize) return { ok: false, error: e("tableTooSmall") };
 
   const clash = await prisma.reservation.findFirst({
     where: {
@@ -162,7 +175,7 @@ export async function createReservation(input: {
       startTime: { lt: end }, endTime: { gt: start },
     },
   });
-  if (clash) return { ok: false, error: "Bu stol tanlangan vaqtda band" };
+  if (clash) return { ok: false, error: e("tableBusy") };
 
   const dateOnly = calendarDate(input.dateStr);
 
@@ -172,7 +185,8 @@ export async function createReservation(input: {
         code, tableId: input.tableId, guestName, guestPhone: phone,
         partySize: input.partySize, date: dateOnly, startTime: start, endTime: end,
         status: "PENDING", source: "WEB",
-        specialRequest: input.specialRequest || null, occasion: input.occasion || null,
+        specialRequest: input.specialRequest?.trim().slice(0, 500) || null,
+        occasion: input.occasion?.trim().slice(0, 100) || null,
       },
     })
   );
@@ -189,7 +203,7 @@ export async function createReservation(input: {
 
 // ---------- STATUS (admin) ----------
 export async function updateReservationStatus(id: string, status: ReservationStatus, tableId?: string) {
-  await ensureAdmin();
+  await ensureSection("reservations");
   await prisma.reservation.update({
     where: { id },
     data: { status, ...(tableId ? { tableId } : {}) },
