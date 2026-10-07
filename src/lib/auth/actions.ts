@@ -16,7 +16,8 @@ export async function requestOtpAction(phoneRaw: string): Promise<Result> {
   const phone = normalizePhone(phoneRaw);
   if (phone.length < 12) return { ok: false, error: "Telefon raqam noto'g'ri" };
   const code = await createOtp(phone, "login");
-  await sendSms(phone, `GrandChangan. Tasdiqlash kodi: ${code}`);
+  const sent = await sendSms(phone, `GrandChangan. Tasdiqlash kodi: ${code}`);
+  if (!sent.ok) return { ok: false, error: "SMS yuborilmadi. Birozdan keyin qayta urinib ko'ring." };
   return { ok: true };
 }
 

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
-import { notifyTelegram } from "../telegram/notify";
+import { notifyTelegram, escapeHtml } from "../telegram/notify";
 import type { ReviewStatus } from "@prisma/client";
 
 export async function submitReview(input: {
@@ -19,7 +19,7 @@ export async function submitReview(input: {
       status: "PENDING",
     },
   });
-  await notifyTelegram(`⭐️ Yangi sharh (${input.rating}/5): ${input.authorName}\n${input.comment || ""}`);
+  await notifyTelegram(`⭐️ Yangi sharh (${input.rating}/5): ${escapeHtml(input.authorName)}\n${escapeHtml(input.comment)}`);
   revalidatePath("/[locale]/admin/reviews", "page");
   return { ok: true };
 }

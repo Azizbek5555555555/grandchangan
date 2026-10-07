@@ -7,7 +7,7 @@ import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
 import { restaurantDateTime, calendarDate } from "../time";
 import { sendSms } from "../sms/eskiz";
-import { notifyTelegram } from "../telegram/notify";
+import { notifyTelegram, escapeHtml } from "../telegram/notify";
 import type { ReservationStatus, TableShape } from "@prisma/client";
 
 const SLOT_MINUTES = 120;
@@ -180,7 +180,7 @@ export async function createReservation(input: {
 
   await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${code}. ${input.dateStr} ${input.timeStr}`);
   await notifyTelegram(
-    `🍽 <b>Yangi bron</b>\nKod: ${code}\nStol: ${table.number}\nMehmon: ${input.guestName} (${phone})\nKishi: ${input.partySize}\nVaqt: ${input.dateStr} ${input.timeStr}`
+    `🍽 <b>Yangi bron</b>\nKod: ${code}\nStol: ${escapeHtml(table.number)}\nMehmon: ${escapeHtml(guestName)} (${phone})\nKishi: ${input.partySize}\nVaqt: ${input.dateStr} ${input.timeStr}`
   );
 
   revalidatePath("/[locale]/admin/reservations", "page");
