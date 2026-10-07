@@ -1,5 +1,7 @@
 # GrandChangan — Restoran sayti + CRM
 
+> 🚀 Kompyuterda ishga tushirish va Railway sozlash: **[SETUP.md](./SETUP.md)** (qadam-baqadam, o'zbekcha)
+
 Xitoy restorani (Samarqand) uchun to'liq sayt va boshqaruv paneli.
 Next.js 15 · TypeScript · Tailwind v4 · Prisma 6 · PostgreSQL · next-intl v4.
 
@@ -21,7 +23,8 @@ npm run dev
 ## Kirish
 
 - Sayt: `/` (uz/ru/en/zh — `/ru`, `/en`, `/zh`)
-- Admin panel: `/admin/login` (email + parol, seed'dagi admin)
+- Admin panel: `/admin/login` (email + parol). Rollar: boshqaruv (menejer/admin/superadmin) — hamma bo'limlar;
+  ofitsiant — bronlar va buyurtmalar; oshxona — buyurtmalar. Xodimlar admin → **Xodimlar** bo'limida qo'shiladi.
 - Mijoz kabineti: `/account` (telefon + SMS OTP)
 
 ## Modullar (tayyor)
@@ -42,8 +45,8 @@ rasm yuklash (`/api/upload`).
 
 - **To'lov (Payme/Click/Uzum):** skelet tayyor (`src/lib/payments`, `src/app/api/payments/*`).
   Ishga tushirish uchun merchant kalitlari (.env) va har bir provayder sandbox'ida webhook testi kerak.
-- **Rasm saqlash:** hozir lokal `public/uploads` (Railway'da ephemeral). Ishlab chiqarish uchun
-  Cloudinary yoki S3 ga o'tkazish tavsiya etiladi (`/api/upload` da bitta joyni almashtirish yetadi).
+- **Rasm saqlash:** Supabase Storage (`src/lib/storage/supabase.ts`, `.env`: `SUPABASE_URL`,
+  `SUPABASE_SECRET_KEY`). Eski lokal rasmlarni ko'chirish: `npm run uploads:migrate`.
 - **GSAP animatsiya / kengaytirilgan SEO (Bosqich 8):** dizayn sayqali, opsiyonel.
 
 ## Eslatma
