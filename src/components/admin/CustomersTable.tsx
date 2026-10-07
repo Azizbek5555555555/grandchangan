@@ -24,7 +24,7 @@ export default function CustomersTable({ customers }: { customers: Customer[] })
                 <td className="px-4 py-3">{c.ordersCount}</td>
                 <td className="px-4 py-3"><Badge color={c.isBlocked ? "red" : "green"}>{c.isBlocked ? "Bloklangan" : "Faol"}</Badge></td>
                 <td className="px-4 py-3">
-                  <button onClick={() => toggleBlock(c.id, !c.isBlocked)} className={`flex items-center gap-1 rounded px-2 py-1 text-xs ${c.isBlocked ? "text-green-600" : "text-red-500"}`}>
+                  <button onClick={async () => { const r = await toggleBlock(c.id, !c.isBlocked); if (!r.ok) alert(r.error); }} className={`flex items-center gap-1 rounded px-2 py-1 text-xs ${c.isBlocked ? "text-green-600" : "text-red-500"}`}>
                     {c.isBlocked ? <><Check size={12} /> Ochish</> : <><Ban size={12} /> Bloklash</>}
                   </button>
                 </td>
