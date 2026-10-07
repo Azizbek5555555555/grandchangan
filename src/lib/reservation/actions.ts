@@ -6,12 +6,12 @@ import { ensureAdmin, ensureSection } from "../auth/guard";
 import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
 import { restaurantDateTime, calendarDate } from "../time";
+import { SLOT_MINUTES, dayOfWeekOf, hoursFor, slotsForDay, type DayHours } from "../hours";
 import { sendSms } from "../sms/eskiz";
 import { rateLimit, clientIp, HOUR, TOO_MANY } from "../security/rate-limit";
 import { notifyTelegram, escapeHtml } from "../telegram/notify";
 import type { ReservationStatus, TableShape } from "@prisma/client";
 
-const SLOT_MINUTES = 120;
 const ACTIVE: ReservationStatus[] = ["PENDING", "CONFIRMED", "SEATED"];
 
 type Localized = Record<string, string>;
@@ -150,6 +150,12 @@ export async function createReservation(input: {
   const start = restaurantDateTime(input.dateStr, input.timeStr);
   if (Number.isNaN(start.getTime())) return { ok: false, error: "Sana yoki vaqt noto'g'ri" };
   if (start.getTime() < Date.now()) return { ok: false, error: "Bu vaqt o'tib ketgan — boshqa vaqtni tanlang" };
+  // Ish vaqti (admin -> Sozlamalar) bo'yicha: yopiq kun yoki ish vaqtidan tashqari soat rad etiladi
+  const dayRow = await prisma.workingHour.findUnique({ where: { dayOfWeek: dayOfWeekOf(input.dateStr) } });
+  const dayHours = dayRow ?? hoursFor([], dayOfWeekOf(input.dateStr));
+  if (!slotsForDay(dayHours as DayHours).includes(input.timeStr)) {
+    return { ok: false, error: dayHours.isClosed ? "Bu kuni restoran yopiq" : "Bu vaqtda bron qabul qilinmaydi (ish vaqtidan tashqari)" };
+  }
   // Spam va SMS isrofiga qarshi (keng chegara: gid bir nechta guruhga bron qila oladi)
   if (!rateLimit(`resv-ip:${await clientIp()}`, 20, HOUR) || !rateLimit(`resv-phone:${phone}`, 10, HOUR)) {
     return { ok: false, error: TOO_MANY };
