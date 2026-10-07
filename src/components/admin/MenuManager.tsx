@@ -119,7 +119,11 @@ export default function MenuManager({ categories, items }: { categories: Cat[]; 
                   <Pencil size={14} />
                 </button>
                 <button
-                  onClick={() => confirm("O'chirilsinmi?") && deleteItem(it.id)}
+                  onClick={async () => {
+                    if (!confirm("O'chirilsinmi?")) return;
+                    const r = await deleteItem(it.id);
+                    if (!r.ok) alert(r.error);
+                  }}
                   className="rounded p-1 text-red-500 hover:bg-red-50"
                 >
                   <Trash2 size={14} />
