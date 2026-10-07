@@ -1,15 +1,20 @@
 "use client";
 import { useState } from "react";
 import { Button } from "@/components/ui/primitives";
+import { LocalizedInput, type LocalizedValue } from "@/components/ui/LocalizedInput";
 import { saveSetting, saveWorkingHours } from "@/lib/settings/actions";
 
-type General = { name?: string; email?: string; phones?: string[]; address?: string; instagram?: string; telegram?: string; mapQuery?: string; mapLink?: string };
+type General = { name?: string; email?: string; phones?: string[]; address?: string | LocalizedValue; instagram?: string; telegram?: string; mapQuery?: string; mapLink?: string };
 type Hour = { dayOfWeek: number; openTime: string | null; closeTime: string | null; isClosed: boolean };
 const DAYS = ["Yakshanba", "Dushanba", "Seshanba", "Chorshanba", "Payshanba", "Juma", "Shanba"];
 
 export default function SettingsForm({ general, hours }: { general: General; hours: Hour[] }) {
   const [g, setG] = useState<General>(general);
   const [phones, setPhones] = useState((general.phones || []).join(", "));
+  // Manzil 4 tilda saqlanadi (seed shunday yozadi); eski oddiy matn bo'lsa — UZ sifatida ochiladi
+  const [address, setAddress] = useState<LocalizedValue>(() =>
+    typeof general.address === "string" ? { uz: general.address } : general.address || {}
+  );
   const [h, setH] = useState<Hour[]>(() => {
     const map = new Map(hours.map((x) => [x.dayOfWeek, x]));
     return Array.from({ length: 7 }).map((_, i) => map.get(i) || { dayOfWeek: i, openTime: "11:00", closeTime: "23:00", isClosed: false });
@@ -25,11 +30,11 @@ export default function SettingsForm({ general, hours }: { general: General; hou
         <label className="block"><span className="mb-1 block text-sm">Nomi</span><input value={g.name || ""} onChange={(e) => setG({ ...g, name: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm" /></label>
         <label className="block"><span className="mb-1 block text-sm">Email</span><input value={g.email || ""} onChange={(e) => setG({ ...g, email: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm" /></label>
         <label className="block"><span className="mb-1 block text-sm">Telefonlar (vergul bilan)</span><input value={phones} onChange={(e) => setPhones(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm" /></label>
-        <label className="block"><span className="mb-1 block text-sm">Manzil</span><input value={g.address || ""} onChange={(e) => setG({ ...g, address: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm" /></label>
+        <LocalizedInput label="Manzil" value={address} onChange={setAddress} />
         <label className="block"><span className="mb-1 block text-sm">Instagram</span><input value={g.instagram || ""} onChange={(e) => setG({ ...g, instagram: e.target.value })} className="w-full rounded-lg border border-line px-3 py-2 text-sm" /></label>
         <label className="block"><span className="mb-1 block text-sm">Xarita: joy nomi yoki manzil (Google Maps qidiruvi)</span><input value={g.mapQuery || ""} onChange={(e) => setG({ ...g, mapQuery: e.target.value })} placeholder="Grand Changan Restaurant, Ibn Xoldun 10B, Samarqand" className="w-full rounded-lg border border-line px-3 py-2 text-sm" /></label>
         <label className="block"><span className="mb-1 block text-sm">Xarita havolasi (Google Maps share link)</span><input value={g.mapLink || ""} onChange={(e) => setG({ ...g, mapLink: e.target.value })} placeholder="https://maps.app.goo.gl/..." className="w-full rounded-lg border border-line px-3 py-2 text-sm" /></label>
-        <Button onClick={async () => { await saveSetting("general", { ...g, phones: phones.split(",").map((s) => s.trim()).filter(Boolean) }); setSaved(true); }}>Saqlash</Button>
+        <Button onClick={async () => { await saveSetting("general", { ...g, address, phones: phones.split(",").map((s) => s.trim()).filter(Boolean) }); setSaved(true); }}>Saqlash</Button>
       </section>
 
       <section className="space-y-2 rounded-xl border border-line bg-card p-5">
