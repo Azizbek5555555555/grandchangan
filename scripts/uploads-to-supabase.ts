@@ -70,7 +70,8 @@ async function single(label: string, rows: Row[], fields: string[], update: (id:
 async function main() {
   if (APPLY && !isStorageConfigured()) {
     console.error("✖ .env da SUPABASE_URL va SUPABASE_SECRET_KEY yo'q");
-    process.exit(1);
+    process.exitCode = 1;
+    return;
   }
   console.log(APPLY ? "▶ Ko'chirish (bazaga yoziladi)..." : "▶ Sinov rejimi (hech narsa o'zgarmaydi). Bajarish uchun: --apply");
 
@@ -109,5 +110,6 @@ async function main() {
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1); })
+  // process.exit() emas: Windows'da Prisma/fetch yopilayotganda "UV_HANDLE_CLOSING" bilan yiqiladi
+  .catch((e) => { console.error(e instanceof Error ? e.message : e); process.exitCode = 1; })
   .finally(() => prisma.$disconnect());

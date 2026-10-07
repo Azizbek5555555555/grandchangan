@@ -19,8 +19,24 @@ export const IMAGE_TYPES: Record<string, string> = {
 };
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MB
 
+/**
+ * SUPABASE_URL dan faqat asosiy manzilni olamiz (https://xxxx.supabase.co).
+ * Dashboard ba'zan "https://xxxx.supabase.co/rest/v1/" ko'rinishida beradi — o'shani qo'yilsa ham
+ * so'rov PostgREST'ga emas (PGRST125 xatosi), Storage'ga ketsin.
+ */
+function baseUrl(raw: string): string {
+  let value = raw.trim();
+  if (!value) return "";
+  if (!/^https?:\/\//i.test(value)) value = `https://${value}`;
+  try {
+    return new URL(value).origin;
+  } catch {
+    return value.replace(/\/(rest|storage|auth)\/v1.*$/, "").replace(/\/+$/, "");
+  }
+}
+
 function config() {
-  const url = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
+  const url = baseUrl(process.env.SUPABASE_URL || "");
   const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
   const bucket = process.env.SUPABASE_BUCKET || "images";
   return { url, key, bucket };
