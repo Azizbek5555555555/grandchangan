@@ -74,7 +74,7 @@ export default function ReservationFlow({
     const res = await createReservation({ tableId: selectedTable.id, guestName: name, guestPhone: phone, partySize: party, dateStr: date, timeStr: time, specialRequest: request });
     setLoading(false);
     if (res.ok) { setCode(res.code!); setReservationId(res.reservationId!); setPhase("prompt"); }
-    else setError(res.error || "Xatolik");
+    else setError(res.error || T("errGeneric"));
   }
 
   const zone = zones.find((z) => z.id === activeZone);
@@ -130,7 +130,7 @@ export default function ReservationFlow({
           const items = Object.entries(cart).map(([menuItemId, quantity]) => ({ menuItemId, quantity }));
           const res = await createPreorderForReservation({ reservationId, items });
           setLoading(false);
-          if (res.ok) { setOrderTotal(res.total ?? 0); setPhase("done"); } else setError(res.error || "Xatolik");
+          if (res.ok) { setOrderTotal(res.total ?? 0); setPhase("done"); } else setError(res.error || T("errGeneric"));
         }}
         loading={loading} error={error} />
     );

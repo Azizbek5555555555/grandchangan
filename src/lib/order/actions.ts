@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "../prisma";
 import { ensureAdmin, ensureRoles, ensureSection } from "../auth/guard";
 import { MANAGEMENT } from "../auth/permissions";
@@ -8,7 +9,7 @@ import { normalizePhone } from "../utils";
 import { createWithCode } from "../codes";
 import { formatRestaurant } from "../time";
 import { notifyTelegram } from "../telegram/notify";
-import { rateLimit, clientIp, HOUR, TOO_MANY } from "../security/rate-limit";
+import { rateLimit, clientIp, HOUR } from "../security/rate-limit";
 import type { OrderStatus, OrderType } from "@prisma/client";
 
 export async function createOrder(input: {
@@ -79,17 +80,18 @@ export async function createPreorderForReservation(input: {
   reservationId: string;
   items: { menuItemId: string; quantity: number }[];
 }) {
-  if (!input.items?.length) return { ok: false, error: "Taomlar tanlanmagan" };
-  if (!rateLimit(`preorder-ip:${await clientIp()}`, 20, HOUR)) return { ok: false, error: TOO_MANY };
+  const e = await getTranslations("Errors");
+  if (!input.items?.length) return { ok: false, error: e("noItems") };
+  if (!rateLimit(`preorder-ip:${await clientIp()}`, 20, HOUR)) return { ok: false, error: e("tooMany") };
 
   const reservation = await prisma.reservation.findUnique({
     where: { id: input.reservationId },
     include: { preOrder: true },
   });
-  if (!reservation) return { ok: false, error: "Bron topilmadi" };
-  if (reservation.preOrder) return { ok: false, error: "Bu bronga allaqachon buyurtma biriktirilgan" };
+  if (!reservation) return { ok: false, error: e("reservationNotFound") };
+  if (reservation.preOrder) return { ok: false, error: e("preorderExists") };
   if (!["PENDING", "CONFIRMED"].includes(reservation.status) || reservation.startTime.getTime() < Date.now()) {
-    return { ok: false, error: "Bu bronga endi buyurtma qo'shib bo'lmaydi" };
+    return { ok: false, error: e("preorderClosed") };
   }
 
   const ids = input.items.map((i) => i.menuItemId);
@@ -112,7 +114,7 @@ export async function createPreorderForReservation(input: {
         subtotal: line,
       };
     });
-  if (!orderItems.length) return { ok: false, error: "Taomlar tanlanmagan" };
+  if (!orderItems.length) return { ok: false, error: e("noItems") };
 
   const order = await createWithCode("order", "ORD", (code) =>
     prisma.order.create({

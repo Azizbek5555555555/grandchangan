@@ -1,6 +1,7 @@
 "use server";
 
 import bcrypt from "bcryptjs";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "../prisma";
 import { createOtp, verifyOtp, invalidateOtps } from "./otp";
 import { createSession, destroySession } from "./session";
@@ -17,18 +18,19 @@ const DUMMY_HASH = "$2a$10$pEchvsPHKvqjNiJQ2zFh/OjilShzacn5L/bmzoLkpHHROaoq9iGae
 
 /** Mijoz: telefonga OTP kod yuborish */
 export async function requestOtpAction(phoneRaw: string): Promise<Result> {
+  const e = await getTranslations("Errors");
   const phone = normalizePhone(phoneRaw);
-  if (phone.length < 12) return { ok: false, error: "Telefon raqam noto'g'ri" };
+  if (phone.length < 12) return { ok: false, error: e("phoneInvalid") };
   // SMS bombardimon va pul isrofiga qarshi: raqamga 1 daqiqada 1 ta, 10 daqiqada 3 ta kod
   if (!rateLimit(`otp-cd:${phone}`, 1, MINUTE)) {
-    return { ok: false, error: "Kod yuborildi. Yangi kodni 1 daqiqadan keyin so'rashingiz mumkin." };
+    return { ok: false, error: e("otpCooldown") };
   }
   if (!rateLimit(`otp-req:${phone}`, 3, 10 * MINUTE) || !rateLimit(`otp-ip:${await clientIp()}`, 15, HOUR)) {
-    return { ok: false, error: TOO_MANY };
+    return { ok: false, error: e("tooMany") };
   }
   const code = await createOtp(phone, "login");
   const sent = await sendSms(phone, `GrandChangan. Tasdiqlash kodi: ${code}`);
-  if (!sent.ok) return { ok: false, error: "SMS yuborilmadi. Birozdan keyin qayta urinib ko'ring." };
+  if (!sent.ok) return { ok: false, error: e("smsFailed") };
   return { ok: true };
 }
 
@@ -38,15 +40,16 @@ export async function verifyOtpAction(
   name: string,
   code: string
 ): Promise<Result> {
+  const e = await getTranslations("Errors");
   const phone = normalizePhone(phoneRaw);
   const cleanCode = (code || "").trim();
   // Kodni terib topishga qarshi: 15 daqiqada 5 urinish, keyin faol kodlar bekor qilinadi
   if (!rateLimit(`otp-verify:${phone}`, 5, 15 * MINUTE)) {
     await invalidateOtps(phone, "login");
-    return { ok: false, error: TOO_MANY };
+    return { ok: false, error: e("tooMany") };
   }
   const valid = /^\d{6}$/.test(cleanCode) && (await verifyOtp(phone, cleanCode, "login"));
-  if (!valid) return { ok: false, error: "Kod noto'g'ri yoki muddati o'tgan" };
+  if (!valid) return { ok: false, error: e("codeInvalid") };
   clearLimit(`otp-verify:${phone}`);
   name = (name || "").trim().slice(0, 80);
 

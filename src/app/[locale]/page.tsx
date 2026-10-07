@@ -52,7 +52,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const bandImg = g[3] || g[0] || heroImg;
   const reserveImg = g[4] || g[1] || heroImg;
   const showcase = showcaseBanners.length
-    ? showcaseBanners.map((b, i) => ({ title: t(b.title, locale) || `Karta ${i + 1}`, text: b.subtitle ? t(b.subtitle, locale) : "", img: usable(b.imageUrl) }))
+    ? showcaseBanners.map((b, i) => ({ title: t(b.title, locale), text: b.subtitle ? t(b.subtitle, locale) : "", img: usable(b.imageUrl) }))
     : [
         { title: st("sc1t"), text: st("sc1x") },
         { title: st("sc2t"), text: st("sc2x") },
@@ -79,7 +79,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <Reveal y={20}>
             <div className="mb-6 flex items-center justify-center gap-3">
               <span className="h-px w-10 bg-brand-gold" />
-              <span className="text-xs uppercase tracking-[0.4em] text-brand-gold">Samarqand · 中国餐厅</span>
+              <span className="text-xs uppercase tracking-[0.4em] text-brand-gold">{st("heroTag")}</span>
               <span className="h-px w-10 bg-brand-gold" />
             </div>
           </Reveal>
@@ -282,7 +282,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="flex h-[80vh] w-[70vw] shrink-0 items-center justify-center px-8 text-center sm:w-[46vw]">
             <div>
               <h2 className="font-display text-4xl sm:text-5xl">{st("scCta1")}<br /><span className="accent-gold">{st("scCta2")}</span></h2>
-              <Link href="/reservation" className="btn-gold-sheen mt-8 inline-flex items-center gap-2 rounded-full bg-brand-red px-9 py-4 font-medium text-white hover:bg-brand-red-dark">Stol band qilish <ArrowRight size={18} /></Link>
+              <Link href="/reservation" className="btn-gold-sheen mt-8 inline-flex items-center gap-2 rounded-full bg-brand-red px-9 py-4 font-medium text-white hover:bg-brand-red-dark">{tr("book_table")} <ArrowRight size={18} /></Link>
             </div>
           </div>
           <div className="h-1 w-[10vw] shrink-0" />
@@ -294,7 +294,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <span className="pointer-events-none absolute inset-0" style={{ backgroundImage: "radial-gradient(60% 60% at 50% 0%, rgba(200,162,75,0.10) 0%, transparent 60%)" }} />
         <div className="relative mx-auto max-w-5xl px-6">
           <Reveal className="mb-10 text-center">
-            <p className="text-xs uppercase tracking-[0.35em] text-brand-gold">Raqamlarda</p>
+            <p className="text-xs uppercase tracking-[0.35em] text-brand-gold">{st("statsEyebrow")}</p>
             <div className="mx-auto mt-4 w-24"><div className="animated-line" /></div>
           </Reveal>
           <Reveal>

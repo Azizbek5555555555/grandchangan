@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import SmoothScroll from "@/components/motion/SmoothScroll";
@@ -20,10 +20,12 @@ const sans = Inter({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "GrandChangan — Xitoy restorani · Samarqand",
-  description: "Haqiqiy Xitoy taomlari va an'anaviy atmosfera. Samarqand markazida.",
-};
+// Sarlavha va tavsif sahifa tilida — Google'da turistlar o'z tilida ko'radi
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale: hasLocale(routing.locales, locale) ? locale : routing.defaultLocale, namespace: "Meta" });
+  return { title: t("title"), description: t("description") };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
