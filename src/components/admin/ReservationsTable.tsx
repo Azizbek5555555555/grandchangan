@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Badge, Modal } from "@/components/ui/primitives";
 import { UtensilsCrossed } from "lucide-react";
 import { t, formatMoney } from "@/lib/utils";
+import { formatRestaurant } from "@/lib/time";
 import { updateReservationStatus } from "@/lib/reservation/actions";
 
 type PreOrderItem = { name: unknown; quantity: number; unitPrice: number };
@@ -63,7 +64,7 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
                 </td>
                 <td className="px-4 py-3">{r.partySize}</td>
                 <td className="px-4 py-3 text-xs">
-                  {new Date(r.startTime).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  {formatRestaurant(r.startTime, { year: false })}
                 </td>
                 <td className="px-4 py-3">{r.tableNumber || "—"}</td>
                 <td className="px-4 py-3">
@@ -102,7 +103,7 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
         <Modal open onClose={() => setDetail(null)} title={`Oldindan buyurtma — ${detail.code}`}>
           <div className="mb-3 rounded-lg bg-surface-2 p-3 text-sm">
             <p><b>Mehmon:</b> {detail.guestName} · {detail.guestPhone}</p>
-            <p><b>Vaqt:</b> {new Date(detail.startTime).toLocaleString("uz-UZ")} · <b>Stol:</b> {detail.tableNumber || "—"}</p>
+            <p><b>Vaqt:</b> {formatRestaurant(detail.startTime)} · <b>Stol:</b> {detail.tableNumber || "—"}</p>
             <p><b>Buyurtma kodi:</b> <span className="font-mono">{detail.preOrder.code}</span></p>
           </div>
           <table className="w-full text-sm">

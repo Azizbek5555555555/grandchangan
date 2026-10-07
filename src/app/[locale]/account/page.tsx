@@ -2,6 +2,7 @@ import { setRequestLocale } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { currentUser } from "@/lib/auth/guard";
+import { formatRestaurant } from "@/lib/time";
 import { logoutAction } from "@/lib/auth/actions";
 import { Badge } from "@/components/ui/primitives";
 import SiteHeader from "@/components/site/Header";
@@ -41,7 +42,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
             <div key={r.id} className="flex items-center justify-between rounded-xl border border-line bg-card p-4">
               <div>
                 <p className="font-mono text-xs text-muted">{r.code}</p>
-                <p className="text-sm">{new Date(r.startTime).toLocaleString("uz-UZ", { day: "2-digit", month: "long", hour: "2-digit", minute: "2-digit" })} · {r.partySize} kishi · Stol {r.table?.number ?? "—"}</p>
+                <p className="text-sm">{formatRestaurant(r.startTime)} · {r.partySize} kishi · Stol {r.table?.number ?? "—"}</p>
               </div>
               <Badge color={r.status === "CONFIRMED" ? "green" : r.status === "CANCELLED" ? "red" : "gold"}>{r.status}</Badge>
             </div>

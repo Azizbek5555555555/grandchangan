@@ -23,12 +23,13 @@ export async function saveCategory(input: {
 }) {
   await ensureAdmin();
   const base = (input.name.uz || input.name.en || "kategoriya").toString();
+  // Berilmagan maydonlar undefined qoladi: tahrirda o'zgarmaydi, yangi yozuvda schema default'i olinadi
   const data = {
     name: input.name,
-    description: input.description ?? undefined,
-    imageUrl: input.imageUrl ?? undefined,
-    sortOrder: input.sortOrder ?? 0,
-    isActive: input.isActive ?? true,
+    description: input.description,
+    imageUrl: input.imageUrl,
+    sortOrder: input.sortOrder,
+    isActive: input.isActive,
   };
   if (input.id) {
     await prisma.menuCategory.update({ where: { id: input.id }, data });
@@ -67,21 +68,23 @@ export async function saveItem(input: {
 }) {
   await ensureAdmin();
   const base = (input.name.uz || input.name.en || "taom").toString();
+  // Berilmagan maydonlar undefined qoladi: tahrirda o'zgarmaydi (masalan yashirilgan taom
+  // yashirinligicha qoladi), yangi yozuvda schema default'i olinadi. null — maydonni tozalaydi.
   const data = {
     categoryId: input.categoryId,
     name: input.name,
-    description: input.description ?? undefined,
+    description: input.description,
     price: input.price,
-    discountPrice: input.discountPrice ?? null,
-    imageUrl: input.imageUrl ?? undefined,
-    spicyLevel: input.spicyLevel ?? "NONE",
-    isVegetarian: input.isVegetarian ?? false,
-    isHalal: input.isHalal ?? true,
-    isFeatured: input.isFeatured ?? false,
-    isNew: input.isNew ?? false,
-    isAvailable: input.isAvailable ?? true,
-    weightGrams: input.weightGrams ?? null,
-    sortOrder: input.sortOrder ?? 0,
+    discountPrice: input.discountPrice,
+    imageUrl: input.imageUrl,
+    spicyLevel: input.spicyLevel,
+    isVegetarian: input.isVegetarian,
+    isHalal: input.isHalal,
+    isFeatured: input.isFeatured,
+    isNew: input.isNew,
+    isAvailable: input.isAvailable,
+    weightGrams: input.weightGrams,
+    sortOrder: input.sortOrder,
   };
   if (input.id) {
     await prisma.menuItem.update({ where: { id: input.id }, data });
@@ -101,6 +104,10 @@ export async function toggleItemAvailability(id: string, isAvailable: boolean) {
 
 export async function deleteItem(id: string) {
   await ensureAdmin();
+  const used = await prisma.orderItem.count({ where: { menuItemId: id } });
+  if (used > 0) {
+    return { ok: false, error: "Bu taom buyurtmalarda bor — o'chirib bo'lmaydi. Uning o'rniga yashiring (ko'z belgisi)." };
+  }
   await prisma.menuItem.delete({ where: { id } });
   revalidateMenu();
   return { ok: true };

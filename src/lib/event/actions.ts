@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
 import { normalizePhone } from "../utils";
-import { notifyTelegram } from "../telegram/notify";
+import { notifyTelegram, escapeHtml } from "../telegram/notify";
 
 export async function submitInquiry(input: {
   name: string; phone: string; eventType: string; guestCount: number; preferredDate?: string; message?: string;
@@ -15,7 +15,7 @@ export async function submitInquiry(input: {
       message: input.message || null, status: "NEW",
     },
   });
-  await notifyTelegram(`🎉 Tadbir so'rovi: ${input.name} (${input.phone})\nTuri: ${input.eventType}, ${input.guestCount} kishi`);
+  await notifyTelegram(`🎉 Tadbir so'rovi: ${escapeHtml(input.name)} (${escapeHtml(input.phone)})\nTuri: ${escapeHtml(input.eventType)}, ${escapeHtml(input.guestCount)} kishi`);
   revalidatePath("/[locale]/admin/events", "page");
   return { ok: true };
 }

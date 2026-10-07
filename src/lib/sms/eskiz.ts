@@ -14,7 +14,11 @@ async function getToken(): Promise<string | null> {
   form.append("email", email);
   form.append("password", password);
 
-  const res = await fetch(`${BASE}/auth/login`, { method: "POST", body: form });
+  const res = await fetch(`${BASE}/auth/login`, {
+    method: "POST",
+    body: form,
+    signal: AbortSignal.timeout(8000),
+  });
   if (!res.ok) return null;
   const data = await res.json().catch(() => null);
   const token = data?.data?.token;
@@ -25,25 +29,39 @@ async function getToken(): Promise<string | null> {
 
 /**
  * SMS yuborish. ESKIZ kalitlari bo'lmasa — konsolga chiqaradi (dev rejim).
+ * Hech qachon xato otmaydi: SMS ketmasa ham bron saqlanib qolishi kerak.
  * Eslatma: Eskiz'da faqat moderatsiyadan o'tgan shablonlar yuboriladi.
  */
 export async function sendSms(phone: string, message: string) {
   const to = phone.replace(/\D/g, "");
-  const token = await getToken();
-  if (!token) {
+  if (!process.env.ESKIZ_EMAIL || !process.env.ESKIZ_PASSWORD) {
     console.log(`[SMS:DEV] -> ${to}: ${message}`);
     return { ok: true, dev: true };
   }
-  const form = new FormData();
-  form.append("mobile_phone", to);
-  form.append("message", message);
-  form.append("from", process.env.ESKIZ_FROM || "4546");
+  try {
+    const token = await getToken();
+    if (!token) {
+      console.error("[SMS] Eskiz token olinmadi — SMS yuborilmadi:", to);
+      return { ok: false };
+    }
+    const form = new FormData();
+    form.append("mobile_phone", to);
+    form.append("message", message);
+    form.append("from", process.env.ESKIZ_FROM || "4546");
 
-  const res = await fetch(`${BASE}/message/sms/send`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: form,
-  });
-  const data = await res.json().catch(() => ({}));
-  return { ok: res.ok, data };
+    const res = await fetch(`${BASE}/message/sms/send`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
+      signal: AbortSignal.timeout(8000),
+    });
+    // Token muddatidan oldin bekor bo'lsa — keyingi safar qaytadan login qilinadi
+    if (res.status === 401) cached = null;
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) console.error("[SMS] yuborilmadi:", res.status, data);
+    return { ok: res.ok, data };
+  } catch (e) {
+    console.error("[SMS] tarmoq xatosi:", e);
+    return { ok: false };
+  }
 }

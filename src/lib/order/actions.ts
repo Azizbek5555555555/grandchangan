@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
-import { genCode, normalizePhone } from "../utils";
+import { normalizePhone } from "../utils";
+import { createWithCode } from "../codes";
+import { formatRestaurant } from "../time";
 import { notifyTelegram } from "../telegram/notify";
 import type { OrderStatus, OrderType } from "@prisma/client";
 
@@ -35,22 +37,21 @@ export async function createOrder(input: {
     };
   });
 
-  const count = await prisma.order.count();
-  const code = genCode("ORD", count + 1);
+  const order = await createWithCode("order", "ORD", (code) =>
+    prisma.order.create({
+      data: {
+        code, type: input.type ?? "DINE_IN", status: "NEW",
+        tableId: input.tableId || null,
+        guestName: input.guestName || null,
+        guestPhone: input.guestPhone ? normalizePhone(input.guestPhone) : null,
+        note: input.note || null,
+        subtotal, serviceCharge: 0, discount: 0, total: subtotal,
+        items: { create: orderItems },
+      },
+    })
+  );
 
-  const order = await prisma.order.create({
-    data: {
-      code, type: input.type ?? "DINE_IN", status: "NEW",
-      tableId: input.tableId || null,
-      guestName: input.guestName || null,
-      guestPhone: input.guestPhone ? normalizePhone(input.guestPhone) : null,
-      note: input.note || null,
-      subtotal, serviceCharge: 0, discount: 0, total: subtotal,
-      items: { create: orderItems },
-    },
-  });
-
-  await notifyTelegram(`🧾 Yangi buyurtma ${code} — ${subtotal.toLocaleString()} so'm`);
+  await notifyTelegram(`🧾 Yangi buyurtma ${order.code} — ${subtotal.toLocaleString()} so'm`);
   revalidatePath("/[locale]/admin/orders", "page");
   return { ok: true, code: order.code };
 }
@@ -107,29 +108,28 @@ export async function createPreorderForReservation(input: {
     });
   if (!orderItems.length) return { ok: false, error: "Taomlar tanlanmagan" };
 
-  const count = await prisma.order.count();
-  const code = genCode("ORD", count + 1);
-
-  const order = await prisma.order.create({
-    data: {
-      code,
-      type: "PREORDER",
-      status: "NEW",
-      reservationId: reservation.id,
-      tableId: reservation.tableId,
-      guestName: reservation.guestName,
-      guestPhone: reservation.guestPhone,
-      scheduledFor: reservation.startTime,
-      subtotal,
-      serviceCharge: 0,
-      discount: 0,
-      total: subtotal,
-      items: { create: orderItems },
-    },
-  });
+  const order = await createWithCode("order", "ORD", (code) =>
+    prisma.order.create({
+      data: {
+        code,
+        type: "PREORDER",
+        status: "NEW",
+        reservationId: reservation.id,
+        tableId: reservation.tableId,
+        guestName: reservation.guestName,
+        guestPhone: reservation.guestPhone,
+        scheduledFor: reservation.startTime,
+        subtotal,
+        serviceCharge: 0,
+        discount: 0,
+        total: subtotal,
+        items: { create: orderItems },
+      },
+    })
+  );
 
   await notifyTelegram(
-    `🍽 <b>Pre-order</b> (bron ${reservation.code})\n${orderItems.length} xil taom · ${subtotal.toLocaleString()} so'm\nVaqt: ${new Date(reservation.startTime).toLocaleString("uz-UZ")}`
+    `🍽 <b>Pre-order</b> (bron ${reservation.code})\n${orderItems.length} xil taom · ${subtotal.toLocaleString()} so'm\nVaqt: ${formatRestaurant(reservation.startTime)}`
   );
   revalidatePath("/[locale]/admin/reservations", "page");
   return { ok: true, orderCode: order.code, total: subtotal };

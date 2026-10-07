@@ -3,9 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
-import { genCode, normalizePhone } from "../utils";
+import { normalizePhone } from "../utils";
+import { createWithCode } from "../codes";
+import { restaurantDateTime, calendarDate } from "../time";
 import { sendSms } from "../sms/eskiz";
-import { notifyTelegram } from "../telegram/notify";
+import { notifyTelegram, escapeHtml } from "../telegram/notify";
 import type { ReservationStatus, TableShape } from "@prisma/client";
 
 const SLOT_MINUTES = 120;
@@ -81,7 +83,7 @@ export async function saveLayout(positions: { id: string; posX: number; posY: nu
 
 // ---------- AVAILABILITY ----------
 export async function getAvailability(dateStr: string, timeStr: string, partySize: number) {
-  const start = new Date(`${dateStr}T${timeStr}:00`);
+  const start = restaurantDateTime(dateStr, timeStr);
   const end = new Date(start.getTime() + SLOT_MINUTES * 60 * 1000);
 
   const zones = await prisma.zone.findMany({
@@ -134,8 +136,19 @@ export async function createReservation(input: {
   tableId: string; guestName: string; guestPhone: string; partySize: number;
   dateStr: string; timeStr: string; specialRequest?: string; occasion?: string;
 }) {
-  const phone = normalizePhone(input.guestPhone);
-  const start = new Date(`${input.dateStr}T${input.timeStr}:00`);
+  const phone = normalizePhone(input.guestPhone || "");
+  const guestName = (input.guestName || "").trim();
+  if (!guestName) return { ok: false, error: "Ismingizni kiriting" };
+  if (phone.length < 12) return { ok: false, error: "Telefon raqam noto'g'ri" };
+  if (!Number.isInteger(input.partySize) || input.partySize < 1 || input.partySize > 50) {
+    return { ok: false, error: "Mehmonlar soni noto'g'ri" };
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.dateStr) || !/^\d{2}:\d{2}$/.test(input.timeStr)) {
+    return { ok: false, error: "Sana yoki vaqt noto'g'ri" };
+  }
+  const start = restaurantDateTime(input.dateStr, input.timeStr);
+  if (Number.isNaN(start.getTime())) return { ok: false, error: "Sana yoki vaqt noto'g'ri" };
+  if (start.getTime() < Date.now()) return { ok: false, error: "Bu vaqt o'tib ketgan — boshqa vaqtni tanlang" };
   const end = new Date(start.getTime() + SLOT_MINUTES * 60 * 1000);
 
   // Server tomonda qayta tekshirish
@@ -151,22 +164,23 @@ export async function createReservation(input: {
   });
   if (clash) return { ok: false, error: "Bu stol tanlangan vaqtda band" };
 
-  const count = await prisma.reservation.count();
-  const code = genCode("GC", count + 1);
-  const dateOnly = new Date(`${input.dateStr}T00:00:00`);
+  const dateOnly = calendarDate(input.dateStr);
 
-  const reservation = await prisma.reservation.create({
-    data: {
-      code, tableId: input.tableId, guestName: input.guestName, guestPhone: phone,
-      partySize: input.partySize, date: dateOnly, startTime: start, endTime: end,
-      status: "PENDING", source: "WEB",
-      specialRequest: input.specialRequest || null, occasion: input.occasion || null,
-    },
-  });
+  const reservation = await createWithCode("reservation", "GC", (code) =>
+    prisma.reservation.create({
+      data: {
+        code, tableId: input.tableId, guestName, guestPhone: phone,
+        partySize: input.partySize, date: dateOnly, startTime: start, endTime: end,
+        status: "PENDING", source: "WEB",
+        specialRequest: input.specialRequest || null, occasion: input.occasion || null,
+      },
+    })
+  );
+  const code = reservation.code;
 
   await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${code}. ${input.dateStr} ${input.timeStr}`);
   await notifyTelegram(
-    `🍽 <b>Yangi bron</b>\nKod: ${code}\nStol: ${table.number}\nMehmon: ${input.guestName} (${phone})\nKishi: ${input.partySize}\nVaqt: ${input.dateStr} ${input.timeStr}`
+    `🍽 <b>Yangi bron</b>\nKod: ${code}\nStol: ${escapeHtml(table.number)}\nMehmon: ${escapeHtml(guestName)} (${phone})\nKishi: ${input.partySize}\nVaqt: ${input.dateStr} ${input.timeStr}`
   );
 
   revalidatePath("/[locale]/admin/reservations", "page");

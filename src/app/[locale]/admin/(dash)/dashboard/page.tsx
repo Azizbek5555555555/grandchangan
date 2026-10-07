@@ -1,6 +1,7 @@
 import { setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { formatMoney } from "@/lib/utils";
+import { restaurantDay, restaurantDateTime, addDays, formatRestaurant } from "@/lib/time";
 import { CalendarClock, ClipboardList, Users, Wallet, Star, MessageSquare } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -22,11 +23,15 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  const weekAgo = new Date(today); weekAgo.setDate(weekAgo.getDate() - 6);
+  // "Bugun" — restoran vaqti (Toshkent) bo'yicha, server mintaqasiga bog'liq emas
+  const todayStr = restaurantDay();
+  const today = restaurantDateTime(todayStr, "00:00");
+  const tomorrow = restaurantDateTime(addDays(todayStr, 1), "00:00");
+  const weekStartStr = addDays(todayStr, -6);
+  const weekAgo = restaurantDateTime(weekStartStr, "00:00");
 
   const [reservationsToday, ordersToday, customers, paidAgg, pendingReviews, pendingReservations, weekOrders, recentReservations] = await Promise.all([
-    prisma.reservation.count({ where: { date: { gte: today } } }),
+    prisma.reservation.count({ where: { startTime: { gte: today, lt: tomorrow } } }),
     prisma.order.count({ where: { createdAt: { gte: today } } }),
     prisma.user.count({ where: { role: "CUSTOMER" } }),
     prisma.payment.aggregate({ _sum: { amount: true }, where: { status: "PAID", paidAt: { gte: today } } }),
@@ -38,12 +43,9 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
 
   // 7 kunlik daromad (buyurtmalar summasi bo'yicha)
   const byDay: Record<string, number> = {};
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(weekAgo); d.setDate(d.getDate() + i);
-    byDay[d.toISOString().slice(0, 10)] = 0;
-  }
+  for (let i = 0; i < 7; i++) byDay[addDays(weekStartStr, i)] = 0;
   weekOrders.forEach((o) => {
-    const k = o.createdAt.toISOString().slice(0, 10);
+    const k = restaurantDay(o.createdAt);
     if (k in byDay) byDay[k] += Number(o.total);
   });
   const days = Object.entries(byDay);
@@ -95,7 +97,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
               <span className="font-mono text-xs text-muted">{r.code}</span>
               <span>{r.guestName}</span>
               <span className="text-muted">Stol {r.table?.number ?? "—"}</span>
-              <span className="text-xs text-muted">{new Date(r.startTime).toLocaleString("uz-UZ", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
+              <span className="text-xs text-muted">{formatRestaurant(r.startTime, { year: false })}</span>
             </div>
           ))}
           {recentReservations.length === 0 && <p className="text-muted">Hozircha bron yo'q.</p>}
