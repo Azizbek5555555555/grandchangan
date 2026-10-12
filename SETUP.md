@@ -146,20 +146,51 @@ Tekshirish ro'yxati:
 
 ---
 
-## 7. Railway (deploy) sozlamalari
+## 7. Railway (deploy)
 
-Railway → servis → **Variables** ga qo'shing (lokal `.env` dan farqi — `DATABASE_URL` **ichki** manzil):
+Sayt Postgres turgan **o'sha Railway loyihasiga** alohida servis sifatida qo'shiladi.
+`main` ga har merge'dan keyin Railway o'zi qayta deploy qiladi.
 
-| O'zgaruvchi | Qiymat |
+1. Loyiha → **+ Create** → **GitHub Repo** → `grandchangan` (birinchi marta Railway GitHub'ga
+   ruxsat so'raydi — shu repo'ga ruxsat bering). Servis paydo bo'ladi va build boshlanadi —
+   o'zgaruvchilar hali yo'q, birinchi deploy xato bersa normal.
+2. Yangi servis → **Variables** → **Raw Editor** ga quyidagini qo'yib **Update Variables**:
+
+   ```
+   DATABASE_URL="${{Postgres.DATABASE_URL}}"
+   AUTH_SECRET="BUNI_ALMASHTIRING_1"
+   SUPABASE_URL="https://xxxx.supabase.co"
+   SUPABASE_SECRET_KEY="BUNI_ALMASHTIRING_2"
+   SUPABASE_BUCKET="images"
+   ```
+
+   - 1-qator **so'zma-so'z** qoladi: `${{Postgres.DATABASE_URL}}` — Railway'ning havolasi, u o'zi
+     Postgres'ning ichki manziliga aylanadi. `${{ }}` ichiga **boshqa hech narsa yozmang** — ichidagi
+     matn servis nomi deb tushuniladi va qiymat **bo'sh** bo'lib qoladi.
+   - `BUNI_ALMASHTIRING_1` → 4-qadamdagi buyruq bergan **yangi** satr (lokal `.env` dagisi emas).
+   - `BUNI_ALMASHTIRING_2` → `.env` dagi `sb_secret_...` qiymat.
+   - Oxirida matnda `BUNI_ALMASHTIRING` va `<`, `>` belgilari qolmaganini tekshiring.
+   - `SEED_*`, `CLOUDINARY_*` Railway'ga kerak emas. `TELEGRAM_*`, `ESKIZ_*`, to'lov kalitlari
+     bo'lsa — qo'shing.
+3. **Settings → Networking → Generate Domain** (port so'rasa — `8080`) → `xxxx.up.railway.app`
+   link chiqadi.
+4. **Deployments** → oxirgi deploy **Active** bo'lishini kuting (2–4 daqiqa), so'ng linkni oching.
+
+Tekshirish: bosh sahifa, `/menu`, `/admin/login` → kirish, admin'da rasm yuklash.
+
+| Deploy xatosi | Yechim |
 |---|---|
-| `DATABASE_URL` | Postgres → *Private network* URL (`postgres.railway.internal`) |
-| `AUTH_SECRET` | lokal bilan bir xil bo'lishi shart emas |
-| `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `SUPABASE_BUCKET` | 5-qadamdagi qiymatlar |
-| `TELEGRAM_*`, `ESKIZ_*`, to'lov kalitlari | bor bo'lsa |
+| `AUTH_SECRET .env da aniqlanmagan` | Variables'da `AUTH_SECRET` yo'q |
+| `Can't reach database server at postgres.railway.internal` | Sayt servisi Postgres bilan **bir loyiha/environment**da emas yoki `DATABASE_URL` noto'g'ri |
+| `Application failed to respond` | Generate Domain'dagi port `8080` emasligini tekshiring (Settings → Networking) |
+| Rasm yuklashda "Rasm saqlash sozlanmagan" | `SUPABASE_URL` / `SUPABASE_SECRET_KEY` yo'q |
+| Saytda "Application error", **Digest: 3033133707**; logda `DATABASE_URL resolved to an empty string` | `DATABASE_URL` havolasi bo'sh — qiymat `${{ }}` ichiga yozilgan yoki servis nomi xato. Aynan `"${{Postgres.DATABASE_URL}}"` bo'lsin |
+| Logda `the URL must start with the protocol postgresql://` | `DATABASE_URL` ga boshqa narsa (masalan, `AUTH_SECRET`) yozilgan |
+| Admin: "Login yoki parol noto'g'ri" | Kompyuterda `npm run admin:password -- <email> <YangiParol>` — o'sha bazada parol yangilanadi, deploy kerak emas |
+| Lokal'da rasm bor, saytda singan | Bazada hali `/uploads/...` manzillar: `npm run uploads:migrate -- --apply`. Supabase "Unhealthy" bo'lsa — biroz kuting |
 
-Build/Start buyruqlari o'zgarmaydi (`npm run build` → `npm run start`). Supabase o'zgaruvchilari
-bo'lmasa, admin'da rasm yuklash "Rasm saqlash sozlanmagan" xatosini beradi — bu ataylab
-(aks holda rasm yuklanib, darhol yo'qolardi).
+Build paytida baza kerak emas (barcha bazali sahifalar so'rov vaqtida yaratiladi), Node 22
+`package.json` dagi `engines` orqali tanlanadi. Schema o'zgarmagan bo'lsa `prisma db push` kerak emas.
 
 ---
 

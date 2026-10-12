@@ -8,6 +8,7 @@ import { adminLoginAction } from "@/lib/auth/actions";
 
 export default function AdminLoginPage() {
   const t = useTranslations("Admin");
+  const st = useTranslations("Site");
   const router = useRouter();
   const params = useParams();
   const locale = (params?.locale as string) || "uz";
@@ -20,13 +21,19 @@ export default function AdminLoginPage() {
   async function onSubmit() {
     setError(null);
     setLoading(true);
-    const res = await adminLoginAction(email, password);
-    setLoading(false);
-    if (res.ok) {
-      router.replace(`/${locale}/admin`);
-      router.refresh();
-    } else {
-      setError(res.error || "Xatolik");
+    try {
+      const res = await adminLoginAction(email, password);
+      if (res.ok) {
+        router.replace(`/${locale}/admin`);
+        router.refresh();
+      } else {
+        setError(res.error || st("errGeneric"));
+      }
+    } catch {
+      // Server/baza javob bermasa tugma "..." holatida qotib qolmasin
+      setError(st("errGeneric"));
+    } finally {
+      setLoading(false);
     }
   }
 
