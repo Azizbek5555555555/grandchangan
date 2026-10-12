@@ -19,6 +19,21 @@ export default function CustomerLoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Server/baza javob bermasa tugma "..." holatida qotib qolmasin
+  async function submit(action: () => Promise<{ ok: boolean; error?: string }>, onOk: () => void) {
+    setError(null);
+    setLoading(true);
+    try {
+      const r = await action();
+      if (r.ok) onOk();
+      else setError(r.error || st("errGeneric"));
+    } catch {
+      setError(st("errGeneric"));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface-2 px-4">
       <div className="w-full max-w-sm rounded-2xl bg-card p-8 shadow-lg">
@@ -28,7 +43,7 @@ export default function CustomerLoginPage() {
             <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="w-full rounded-lg border border-line px-3 py-2.5" />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
-              onClick={async () => { setError(null); setLoading(true); const r = await requestOtpAction(phone); setLoading(false); if (r.ok) setStep(2); else setError(r.error || st("errGeneric")); }}
+              onClick={() => submit(() => requestOtpAction(phone), () => setStep(2))}
               disabled={loading || phone.length < 7}
               className="w-full rounded-lg bg-brand-red py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-50"
             >
@@ -41,7 +56,7 @@ export default function CustomerLoginPage() {
             <input value={code} onChange={(e) => setCode(e.target.value)} placeholder={ta("codePh")} className="w-full rounded-lg border border-line px-3 py-2.5 text-center text-lg tracking-widest" />
             {error && <p className="text-sm text-red-600">{error}</p>}
             <button
-              onClick={async () => { setError(null); setLoading(true); const r = await verifyOtpAction(phone, name, code); setLoading(false); if (r.ok) router.replace("/account"); else setError(r.error || st("errGeneric")); }}
+              onClick={() => submit(() => verifyOtpAction(phone, name, code), () => router.replace("/account"))}
               disabled={loading || code.length < 4}
               className="w-full rounded-lg bg-brand-red py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-50"
             >
