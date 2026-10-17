@@ -63,13 +63,17 @@ export default function AdminSidebar({ userName, role }: { userName: string; rol
   }
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-line bg-brand-ink text-brand-cream">
-      <div className="border-b border-white/10 px-5 py-5">
-        <p className="text-lg font-bold text-brand-gold-light">GrandChangan</p>
-        <p className="text-xs text-brand-cream/50">{t("panel")}</p>
+    // Telefonda (md dan kichik) — faqat ikonkalar paneli (w-16), kontentga joy qoladi; md+ — avvalgidek w-64
+    <aside className="sticky top-0 flex h-screen w-16 shrink-0 flex-col border-r border-line bg-brand-ink text-brand-cream md:w-64">
+      <div className="border-b border-white/10 px-2 py-5 text-center md:px-5 md:text-left">
+        <p className="text-lg font-bold text-brand-gold-light">
+          <span className="md:hidden">GC</span>
+          <span className="hidden md:inline">GrandChangan</span>
+        </p>
+        <p className="hidden text-xs text-brand-cream/50 md:block">{t("panel")}</p>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 overflow-y-auto px-2 py-4 md:px-3">
         {items.filter(({ key }) => canAccess(role, key)).map(({ key, href, icon: Icon }) => {
           const full = `/admin/${href}`;
           const active = pathname === full;
@@ -77,23 +81,24 @@ export default function AdminSidebar({ userName, role }: { userName: string; rol
             <button
               key={key}
               onClick={() => router.push(full)}
+              title={t(key)}
               className={cn(
-                "mb-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition",
+                "mb-1 flex w-full items-center justify-center gap-3 rounded-lg px-3 py-2 text-sm transition md:justify-start",
                 active
                   ? "bg-brand-red text-white"
                   : "text-brand-cream/70 hover:bg-white/5 hover:text-brand-cream"
               )}
             >
-              <Icon size={18} />
-              <span>{t(key)}</span>
+              <Icon size={18} className="shrink-0" />
+              <span className="sr-only md:not-sr-only">{t(key)}</span>
             </button>
           );
         })}
       </nav>
 
-      <div className="border-t border-white/10 px-3 py-4">
-        <div className="mb-2 flex items-center justify-between px-3">
-          <div>
+      <div className="border-t border-white/10 px-2 py-4 md:px-3">
+        <div className="mb-2 flex items-center justify-center md:justify-between md:px-3">
+          <div className="hidden md:block">
             <p className="text-xs text-brand-cream/70">{userName}</p>
             <p className="text-[10px] uppercase tracking-wider text-brand-cream/40">{ROLE_LABELS[role]}</p>
           </div>
@@ -101,17 +106,18 @@ export default function AdminSidebar({ userName, role }: { userName: string; rol
         </div>
         <button
           onClick={() => setPwdOpen(true)}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-brand-cream/70 transition hover:bg-white/5 hover:text-brand-cream"
+          className="flex w-full items-center justify-center gap-3 rounded-lg px-3 py-2 text-sm text-brand-cream/70 transition hover:bg-white/5 hover:text-brand-cream md:justify-start"
         >
-          <KeyRound size={18} />
-          <span>Parolni o&apos;zgartirish</span>
+          <KeyRound size={18} className="shrink-0" />
+          <span className="sr-only md:not-sr-only">Parolni o&apos;zgartirish</span>
         </button>
         <button
           onClick={onLogout}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-brand-cream/70 transition hover:bg-white/5 hover:text-brand-cream"
+          title={t("logout")}
+          className="flex w-full items-center justify-center gap-3 rounded-lg px-3 py-2 text-sm text-brand-cream/70 transition hover:bg-white/5 hover:text-brand-cream md:justify-start"
         >
-          <LogOut size={18} />
-          <span>{t("logout") ?? "Chiqish"}</span>
+          <LogOut size={18} className="shrink-0" />
+          <span className="sr-only md:not-sr-only">{t("logout") ?? "Chiqish"}</span>
         </button>
       </div>
       {pwdOpen && <PasswordModal onClose={() => setPwdOpen(false)} />}
