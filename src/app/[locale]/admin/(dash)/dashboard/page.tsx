@@ -1,14 +1,17 @@
-import { setRequestLocale } from "next-intl/server";
+import { unstable_rethrow } from "next/navigation";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { Link } from "@/i18n/navigation";
+import { getInventoryDashboardStats } from "@/lib/inventory/queries";
 import { formatMoney } from "@/lib/utils";
 import { restaurantDay, restaurantDateTime, addDays, formatRestaurant } from "@/lib/time";
-import { CalendarClock, ClipboardList, Users, Wallet, Star, MessageSquare } from "lucide-react";
+import { CalendarClock, ClipboardList, Users, Wallet, Star, MessageSquare, Package, TrendingDown } from "lucide-react";
 import { requireSection } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
-function StatCard({ label, value, icon: Icon, hint }: { label: string; value: string; icon: React.ComponentType<{ size?: number; className?: string }>; hint?: string }) {
-  return (
+function StatCard({ label, value, icon: Icon, hint, href }: { label: string; value: string; icon: React.ComponentType<{ size?: number; className?: string }>; hint?: string; href?: string }) {
+  const card = (
     <div className="rounded-2xl border border-line bg-card p-5 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm text-muted">{label}</span>
@@ -18,6 +21,23 @@ function StatCard({ label, value, icon: Icon, hint }: { label: string; value: st
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </div>
   );
+  // href berilsa karta tegishli bo'limga havola bo'ladi
+  return href ? <Link href={href} className="block transition hover:opacity-90">{card}</Link> : card;
+}
+
+/**
+ * Inventar kartalari uchun statistika. Inventar jadvallari bazada hali bo'lmasa
+ * (production'da prisma db push qilinmagan) xato otadi — shunda kartalar yashiriladi,
+ * dashboard'ning qolgan qismi ishlashda davom etadi.
+ */
+async function safeInventoryStats(): Promise<{ lowCount: number; monthLoss: number } | null> {
+  try {
+    return await getInventoryDashboardStats();
+  } catch (e) {
+    unstable_rethrow(e);
+    console.warn("[dashboard] inventar statistikasi yuklanmadi:", e instanceof Error ? e.message : e);
+    return null;
+  }
 }
 
 export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -32,7 +52,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const weekStartStr = addDays(todayStr, -6);
   const weekAgo = restaurantDateTime(weekStartStr, "00:00");
 
-  const [reservationsToday, ordersToday, customers, paidAgg, pendingReviews, pendingReservations, weekOrders, recentReservations] = await Promise.all([
+  const ti = await getTranslations("Inventory");
+  const [reservationsToday, ordersToday, customers, paidAgg, pendingReviews, pendingReservations, weekOrders, recentReservations, inventory] = await Promise.all([
     prisma.reservation.count({ where: { startTime: { gte: today, lt: tomorrow } } }),
     prisma.order.count({ where: { createdAt: { gte: today } } }),
     prisma.user.count({ where: { role: "CUSTOMER" } }),
@@ -41,6 +62,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     prisma.reservation.count({ where: { status: "PENDING" } }),
     prisma.order.findMany({ where: { createdAt: { gte: weekAgo } }, select: { total: true, createdAt: true } }),
     prisma.reservation.findMany({ orderBy: { createdAt: "desc" }, take: 6, include: { table: { select: { number: true } } } }),
+    safeInventoryStats(),
   ]);
 
   // 7 kunlik daromad (buyurtmalar summasi bo'yicha)
@@ -63,6 +85,25 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
         <StatCard label="Mijozlar" value={String(customers)} icon={Users} />
         <StatCard label="Bugungi daromad" value={formatMoney(Number(paidAgg._sum.amount ?? 0))} icon={Wallet} hint="To'langan to'lovlar" />
       </div>
+
+      {inventory && (
+        <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <StatCard
+            label={ti("dashLow")}
+            value={String(inventory.lowCount)}
+            icon={Package}
+            hint={ti(inventory.lowCount > 0 ? "dashLowHint" : "dashLowOk")}
+            href="/admin/inventory"
+          />
+          <StatCard
+            label={ti("dashMonthLoss")}
+            value={formatMoney(inventory.monthLoss)}
+            icon={TrendingDown}
+            hint={ti("dashMonthLossHint")}
+            href="/admin/inventory"
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="rounded-2xl border border-line bg-card p-5 lg:col-span-2">

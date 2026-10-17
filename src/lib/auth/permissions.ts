@@ -6,6 +6,7 @@ import type { UserRole } from "@prisma/client";
  *   MANAGER/ADMIN/SUPERADMIN — boshqaruv (hamma bo'limlar)
  *   WAITER (ofitsiant)       — bronlar, buyurtmalar
  *   KITCHEN (oshxona)        — faqat buyurtmalar (holatini o'zgartirish)
+ *   Inventar                 — WAITER/KITCHEN ham kiradi, lekin faqat sinish/yo'qolishni yozadi
  *   Xodimlar bo'limi         — faqat ADMIN va SUPERADMIN
  */
 export const MANAGEMENT: UserRole[] = ["MANAGER", "ADMIN", "SUPERADMIN"];
@@ -16,6 +17,9 @@ export const SECTION_ROLES = {
   orders: [...MANAGEMENT, "WAITER", "KITCHEN"],
   menu: MANAGEMENT,
   tables: MANAGEMENT,
+  // Inventar: boshqaruv hammasini qiladi; WAITER/KITCHEN faqat "sindi/yo'qoldi" xabar beradi
+  // (bo'lim ichidagi cheklov — src/lib/inventory/actions.ts va sahifada)
+  inventory: [...MANAGEMENT, "WAITER", "KITCHEN"],
   reviews: MANAGEMENT,
   blog: MANAGEMENT,
   banners: MANAGEMENT,
