@@ -41,7 +41,9 @@
     "password": "Password",
     "signin": "Sign in",
     "coming_soon": "This section is coming soon",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "delete": "Delete",
+    "resDeleteConfirm": "Delete reservation {code} permanently? Its pre-order will be deleted too. This cannot be undone."
   },
   "Site": {
     "storyEyebrow": "About us",

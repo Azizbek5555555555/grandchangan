@@ -41,7 +41,9 @@
     "password": "密码",
     "signin": "登录",
     "coming_soon": "此部分即将上线",
-    "logout": "退出"
+    "logout": "退出",
+    "delete": "删除",
+    "resDeleteConfirm": "确定永久删除预订 {code} 吗？其预点菜单也会被删除。此操作无法撤销。"
   },
   "Site": {
     "storyEyebrow": "关于我们",

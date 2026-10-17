@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Badge, Modal } from "@/components/ui/primitives";
-import { UtensilsCrossed } from "lucide-react";
+import { Trash2, UtensilsCrossed } from "lucide-react";
 import { t, formatMoney } from "@/lib/utils";
 import { formatRestaurant } from "@/lib/time";
-import { updateReservationStatus } from "@/lib/reservation/actions";
+import { deleteReservation, updateReservationStatus } from "@/lib/reservation/actions";
 
 type PreOrderItem = { name: unknown; quantity: number; unitPrice: number };
 type PreOrder = { code: string; status: string; total: number; items: PreOrderItem[] };
@@ -20,10 +21,20 @@ const COLOR: Record<string, string> = {
   PENDING: "gold", CONFIRMED: "blue", SEATED: "green", COMPLETED: "gray", CANCELLED: "red", NO_SHOW: "red",
 };
 
-export default function ReservationsTable({ reservations }: { reservations: Res[] }) {
+export default function ReservationsTable({ reservations, canDelete = false }: { reservations: Res[]; canDelete?: boolean }) {
+  const ta = useTranslations("Admin");
   const [filter, setFilter] = useState("all");
+  const [pending, startTransition] = useTransition();
   const [detail, setDetail] = useState<Res | null>(null);
   const shown = filter === "all" ? reservations : reservations.filter((r) => r.status === filter);
+
+  function remove(r: Res) {
+    if (!window.confirm(ta("resDeleteConfirm", { code: r.code }))) return;
+    startTransition(async () => {
+      const res = await deleteReservation(r.id);
+      if (!res.ok) window.alert(res.error);
+    });
+  }
 
   return (
     <div className="p-6">
@@ -89,6 +100,17 @@ export default function ReservationsTable({ reservations }: { reservations: Res[
                   >
                     {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                   </select>
+                  {canDelete && (
+                    <button
+                      onClick={() => remove(r)}
+                      disabled={pending}
+                      title={ta("delete")}
+                      aria-label={ta("delete")}
+                      className="ml-2 inline-flex rounded p-1 align-middle text-muted hover:bg-brand-red/10 hover:text-brand-red disabled:opacity-40"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

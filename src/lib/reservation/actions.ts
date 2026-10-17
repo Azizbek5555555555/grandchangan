@@ -211,3 +211,35 @@ export async function updateReservationStatus(id: string, status: ReservationSta
   revalidatePath("/[locale]/admin/reservations", "page");
   return { ok: true };
 }
+
+// ---------- O'CHIRISH (admin) — test yoki spam bronlar uchun ----------
+// Oddiy holatda bron o'chirilmaydi, CANCELLED qilinadi. O'chirish bronni, unga biriktirilgan
+// oldindan buyurtmani va to'lanmagan to'lov yozuvlarini butunlay olib tashlaydi.
+export async function deleteReservation(id: string): Promise<{ ok: boolean; error?: string }> {
+  await ensureAdmin();
+  const r = await prisma.reservation.findUnique({
+    where: { id },
+    select: {
+      payment: { select: { status: true } },
+      preOrder: { select: { id: true, payment: { select: { status: true } } } },
+    },
+  });
+  if (!r) return { ok: false, error: "Bron topilmadi" };
+  // To'lov tarixi buxgalteriya uchun kerak — to'langan bron o'chirilmaydi
+  if (r.payment?.status === "PAID" || r.preOrder?.payment?.status === "PAID") {
+    return { ok: false, error: "To'langan bronni o'chirib bo'lmaydi — holatini CANCELLED qiling" };
+  }
+  const orderId = r.preOrder?.id;
+  await prisma.$transaction([
+    prisma.payment.deleteMany({ where: { OR: [{ reservationId: id }, ...(orderId ? [{ orderId }] : [])] } }),
+    // Mehmon sharh qoldirgan bo'lsa — sharh saqlanadi, faqat buyurtmaga bog'lanishi uziladi
+    ...(orderId
+      ? [prisma.review.updateMany({ where: { orderId }, data: { orderId: null } }), prisma.order.delete({ where: { id: orderId } })]
+      : []),
+    prisma.reservation.delete({ where: { id } }),
+  ]);
+  revalidatePath("/[locale]/admin/reservations", "page");
+  revalidatePath("/[locale]/admin/dashboard", "page");
+  revalidatePath("/[locale]/admin/orders", "page");
+  return { ok: true };
+}

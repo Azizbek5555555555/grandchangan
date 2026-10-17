@@ -41,7 +41,9 @@
     "password": "Parol",
     "signin": "Kirish",
     "coming_soon": "Bu bo'lim tez orada tayyor bo'ladi",
-    "logout": "Chiqish"
+    "logout": "Chiqish",
+    "delete": "O'chirish",
+    "resDeleteConfirm": "{code} bronini butunlay o'chirasizmi? Oldindan buyurtmasi ham o'chadi. Bu amalni qaytarib bo'lmaydi."
   },
   "Site": {
     "storyEyebrow": "Biz haqimizda",
