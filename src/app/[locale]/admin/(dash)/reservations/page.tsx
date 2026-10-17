@@ -1,11 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import ReservationsTable from "@/components/admin/ReservationsTable";
-import { requireSection } from "@/lib/auth/guard";
+import { requireSection, ADMIN_ROLES } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminReservationsPage() {
-  await requireSection("reservations");
+  const me = await requireSection("reservations");
   const rows = await prisma.reservation.findMany({
     orderBy: { startTime: "desc" },
     take: 200,
@@ -27,5 +27,5 @@ export default async function AdminReservationsPage() {
       })),
     } : null,
   }));
-  return <ReservationsTable reservations={plain} />;
+  return <ReservationsTable reservations={plain} canDelete={ADMIN_ROLES.includes(me.role)} />;
 }
