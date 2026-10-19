@@ -206,7 +206,9 @@ export default function FloorAvailabilityMap({
     const multi = room.bookable && coded.length > 1;
     return (
       <div>
-        <p className={cn("text-[11px] uppercase tracking-[0.25em]", C.eyebrow)}>{tf(`kinds.${room.kind}`)}</p>
+        {tf(`kinds.${room.kind}`) !== roomName(room) && (
+          <p className={cn("text-[11px] uppercase tracking-[0.25em]", C.eyebrow)}>{tf(`kinds.${room.kind}`)}</p>
+        )}
         <h3 className="mt-1 font-display text-2xl">{roomName(room)}</h3>
 
         {focusTable && (
@@ -264,7 +266,7 @@ export default function FloorAvailabilityMap({
       <div className={cn("mb-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs", C.muted)}>
         <Legend swatch="border-brand-gold bg-brand-gold/15" label={ts("rFree")} />
         <Legend swatch="border-brand-red bg-brand-red/40" label={ts("rBusy")} />
-        <Legend swatch="border-brand-gold/70 bg-transparent opacity-45" label={ts("rSmall")} />
+        <Legend swatch="border-brand-gold bg-transparent opacity-60" label={ts("rSmall")} />
         <Legend swatch="border-brand-gold-light bg-brand-gold" label={ts("rSelected")} />
         {loaded && <span className="ml-auto">{tb("freeCount", { count: db.free })}</span>}
       </div>

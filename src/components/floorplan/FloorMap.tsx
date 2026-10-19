@@ -306,13 +306,14 @@ export default function FloorMap({
       </svg>
 
       {/* Boshqaruv tugmalari */}
-      <div className="absolute right-3 top-3 flex flex-col overflow-hidden rounded-xl border border-brand-cream/20 bg-brand-ink/90 text-brand-cream shadow-lg">
+      {/* Telefonda — gorizontal va kichik (o'ng tomondagi xonalarni yopmasin), katta ekranda — ustun */}
+      <div className="absolute right-2 top-2 flex flex-row divide-x divide-brand-cream/10 overflow-hidden rounded-xl border border-brand-cream/20 bg-brand-ink/90 text-brand-cream shadow-lg sm:right-3 sm:top-3 sm:flex-col sm:divide-x-0 sm:divide-y">
         <MapButton label={t("zoomIn")} onClick={() => zoomCenter(1.4)}><Plus size={18} /></MapButton>
         <MapButton label={t("zoomOut")} onClick={() => zoomCenter(1 / 1.4)}><Minus size={18} /></MapButton>
         <MapButton label={t("reset")} onClick={() => setView({ x: 0, y: 0, k: 1 })}><Maximize2 size={16} /></MapButton>
       </div>
       {hintText && (
-        <p className="pointer-events-none absolute bottom-2 left-3 hidden text-[11px] text-brand-cream/60 sm:block">{hintText}</p>
+        <p className="pointer-events-none absolute bottom-2 left-3 hidden rounded-md bg-brand-ink/80 px-2 py-0.5 text-[11px] text-brand-cream/70 sm:block">{hintText}</p>
       )}
     </div>
   );
@@ -325,7 +326,7 @@ function MapButton({ label, onClick, children }: { label: string; onClick: () =>
       onClick={onClick}
       title={label}
       aria-label={label}
-      className="flex h-10 w-10 items-center justify-center border-b border-brand-cream/10 transition last:border-b-0 hover:bg-brand-cream/10"
+      className="flex h-8 w-8 items-center justify-center transition hover:bg-brand-cream/10 sm:h-10 sm:w-10"
     >
       {children}
     </button>

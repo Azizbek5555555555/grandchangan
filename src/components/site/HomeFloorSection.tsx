@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ArrowRight, Minus, Phone, Plus, RotateCw } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { getAvailability } from "@/lib/reservation/actions";
-import { RESTAURANT_TZ, addDays, restaurantDay } from "@/lib/time";
+import { RESTAURANT_TZ, addDays, formatDayMonth, restaurantDay } from "@/lib/time";
 import { dayOfWeekOf, hoursFor, slotsForDay, type DayHours } from "@/lib/hours";
 import { cn } from "@/lib/utils";
 import Reveal from "@/components/motion/Reveal";
@@ -181,12 +181,7 @@ export default function HomeFloorSection({
 
   // Kartadagi qisqa yozuv: "21 oktyabr · 19:00 · 4 kishi" (faqat stol tanlanganda — klientda)
   const dateLabel = useMemo(() => {
-    if (!date) return "";
-    try {
-      return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`));
-    } catch {
-      return date;
-    }
+    return date ? formatDayMonth(date, locale) : "";
   }, [date, locale]);
 
   const tel = `tel:${phone.replace(/[^\d+]/g, "")}`;

@@ -20,7 +20,7 @@ Aziz javobi kerak: Xona 1 va Xona 2 da nechta stol/o'rin bor? (hozir xaritada st
   `src/components/admin/inventory/MapTab.tsx` (admin paneli).
 
 ## Hozirgi — 2-bosqich: Mijozlar uchun 2D xarita (saytda) + xarita orqali bron
-Holat: **jarayonda** (subagentlar: sync-dev — baza/admin, site-dev — sayt; keyin reviewer + tester)
+Holat: **tayyor** (branch `claude/pensive-gauss-fqg6hx`) — review + E2E test o'tdi, `npm run build` o'tdi.
 - Xaritadagi har bir stolning kodi bor: VIP-1..5, Z-1..9 (katta zal), K-1..6 (kabinalar), A-1 (alohida stol)
   = bazadagi `Table.number`. Bog'lanish shu orqali (schema o'zgarmaydi).
 - Admin → Zallar va stollar: "Xaritadan stollarni yaratish" tugmasi (ADMIN/SUPERADMIN) —
@@ -32,6 +32,12 @@ Holat: **jarayonda** (subagentlar: sync-dev — baza/admin, site-dev — sayt; k
 - Xona 1/2 da stol yo'q — "qo'ng'iroq qiling".
 
 ## Keyin — 3-bosqich: Sayt dizaynini yaxshilash (frontend)
+E2E testda topilgan (bu ishdan oldin ham bo'lgan) kamchiliklar — dizayn bosqichida tuzatiladi:
+- Bosh sahifa "Mashhur taomlar" bo'limi foni shaffof — orqadagi sticky hero ko'rinadi, sarlavha o'qilmaydi
+- Telefonda (390px) header logosi "Joy band qilish" tugmasini bosadi
+- PageHero sarlavhalarida pastki harf qismlari kesiladi ("Joy band qilish")
+- Telefonda xaritadagi kabina/stol bosish joylari kichik (kattalashtirish bilan ishlaydi)
+- seed.ts hali eski "Asosiy zal" 1–4 stollarini yaratadi (faqat lokal/yangi baza uchun)
 
 ## Qoidalar (Aziz)
 - Og'ir vazifada parallel-agents skill: avval variant + sabab bir qatorda; bir faylni ikki agent

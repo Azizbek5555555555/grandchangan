@@ -134,7 +134,7 @@ export const ROOMS: FloorRoom[] = [
     decor: [{ type: "wc", x: 468, y: 578 }] },
 
   // ---- Katta zal ----
-  { id: "hall", kind: "hall", rect: { x: 512, y: 345, w: 720, h: 345 }, label: { x: 830, y: 652 },
+  { id: "hall", kind: "hall", rect: { x: 512, y: 345, w: 720, h: 345 }, label: { x: 830, y: 660 },
     tables: hallTables, bookable: true,
     decor: [{ type: "rect", x: 1185, y: 405, w: 40, h: 68, rx: 2 }, { type: "rect", x: 1185, y: 545, w: 40, h: 68, rx: 2 }] },
 

@@ -6,7 +6,7 @@ import { Check, Search, Plus, Minus, UtensilsCrossed, ChevronLeft, ChevronRight,
 import { cn, t, formatMoney } from "@/lib/utils";
 import { getAvailability, createReservation } from "@/lib/reservation/actions";
 import { createPreorderForReservation } from "@/lib/order/actions";
-import { RESTAURANT_TZ, restaurantDay } from "@/lib/time";
+import { RESTAURANT_TZ, formatMonthYear, restaurantDay, weekdayShort } from "@/lib/time";
 import { slotsForDay, hoursFor, dayOfWeekOf, type DayHours } from "@/lib/hours";
 import { findByCode } from "@/lib/floorplan/layout";
 import { useRoomName } from "@/components/floorplan/FloorMap";
@@ -49,7 +49,7 @@ export default function ReservationFlow({
   useEffect(() => setMounted(true), []);
   const tablesReq = useRef(0);
   const STEPS = [T("rGuests"), T("rDate"), T("rTime"), T("rTable"), T("rInfo")];
-  const WEEK = useMemo(() => Array.from({ length: 7 }).map((_, i) => new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(2024, 0, 1 + i))), [locale]);
+  const WEEK = useMemo(() => Array.from({ length: 7 }).map((_, i) => weekdayShort(i, locale)), [locale]);
 
   // Sana + vaqt + kishi soni kelgan bo'lsa — mount'da bo'sh stollar yuklanadi (stol bo'lsa — darhol 5-qadam)
   const boot = !!(initial?.date && initial.time && initial.guests);
@@ -172,7 +172,7 @@ export default function ReservationFlow({
   for (let i = 0; i < firstWeekday; i++) cells.push(null);
   for (let d = 1; d <= daysCount; d++) cells.push(d);
   const canPrev = new Date(year, month, 1) > thisMonth;
-  const monthLabel = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(calMonth);
+  const monthLabel = formatMonthYear(year, month, locale);
   // Tanlangan stol xaritaning qaysi xonasida (5-qadamdagi qisqa ma'lumot uchun)
   const selectedLoc = selectedTable ? findByCode(selectedTable.number.trim().toUpperCase()) : null;
 
@@ -263,7 +263,7 @@ export default function ReservationFlow({
           {mounted ? (<>
           <div className="mb-4 flex items-center justify-between">
             <button disabled={!canPrev} onClick={() => setCalMonth(new Date(year, month - 1, 1))} className="rounded-full p-2 text-muted disabled:opacity-30 hover:bg-surface-2"><ChevronLeft size={20} /></button>
-            <span className="font-medium capitalize text-content">{monthLabel}</span>
+            <span className="font-medium text-content">{monthLabel}</span>
             <button onClick={() => setCalMonth(new Date(year, month + 1, 1))} className="rounded-full p-2 text-muted hover:bg-surface-2"><ChevronRight size={20} /></button>
           </div>
           <div className="mb-2 grid grid-cols-7 text-center text-xs capitalize text-muted">{WEEK.map((w, i) => <span key={i}>{w}</span>)}</div>

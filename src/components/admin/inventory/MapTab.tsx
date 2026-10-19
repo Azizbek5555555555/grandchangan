@@ -153,7 +153,7 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
               <div>
                 <p className="text-lg font-semibold text-content">{roomName(selected)}</p>
                 <p className="text-xs text-muted">
-                  {tf(`kinds.${selected.kind}`)}
+                  {tf(`kinds.${selected.kind}`) !== roomName(selected) && tf(`kinds.${selected.kind}`)}
                   {!selected.bookable && <> · {tf("notBookable")}</>}
                 </p>
               </div>
