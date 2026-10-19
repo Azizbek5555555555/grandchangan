@@ -19,11 +19,17 @@ Aziz javobi kerak: Xona 1 va Xona 2 da nechta stol/o'rin bor? (hozir xaritada st
   (umumiy pan/zoom komponent — mijoz sayti uchun ham qayta ishlatiladi),
   `src/components/admin/inventory/MapTab.tsx` (admin paneli).
 
-## Hozirgi/keyingi — 2-bosqich: Mijozlar uchun 2D xarita (saytda)
-Holat: Aziz buyrug'ini kutmoqda
-- Saytda mijoz restoran xaritasini ko'radi, xona/stolni tanlab bron qiladi.
-- Buning uchun xaritadagi stollarni bazadagi Zone/Table bilan birlashtirish kerak
-  (hozir "Zallar va stollar"dagi stollar xaritadan alohida).
+## Hozirgi — 2-bosqich: Mijozlar uchun 2D xarita (saytda) + xarita orqali bron
+Holat: **jarayonda** (subagentlar: sync-dev — baza/admin, site-dev — sayt; keyin reviewer + tester)
+- Xaritadagi har bir stolning kodi bor: VIP-1..5, Z-1..9 (katta zal), K-1..6 (kabinalar), A-1 (alohida stol)
+  = bazadagi `Table.number`. Bog'lanish shu orqali (schema o'zgarmaydi).
+- Admin → Zallar va stollar: "Xaritadan stollarni yaratish" tugmasi (ADMIN/SUPERADMIN) —
+  zallar/stollarni xaritadan yaratadi, xaritada yo'q eski stollarni o'chirmasdan nofaol qiladi.
+  **Production'da merge'dan keyin Aziz bir marta bosishi kerak.**
+- Bosh sahifa: "Restoran xaritasi" bo'limi (bron bo'limidan oldin): sana, vaqt, kishi soni →
+  xaritada bo'sh/band stollar → stolni tanlash → /reservation?date&time&guests&table → ma'lumot formasi.
+- Bron sahifasi: 4-qadam (stol tanlash) ham shu xarita bilan.
+- Xona 1/2 da stol yo'q — "qo'ng'iroq qiling".
 
 ## Keyin — 3-bosqich: Sayt dizaynini yaxshilash (frontend)
 
