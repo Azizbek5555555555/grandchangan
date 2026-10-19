@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowRight, Minus, Phone, Plus, RotateCw } from "lucide-react";
 import { Link } from "@/i18n/navigation";
@@ -114,6 +115,27 @@ export default function HomeFloorSection({
     }, { rootMargin: "600px 0px" });
     io.observe(el);
     return () => io.disconnect();
+  }, []);
+
+  // Bo'lim balandligi o'zgarsa (xabarlar, "Boshqa stollar", telefonda karta) — pastdagi Fold3D va
+  // Reveal triggerlarining joyi eskiradi. ScrollTrigger'ni kechiktirib qayta hisoblaymiz.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    let timer = 0;
+    let lastH = el.offsetHeight;
+    const ro = new ResizeObserver(() => {
+      const h = el.offsetHeight;
+      if (Math.abs(h - lastH) < 2) return;
+      lastH = h;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => ScrollTrigger.refresh(), 250);
+    });
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      window.clearTimeout(timer);
+    };
   }, []);
 
   // Bo'sh stollarni avtomatik yuklash: 300 ms kutib, eskirgan javoblar e'tiborsiz qoldiriladi
@@ -290,7 +312,7 @@ export default function HomeFloorSection({
             selectedTableId={selectedId}
             onSelectTable={(t) => setSelectedId(t.id)}
             phone={phone}
-            action={(t) => (
+            action={(t) => loading ? null : (
               <>
                 <p className="mb-3 text-xs text-brand-cream/60">
                   {dateLabel} · {time} · {tb("guests", { count: guests })}

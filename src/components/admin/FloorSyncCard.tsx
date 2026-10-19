@@ -6,7 +6,8 @@ import { CheckCircle2, Loader2, MapIcon, RefreshCw, TriangleAlert } from "lucide
 import { Button } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 import { syncTablesFromMap } from "@/lib/floorplan/actions";
-import type { FloorSyncStatus } from "@/lib/floorplan/sync-apply";
+import { formatRestaurant } from "@/lib/time";
+import type { FloorSyncStatus, FutureBooking } from "@/lib/floorplan/sync-apply";
 
 type Outcome = { ok: boolean; text: string };
 
@@ -20,18 +21,23 @@ export default function FloorSyncCard({ status, canSync }: { status: FloorSyncSt
   const t = useTranslations("FloorSync");
   const [pending, startTransition] = useTransition();
   const [outcome, setOutcome] = useState<Outcome | null>(null);
+  // Sinxronlash kelgusi bronlar sababli to'xtatilsa — ro'yxat va "baribir" tugmasi
+  const [blocked, setBlocked] = useState<FutureBooking[] | null>(null);
+  const future = blocked ?? status.futureBookings;
 
-  function run() {
+  function run(force = false) {
     if (pending) return;
-    if (!window.confirm(t("confirm", { count: status.mapTables }))) return;
+    if (!window.confirm(force ? t("forceConfirm") : t("confirm", { count: status.mapTables }))) return;
     setOutcome(null);
     startTransition(async () => {
       try {
-        const r = await syncTablesFromMap();
+        const r = await syncTablesFromMap(force);
         if (!r.ok) {
           setOutcome({ ok: false, text: r.error });
+          if (r.bookings?.length) setBlocked(r.bookings);
           return;
         }
+        setBlocked(null);
         const changed = r.created + r.updated + r.deactivated + r.zonesCreated + r.zonesDeactivated > 0;
         setOutcome({
           ok: true,
@@ -82,12 +88,33 @@ export default function FloorSyncCard({ status, canSync }: { status: FloorSyncSt
             </p>
           )}
           {!canSync && attention && <p className="mt-1 text-xs text-muted">{t("adminOnly")}</p>}
+          {future.length > 0 && (
+            <div className="mt-3 rounded-xl border border-danger/40 bg-card p-3">
+              <p className="flex items-start gap-1.5 text-sm font-medium text-danger">
+                <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />
+                <span>{t("futureTitle", { count: future.length })}</span>
+              </p>
+              <ul className="mt-2 space-y-1 text-xs text-content">
+                {future.map((b) => (
+                  <li key={b.code} className="break-words">
+                    <span className="font-mono">{b.code}</span> · {formatRestaurant(b.startTime)} · {b.table} · {b.guestName}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs text-muted">{t("futureHint")}</p>
+              {canSync && blocked && (
+                <Button type="button" variant="outline" onClick={() => run(true)} disabled={pending} className="mt-3">
+                  {t("forceButton")}
+                </Button>
+              )}
+            </div>
+          )}
         </div>
 
         {canSync && (
           <Button
             type="button"
-            onClick={run}
+            onClick={() => run(false)}
             disabled={pending}
             aria-busy={pending}
             variant={attention ? "primary" : "outline"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Check, Search, Plus, Minus, UtensilsCrossed, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn, t, formatMoney } from "@/lib/utils";
@@ -39,8 +39,15 @@ export default function ReservationFlow({
 }) {
   const T = useTranslations("Site");
   const TB = useTranslations("Booking");
+  const TE = useTranslations("Errors");
   const roomName = useRoomName();
-  const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
+  // "Bugun" — restoran vaqti (Toshkent) bo'yicha, mehmon brauzeri mintaqasiga bog'liq emas
+  const todayStr = useMemo(() => restaurantDay(), []);
+  const thisMonth = useMemo(() => { const [y, m] = todayStr.split("-").map(Number); return new Date(y, m - 1, 1); }, [todayStr]);
+  // Kalendar (oy/hafta nomlari Intl bilan) faqat brauzerda chiziladi — server va brauzer ICU farqi hydration xatosi bermasin
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const tablesReq = useRef(0);
   const STEPS = [T("rGuests"), T("rDate"), T("rTime"), T("rTable"), T("rInfo")];
   const WEEK = useMemo(() => Array.from({ length: 7 }).map((_, i) => new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(2024, 0, 1 + i))), [locale]);
 
@@ -59,7 +66,7 @@ export default function ReservationFlow({
       const [y, m] = initial.date.split("-").map(Number);
       return new Date(y, m - 1, 1);
     }
-    return new Date(today.getFullYear(), today.getMonth(), 1);
+    return thisMonth;
   });
 
   const [zones, setZones] = useState<AvailZone[] | null>(null);
@@ -84,7 +91,10 @@ export default function ReservationFlow({
     if (!daySlots.includes(tm) || isPastSlot(d, tm)) {
       const dayOk = daySlots.some((s) => !isPastSlot(d, s));
       setTime("");
-      if (!dayOk) setDate("");
+      if (!dayOk) {
+        setDate("");
+        setCalMonth(thisMonth);
+      }
       setStep(dayOk ? 3 : 2);
       setNotice("slot");
       setBooting(false);
@@ -121,18 +131,21 @@ export default function ReservationFlow({
   }, []);
 
   async function goToTables() {
+    // Eskirgan javob (foydalanuvchi orqaga qaytib boshqa sana tanlagan bo'lsa) e'tiborsiz qoldiriladi
+    const id = ++tablesReq.current;
     setError(null); setNotice(null); setLoading(true);
     try {
       const res = await getAvailability(date, time, party);
+      if (id !== tablesReq.current) return;
       setZones(res.zones);
       // Avval tanlangan stol yangi vaqtda bo'sh bo'lmasa — tanlov bekor qilinadi
       const fresh = selectedTable ? res.zones.flatMap((z) => z.tables).find((x) => x.id === selectedTable.id) : undefined;
       setSelectedTable(fresh && fresh.state === "free" ? fresh : null);
       setStep(4);
     } catch {
-      setError(T("errGeneric"));
+      if (id === tablesReq.current) setError(T("errGeneric"));
     } finally {
-      setLoading(false);
+      if (id === tablesReq.current) setLoading(false);
     }
   }
   async function submit() {
@@ -140,8 +153,14 @@ export default function ReservationFlow({
     setError(null); setLoading(true);
     const res = await createReservation({ tableId: selectedTable.id, guestName: name, guestPhone: phoneInput, partySize: party, dateStr: date, timeStr: time, specialRequest: request });
     setLoading(false);
-    if (res.ok) { setCode(res.code!); setReservationId(res.reservationId!); setPhase("prompt"); }
-    else setError(res.error || T("errGeneric"));
+    if (res.ok) { setCode(res.code!); setReservationId(res.reservationId!); setPhase("prompt"); return; }
+    // Stol shu orada band bo'lib qolgan bo'lsa — xaritani yangilab, 4-qadamga qaytamiz
+    if (res.error === TE("tableBusy") || res.error === TE("tableNotFound")) {
+      await goToTables();
+      setNotice("taken");
+      return;
+    }
+    setError(res.error || T("errGeneric"));
   }
 
   // Bron soatlari — admin Sozlamalar'dagi ish vaqtidan (yopiq kun bo'sh)
@@ -152,7 +171,7 @@ export default function ReservationFlow({
   const cells: (number | null)[] = [];
   for (let i = 0; i < firstWeekday; i++) cells.push(null);
   for (let d = 1; d <= daysCount; d++) cells.push(d);
-  const canPrev = new Date(year, month, 1) > new Date(today.getFullYear(), today.getMonth(), 1);
+  const canPrev = new Date(year, month, 1) > thisMonth;
   const monthLabel = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(calMonth);
   // Tanlangan stol xaritaning qaysi xonasida (5-qadamdagi qisqa ma'lumot uchun)
   const selectedLoc = selectedTable ? findByCode(selectedTable.number.trim().toUpperCase()) : null;
@@ -160,7 +179,7 @@ export default function ReservationFlow({
   if (phase === "done") {
     return (
       <div className="mx-auto max-w-md px-4 pt-16 pb-20 text-center">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-100"><Check size={32} className="text-green-600" /></div>
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-success-soft"><Check size={32} className="text-success" /></div>
         <h2 className="mb-2 font-display text-3xl text-content">{T("rDoneTitle")}</h2>
         <p className="mb-1 text-muted">{T("rYourCode")}</p>
         <p className="mb-6 font-display text-4xl text-brand-red">{code}</p>
@@ -178,7 +197,7 @@ export default function ReservationFlow({
   if (phase === "prompt") {
     return (
       <div className="mx-auto max-w-md px-4 pt-12 pb-20 text-center">
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-green-100"><Check size={28} className="text-green-600" /></div>
+        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-success-soft"><Check size={28} className="text-success" /></div>
         <p className="mb-1 text-sm text-muted">{T("rCodeShort")} <b className="text-brand-red">{code}</b></p>
         <h2 className="mb-3 font-display text-3xl text-content">{T("rPreorderQ")}</h2>
         <p className="mb-8 text-muted">{T("rPreorderDesc")}</p>
@@ -241,6 +260,7 @@ export default function ReservationFlow({
       {step === 2 && (
         <div className="rounded-3xl border border-line bg-card p-8">
           <h2 className="mb-6 text-center font-display text-3xl text-content">{T("rWhichDay")}</h2>
+          {mounted ? (<>
           <div className="mb-4 flex items-center justify-between">
             <button disabled={!canPrev} onClick={() => setCalMonth(new Date(year, month - 1, 1))} className="rounded-full p-2 text-muted disabled:opacity-30 hover:bg-surface-2"><ChevronLeft size={20} /></button>
             <span className="font-medium capitalize text-content">{monthLabel}</span>
@@ -251,10 +271,11 @@ export default function ReservationFlow({
             {cells.map((d, i) => {
               if (d === null) return <span key={i} />;
               const cellDate = new Date(year, month, d); const ds = ymd(cellDate);
-              const disabled = cellDate < today || slotsForDay(hoursFor(hours, cellDate.getDay())).every((tm) => isPastSlot(ds, tm)); const selected = ds === date;
+              const disabled = ds < todayStr || slotsForDay(hoursFor(hours, cellDate.getDay())).every((tm) => isPastSlot(ds, tm)); const selected = ds === date;
               return <button key={i} disabled={disabled} onClick={() => { setDate(ds); setStep(3); }} className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full text-sm transition ${selected ? "bg-brand-red text-white" : disabled ? "text-muted" : "text-content hover:bg-surface-2"}`}>{d}</button>;
             })}
           </div>
+          </>) : <div className="h-80" aria-hidden />}
           <button onClick={() => setStep(1)} className="mt-6 text-sm text-muted">← {T("rBack")}</button>
         </div>
       )}
@@ -270,7 +291,7 @@ export default function ReservationFlow({
           </div>
           {error && <p className="mt-4 text-sm text-danger">{error}</p>}
           <div className="mt-8 flex items-center justify-between">
-            <button onClick={() => setStep(2)} className="text-sm text-muted">← {T("rBack")}</button>
+            <button onClick={() => setStep(2)} disabled={loading} className="text-sm text-muted disabled:opacity-40">← {T("rBack")}</button>
             <button onClick={goToTables} disabled={!time || isPastSlot(date, time) || loading} className="rounded-full bg-brand-red px-7 py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-40">{loading ? "..." : T("rSelectTable")}</button>
           </div>
         </div>

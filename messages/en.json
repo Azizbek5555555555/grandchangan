@@ -538,7 +538,12 @@
     "result": "Done: {created, plural, one {# table} other {# tables}} created, {updated, plural, one {# table} other {# tables}} updated, {deactivated, plural, one {# table} other {# tables}} deactivated, {zones, plural, one {# new hall} other {# new halls}}.",
     "resultNone": "Everything already matches — nothing changed.",
     "errForbidden": "Only Admin and Superadmin can do this.",
-    "errFailed": "Could not update tables from the map. Please try again later."
+    "errFailed": "Could not update tables from the map. Please try again later.",
+    "errFutureBookings": "Tables that aren't on the map have {count, plural, one {# upcoming booking} other {# upcoming bookings}} — nothing was changed.",
+    "futureTitle": "Upcoming bookings on tables that aren't on the map ({count})",
+    "futureHint": "Cancel these bookings in Reservations first or sort them out with the guest. Otherwise the same physical table could be sold again under its new map code.",
+    "forceButton": "Update anyway",
+    "forceConfirm": "These bookings will stay on inactive tables and won't appear on the map — you'll need to track them yourself. Continue?"
   },
   "Booking": {
     "eyebrow": "Restaurant map",

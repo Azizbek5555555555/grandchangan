@@ -32,6 +32,16 @@ export type FloorSyncResult = {
   zonesDeactivated: number;
 };
 
+/** Nofaol qilinadigan stoldagi kelajakdagi faol bron (sinxronlashdan oldin admin hal qilishi kerak) */
+export type FutureBooking = { code: string; startTime: string; table: string; guestName: string };
+
+/** Sinxronlash to'xtatildi: nofaol bo'ladigan stollarda kelajakdagi bronlar bor (o'zgarish qilinmadi) */
+export class FutureBookingsError extends Error {
+  constructor(public bookings: FutureBooking[]) {
+    super("future-bookings");
+  }
+}
+
 export type FloorSyncStatus = {
   /** Xaritadagi band qilinadigan stollar soni (21) */
   mapTables: number;
@@ -41,8 +51,25 @@ export type FloorSyncStatus = {
   missing: string[];
   /** Sinxronlashda nofaol qilinadigan faol stollar: xaritada yo'q yoki bitta kodning takrori */
   extraActive: number;
+  /** Xaritada yo'q faol stollardagi kelajakdagi faol bronlar (sinxronlash ularni "egasiz" qoldiradi) */
+  futureBookings: FutureBooking[];
   needsSync: boolean;
 };
+
+/** Kod solishtirish: "vip-2 " va "VIP-2" bir xil stol */
+export const normCode = (s: string) => s.trim().toUpperCase();
+const ACTIVE_STATUSES = ["PENDING", "CONFIRMED", "SEATED"] as const;
+
+async function futureBookingsOn(db: Tx | PrismaClient, tableIds: string[]): Promise<FutureBooking[]> {
+  if (!tableIds.length) return [];
+  const rows = await db.reservation.findMany({
+    where: { tableId: { in: tableIds }, status: { in: [...ACTIVE_STATUSES] }, startTime: { gt: new Date() } },
+    orderBy: { startTime: "asc" },
+    take: 50,
+    select: { code: true, startTime: true, guestName: true, table: { select: { number: true } } },
+  });
+  return rows.map((r) => ({ code: r.code, startTime: r.startTime.toISOString(), table: r.table?.number ?? "—", guestName: r.guestName }));
+}
 
 type Tx = Prisma.TransactionClient;
 type DbTable = {
@@ -64,8 +91,10 @@ const same = (a: number, b: number) => Math.abs(a - b) < 0.01;
  * avval kerakli zaldagisi (zal+raqam unikal — to'qnashuv bo'lmasin), keyin faoli,
  * keyin tarixi ko'pi, keyin eng eskisi.
  */
-function pickPrimary(cands: DbTable[], zoneId: string): DbTable {
+function pickPrimary(cands: DbTable[], zoneId: string, code: string): DbTable {
+  const exactHere = (t: DbTable) => Number(t.zoneId === zoneId && t.number === code);
   return [...cands].sort((a, b) =>
+    exactHere(b) - exactHere(a) ||
     Number(b.zoneId === zoneId) - Number(a.zoneId === zoneId) ||
     Number(b.isActive) - Number(a.isActive) ||
     (b._count.reservations + b._count.orders) - (a._count.reservations + a._count.orders) ||
@@ -75,15 +104,22 @@ function pickPrimary(cands: DbTable[], zoneId: string): DbTable {
 
 function tableChanged(t: DbTable, p: PlannedTable, zoneId: string): boolean {
   return (
-    t.zoneId !== zoneId || t.seats !== p.seats || t.shape !== p.shape || t.isVip !== p.isVip ||
+    t.zoneId !== zoneId || t.number !== p.code || t.seats !== p.seats || t.shape !== p.shape || t.isVip !== p.isVip ||
     !t.isActive || t.minSeats > p.seats ||
     !same(t.posX, p.posX) || !same(t.posY, p.posY) || !same(t.width, p.width) || !same(t.height, p.height)
   );
 }
 
-export async function applyFloorSync(db: PrismaClient): Promise<FloorSyncResult> {
+/**
+ * force=false (standart): xaritada yo'q stollarda kelajakdagi faol bronlar bo'lsa — hech narsa
+ * o'zgartirilmaydi, FutureBookingsError otiladi (tranzaksiya bekor qilinadi). Aks holda o'sha
+ * jismoniy stol xaritadagi yangi kod bilan ikkinchi marta sotilib qolishi mumkin.
+ */
+export async function applyFloorSync(db: PrismaClient, { force = false }: { force?: boolean } = {}): Promise<FloorSyncResult> {
   return db.$transaction(
     async (tx: Tx) => {
+      // Bir vaqtda ikki admin bossa — ikkinchisi birinchisi tugashini kutadi (takroriy zallar bo'lmasin)
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('floor-sync'))`;
       const res: FloorSyncResult = { created: 0, updated: 0, deactivated: 0, zonesCreated: 0, zonesDeactivated: 0 };
 
       // ---- 1. Zallar ----
@@ -122,11 +158,11 @@ export async function applyFloorSync(db: PrismaClient): Promise<FloorSyncResult>
       // ---- 2. Xaritadagi stollar: yangilash yoki yaratish ----
       const all = (await tx.table.findMany({ select: TABLE_SELECT })) as DbTable[];
       const byNumber = new Map<string, DbTable[]>();
-      for (const t of all) byNumber.set(t.number, [...(byNumber.get(t.number) ?? []), t]);
+      for (const t of all) byNumber.set(normCode(t.number), [...(byNumber.get(normCode(t.number)) ?? []), t]);
 
       const keepIds = new Set<string>();
       for (const { zoneId, table: p } of planned) {
-        const cands = byNumber.get(p.code) ?? [];
+        const cands = byNumber.get(normCode(p.code)) ?? [];
         const pos = { posX: p.posX, posY: p.posY, width: p.width, height: p.height };
         if (cands.length === 0) {
           const created = await tx.table.create({
@@ -140,13 +176,13 @@ export async function applyFloorSync(db: PrismaClient): Promise<FloorSyncResult>
           res.created++;
           continue;
         }
-        const t = pickPrimary(cands, zoneId);
+        const t = pickPrimary(cands, zoneId, p.code);
         keepIds.add(t.id);
         if (tableChanged(t, p, zoneId)) {
           await tx.table.update({
             where: { id: t.id },
             data: {
-              zoneId, seats: p.seats, shape: p.shape, isVip: p.isVip, isActive: true,
+              zoneId, number: p.code, seats: p.seats, shape: p.shape, isVip: p.isVip, isActive: true,
               minSeats: Math.min(t.minSeats, p.seats), ...pos,
             },
           });
@@ -156,6 +192,10 @@ export async function applyFloorSync(db: PrismaClient): Promise<FloorSyncResult>
 
       // ---- 3. Qolgan faol stollar (xaritada yo'q yoki takroriy) → nofaol (o'chirilmaydi) ----
       const stale = all.filter((t) => t.isActive && !keepIds.has(t.id)).map((t) => t.id);
+      if (!force) {
+        const future = await futureBookingsOn(tx, stale);
+        if (future.length) throw new FutureBookingsError(future);
+      }
       if (stale.length) {
         const r = await tx.table.updateMany({ where: { id: { in: stale } }, data: { isActive: false } });
         res.deactivated = r.count;
@@ -184,8 +224,9 @@ export async function getFloorSyncStatus(db: PrismaClient): Promise<FloorSyncSta
   const index = mapTableIndex();
   const tables = await db.table.findMany({
     where: { isActive: true },
-    select: { number: true, seats: true, zone: { select: { name: true, isActive: true } } },
+    select: { id: true, number: true, seats: true, zone: { select: { name: true, isActive: true } } },
   });
+  const offMap: string[] = [];
 
   const liveCodes = new Set<string>();
   const linkedCodes = new Set<string>();
@@ -193,15 +234,17 @@ export async function getFloorSyncStatus(db: PrismaClient): Promise<FloorSyncSta
   let notOnMap = 0;
 
   for (const t of tables) {
-    const m = index.get(t.number);
+    const code = normCode(t.number);
+    const m = index.get(code);
     if (!m) {
       notOnMap++;
+      offMap.push(t.id);
       continue;
     }
-    perCode.set(t.number, (perCode.get(t.number) ?? 0) + 1);
+    perCode.set(code, (perCode.get(code) ?? 0) + 1);
     if (!t.zone.isActive) continue;
-    liveCodes.add(t.number);
-    if (t.seats === m.seats && zoneUzName(t.zone.name) === m.zoneUz.trim()) linkedCodes.add(t.number);
+    liveCodes.add(code);
+    if (t.number === code && t.seats === m.seats && zoneUzName(t.zone.name) === m.zoneUz.trim()) linkedCodes.add(code);
   }
   // Bitta kodga bir nechta faol stol — ortiqchalari sinxronlashda nofaol qilinadi
   const duplicates = [...perCode.values()].reduce((s, n) => s + Math.max(0, n - 1), 0);
@@ -213,6 +256,7 @@ export async function getFloorSyncStatus(db: PrismaClient): Promise<FloorSyncSta
     linked: linkedCodes.size,
     missing,
     extraActive,
+    futureBookings: await futureBookingsOn(db, offMap),
     needsSync: linkedCodes.size < index.size || extraActive > 0,
   };
 }

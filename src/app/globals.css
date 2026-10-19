@@ -24,6 +24,9 @@
   --color-line: var(--line);
   /* Xavf/kamomad matni: yorug'da brand-red bilan bir xil, qorong'ida o'qiladigan och qizil */
   --color-danger: var(--danger);
+  /* Muvaffaqiyat belgisi: yorug'da avvalgi green-600/green-100 bilan bir xil */
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
 
   --font-sans: var(--font-sans-var), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-serif-var), "Times New Roman", ui-serif, Georgia, serif;
@@ -39,6 +42,8 @@
   --muted: #57534e;
   --line: #e7e5e4;
   --danger: #b31217;
+  --success: #16a34a;
+  --success-soft: #dcfce7;
   --background: var(--surface);
   --foreground: var(--content);
 }
@@ -50,6 +55,8 @@
   --muted: rgba(249, 242, 231, 0.6);
   --line: rgba(200, 162, 75, 0.32);
   --danger: #ff7b72;
+  --success: #4ade80;
+  --success-soft: rgba(74, 222, 128, 0.15);
 }
 html { background: var(--surface); }
 

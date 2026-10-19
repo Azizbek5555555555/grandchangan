@@ -11,7 +11,7 @@ import { SLOT_MINUTES, dayOfWeekOf, hoursFor, slotsForDay, type DayHours } from 
 import { sendSms } from "../sms/eskiz";
 import { rateLimit, clientIp, HOUR } from "../security/rate-limit";
 import { notifyTelegram, escapeHtml } from "../telegram/notify";
-import type { ReservationStatus, TableShape } from "@prisma/client";
+import { Prisma, type ReservationStatus, type TableShape } from "@prisma/client";
 
 const ACTIVE: ReservationStatus[] = ["PENDING", "CONFIRMED", "SEATED"];
 
@@ -49,14 +49,27 @@ export async function saveTable(input: {
 }) {
   await ensureAdmin();
   const data = {
-    zoneId: input.zoneId, number: input.number, seats: input.seats,
+    zoneId: input.zoneId, number: input.number.trim(), seats: input.seats,
     shape: input.shape ?? "ROUND", isVip: input.isVip ?? false,
     minSpend: input.minSpend ?? null,
     posX: input.posX ?? 40, posY: input.posY ?? 40,
     width: input.width ?? 90, height: input.height ?? 90,
   };
-  if (input.id) await prisma.table.update({ where: { id: input.id }, data });
-  else await prisma.table.create({ data });
+  try {
+    if (input.id) await prisma.table.update({ where: { id: input.id }, data });
+    // Shu zalda shu raqamli (masalan, sinxronlashda nofaol qilingan) stol bo'lsa — yangisini
+    // yaratish o'rniga o'shani qayta faollashtiramiz (zal+raqam unikal)
+    else await prisma.table.upsert({
+      where: { zoneId_number: { zoneId: data.zoneId, number: data.number } },
+      update: { ...data, isActive: true },
+      create: data,
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return { ok: false, error: "Bu zalda shu raqamli stol allaqachon bor" };
+    }
+    throw e;
+  }
   revalidatePath("/[locale]/admin/tables", "page");
   return { ok: true };
 }

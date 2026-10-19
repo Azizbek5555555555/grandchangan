@@ -538,7 +538,12 @@
     "result": "Tayyor: {created} ta stol yaratildi, {updated} ta yangilandi, {deactivated} ta nofaol qilindi, yangi zallar: {zones}.",
     "resultNone": "Hammasi allaqachon mos — hech narsa o'zgarmadi.",
     "errForbidden": "Bu amal faqat Admin va Superadmin uchun.",
-    "errFailed": "Stollarni xaritadan yangilab bo'lmadi. Keyinroq qayta urinib ko'ring."
+    "errFailed": "Stollarni xaritadan yangilab bo'lmadi. Keyinroq qayta urinib ko'ring.",
+    "errFutureBookings": "Xaritada yo'q stollarda {count} ta kelgusi bron bor — hech narsa o'zgartirilmadi.",
+    "futureTitle": "Xaritada yo'q stollardagi kelgusi bronlar ({count})",
+    "futureHint": "Bu bronlarni avval «Bronlar» bo'limida bekor qiling yoki mehmon bilan kelishib hal qiling. Aks holda o'sha jismoniy stol xaritada yangi kod bilan yana sotilib qolishi mumkin.",
+    "forceButton": "Baribir yangilash",
+    "forceConfirm": "Bu bronlar nofaol stollarda qoladi va mijozlar xaritasida ko'rinmaydi — ularni o'zingiz kuzatib borishingiz kerak. Davom etilsinmi?"
   },
   "Booking": {
     "eyebrow": "Restoran xaritasi",
