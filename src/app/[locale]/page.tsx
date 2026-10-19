@@ -16,6 +16,8 @@ import Counter from "@/components/motion/Counter";
 import ZoomImage from "@/components/motion/ZoomImage";
 import HorizontalScroll from "@/components/motion/HorizontalScroll";
 import RotateOnScroll from "@/components/motion/RotateOnScroll";
+import HomeFloorSection from "@/components/site/HomeFloorSection";
+import { RESTAURANT_TZ, restaurantDay } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +33,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const tr = await getTranslations({ locale, namespace: "Home" });
   const st = await getTranslations({ locale, namespace: "Site" });
 
-  const [hero, featured, reviews, gallery, dishesCount, reviewAgg, showcaseBanners] = await Promise.all([
+  const [hero, featured, reviews, gallery, dishesCount, reviewAgg, showcaseBanners, workingHours, generalSetting] = await Promise.all([
     prisma.banner.findFirst({ where: { position: "HERO", isActive: true }, orderBy: { sortOrder: "asc" } }),
     prisma.menuItem.findMany({ where: { isFeatured: true, isAvailable: true }, take: 6, orderBy: { sortOrder: "asc" } }),
     prisma.review.findMany({ where: { status: "APPROVED" }, take: 6, orderBy: { createdAt: "desc" } }),
@@ -39,7 +41,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     prisma.menuItem.count({ where: { isAvailable: true } }),
     prisma.review.aggregate({ _avg: { rating: true }, _count: true, where: { status: "APPROVED" } }),
     prisma.banner.findMany({ where: { position: "HOME_SECONDARY", isActive: true }, orderBy: { sortOrder: "asc" } }),
+    // Restoran xaritasi bo'limi uchun: ish vaqti (bron soatlari) va telefon (Header bilan bir xil manba)
+    prisma.workingHour.findMany({ select: { dayOfWeek: true, openTime: true, closeTime: true, isClosed: true } }),
+    prisma.siteSetting.findUnique({ where: { key: "general" } }),
   ]);
+  const general = (generalSetting?.value as Record<string, unknown>) || {};
+  const phone = Array.isArray(general.phones) && general.phones[0] ? String(general.phones[0]) : "+998 90 503 15 68";
+  // Restoran vaqti (server hisoblaydi — xarita bo'limi SSR va hydration'da bir xil boshlanadi)
+  const nowHM = new Intl.DateTimeFormat("en-GB", { timeZone: RESTAURANT_TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
 
   const heroImg = usable(hero?.imageUrl);
   // Faqat haqiqiy ma'lumot: tasdiqlangan sharh bo'lmasa reyting/sharhlar plitkasi ko'rsatilmaydi
@@ -349,6 +358,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </div>
         </section>
       )}
+
+      {/* ==================== 8.5 RESTORAN XARITASI (stol tanlash va bron) ==================== */}
+      <HomeFloorSection hours={workingHours} phone={phone} today={restaurantDay()} nowHM={nowHM} />
 
       {/* ===== 9–10: RESERVE varaq bo'lib buklanadi, ostidan SHARHLAR ochiladi (Fold3D) ===== */}
       <div className="relative bg-brand-ink">

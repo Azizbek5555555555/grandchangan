@@ -1,24 +1,23 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Search, Plus, Minus, UtensilsCrossed, ChevronLeft, ChevronRight } from "lucide-react";
-import { t, formatMoney } from "@/lib/utils";
+import { Check, Search, Plus, Minus, UtensilsCrossed, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { cn, t, formatMoney } from "@/lib/utils";
 import { getAvailability, createReservation } from "@/lib/reservation/actions";
 import { createPreorderForReservation } from "@/lib/order/actions";
 import { RESTAURANT_TZ, restaurantDay } from "@/lib/time";
-import { slotsForDay, hoursFor, type DayHours } from "@/lib/hours";
+import { slotsForDay, hoursFor, dayOfWeekOf, type DayHours } from "@/lib/hours";
+import { findByCode } from "@/lib/floorplan/layout";
+import { useRoomName } from "@/components/floorplan/FloorMap";
+import FloorAvailabilityMap, { type AvailTable, type AvailZone } from "./FloorAvailabilityMap";
 
-type TableAvail = {
-  id: string; number: string; seats: number; isVip: boolean;
-  posX: number; posY: number; width: number; height: number; shape: string;
-  minSpend: number | null; state: "free" | "busy" | "small" | "maintenance";
-};
-type ZoneAvail = { id: string; name: unknown; mapWidth: number; mapHeight: number; tables: TableAvail[] };
 type MenuCat = { id: string; name: unknown };
 type MenuItm = { id: string; categoryId: string; name: unknown; price: number; imageUrl?: string | null };
 
-const STATE_COLOR: Record<string, string> = { free: "bg-green-500", busy: "bg-red-500", small: "bg-orange-400", maintenance: "bg-neutral-400" };
+/** Bosh sahifadagi xaritadan kelgan boshlang'ich qiymatlar (reservation/page.tsx tekshiradi) */
+export type ReservationInitial = { date?: string; time?: string; guests?: number; tableId?: string };
+
 const pad = (n: number) => String(n).padStart(2, "0");
 const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 /** Bugun tanlangan bo'lsa, restoran vaqti bo'yicha o'tib ketgan soatlar */
@@ -31,27 +30,44 @@ const isPastSlot = (dateStr: string, tm: string) => {
 type Phase = "form" | "prompt" | "menu" | "done";
 
 export default function ReservationFlow({
-  locale, menu, hours,
-}: { locale: string; menu: { categories: MenuCat[]; items: MenuItm[] }; hours: DayHours[] }) {
+  locale, menu, hours, phone, initial,
+}: {
+  locale: string; menu: { categories: MenuCat[]; items: MenuItm[] }; hours: DayHours[];
+  /** Xona 1/2 va onlayn bron qilib bo'lmaydigan stollar uchun */
+  phone?: string;
+  initial?: ReservationInitial;
+}) {
   const T = useTranslations("Site");
+  const TB = useTranslations("Booking");
+  const roomName = useRoomName();
   const today = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
   const STEPS = [T("rGuests"), T("rDate"), T("rTime"), T("rTable"), T("rInfo")];
   const WEEK = useMemo(() => Array.from({ length: 7 }).map((_, i) => new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(2024, 0, 1 + i))), [locale]);
 
-  const [step, setStep] = useState(1);
-  const [party, setParty] = useState(2);
-  const [moreGuests, setMoreGuests] = useState(false);
-  const [date, setDate] = useState<string>("");
-  const [time, setTime] = useState<string>("");
-  const [calMonth, setCalMonth] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
+  // Sana + vaqt + kishi soni kelgan bo'lsa — mount'da bo'sh stollar yuklanadi (stol bo'lsa — darhol 5-qadam)
+  const boot = !!(initial?.date && initial.time && initial.guests);
+  const [booting, setBooting] = useState(boot);
+  const [notice, setNotice] = useState<"taken" | "slot" | null>(null);
 
-  const [zones, setZones] = useState<ZoneAvail[]>([]);
-  const [activeZone, setActiveZone] = useState("");
-  const [selectedTable, setSelectedTable] = useState<TableAvail | null>(null);
+  const [step, setStep] = useState(() => (boot ? 4 : initial?.guests ? (initial.date ? 3 : 2) : 1));
+  const [party, setParty] = useState(initial?.guests ?? 2);
+  const [moreGuests, setMoreGuests] = useState((initial?.guests ?? 0) > 8);
+  const [date, setDate] = useState<string>(initial?.date ?? "");
+  const [time, setTime] = useState<string>(initial?.time ?? "");
+  const [calMonth, setCalMonth] = useState(() => {
+    if (initial?.date) {
+      const [y, m] = initial.date.split("-").map(Number);
+      return new Date(y, m - 1, 1);
+    }
+    return new Date(today.getFullYear(), today.getMonth(), 1);
+  });
+
+  const [zones, setZones] = useState<AvailZone[] | null>(null);
+  const [selectedTable, setSelectedTable] = useState<AvailTable | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
   const [request, setRequest] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -60,26 +76,76 @@ export default function ReservationFlow({
   const [reservationId, setReservationId] = useState("");
   const [orderTotal, setOrderTotal] = useState<number | null>(null);
 
-  async function goToTables() {
+  useEffect(() => {
+    if (!boot || !initial?.date || !initial.time || !initial.guests) return;
+    const { date: d, time: tm, guests: g, tableId } = initial;
+    // Vaqt ish vaqtiga mos kelmasa yoki o'tib ketgan bo'lsa — vaqt (yoki sana) tanlashga qaytamiz
+    const daySlots = slotsForDay(hoursFor(hours, dayOfWeekOf(d)));
+    if (!daySlots.includes(tm) || isPastSlot(d, tm)) {
+      const dayOk = daySlots.some((s) => !isPastSlot(d, s));
+      setTime("");
+      if (!dayOk) setDate("");
+      setStep(dayOk ? 3 : 2);
+      setNotice("slot");
+      setBooting(false);
+      return;
+    }
+    let alive = true;
     setLoading(true);
-    const res = await getAvailability(date, time, party);
-    setLoading(false);
-    setZones(res.zones as ZoneAvail[]);
-    setActiveZone(res.zones[0]?.id ?? "");
-    setStep(4);
+    getAvailability(d, tm, g)
+      .then((res) => {
+        if (!alive) return;
+        setZones(res.zones);
+        const tb = tableId ? res.zones.flatMap((z) => z.tables).find((x) => x.id === tableId) : undefined;
+        if (tb && tb.state === "free") {
+          setSelectedTable(tb);
+          setStep(5);
+        } else {
+          setStep(4);
+          if (tableId) setNotice("taken");
+        }
+      })
+      .catch(() => {
+        if (!alive) return;
+        setStep(4);
+        setError(T("errGeneric"));
+      })
+      .finally(() => {
+        if (!alive) return;
+        setLoading(false);
+        setBooting(false);
+      });
+    return () => { alive = false; };
+    // Faqat birinchi ochilishda (initial o'zgarmaydi)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function goToTables() {
+    setError(null); setNotice(null); setLoading(true);
+    try {
+      const res = await getAvailability(date, time, party);
+      setZones(res.zones);
+      // Avval tanlangan stol yangi vaqtda bo'sh bo'lmasa — tanlov bekor qilinadi
+      const fresh = selectedTable ? res.zones.flatMap((z) => z.tables).find((x) => x.id === selectedTable.id) : undefined;
+      setSelectedTable(fresh && fresh.state === "free" ? fresh : null);
+      setStep(4);
+    } catch {
+      setError(T("errGeneric"));
+    } finally {
+      setLoading(false);
+    }
   }
   async function submit() {
     if (!selectedTable) return;
     setError(null); setLoading(true);
-    const res = await createReservation({ tableId: selectedTable.id, guestName: name, guestPhone: phone, partySize: party, dateStr: date, timeStr: time, specialRequest: request });
+    const res = await createReservation({ tableId: selectedTable.id, guestName: name, guestPhone: phoneInput, partySize: party, dateStr: date, timeStr: time, specialRequest: request });
     setLoading(false);
     if (res.ok) { setCode(res.code!); setReservationId(res.reservationId!); setPhase("prompt"); }
     else setError(res.error || T("errGeneric"));
   }
 
-  const zone = zones.find((z) => z.id === activeZone);
   // Bron soatlari — admin Sozlamalar'dagi ish vaqtidan (yopiq kun bo'sh)
-  const times = date ? slotsForDay(hoursFor(hours, new Date(`${date}T12:00:00Z`).getUTCDay())) : [];
+  const times = date ? slotsForDay(hoursFor(hours, dayOfWeekOf(date))) : [];
   const year = calMonth.getFullYear(), month = calMonth.getMonth();
   const firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
   const daysCount = new Date(year, month + 1, 0).getDate();
@@ -88,6 +154,8 @@ export default function ReservationFlow({
   for (let d = 1; d <= daysCount; d++) cells.push(d);
   const canPrev = new Date(year, month, 1) > new Date(today.getFullYear(), today.getMonth(), 1);
   const monthLabel = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(calMonth);
+  // Tanlangan stol xaritaning qaysi xonasida (5-qadamdagi qisqa ma'lumot uchun)
+  const selectedLoc = selectedTable ? findByCode(selectedTable.number.trim().toUpperCase()) : null;
 
   if (phase === "done") {
     return (
@@ -137,7 +205,7 @@ export default function ReservationFlow({
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-12">
+    <div className={cn("mx-auto px-4 py-12", step === 4 ? "max-w-6xl" : "max-w-2xl")}>
       <div className="mb-10 flex items-center justify-center">
         {STEPS.map((label, i) => {
           const n = i + 1; const done = step > n; const active = step === n;
@@ -152,6 +220,10 @@ export default function ReservationFlow({
           );
         })}
       </div>
+
+      {notice === "slot" && step <= 3 && (
+        <p className="mb-4 rounded-xl border border-brand-gold/40 bg-brand-gold/10 px-4 py-3 text-center text-sm text-content">{TB("slotUnavailable")}</p>
+      )}
 
       {step === 1 && (
         <div className="rounded-3xl border border-line bg-card p-8 text-center">
@@ -196,6 +268,7 @@ export default function ReservationFlow({
               return <button key={tm} disabled={past} onClick={() => setTime(tm)} className={`rounded-full py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-30 ${time === tm && !past ? "bg-brand-red text-white" : "bg-surface-2 text-content hover:bg-surface-2"}`}>{tm}</button>;
             })}
           </div>
+          {error && <p className="mt-4 text-sm text-danger">{error}</p>}
           <div className="mt-8 flex items-center justify-between">
             <button onClick={() => setStep(2)} className="text-sm text-muted">← {T("rBack")}</button>
             <button onClick={goToTables} disabled={!time || isPastSlot(date, time) || loading} className="rounded-full bg-brand-red px-7 py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-40">{loading ? "..." : T("rSelectTable")}</button>
@@ -203,31 +276,31 @@ export default function ReservationFlow({
         </div>
       )}
 
-      {step === 4 && zone && (
+      {step === 4 && booting && (
+        <div className="mx-auto flex max-w-md items-center justify-center gap-2 rounded-3xl border border-line bg-card p-10 text-sm text-muted">
+          <Loader2 size={18} className="animate-spin" /> {TB("checking")}
+        </div>
+      )}
+
+      {step === 4 && !booting && (
         <div>
-          <div className="mb-4 flex flex-wrap justify-center gap-2">
-            {zones.map((z) => <button key={z.id} onClick={() => setActiveZone(z.id)} className={`rounded-full px-4 py-1.5 text-sm ${activeZone === z.id ? "bg-brand-red text-white" : "bg-surface-2"}`}>{t(z.name, locale)}</button>)}
+          <div className="mb-5 text-center">
+            <h2 className="font-display text-3xl text-content">{T("rChooseTable")}</h2>
+            <p className="mt-1 text-sm text-muted">{date} · {time} · {TB("guests", { count: party })}</p>
           </div>
-          <div className="mb-4 flex flex-wrap justify-center gap-4 text-xs">
-            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-full bg-green-500" /> {T("rFree")}</span>
-            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-full bg-red-500" /> {T("rBusy")}</span>
-            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-full bg-orange-400" /> {T("rSmall")}</span>
-            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded-full bg-brand-gold" /> {T("rSelected")}</span>
-          </div>
-          <div className="mx-auto overflow-auto rounded-xl border border-line bg-surface-2 p-2">
-            <div className="relative mx-auto bg-[linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" style={{ width: zone.mapWidth, height: zone.mapHeight }}>
-              {zone.tables.map((tb) => {
-                const selectable = tb.state === "free"; const isSel = selectedTable?.id === tb.id;
-                return (
-                  <button key={tb.id} disabled={!selectable} onClick={() => setSelectedTable(tb)} className={`absolute flex flex-col items-center justify-center text-xs font-medium text-white shadow ${isSel ? "bg-brand-gold text-content ring-4 ring-brand-gold/40" : STATE_COLOR[tb.state]} ${tb.shape === "SQUARE" || tb.shape === "RECT" ? "rounded-lg" : "rounded-full"} ${selectable ? "cursor-pointer" : "cursor-not-allowed opacity-70"}`} style={{ left: tb.posX, top: tb.posY, width: tb.width, height: tb.height }}>
-                    <span>{tb.number}</span><span className="opacity-80">{tb.seats}👤</span>{tb.isVip && <span className="text-[9px]">VIP</span>}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="mt-6 flex items-center justify-between">
-            <button onClick={() => setStep(3)} className="text-sm text-muted">← {T("rBack")}</button>
+          {notice === "taken" && (
+            <p className="mb-4 rounded-xl border border-brand-gold/40 bg-brand-gold/10 px-4 py-3 text-sm text-content">{TB("tableTaken")}</p>
+          )}
+          {error && <p className="mb-4 text-sm text-danger">{error}</p>}
+          <FloorAvailabilityMap
+            zones={zones}
+            loading={loading}
+            selectedTableId={selectedTable?.id ?? null}
+            onSelectTable={(tb) => { setSelectedTable(tb); setNotice(null); }}
+            phone={phone}
+          />
+          <div className="mt-6 flex items-center justify-between gap-3">
+            <button onClick={() => { setError(null); setStep(3); }} className="shrink-0 text-sm text-muted">← {T("rBack")}</button>
             <button onClick={() => setStep(5)} disabled={!selectedTable} className="rounded-full bg-brand-red px-6 py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-40">{selectedTable ? `${T("rTable")} ${selectedTable.number} — ${T("rContinue")}` : T("rChooseTable")}</button>
           </div>
         </div>
@@ -236,19 +309,23 @@ export default function ReservationFlow({
       {step === 5 && selectedTable && (
         <div className="rounded-3xl border border-line bg-card p-8">
           <div className="mb-5 rounded-xl bg-surface-2 p-4 text-sm">
-            <p><b>{T("rTable")}:</b> {selectedTable.number} · <b>{T("rGuests")}:</b> {party}</p>
+            <p>
+              <b>{T("rTable")}:</b> {selectedTable.number}
+              {selectedLoc && selectedLoc.room.kind !== "vip" ? <> ({roomName(selectedLoc.room)})</> : null}
+              {" · "}<b>{T("rGuests")}:</b> {party}
+            </p>
             <p><b>{T("rDate")}:</b> {date} · <b>{T("rTime")}:</b> {time}</p>
             {selectedTable.minSpend ? <p className="text-brand-red">{T("rMinSpend")}: {formatMoney(selectedTable.minSpend)}</p> : null}
           </div>
           <div className="space-y-4">
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder={T("rNamePh")} className="w-full rounded-lg border border-line px-3 py-2.5" />
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={T("rPhonePh")} className="w-full rounded-lg border border-line px-3 py-2.5" />
+            <input value={phoneInput} onChange={(e) => setPhoneInput(e.target.value)} placeholder={T("rPhonePh")} className="w-full rounded-lg border border-line px-3 py-2.5" />
             <textarea value={request} onChange={(e) => setRequest(e.target.value)} rows={2} placeholder={T("rNotePh")} className="w-full rounded-lg border border-line px-3 py-2.5" />
           </div>
-          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-3 text-sm text-danger">{error}</p>}
           <div className="mt-6 flex items-center justify-between">
-            <button onClick={() => setStep(4)} className="text-sm text-muted">← {T("rBack")}</button>
-            <button onClick={submit} disabled={loading || !name || phone.length < 7} className="rounded-full bg-brand-red px-7 py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-40">{loading ? "..." : T("rConfirm")}</button>
+            <button onClick={() => { setError(null); setStep(4); }} className="text-sm text-muted">← {T("rBack")}</button>
+            <button onClick={submit} disabled={loading || !name || phoneInput.length < 7} className="rounded-full bg-brand-red px-7 py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-40">{loading ? "..." : T("rConfirm")}</button>
           </div>
         </div>
       )}
@@ -313,7 +390,7 @@ function PreorderMenu({
         })}
       </div>
       {shown.length === 0 && <p className="py-10 text-center text-muted">{T("menuNothing")}</p>}
-      {error && <p className="mt-4 text-center text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-4 text-center text-sm text-danger">{error}</p>}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-4">
           <div><p className="text-xs text-muted">{count} {T("poItems")}</p><p className="font-display text-xl text-content">{formatMoney(total)}</p></div>
