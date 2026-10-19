@@ -70,6 +70,7 @@
     "title": "Inventar",
     "subtitle": "Idish-tovoq va stol jihozlari hisobi: restorandagi jami son, har bir stolda nechta turishi, zaxira, sinish va yo'qotishlar.",
     "tabs": {
+      "map": "Xarita",
       "stock": "Qoldiq",
       "tables": "Stollar",
       "history": "Tarix",
@@ -262,7 +263,26 @@
     "dashLowHint": "Inventar bo'limida ko'ring",
     "dashLowOk": "Hammasi yetarli",
     "dashMonthLoss": "Bu oy yo'qotish",
-    "dashMonthLossHint": "Sinish, yo'qolish va kamomad"
+    "dashMonthLossHint": "Sinish, yo'qolish va kamomad",
+    "map": {
+      "summary": "Xaritada: {tables} stol, {seats} o'rin. Xonaga bosing — u yerdagi buyumlar soni chiqadi.",
+      "dbNote": "Eslatma: «Qoldiq» dagi «Stollarda» hozircha «Zallar va stollar» bo'limidagi {tables} stol / {seats} o'rin bo'yicha hisoblanadi. Xarita bilan keyin birlashtiriladi.",
+      "seatsBadge": "{count} o'rin",
+      "selectHint": "Xaritada xonani tanlang — shu yerda batafsil chiqadi.",
+      "allTitle": "Butun xarita bo'yicha stollarda",
+      "tablesSeats": "{tables} stol · {seats} o'rin",
+      "more": "yana {count} ta…",
+      "details": "Batafsil",
+      "roomItems": "Shu xonadagi buyumlar (norma bo'yicha)",
+      "perTable": "Har bir stolda",
+      "tableGroup": "{seats} kishilik stol × {count}",
+      "noNorms": "Buyumlar yoki normalar hali kiritilmagan — «Qoldiq» bo'limida buyum qo'shing va «o'ringa / stolga» sonini belgilang.",
+      "noTablesYet": "Bu xonada stollar xaritada hali belgilanmagan.",
+      "noTableware": "Bu joyda stol jihozlari hisoblanmaydi.",
+      "kitchenItems": "Oshxona jihozlari (jami)",
+      "kitchenEmpty": "Oshxona jihozlari hali kiritilmagan — «Qoldiq» da «Oshxona» guruhi bilan qo'shing.",
+      "barNote": "Bar idishlari stol normasiga kirmaydi."
+    }
   },
   "Site": {
     "storyEyebrow": "Biz haqimizda",
@@ -469,5 +489,40 @@
   "Meta": {
     "title": "GrandChangan — Xitoy restorani · Samarqand",
     "description": "Haqiqiy Xitoy taomlari va an'anaviy atmosfera. Samarqand markazida."
+  },
+  "Floor": {
+    "mapLabel": "Restoran xaritasi",
+    "zoomIn": "Kattalashtirish",
+    "zoomOut": "Kichiklashtirish",
+    "reset": "Butun xarita",
+    "hint": "Surish — torting · kattalashtirish — g'ildirak yoki ikki barmoq · xonaga bosing",
+    "notBookable": "band qilib bo'lmaydi",
+    "rooms": {
+      "vip": "VIP {n}",
+      "hall": "Katta zal",
+      "room": "Xona {n}",
+      "booth": "Kabina {n}",
+      "private": "Alohida stol",
+      "bar": "Bar",
+      "kitchen": "Oshxona",
+      "wc": "Hojatxona",
+      "reception": "Qabulxona",
+      "entrance": "Kirish",
+      "corridor": "Yo'lak",
+      "boothGroup": "Kabinachalar"
+    },
+    "kinds": {
+      "vip": "VIP xona",
+      "hall": "Umumiy zal",
+      "room": "Alohida xona",
+      "booth": "Kabina",
+      "private": "Alohida stol",
+      "bar": "Bar",
+      "kitchen": "Oshxona",
+      "wc": "Hojatxona",
+      "reception": "Qabul (resepshn)",
+      "entrance": "Kirish",
+      "corridor": "Yo'lak"
+    }
   }
 }
