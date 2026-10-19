@@ -63,8 +63,8 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
   const allLines = useMemo(() => linesFor(data.items, allSeats), [data.items, allSeats]);
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-      <div>
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="min-w-0">
         <p className="mb-3 text-sm text-muted">
           {t("map.summary", { tables: totals.tables, seats: totals.seats })}
         </p>
@@ -77,7 +77,7 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
           }}
         >
           <FloorMap
-            className="h-[58vh] min-h-[360px]"
+            className="h-[52vh] min-h-[320px] lg:h-[58vh] lg:min-h-[360px]"
             selectedId={selected?.id}
             onSelect={onSelect}
             badge={(r) => (isDining(r) && r.rect.w > 150 && roomSeats(r).seats > 0
@@ -134,7 +134,7 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
         ref={panelRef}
         tabIndex={-1}
         aria-live="polite"
-        className="rounded-2xl border border-line bg-card p-4 outline-none lg:max-h-[calc(58vh+3rem)] lg:overflow-y-auto"
+        className="min-w-0 rounded-2xl border border-line bg-card p-4 outline-none lg:max-h-[calc(58vh+3rem)] lg:overflow-y-auto"
       >
         {!selected ? (
           <>
