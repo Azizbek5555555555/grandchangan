@@ -129,7 +129,7 @@ export const ROOMS: FloorRoom[] = [
     decor: [{ type: "wc", x: 468, y: 578 }] },
 
   // ---- Katta zal ----
-  { id: "hall", kind: "hall", rect: { x: 512, y: 345, w: 720, h: 345 }, label: { x: 830, y: 668 },
+  { id: "hall", kind: "hall", rect: { x: 512, y: 345, w: 720, h: 345 }, label: { x: 830, y: 652 },
     tables: hallTables, bookable: true,
     decor: [{ type: "rect", x: 1185, y: 405, w: 40, h: 68, rx: 2 }, { type: "rect", x: 1185, y: 545, w: 40, h: 68, rx: 2 }] },
 
@@ -145,7 +145,7 @@ export const ROOMS: FloorRoom[] = [
   { id: "entrance", kind: "entrance", rect: { x: 455, y: 832, w: 205, h: 86 }, label: { x: 557, y: 893 },
     tables: [], bookable: false, decor: [{ type: "arrow", x: 557, y: 858 }] },
   ...booths,
-  { id: "private", kind: "private", rect: { x: 1243, y: 792, w: 212, h: 123 }, label: { x: 1345, y: 852 }, short: "STOL",
+  { id: "private", kind: "private", rect: { x: 1243, y: 792, w: 212, h: 123 }, label: { x: 1345, y: 852 },
     tables: [rect("private-t", 1345, 852, 112, 46, { top: 2, right: 1, bottom: 2, left: 1 })], bookable: true },
 
   // ---- Bino tashqarisidagi hojatxonalar (rasmda ham bor) ----

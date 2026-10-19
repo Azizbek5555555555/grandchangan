@@ -48,7 +48,16 @@ export default function FloorMap({
   const t = useTranslations("Floor");
   const roomName = useRoomName();
   const svgRef = useRef<SVGSVGElement>(null);
-  const [view, setView] = useState<View>({ x: 0, y: 0, k: 1 });
+  const [view, setViewState] = useState<View>({ x: 0, y: 0, k: 1 });
+  // Eng so'nggi ko'rinish (pinch boshlanishida render kutmasdan o'qish uchun)
+  const viewRef = useRef<View>(view);
+  const setView = useCallback((next: View | ((v: View) => View)) => {
+    setViewState((v) => {
+      const nv = typeof next === "function" ? next(v) : next;
+      viewRef.current = nv;
+      return nv;
+    });
+  }, []);
   const [dragging, setDragging] = useState(false);
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef<{
@@ -64,12 +73,14 @@ export default function FloorMap({
     return { x: p.x, y: p.y };
   }, []);
 
-  // Xarita ko'rinish maydonidan butunlay chiqib ketmasin: markazi doim ekranda qoladi
+  // Chegaralar: kattalashtirilganda xaritaning istalgan chetiga borish mumkin, lekin undan
+  // tashqariga chiqib ketmaydi (ozgina zaxira bilan). Kichiklashtirilganda — markazda turadi.
   const clampView = useCallback((v: View): View => {
-    const cx = VIEWBOX.x + VIEWBOX.w / 2;
-    const cy = VIEWBOX.y + VIEWBOX.h / 2;
-    const minX = VIEWBOX.x - cx * v.k, maxX = VIEWBOX.x + VIEWBOX.w - cx * v.k;
-    const minY = VIEWBOX.y - cy * v.k, maxY = VIEWBOX.y + VIEWBOX.h - cy * v.k;
+    const M = 60;
+    const x0 = VIEWBOX.x, x1 = VIEWBOX.x + VIEWBOX.w, y0 = VIEWBOX.y, y1 = VIEWBOX.y + VIEWBOX.h;
+    if (v.k <= 1) return { k: v.k, x: ((x0 + x1) / 2) * (1 - v.k), y: ((y0 + y1) / 2) * (1 - v.k) };
+    const minX = x1 * (1 - v.k) - M, maxX = x0 * (1 - v.k) + M;
+    const minY = y1 * (1 - v.k) - M, maxY = y0 * (1 - v.k) + M;
     return { k: v.k, x: Math.min(maxX, Math.max(minX, v.x)), y: Math.min(maxY, Math.max(minY, v.y)) };
   }, []);
 
@@ -80,7 +91,7 @@ export default function FloorMap({
       const cx = (px - v.x) / v.k, cy = (py - v.y) / v.k;
       return clampView({ k, x: px - cx * k, y: py - cy * k });
     });
-  }, [clampView]);
+  }, [clampView, setView]);
 
   const zoomCenter = (factor: number) => zoomAt(VIEWBOX.x + VIEWBOX.w / 2, VIEWBOX.y + VIEWBOX.h / 2, factor);
 
@@ -110,7 +121,7 @@ export default function FloorMap({
       const [a, b] = [...pointers.current.values()];
       const mid = toSvg((a.x + b.x) / 2, (a.y + b.y) / 2);
       gesture.current.moved = true; // ikki barmoq — bu bosish emas
-      gesture.current.pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y) || 1, view, mid };
+      gesture.current.pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y) || 1, view: viewRef.current, mid };
     }
   }
 
@@ -140,21 +151,33 @@ export default function FloorMap({
     g.ly = e.clientY;
   }
 
-  function onPointerUp(e: React.PointerEvent<SVGSVGElement>) {
+  /**
+   * Barmoq/sichqoncha qo'yib yuborilganda (up va cancel uchun umumiy). Qolgan barmoqlarga qarab
+   * ishora qayta boshlanadi: 2+ — yangi pinch, 1 — surish shu joydan. Hammasi qo'yilsa — tugagan
+   * ishorani qaytaradi (bosishni aniqlash uchun).
+   */
+  function release(pointerId: number) {
+    pointers.current.delete(pointerId);
     const g = gesture.current;
-    pointers.current.delete(e.pointerId);
-    if (pointers.current.size > 0) {
-      // pinch tugadi, bitta barmoq qoldi — surishni shu joydan davom ettirish
-      if (g) {
-        const [rest] = [...pointers.current.values()];
-        g.pinch = undefined;
-        g.lx = rest.x;
-        g.ly = rest.y;
-      }
-      return;
+    const rest = [...pointers.current.values()];
+    if (g && rest.length >= 2) {
+      const [a, b] = rest;
+      g.pinch = { dist: Math.hypot(a.x - b.x, a.y - b.y) || 1, view: viewRef.current, mid: toSvg((a.x + b.x) / 2, (a.y + b.y) / 2) };
+      return null;
+    }
+    if (g && rest.length === 1) {
+      g.pinch = undefined;
+      g.lx = rest[0].x;
+      g.ly = rest[0].y;
+      return null;
     }
     gesture.current = null;
     setDragging(false);
+    return g;
+  }
+
+  function onPointerUp(e: React.PointerEvent<SVGSVGElement>) {
+    const g = release(e.pointerId);
     if (g && !g.moved && g.roomId && onSelect) {
       const room = rooms.find((r) => r.id === g.roomId);
       if (room) onSelect(room, { clientX: e.clientX, clientY: e.clientY });
@@ -162,11 +185,7 @@ export default function FloorMap({
   }
 
   function onPointerCancel(e: React.PointerEvent<SVGSVGElement>) {
-    pointers.current.delete(e.pointerId);
-    if (pointers.current.size === 0) {
-      gesture.current = null;
-      setDragging(false);
-    }
+    release(e.pointerId);
   }
 
   // Klaviatura: xonada Enter/Space — xona markazi nuqtasi bilan tanlash

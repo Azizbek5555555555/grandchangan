@@ -93,14 +93,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             value={String(inventory.lowCount)}
             icon={Package}
             hint={ti(inventory.lowCount > 0 ? "dashLowHint" : "dashLowOk")}
-            href="/admin/inventory"
+            href="/admin/inventory?tab=stock"
           />
           <StatCard
             label={ti("dashMonthLoss")}
             value={formatMoney(inventory.monthLoss)}
             icon={TrendingDown}
             hint={ti("dashMonthLossHint")}
-            href="/admin/inventory"
+            href="/admin/inventory?tab=history"
           />
         </div>
       )}

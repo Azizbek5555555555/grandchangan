@@ -266,7 +266,7 @@
     "dashMonthLossHint": "Sinish, yo'qolish va kamomad",
     "map": {
       "summary": "Xaritada: {tables} stol, {seats} o'rin. Xonaga bosing — u yerdagi buyumlar soni chiqadi.",
-      "dbNote": "Eslatma: «Qoldiq» dagi «Stollarda» hozircha «Zallar va stollar» bo'limidagi {tables} stol / {seats} o'rin bo'yicha hisoblanadi. Xarita bilan keyin birlashtiriladi.",
+      "dbNote": "Eslatma: «Qoldiq»dagi «Stollarda» hozircha «Zallar va stollar» bo'limidagi {tables} stol / {seats} o'rin bo'yicha hisoblanadi. Xarita bilan keyin birlashtiriladi.",
       "seatsBadge": "{count} o'rin",
       "selectHint": "Xaritada xonani tanlang — shu yerda batafsil chiqadi.",
       "allTitle": "Butun xarita bo'yicha stollarda",
@@ -280,7 +280,7 @@
       "noTablesYet": "Bu xonada stollar xaritada hali belgilanmagan.",
       "noTableware": "Bu joyda stol jihozlari hisoblanmaydi.",
       "kitchenItems": "Oshxona jihozlari (jami)",
-      "kitchenEmpty": "Oshxona jihozlari hali kiritilmagan — «Qoldiq» da «Oshxona» guruhi bilan qo'shing.",
+      "kitchenEmpty": "Oshxona jihozlari hali kiritilmagan — «Qoldiq»da «Oshxona» guruhi bilan qo'shing.",
       "barNote": "Bar idishlari stol normasiga kirmaydi."
     }
   },

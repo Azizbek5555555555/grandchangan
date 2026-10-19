@@ -72,12 +72,13 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
           ref={wrapRef}
           className="relative"
           // Xaritani surish boshlanganda qisqa oyna yopiladi (tanlov panelda qoladi)
+          onWheelCapture={() => setPop(null)}
           onPointerDownCapture={(e) => {
             if (!(e.target instanceof Element) || !e.target.closest("[data-map-pop]")) setPop(null);
           }}
         >
           <FloorMap
-            className="h-[52vh] min-h-[320px] lg:h-[58vh] lg:min-h-[360px]"
+            className="aspect-[1450/880] w-full lg:aspect-auto lg:h-[58vh] lg:min-h-[360px]"
             selectedId={selected?.id}
             onSelect={onSelect}
             badge={(r) => (isDining(r) && r.rect.w > 150 && roomSeats(r).seats > 0

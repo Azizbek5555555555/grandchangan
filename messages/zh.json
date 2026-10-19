@@ -266,7 +266,7 @@
     "dashMonthLossHint": "破损、丢失与短缺",
     "map": {
       "summary": "平面图：{tables} 张桌，{seats} 个座位。点击房间查看物品数量。",
-      "dbNote": "注意：「库存」中的「桌上」目前按「大厅与餐桌」中的 {tables} 张桌 / {seats} 个座位计算，之后将与平面图合并。",
+      "dbNote": "注意：「存量」中的「桌上」目前按「大厅与餐桌」中的 {tables} 张桌 / {seats} 个座位计算，之后将与平面图合并。",
       "seatsBadge": "{count} 座",
       "selectHint": "在平面图上选择房间，详情将显示在此处。",
       "allTitle": "整个平面图的桌上物品",
@@ -276,11 +276,11 @@
       "roomItems": "本房间物品（按标准）",
       "perTable": "每张桌",
       "tableGroup": "{seats} 人桌 × {count}",
-      "noNorms": "尚未添加物品或标准——请在「库存」中添加物品并设置「每座位 / 每桌」数量。",
+      "noNorms": "尚未添加物品或标准——请在「存量」中添加物品并设置「每座位 / 每桌」数量。",
       "noTablesYet": "该房间的餐桌尚未在平面图上标注。",
       "noTableware": "此处不计算餐具。",
       "kitchenItems": "厨房设备（总计）",
-      "kitchenEmpty": "尚未添加厨房设备——请在「库存」中以「厨房」类别添加。",
+      "kitchenEmpty": "尚未添加厨房设备——请在「存量」中以「厨房」类别添加。",
       "barNote": "酒吧器皿不计入餐桌标准。"
     }
   },

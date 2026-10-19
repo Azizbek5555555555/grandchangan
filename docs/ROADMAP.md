@@ -3,8 +3,9 @@
 Bu fayl sessiya/limit uzilib qolsa ham ish qayerda turganini bilish uchun.
 Yangi sessiyada Claude avval shu faylni o'qisin.
 
-## Hozirgi vazifa — 1-bosqich: Admin inventar xaritasi (2D)
-Holat: **jarayonda**
+## 1-bosqich: Admin inventar xaritasi (2D)
+Holat: **tayyor** (branch `claude/pensive-gauss-fqg6hx`, PR kutilmoqda) — review o'tdi, `npm run build` o'tdi.
+Aziz javobi kerak: Xona 1 va Xona 2 da nechta stol/o'rin bor? (hozir xaritada stol belgilanmagan)
 
 - Admin → Inventar ochilganda birinchi bo'lim **"Xarita"**: restoranning 2D rejasi
   (Aziz yuborgan "RESTORAN REJASI" rasmi asosida, kodda SVG sifatida chizilgan).
@@ -18,8 +19,8 @@ Holat: **jarayonda**
   (umumiy pan/zoom komponent — mijoz sayti uchun ham qayta ishlatiladi),
   `src/components/admin/inventory/MapTab.tsx` (admin paneli).
 
-## Keyingi — 2-bosqich: Mijozlar uchun 2D xarita (saytda)
-Holat: kutilmoqda (1-bosqich tugagach)
+## Hozirgi/keyingi — 2-bosqich: Mijozlar uchun 2D xarita (saytda)
+Holat: Aziz buyrug'ini kutmoqda
 - Saytda mijoz restoran xaritasini ko'radi, xona/stolni tanlab bron qiladi.
 - Buning uchun xaritadagi stollarni bazadagi Zone/Table bilan birlashtirish kerak
   (hozir "Zallar va stollar"dagi stollar xaritadan alohida).

@@ -19,9 +19,9 @@ const TABS: Tab[] = ["map", "stock", "tables", "history", "count"];
  * Bo'limlar yashiriladi, lekin o'chirilmaydi — inventarizatsiyada kiritilgan saqlanmagan sonlar
  * boshqa bo'limga o'tib qaytganda yo'qolmasligi uchun.
  */
-export default function InventoryManager({ data }: { data: InventoryOverview }) {
+export default function InventoryManager({ data, initialTab }: { data: InventoryOverview; initialTab?: string }) {
   const t = useTranslations("Inventory");
-  const [tab, setTab] = useState<Tab>("map");
+  const [tab, setTab] = useState<Tab>(TABS.includes(initialTab as Tab) ? (initialTab as Tab) : "map");
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {

@@ -13,7 +13,13 @@ export const dynamic = "force-dynamic";
  *   MANAGER/ADMIN/SUPERADMIN — to'liq boshqaruv (qoldiq, stollar, tarix, inventarizatsiya)
  *   WAITER/KITCHEN           — faqat "sindi / yo'qoldi" formasi va o'z xabarlari
  */
-export default async function AdminInventoryPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function AdminInventoryPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const me = await requireSection("inventory");
   const { locale } = await params;
   setRequestLocale(locale);
@@ -21,7 +27,9 @@ export default async function AdminInventoryPage({ params }: { params: Promise<{
   try {
     if (MANAGEMENT.includes(me.role)) {
       const data = await getInventoryOverview(locale);
-      return <InventoryManager data={data} />;
+      // ?tab=stock — dashboard'dagi "kam qoldi" kartasidan to'g'ridan-to'g'ri Qoldiq bo'limiga
+      const { tab } = await searchParams;
+      return <InventoryManager data={data} initialTab={tab} />;
     }
     const [items, reports] = await Promise.all([getInventoryItemOptions(), getMyLossReports(me.id)]);
     return <StaffLossReport items={items} reports={reports} />;
