@@ -54,3 +54,33 @@ export function formatRestaurant(
   const date = `${parts.day}.${parts.month}${year ? `.${parts.year}` : ""}`;
   return time ? `${date} ${parts.hour}:${parts.minute}` : date;
 }
+
+// ---------- Sana yozuvlari (brauzer ICU'sida o'zbekcha oy nomlari yo'q: Chrome "M10 20" chiqaradi) ----------
+const UZ_MONTHS = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+const UZ_WEEKDAYS = ["Du", "Se", "Ch", "Pa", "Ju", "Sh", "Ya"]; // dushanbadan
+
+/** "2026-10-20" → "20-oktabr" / "20 октября" / "October 20" */
+export function formatDayMonth(dateStr: string, locale: string): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!y || !m || !d) return dateStr;
+  if (locale === "uz") return `${d}-${UZ_MONTHS[m - 1]}`;
+  try {
+    return new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", timeZone: "UTC" }).format(Date.UTC(y, m - 1, d, 12));
+  } catch {
+    return dateStr;
+  }
+}
+
+/** Kalendar sarlavhasi: "Oktabr 2026" / "октябрь 2026 г." (month0 — 0..11) */
+export function formatMonthYear(year: number, month0: number, locale: string): string {
+  if (locale === "uz") return `${UZ_MONTHS[month0][0].toUpperCase()}${UZ_MONTHS[month0].slice(1)} ${year}`;
+  const s = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "UTC" }).format(Date.UTC(year, month0, 15));
+  // Faqat birinchi harf katta ("октябрь 2026 г." → "Октябрь 2026 г.")
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/** Hafta kunining qisqa nomi, dushanbadan boshlab (i: 0 = dushanba) */
+export function weekdayShort(i: number, locale: string): string {
+  if (locale === "uz") return UZ_WEEKDAYS[i];
+  return new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(Date.UTC(2024, 0, 1 + i, 12));
+}
