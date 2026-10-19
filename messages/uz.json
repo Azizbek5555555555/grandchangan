@@ -524,5 +524,20 @@
       "entrance": "Kirish",
       "corridor": "Yo'lak"
     }
+  },
+  "FloorSync": {
+    "title": "Xarita va bron stollari",
+    "status": "Xaritada {map} stol. Bazada bog'langan: {linked}. Eski faol stollar: {extra}.",
+    "missing": "Bazada yo'q ({count}): {codes}",
+    "needsSync": "Bazadagi stollar xarita bilan mos emas — mijozlar saytdagi xaritadan band qila olishi uchun stollarni xaritadan yarating / yangilang.",
+    "inSync": "Bazadagi stollar xarita bilan mos — mijozlar xaritadan band qila oladi.",
+    "adminOnly": "Xaritadan stollarni yaratishni faqat Admin yoki Superadmin bajara oladi.",
+    "button": "Xaritadan stollarni yaratish / yangilash",
+    "pending": "Bajarilmoqda…",
+    "confirm": "Xaritadagi {count} stol va ularning zallari bazada yaratiladi yoki yangilanadi (o'rinlar soni, shakli, editordagi joylashuvi). Xaritada yo'q eski stollar O'CHIRILMAYDI — faqat nofaol qilinadi, ularning bron tarixi saqlanib qoladi. Davom etilsinmi?",
+    "result": "Tayyor: {created} ta stol yaratildi, {updated} ta yangilandi, {deactivated} ta nofaol qilindi, yangi zallar: {zones}.",
+    "resultNone": "Hammasi allaqachon mos — hech narsa o'zgarmadi.",
+    "errForbidden": "Bu amal faqat Admin va Superadmin uchun.",
+    "errFailed": "Stollarni xaritadan yangilab bo'lmadi. Keyinroq qayta urinib ko'ring."
   }
 }

@@ -524,5 +524,20 @@
       "entrance": "Entrance",
       "corridor": "Corridor"
     }
+  },
+  "FloorSync": {
+    "title": "Map & bookable tables",
+    "status": "{map, plural, one {# table} other {# tables}} on the map. Linked in the database: {linked}. Old active tables: {extra}.",
+    "missing": "Not in the database ({count}): {codes}",
+    "needsSync": "Database tables don't match the map — create / update tables from the map so guests can book from the map on the website.",
+    "inSync": "Database tables match the map — guests can book from the map.",
+    "adminOnly": "Only an Admin or Superadmin can create tables from the map.",
+    "button": "Create / update tables from the map",
+    "pending": "Working…",
+    "confirm": "{count, plural, one {# table} other {# tables}} from the map and their halls will be created or updated in the database (seats, shape, editor position). Old tables that are not on the map will NOT be deleted — they will only be deactivated, and their reservation history is kept. Continue?",
+    "result": "Done: {created, plural, one {# table} other {# tables}} created, {updated, plural, one {# table} other {# tables}} updated, {deactivated, plural, one {# table} other {# tables}} deactivated, {zones, plural, one {# new hall} other {# new halls}}.",
+    "resultNone": "Everything already matches — nothing changed.",
+    "errForbidden": "Only Admin and Superadmin can do this.",
+    "errFailed": "Could not update tables from the map. Please try again later."
   }
 }

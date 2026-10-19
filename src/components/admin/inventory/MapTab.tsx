@@ -35,6 +35,8 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
   const [pop, setPop] = useState<{ left: number; top: number } | null>(null);
 
   const totals = useMemo(() => floorTotals(), []);
+  // Bazadagi faol stollar xarita bilan mos bo'lmasa (sinxronlanmagan) — eslatma ko'rsatiladi
+  const dbDiffers = data.totals.tableCount !== totals.tables || data.totals.seatCount !== totals.seats;
   const hasNorms = data.items.some((i) => i.perSeat > 0 || i.perTable > 0);
   const allSeats = useMemo(() => ROOMS.filter(isDining).flatMap((r) => r.tables.map((tb) => tb.seats)), []);
 
@@ -126,9 +128,11 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
             </div>
           )}
         </div>
-        <p className="mt-2 text-xs text-muted">
-          {t("map.dbNote", { tables: data.totals.tableCount, seats: data.totals.seatCount })}
-        </p>
+        {dbDiffers && (
+          <p className="mt-2 text-xs text-muted">
+            {t("map.dbNote", { tables: data.totals.tableCount, seats: data.totals.seatCount })}
+          </p>
+        )}
       </div>
 
       <aside
