@@ -70,6 +70,7 @@
     "title": "Inventory",
     "subtitle": "Tableware and table supplies: total count in the restaurant, how many belong on each table, reserve, breakage and losses.",
     "tabs": {
+      "map": "Map",
       "stock": "Stock",
       "tables": "Tables",
       "history": "History",
@@ -262,7 +263,26 @@
     "dashLowHint": "See the Inventory section",
     "dashLowOk": "Everything is sufficient",
     "dashMonthLoss": "Losses this month",
-    "dashMonthLossHint": "Breakage, loss and shortage"
+    "dashMonthLossHint": "Breakage, loss and shortage",
+    "map": {
+      "summary": "On the map: {tables, plural, one {# table} other {# tables}}, {seats, plural, one {# seat} other {# seats}}. Click a room to see its item counts.",
+      "dbNote": "Note: \"On tables\" in the Stock tab is still based on {tables, plural, one {# table} other {# tables}} / {seats, plural, one {# seat} other {# seats}} in \"Halls & tables\". It will be merged with the map later.",
+      "seatsBadge": "{count, plural, one {# seat} other {# seats}}",
+      "selectHint": "Select a room on the map to see details here.",
+      "allTitle": "On tables across the whole map",
+      "tablesSeats": "{tables, plural, one {# table} other {# tables}} · {seats, plural, one {# seat} other {# seats}}",
+      "more": "{count} more…",
+      "details": "Details",
+      "roomItems": "Items in this room (by norm)",
+      "perTable": "On each table",
+      "tableGroup": "{seats}-seat table × {count}",
+      "noNorms": "No items or norms yet — add items in the Stock tab and set \"per seat / per table\".",
+      "noTablesYet": "Tables in this room are not marked on the map yet.",
+      "noTableware": "Tableware is not counted here.",
+      "kitchenItems": "Kitchen equipment (total)",
+      "kitchenEmpty": "No kitchen equipment yet — add it in Stock with the \"Kitchen\" category.",
+      "barNote": "Bar glassware is not part of the table norm."
+    }
   },
   "Site": {
     "storyEyebrow": "About us",
@@ -469,5 +489,40 @@
   "Meta": {
     "title": "GrandChangan — Chinese restaurant · Samarkand",
     "description": "Authentic Chinese cuisine and a traditional atmosphere in the heart of Samarkand."
+  },
+  "Floor": {
+    "mapLabel": "Restaurant map",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "reset": "Whole map",
+    "hint": "Drag to move · wheel or two fingers to zoom · click a room",
+    "notBookable": "not bookable",
+    "rooms": {
+      "vip": "VIP {n}",
+      "hall": "Main hall",
+      "room": "Room {n}",
+      "booth": "Booth {n}",
+      "private": "Private table",
+      "bar": "Bar",
+      "kitchen": "Kitchen",
+      "wc": "Restroom",
+      "reception": "Reception",
+      "entrance": "Entrance",
+      "corridor": "Corridor",
+      "boothGroup": "Booths"
+    },
+    "kinds": {
+      "vip": "VIP room",
+      "hall": "Main hall",
+      "room": "Private room",
+      "booth": "Booth",
+      "private": "Private table",
+      "bar": "Bar",
+      "kitchen": "Kitchen",
+      "wc": "Restroom",
+      "reception": "Reception",
+      "entrance": "Entrance",
+      "corridor": "Corridor"
+    }
   }
 }

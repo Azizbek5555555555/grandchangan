@@ -9,18 +9,19 @@ import StockTab from "./StockTab";
 import TablesTab from "./TablesTab";
 import HistoryTab from "./HistoryTab";
 import CountTab from "./CountTab";
+import MapTab from "./MapTab";
 
-type Tab = "stock" | "tables" | "history" | "count";
-const TABS: Tab[] = ["stock", "tables", "history", "count"];
+type Tab = "map" | "stock" | "tables" | "history" | "count";
+const TABS: Tab[] = ["map", "stock", "tables", "history", "count"];
 
 /**
- * Inventar (boshqaruv: MANAGER/ADMIN/SUPERADMIN): Qoldiq · Stollar · Tarix · Inventarizatsiya.
+ * Inventar (boshqaruv: MANAGER/ADMIN/SUPERADMIN): Xarita · Qoldiq · Stollar · Tarix · Inventarizatsiya.
  * Bo'limlar yashiriladi, lekin o'chirilmaydi — inventarizatsiyada kiritilgan saqlanmagan sonlar
  * boshqa bo'limga o'tib qaytganda yo'qolmasligi uchun.
  */
-export default function InventoryManager({ data }: { data: InventoryOverview }) {
+export default function InventoryManager({ data, initialTab }: { data: InventoryOverview; initialTab?: string }) {
   const t = useTranslations("Inventory");
-  const [tab, setTab] = useState<Tab>("stock");
+  const [tab, setTab] = useState<Tab>(TABS.includes(initialTab as Tab) ? (initialTab as Tab) : "map");
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
@@ -84,6 +85,9 @@ export default function InventoryManager({ data }: { data: InventoryOverview }) 
         </div>
       )}
 
+      <div role="tabpanel" id="inv-panel-map" aria-labelledby="inv-tab-map" hidden={tab !== "map"}>
+        <MapTab data={data} />
+      </div>
       <div role="tabpanel" id="inv-panel-stock" aria-labelledby="inv-tab-stock" hidden={tab !== "stock"}>
         <StockTab data={data} onNotice={setNotice} />
       </div>

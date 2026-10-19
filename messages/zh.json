@@ -70,6 +70,7 @@
     "title": "库存",
     "subtitle": "餐具与桌面用品管理：餐厅总数、每张餐桌应摆放的数量、备用量、破损与丢失。",
     "tabs": {
+      "map": "平面图",
       "stock": "存量",
       "tables": "餐桌",
       "history": "记录",
@@ -262,7 +263,26 @@
     "dashLowHint": "请在“库存”中查看",
     "dashLowOk": "全部充足",
     "dashMonthLoss": "本月损耗",
-    "dashMonthLossHint": "破损、丢失与短缺"
+    "dashMonthLossHint": "破损、丢失与短缺",
+    "map": {
+      "summary": "平面图：{tables} 张桌，{seats} 个座位。点击房间查看物品数量。",
+      "dbNote": "注意：「存量」中的「桌上」目前按「大厅与餐桌」中的 {tables} 张桌 / {seats} 个座位计算，之后将与平面图合并。",
+      "seatsBadge": "{count} 座",
+      "selectHint": "在平面图上选择房间，详情将显示在此处。",
+      "allTitle": "整个平面图的桌上物品",
+      "tablesSeats": "{tables} 张桌 · {seats} 个座位",
+      "more": "还有 {count} 项…",
+      "details": "详情",
+      "roomItems": "本房间物品（按标准）",
+      "perTable": "每张桌",
+      "tableGroup": "{seats} 人桌 × {count}",
+      "noNorms": "尚未添加物品或标准——请在「存量」中添加物品并设置「每座位 / 每桌」数量。",
+      "noTablesYet": "该房间的餐桌尚未在平面图上标注。",
+      "noTableware": "此处不计算餐具。",
+      "kitchenItems": "厨房设备（总计）",
+      "kitchenEmpty": "尚未添加厨房设备——请在「存量」中以「厨房」类别添加。",
+      "barNote": "酒吧器皿不计入餐桌标准。"
+    }
   },
   "Site": {
     "storyEyebrow": "关于我们",
@@ -469,5 +489,40 @@
   "Meta": {
     "title": "长安大酒楼 GrandChangan — 撒马尔罕中餐厅",
     "description": "撒马尔罕市中心的正宗中餐与传统氛围。"
+  },
+  "Floor": {
+    "mapLabel": "餐厅平面图",
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "reset": "全图",
+    "hint": "拖动移动 · 滚轮或双指缩放 · 点击房间",
+    "notBookable": "不可预订",
+    "rooms": {
+      "vip": "VIP {n}",
+      "hall": "大厅",
+      "room": "包间 {n}",
+      "booth": "卡座 {n}",
+      "private": "独立餐桌",
+      "bar": "酒吧",
+      "kitchen": "厨房",
+      "wc": "洗手间",
+      "reception": "前台",
+      "entrance": "入口",
+      "corridor": "走廊",
+      "boothGroup": "卡座"
+    },
+    "kinds": {
+      "vip": "VIP 包间",
+      "hall": "大厅",
+      "room": "包间",
+      "booth": "卡座",
+      "private": "独立餐桌",
+      "bar": "酒吧",
+      "kitchen": "厨房",
+      "wc": "洗手间",
+      "reception": "前台",
+      "entrance": "入口",
+      "corridor": "走廊"
+    }
   }
 }
