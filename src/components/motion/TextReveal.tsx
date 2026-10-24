@@ -43,7 +43,8 @@ export default function TextReveal({ text, className, trigger = "scroll", delay 
   return (
     <Tag ref={ref} className={className} aria-label={text}>
       {words.map((w, i) => (
-        <span key={i} className="inline-block overflow-hidden align-bottom" aria-hidden="true">
+        // py/-my: harf dumlari (y, g, q) va bosh harf ustidagi belgilar overflow'da kesilmasin
+        <span key={i} className="-my-[0.14em] inline-block overflow-hidden py-[0.14em] align-bottom" aria-hidden="true">
           <span data-word className="inline-block">{w}&nbsp;</span>
         </span>
       ))}
