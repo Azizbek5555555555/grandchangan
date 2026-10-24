@@ -31,13 +31,22 @@ Holat: **tayyor** (branch `claude/pensive-gauss-fqg6hx`) — review + E2E test o
 - Bron sahifasi: 4-qadam (stol tanlash) ham shu xarita bilan.
 - Xona 1/2 da stol yo'q — "qo'ng'iroq qiling".
 
-## Keyin — 3-bosqich: Sayt dizaynini yaxshilash (frontend)
-E2E testda topilgan (bu ishdan oldin ham bo'lgan) kamchiliklar — dizayn bosqichida tuzatiladi:
-- Bosh sahifa "Mashhur taomlar" bo'limi foni shaffof — orqadagi sticky hero ko'rinadi, sarlavha o'qilmaydi
-- Telefonda (390px) header logosi "Joy band qilish" tugmasini bosadi
-- PageHero sarlavhalarida pastki harf qismlari kesiladi ("Joy band qilish")
-- Telefonda xaritadagi kabina/stol bosish joylari kichik (kattalashtirish bilan ishlaydi)
-- seed.ts hali eski "Asosiy zal" 1–4 stollarini yaratadi (faqat lokal/yangi baza uchun)
+## Hozirgi — 3-bosqich: Saytni BUTUNLAY qayta dizayn qilish (frontend)
+Holat: **namunalar kutilmoqda** (2-bosqich PR #29 merge qilingan)
+- Mijoz (restoran) hozirgi dizaynni rad etdi. Aziz: dizayn butunlay boshqatdan, Aziz yuboradigan
+  namunalarga (reference) qarab.
+- Jarayon (Webz): namunalar → bosh sahifaning 3 xil varianti (HTML artifact, desktop + mobil) →
+  mijoz bittasini tanlaydi → barcha sahifalar shu uslubda qayta quriladi (bosh sahifa, menyu,
+  bron + xarita, biz haqimizda, galereya, blog, tadbirlar, aloqa, kabinet). Admin panel o'zgarmaydi.
+- Funksiyalar (bron, xarita, tillar, admin) saqlanadi — faqat ko'rinish yangilanadi.
+- Eski kamchiliklar (shu bosqichda tuzatiladi): "Mashhur taomlar" foni shaffof; telefonda logo
+  "Joy band qilish" tugmasini bosadi; PageHero sarlavhalarida harflar kesiladi; mobil xaritada kichik
+  bosish joylari; seed.ts eski stollar.
+
+## Kutilmoqda — domen
+- www.grandchangan.uz ishlayapti (Railway, SSL). grandchangan.uz (www siz) uchun Eskiz'ga tiket
+  yuborilgan: 301 yo'naltirish yoki ALIAS so'ralgan. Bo'lmasa — Cloudflare (NS o'zgartirish).
+  Railway'da ikkala domen qo'shilgan; TXT tasdiq yozuvlari Eskiz DNS'da bor.
 
 ## Qoidalar (Aziz)
 - Og'ir vazifada parallel-agents skill: avval variant + sabab bir qatorda; bir faylni ikki agent
