@@ -32,16 +32,25 @@ Holat: **tayyor** (branch `claude/pensive-gauss-fqg6hx`) — review + E2E test o
 - Xona 1/2 da stol yo'q — "qo'ng'iroq qiling".
 
 ## Hozirgi — 3-bosqich: Saytni BUTUNLAY qayta dizayn qilish (frontend)
-Holat: **namunalar kutilmoqda** (2-bosqich PR #29 merge qilingan)
-- Mijoz (restoran) hozirgi dizaynni rad etdi. Aziz: dizayn butunlay boshqatdan, Aziz yuboradigan
-  namunalarga (reference) qarab.
-- Jarayon (Webz): namunalar → bosh sahifaning 3 xil varianti (HTML artifact, desktop + mobil) →
-  mijoz bittasini tanlaydi → barcha sahifalar shu uslubda qayta quriladi (bosh sahifa, menyu,
-  bron + xarita, biz haqimizda, galereya, blog, tadbirlar, aloqa, kabinet). Admin panel o'zgarmaydi.
-- Funksiyalar (bron, xarita, tillar, admin) saqlanadi — faqat ko'rinish yangilanadi.
+Holat: **qurilmoqda** — namunalar keldi (qizil lag'mon hero / qorong'i ATXONDO / krem sakuri).
+- Aziz: 3 xil variant KERAK EMAS (webz-design-variants skilini ishlatma!). To'g'ridan-to'g'ri saytning o'zini
+  namunalar asosida yasash, animatsiyalar + Xitoy taomlarining 3D modellari (three.js) bilan. "Bomba" bo'lsin.
+- Dizayn qoidalari: **docs/DESIGN.md** ("Olovli Chang'an": fire/wine/saffron/night/paper/sand tokenlari,
+  Dela Gothic One + Playfair + Inter + Ma Shan Zheng, kit: src/components/site/kit/*).
+- Poydevor commit'lari: 5a2261a (tokenlar, shriftlar, kit, three.js), eaefdde (PageHero cn/tone).
+- Agent team (har birining fayllari alohida):
+  - three — src/components/three/** (HeroBowl, DimSumSteamer, Lanterns — protsedural 3D)
+  - home — bosh sahifa + src/components/site/home/** + HomeFloorSection
+  - chrome — Header/HeaderClient/Footer/PageHero/LocaleSwitcher/ThemeToggle/CustomCursor/not-found
+  - pages — menu, reservation(+ReservationFlow, FloorAvailabilityMap), about, gallery, blog, events, contact, account
+  - lead — globals.css, kit, layout, messages/*.json (agentlarning i18n kalitlari scratchpad/i18n/*.json da,
+    lead birlashtiradi), package.json, oxirida build + mustaqil review.
+- Magnific: hisob bepul (0 kredit), konteyner tarmog'i magnific.com'ni bloklaydi → stock rasm ishlatilmadi;
+  taom rasmlari bazadan (admin yuklaydi), yo'q bo'lsa DishFallback. Aziz tarmoqqa *.magnific.com qo'shsa — rasm olish mumkin.
+- Lokal test: Postgres :55432 (lokal bazaga 14 ta test taom qo'shilgan), dev server :3100.
 - Eski kamchiliklar (shu bosqichda tuzatiladi): "Mashhur taomlar" foni shaffof; telefonda logo
-  "Joy band qilish" tugmasini bosadi; PageHero sarlavhalarida harflar kesiladi; mobil xaritada kichik
-  bosish joylari; seed.ts eski stollar.
+  "Joy band qilish" tugmasini bosadi; PageHero sarlavhalarida harflar kesiladi (TextReveal tuzatildi);
+  mobil xaritada kichik bosish joylari; seed.ts eski stollar.
 
 ## Kutilmoqda — domen
 - www.grandchangan.uz ishlayapti (Railway, SSL). grandchangan.uz (www siz) uchun Eskiz'ga tiket
