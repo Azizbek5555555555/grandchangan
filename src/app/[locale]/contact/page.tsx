@@ -57,7 +57,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
               </a>
             </div>
             <div className="mt-8 rounded-2xl border border-line bg-card p-5">
-              <h2 className="mb-3 flex items-center gap-3 font-display text-2xl text-content"><span lang="zh" aria-hidden="true" className="font-cn text-fire">时</span>{st("cHours")}</h2>
+              <h2 className="mb-3 flex items-center gap-3 font-display text-2xl text-content"><span lang="zh" aria-hidden="true" className="font-cn text-fire-ink">时</span>{st("cHours")}</h2>
               <ul className="space-y-1.5 text-sm text-muted">
                 {hours.map((h) => (
                   <li key={h.dayOfWeek} className="flex justify-between border-b border-line py-1.5 last:border-0">

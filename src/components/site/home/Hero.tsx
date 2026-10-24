@@ -73,7 +73,7 @@ export default function Hero({ tag, lines, accentLine, sub, cnHeadline, bookLabe
           </h1>
 
           {sub && (
-            <p className={cn(ENTER, "mt-6 max-w-xl text-lg leading-relaxed text-brand-cream/85 delay-[420ms] sm:text-xl")}>{sub}</p>
+            <p className={cn(ENTER, "mt-6 max-w-xl text-lg leading-relaxed text-brand-cream delay-[420ms] sm:text-xl")}>{sub}</p>
           )}
 
           <div className={cn(ENTER, "mt-9 flex flex-wrap gap-3 delay-[520ms] sm:gap-4")}>
@@ -90,7 +90,7 @@ export default function Hero({ tag, lines, accentLine, sub, cnHeadline, bookLabe
               <div key={f.label} className="min-w-0 sm:border-r sm:border-brand-cream/20 sm:px-5 sm:first:pl-0 xl:px-6">
                 <dt className="sr-only">{f.label}</dt>
                 <dd className="whitespace-nowrap font-poster text-3xl leading-none sm:text-[2.1rem]">{f.value}</dd>
-                <dd aria-hidden="true" className="mt-2 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-brand-cream/75">{f.label}</dd>
+                <dd aria-hidden="true" className="mt-2 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-brand-cream/95">{f.label}</dd>
               </div>
             ))}
             <div className="min-w-0 sm:pl-5 xl:pl-6">
@@ -99,7 +99,7 @@ export default function Hero({ tag, lines, accentLine, sub, cnHeadline, bookLabe
                 <Clock size={18} className="shrink-0 text-saffron" aria-hidden="true" />
                 {hours.value}
               </dd>
-              <dd aria-hidden="true" className="mt-2 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-brand-cream/75">{hours.label}</dd>
+              <dd aria-hidden="true" className="mt-2 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-brand-cream/95">{hours.label}</dd>
             </div>
           </dl>
         </div>

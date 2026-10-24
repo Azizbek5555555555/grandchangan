@@ -27,7 +27,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
       <PageHero title={t(post.title, locale)} subtitle={post.publishedAt ? dateFmt.format(post.publishedAt) : undefined} cn="文" tone="night" bgImage={post.coverImage} />
       <main className="bg-paper pb-28 pt-6">
         <article className="mx-auto max-w-3xl px-5 sm:px-8">
-          <Link href="/blog" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-fire hover:gap-3">
+          <Link href="/blog" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-fire-ink hover:gap-3">
             <ArrowLeft size={16} /> {tc("blog")}
           </Link>
           {post.coverImage && (

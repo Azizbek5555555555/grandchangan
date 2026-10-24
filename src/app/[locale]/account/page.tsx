@@ -41,7 +41,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
           </form>
         </div>
 
-        <h2 className="mb-4 flex items-center gap-3 font-display text-2xl text-content"><span lang="zh" aria-hidden="true" className="font-cn text-fire">订座</span>{ta("myBookings")}</h2>
+        <h2 className="mb-4 flex items-center gap-3 font-display text-2xl text-content"><span lang="zh" aria-hidden="true" className="font-cn text-fire-ink">订座</span>{ta("myBookings")}</h2>
         <div className="space-y-2">
           {reservations.map((r) => (
             <div key={r.id} className="flex items-center justify-between gap-3 rounded-2xl border border-line bg-card p-5 shadow-sm">

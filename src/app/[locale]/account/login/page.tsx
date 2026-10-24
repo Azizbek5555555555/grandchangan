@@ -46,7 +46,7 @@ export default function CustomerLoginPage() {
         <h1 className="mb-6 text-center font-display text-3xl text-content">{tc("login")}</h1>
         {step === 1 ? (
           <div className="space-y-4">
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="h-12 w-full rounded-xl border border-line bg-paper px-4 text-base text-content outline-none transition focus:border-fire focus:ring-2 focus:ring-fire/20" />
+            <input type="tel" inputMode="tel" autoComplete="tel" aria-label={st("cPhone")} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="h-12 w-full rounded-xl border border-line bg-paper px-4 text-base text-content outline-none transition focus:border-fire focus:ring-2 focus:ring-fire/20" />
             {error && <p className="text-sm text-danger">{error}</p>}
             <button
               onClick={() => submit(() => requestOtpAction(phone), () => setStep(2))}

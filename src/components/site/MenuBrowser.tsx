@@ -139,11 +139,11 @@ export default function MenuBrowser({
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="flex items-center gap-3">
-                  <span lang="zh" className="font-cn text-3xl leading-none text-fire">招牌菜</span>
+                  <span lang="zh" className="font-cn text-3xl leading-none text-fire-ink">招牌菜</span>
                   <span className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">{T("dishesEyebrow")}</span>
                 </p>
                 <h2 id="menu-featured" className="mt-2 font-display text-4xl leading-[1.05] text-content sm:text-5xl">
-                  {T("dishesTitle1")} <span className="italic text-fire">{T("dishesTitle2")}</span>
+                  {T("dishesTitle1")} <span className="italic text-fire-ink">{T("dishesTitle2")}</span>
                 </h2>
               </div>
               <CloudLine className="hidden w-44 text-fire/40 sm:block" />
@@ -176,7 +176,7 @@ export default function MenuBrowser({
                 </span>
                 <span className="mt-4 font-display text-lg leading-tight text-content transition group-hover:text-fire">{t(it.name, locale)}</span>
                 {locale !== "zh" && zhOf(it.name) && <span lang="zh" className="font-cn text-base text-fire/70">{zhOf(it.name)}</span>}
-                <span className="mt-1 text-sm font-bold tabular-nums text-fire">{formatMoney(it.discountPrice ?? it.price)}</span>
+                <span className="mt-1 text-sm font-bold tabular-nums text-fire-ink">{formatMoney(it.discountPrice ?? it.price)}</span>
               </button>
             ))}
           </RevealGroup>
@@ -249,7 +249,7 @@ export default function MenuBrowser({
                   current === g.id ? "bg-fire text-brand-cream shadow-md shadow-fire/25" : "bg-card text-content ring-1 ring-line"
                 )}
               >
-                {g.zh && <span lang="zh" className={cn("font-cn text-base leading-none", current === g.id ? "text-saffron" : "text-fire")}>{g.zh.charAt(0)}</span>}
+                {g.zh && <span lang="zh" className={cn("font-cn text-base leading-none", current === g.id ? "text-saffron" : "text-fire-ink")}>{g.zh.charAt(0)}</span>}
                 {g.name}
                 <span className={cn("text-xs tabular-nums", current === g.id ? "text-brand-cream/75" : "text-muted")}>{g.items.length}</span>
               </button>
@@ -263,7 +263,7 @@ export default function MenuBrowser({
         <aside className="hidden lg:block">
           <nav aria-label={P("categories")} className="sticky top-28">
             <p className="mb-4 flex items-baseline gap-3 px-3">
-              <span lang="zh" className="font-cn shrink-0 whitespace-nowrap text-4xl leading-none text-fire">菜单</span>
+              <span lang="zh" className="font-cn shrink-0 whitespace-nowrap text-4xl leading-none text-fire-ink">菜单</span>
               <span className="truncate text-xs font-semibold uppercase tracking-[0.24em] text-muted">{P("categories")}</span>
             </p>
             <ul className="space-y-1 border-l border-line">
@@ -278,17 +278,17 @@ export default function MenuBrowser({
                       aria-current={on ? "true" : undefined}
                       className={cn(
                         "group ml-3 flex min-h-11 w-[calc(100%-0.75rem)] items-center gap-3 rounded-2xl px-3 py-2 text-left transition",
-                        on ? "bg-card text-fire shadow-md shadow-night/5" : "text-content hover:bg-card/70"
+                        on ? "bg-card text-fire-ink shadow-md shadow-night/5" : "text-content hover:bg-card/70"
                       )}
                     >
-                      <span lang="zh" className={cn("font-cn w-7 shrink-0 text-center text-xl leading-none transition", on ? "text-fire" : "text-fire/45 group-hover:text-fire/80")}>
+                      <span lang="zh" className={cn("font-cn w-7 shrink-0 text-center text-xl leading-none transition", on ? "text-fire-ink" : "text-fire/45 group-hover:text-fire/80")}>
                         {g.zh ? g.zh.charAt(0) : "·"}
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-display text-[17px]">{g.name}</span>
                         {g.zh && locale !== "zh" && <span lang="zh" className="block text-xs text-muted">{g.zh}</span>}
                       </span>
-                      <span className={cn("text-xs tabular-nums", on ? "text-fire" : "text-muted")}>{g.items.length}</span>
+                      <span className={cn("text-xs tabular-nums", on ? "text-fire-ink" : "text-muted")}>{g.items.length}</span>
                     </button>
                   </li>
                 );
@@ -300,11 +300,11 @@ export default function MenuBrowser({
         {/* ---- Kategoriya bo'limlari ---- */}
         <div className="min-w-0">
           {groups.map((g, gi) => (
-            <section key={g.id} id={`cat-${g.id}`} aria-labelledby={`cat-h-${g.id}`} className={cn(gi > 0 && "mt-16 sm:mt-24")}>
+            <section key={g.id} id={`cat-${g.id}`} aria-labelledby={`cat-h-${g.id}`} className={cn("scroll-mt-40 lg:scroll-mt-32", gi > 0 && "mt-16 sm:mt-24")}>
               <Reveal y={20}>
                 <div className="relative flex items-end gap-4 border-b border-line pb-4">
                   {g.zh && (
-                    <span lang="zh" aria-hidden="true" className="font-cn text-5xl leading-none text-fire sm:text-6xl">
+                    <span lang="zh" aria-hidden="true" className="font-cn text-5xl leading-none text-fire-ink sm:text-6xl">
                       {g.zh}
                     </span>
                   )}
@@ -405,7 +405,7 @@ function DishCard({ it, locale, flash, catZh }: { it: Item; locale: string; flas
             <span className="inline-flex items-center gap-1 rounded-full bg-sand px-2.5 py-1"><Clock size={12} aria-hidden="true" /> {P("minutes", { n: it.prepTimeMin })}</span>
           ) : null}
           {spicy > 0 && (
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-fire/10 px-2 py-1 text-fire" title={P("spicy", { n: spicy })} aria-label={P("spicy", { n: spicy })}>
+            <span className="inline-flex items-center gap-0.5 rounded-full bg-fire/10 px-2 py-1 text-fire-ink" title={P("spicy", { n: spicy })} aria-label={P("spicy", { n: spicy })}>
               {Array.from({ length: spicy }).map((_, i) => <Flame key={i} size={12} aria-hidden="true" className="fill-current" />)}
             </span>
           )}
@@ -416,7 +416,7 @@ function DishCard({ it, locale, flash, catZh }: { it: Item; locale: string; flas
         </div>
 
         <div className="mt-auto flex items-baseline gap-2 pt-4 sm:justify-center">
-          <span className="text-lg font-bold tabular-nums text-fire sm:text-xl">{formatMoney(hasDiscount ? it.discountPrice! : it.price)}</span>
+          <span className="text-lg font-bold tabular-nums text-fire-ink sm:text-xl">{formatMoney(hasDiscount ? it.discountPrice! : it.price)}</span>
           {hasDiscount && <s className="text-sm tabular-nums text-muted">{formatMoney(it.price)}</s>}
         </div>
       </div>

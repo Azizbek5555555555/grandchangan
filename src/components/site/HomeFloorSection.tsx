@@ -277,7 +277,7 @@ export default function HomeFloorSection({
             {failed && (
               <Note>
                 {tb("loadError")}{" "}
-                <button type="button" onClick={() => setRetry((n) => n + 1)} className="inline-flex min-h-11 items-center gap-1 font-semibold text-fire hover:text-fire-deep">
+                <button type="button" onClick={() => setRetry((n) => n + 1)} className="inline-flex min-h-11 items-center gap-1 font-semibold text-fire-ink hover:text-fire-deep">
                   <RotateCw size={13} /> {tb("retry")}
                 </button>
               </Note>
@@ -285,7 +285,7 @@ export default function HomeFloorSection({
             {guests >= MAX_GUESTS && (
               <Note>
                 {tb("bigGroup")}{" "}
-                <a href={tel} className="inline-flex items-center gap-1 font-semibold text-fire hover:text-fire-deep">
+                <a href={tel} className="inline-flex items-center gap-1 font-semibold text-fire-ink hover:text-fire-deep">
                   <Phone size={13} /> {phone}
                 </a>
               </Note>

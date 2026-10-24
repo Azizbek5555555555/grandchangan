@@ -31,7 +31,7 @@ export default function Reveal({
         el,
         { opacity: 0, y },
         {
-          opacity: 1, y: 0, duration, delay, ease: "power3.out",
+          opacity: 1, y: 0, duration, delay, ease: "power3.out", clearProps: "transform",
           scrollTrigger: { trigger: el, start: "top 85%", once: true },
         }
       );

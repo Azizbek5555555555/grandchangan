@@ -43,6 +43,8 @@
   --color-jade: #2f7a3a;
   --color-leaf: #6fa83a;
   --color-paper: var(--paper);
+  /* Krem/karta fondagi qizil MATN — qorong'i temada o'qiladigan och qizilga o'tadi */
+  --color-fire-ink: var(--fire-ink);
   --color-sand: var(--sand);
 
   --font-sans: var(--font-sans-var), ui-sans-serif, system-ui, sans-serif;
@@ -70,6 +72,7 @@
   /* Public sayt krem bo'limlari */
   --paper: #fbf1e1;
   --sand: #f3e2c7;
+  --fire-ink: #c8161d;
 }
 .dark {
   --surface: #130d08;
@@ -83,6 +86,8 @@
   --success-soft: rgba(74, 222, 128, 0.15);
   --paper: #17110f;
   --sand: #1f1714;
+  --fire-ink: #ff7b72;
+  color-scheme: dark;
 }
 html { background: var(--surface); }
 

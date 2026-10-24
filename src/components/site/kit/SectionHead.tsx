@@ -34,14 +34,14 @@ export default function SectionHead({
   const accentCls = cn(
     titleCls,
     font === "serif" && "italic",
-    dark ? (font === "serif" ? "text-brand-gold-light" : "text-saffron") : "text-fire"
+    dark ? (font === "serif" ? "text-brand-gold-light" : "text-saffron") : "text-fire-ink"
   );
   return (
     <div className={cn(align === "center" && "mx-auto text-center", "max-w-3xl", className)}>
       {(cnText || eyebrow) && (
         <Reveal y={14}>
           <div className={cn("mb-3 flex flex-wrap items-center gap-x-3 gap-y-1", align === "center" && "justify-center")}>
-            {cnText && <span lang="zh" className={cn("font-cn text-2xl leading-none sm:text-3xl", dark ? "text-saffron" : "text-fire")}>{cnText}</span>}
+            {cnText && <span lang="zh" className={cn("font-cn text-2xl leading-none sm:text-3xl", dark ? "text-saffron" : "text-fire-ink")}>{cnText}</span>}
             {eyebrow && (
               <span className={cn("text-xs font-semibold uppercase tracking-[0.24em]", dark ? "text-brand-cream/75" : "text-muted")}>{eyebrow}</span>
             )}

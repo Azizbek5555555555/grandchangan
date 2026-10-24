@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,8 +44,9 @@ export default function GalleryGrid({ urls, labels }: { urls: string[]; labels: 
         ))}
       </div>
 
-      {open !== null && (
-        <div role="dialog" aria-modal="true" className="fixed inset-0 z-[70] flex items-center justify-center bg-night/95 p-4 backdrop-blur-sm" onClick={close}>
+      {/* Portal: Reveal transform'i ichida fixed ekranni to'liq qoplamasdi; data-lenis-prevent — fon scroll qilmasin */}
+      {open !== null && createPortal(
+        <div role="dialog" aria-modal="true" aria-label={labels.open} data-lenis-prevent className="fixed inset-0 z-[70] flex items-center justify-center bg-night/95 p-4 backdrop-blur-sm" onClick={close}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={urls[open]} alt="" className="max-h-[86vh] max-w-full rounded-2xl object-contain shadow-2xl" onClick={(e) => e.stopPropagation()} />
           <button type="button" onClick={close} aria-label={labels.close} autoFocus className="absolute right-4 top-4 flex size-12 items-center justify-center rounded-full bg-night-3 text-brand-cream transition hover:bg-fire">
@@ -61,7 +63,8 @@ export default function GalleryGrid({ urls, labels }: { urls: string[]; labels: 
             </>
           )}
           <p className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-night-3 px-4 py-1.5 text-sm text-brand-cream/80">{open + 1} / {urls.length}</p>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );

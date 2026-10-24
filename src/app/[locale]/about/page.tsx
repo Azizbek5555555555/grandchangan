@@ -75,7 +75,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
           <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)] lg:gap-14">
             <Reveal y={30} className="hidden flex-col items-center gap-4 lg:flex">
-              <VerticalTitle text="长安至撒马尔罕" className="text-4xl text-fire" />
+              <VerticalTitle text="长安至撒马尔罕" className="text-4xl text-fire-ink" />
               <SealStamp text="丝路" />
             </Reveal>
             <div>
@@ -88,7 +88,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               {address && (
                 <Reveal delay={0.2}>
                   <p className="mt-8 inline-flex items-center gap-2 rounded-full border border-line bg-card px-4 py-2 text-sm text-content">
-                    <MapPin size={16} className="text-fire" /> {address}
+                    <MapPin size={16} className="text-fire-ink" /> {address}
                   </p>
                 </Reveal>
               )}
@@ -147,7 +147,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               <RevealGroup className="relative grid gap-10 md:grid-cols-3" stagger={0.15} y={30}>
                 {road.map((r) => (
                   <div key={r.cn} className="text-center">
-                    <span lang="zh" className="font-cn mx-auto flex size-20 items-center justify-center rounded-full border-2 border-fire/30 bg-paper text-4xl text-fire shadow-lg shadow-fire/10">{r.cn}</span>
+                    <span lang="zh" className="font-cn mx-auto flex size-20 items-center justify-center rounded-full border-2 border-fire/30 bg-paper text-4xl text-fire-ink shadow-lg shadow-fire/10">{r.cn}</span>
                     <h3 className="mt-6 font-display text-2xl text-content sm:text-3xl">{r.title}</h3>
                     <p className="mx-auto mt-3 max-w-xs text-muted">{r.text}</p>
                   </div>

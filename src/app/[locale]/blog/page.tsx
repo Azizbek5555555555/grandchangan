@@ -43,10 +43,10 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
                     <SafeImg src={p.coverImage} className="h-full w-full" imgClassName="h-full w-full object-cover transition duration-700 group-hover:scale-105" fallback={<GlyphPanel char={CHARS[i % CHARS.length]} tone={i % 2 ? "wine" : "fire"} size="text-7xl" />} />
                   </div>
                   <div className="flex flex-1 flex-col p-6">
-                    {p.publishedAt && <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fire">{dateFmt.format(p.publishedAt)}</p>}
+                    {p.publishedAt && <p className="text-xs font-semibold uppercase tracking-[0.18em] text-fire-ink">{dateFmt.format(p.publishedAt)}</p>}
                     <h3 className="mt-2 font-display text-2xl leading-snug text-content">{t(p.title, locale)}</h3>
                     {p.excerpt ? <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted">{t(p.excerpt, locale)}</p> : null}
-                    <span className="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-semibold text-fire transition group-hover:gap-2">{st("more")} <ArrowUpRight size={16} /></span>
+                    <span className="mt-auto inline-flex items-center gap-1 pt-5 text-sm font-semibold text-fire-ink transition group-hover:gap-2">{st("more")} <ArrowUpRight size={16} /></span>
                   </div>
                 </Link>
               ))}

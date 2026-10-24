@@ -97,7 +97,7 @@ export function DishCard({ dish, className }: { dish: HomeDish; className?: stri
         <div className="pb-5">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">{dish.catName}</p>
           {dish.zh && (
-            <p lang="zh" className="font-cn text-xl leading-none text-fire">{dish.zh}</p>
+            <p lang="zh" className="font-cn text-xl leading-none text-fire-ink">{dish.zh}</p>
           )}
           <h3 className="mt-2 font-display text-2xl font-semibold leading-tight text-content">{dish.name}</h3>
           {dish.desc && <p className="mx-auto mt-3 line-clamp-2 max-w-xs text-sm leading-relaxed text-muted">{dish.desc}</p>}
@@ -105,7 +105,7 @@ export function DishCard({ dish, className }: { dish: HomeDish; className?: stri
 
         <div className="mt-auto flex items-center justify-between gap-3 border-t border-dashed border-line pt-5">
           <div className="flex min-w-0 flex-col items-start gap-1 text-left">
-            <Price price={dish.price} oldPrice={dish.oldPrice} className="font-poster text-xl text-fire" oldClassName="text-muted" />
+            <Price price={dish.price} oldPrice={dish.oldPrice} className="font-poster text-xl text-fire-ink" oldClassName="text-muted" />
             <SpicyVeg spicy={dish.spicy} veg={dish.veg} />
           </div>
           <Link

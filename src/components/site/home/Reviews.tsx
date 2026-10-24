@@ -49,7 +49,7 @@ export default async function Reviews({
           {avg !== null && (
             <Reveal y={16} delay={0.1}>
               <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-content">
-                <span className="font-poster text-3xl text-fire">{avg.toFixed(1)}</span>
+                <span className="font-poster text-3xl text-fire-ink">{avg.toFixed(1)}</span>
                 <Stars n={Math.round(avg)} size={18} />
                 <span className="text-sm text-muted">{t("reviewsCount", { count: total })}</span>
               </p>
@@ -82,7 +82,7 @@ export default async function Reviews({
                   <Stars n={r.rating} size={14} />
                   {r.comment && <blockquote className="mt-3 line-clamp-5 text-content/85">&ldquo;{r.comment}&rdquo;</blockquote>}
                   <figcaption className="mt-auto flex items-center gap-2.5 pt-5 text-sm font-semibold text-content">
-                    <span className="flex size-8 items-center justify-center rounded-full bg-sand font-poster text-xs text-fire">
+                    <span className="flex size-8 items-center justify-center rounded-full bg-sand font-poster text-xs text-fire-ink">
                       {r.author.trim().charAt(0).toUpperCase() || "G"}
                     </span>
                     {r.author}

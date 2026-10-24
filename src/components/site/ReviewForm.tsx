@@ -54,7 +54,7 @@ export default function ReviewForm() {
   return (
     <form onSubmit={send} className={shell}>
       <span aria-hidden="true" className="fret-band absolute inset-x-0 top-0 text-fire/20" />
-      <p lang="zh" aria-hidden="true" className="font-cn mt-3 text-center text-2xl leading-none text-fire">留言</p>
+      <p lang="zh" aria-hidden="true" className="font-cn mt-3 text-center text-2xl leading-none text-fire-ink">留言</p>
       <h3 className="mt-2 text-center font-display text-3xl text-content">{T("rvTitle")}</h3>
       <p className="mt-1 text-center text-sm text-muted">{T("rvSub")}</p>
 

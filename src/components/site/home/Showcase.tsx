@@ -74,7 +74,7 @@ export default async function Showcase({ locale, dishes }: { locale: string; dis
                 <Reveal y={40} className={cn("min-w-0 text-center lg:text-left", flip && "lg:order-1")}>
                   <div className={cn("flex items-baseline justify-center gap-4 lg:justify-start")}>
                     <span aria-hidden="true" className="font-poster text-5xl leading-none text-fire/15 sm:text-6xl">0{i + 1}</span>
-                    {d.zh && <span lang="zh" className="font-cn text-4xl leading-none text-fire sm:text-5xl">{d.zh}</span>}
+                    {d.zh && <span lang="zh" className="font-cn text-4xl leading-none text-fire-ink sm:text-5xl">{d.zh}</span>}
                   </div>
                   <h3 className="mt-4 font-display text-4xl leading-[1.08] text-content sm:text-5xl">{d.name}</h3>
                   <p className="mx-auto mt-3 text-sm font-semibold uppercase tracking-[0.2em] text-muted lg:mx-0">{d.catName}</p>
@@ -83,7 +83,7 @@ export default async function Showcase({ locale, dishes }: { locale: string; dis
                     <RevealGroup className="mt-7 flex flex-wrap justify-center gap-2 lg:justify-start" stagger={0.07} y={14}>
                       {chips.map((c) => (
                         <span key={c.label} className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line bg-paper px-4 text-sm font-medium text-content">
-                          <c.icon size={15} aria-hidden="true" className="text-fire" />
+                          <c.icon size={15} aria-hidden="true" className="text-fire-ink" />
                           {c.label}
                         </span>
                       ))}
@@ -91,7 +91,7 @@ export default async function Showcase({ locale, dishes }: { locale: string; dis
                   )}
                   <div className="mt-9 flex flex-wrap items-center justify-center gap-5 lg:justify-start">
                     <span className="inline-flex flex-wrap items-baseline gap-x-3">
-                      <span className="font-poster text-3xl text-fire sm:text-4xl">{formatMoney(d.price)}</span>
+                      <span className="font-poster text-3xl text-fire-ink sm:text-4xl">{formatMoney(d.price)}</span>
                       {d.oldPrice != null && <s className="text-lg text-muted">{formatMoney(d.oldPrice)}</s>}
                     </span>
                     <ButtonLink href="/reservation" variant="fire" className="group">

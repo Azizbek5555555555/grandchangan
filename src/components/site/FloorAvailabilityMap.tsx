@@ -79,8 +79,8 @@ export default function FloorAvailabilityMap({
         muted: "text-muted",
         divider: "border-line",
         chip: "border-line bg-card text-content hover:border-fire",
-        eyebrow: "text-fire",
-        link: "text-fire underline decoration-fire/40 underline-offset-4 hover:decoration-2",
+        eyebrow: "text-fire-ink",
+        link: "text-fire-ink underline decoration-fire/40 underline-offset-4 hover:decoration-2",
         legend: "bg-sand text-muted",
       };
   const DOT: Record<TableVisualState, string> = {

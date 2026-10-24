@@ -121,7 +121,7 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
               {phone && (
                 <Reveal delay={0.2}>
                   <a href={`tel:${phone.replace(/[^\d+]/g, "")}`} className="mt-8 inline-flex min-h-11 items-center gap-3 rounded-full border border-line bg-card px-5 py-3 font-semibold text-content transition hover:border-fire">
-                    <Phone size={18} className="text-fire" /> {e2("orCall")} {phone}
+                    <Phone size={18} className="text-fire-ink" /> {e2("orCall")} {phone}
                   </a>
                 </Reveal>
               )}

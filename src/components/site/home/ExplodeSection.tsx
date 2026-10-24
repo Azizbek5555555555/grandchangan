@@ -29,7 +29,7 @@ export default async function ExplodeSection({ locale }: { locale: string }) {
             sub={h2("explodeSub")}
           />
           <div>
-            <ExplodedBowl labels={labels} className="h-[46svh] w-full sm:h-[60svh] lg:h-[88svh]" />
+            <ExplodedBowl labels={labels} className="h-[40svh] w-full sm:h-[60svh] lg:h-[88svh]" />
             {/* Telefon: qatlam nomlari ro'yxat ko'rinishida (3D yorliqlar tor ekranda sig'maydi) */}
             <ol className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-brand-cream/80 md:hidden">
               {labels.map((l, i) => (

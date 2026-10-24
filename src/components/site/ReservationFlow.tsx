@@ -63,7 +63,7 @@ function StepAnim({ children, className }: { children: React.ReactNode; classNam
 function StepTitle({ cnText, title, sub, center = true }: { cnText: string; title: string; sub?: string; center?: boolean }) {
   return (
     <div className={cn("mb-8", center && "text-center")}>
-      <span lang="zh" aria-hidden="true" className="font-cn text-2xl leading-none text-fire">{cnText}</span>
+      <span lang="zh" aria-hidden="true" className="font-cn text-2xl leading-none text-fire-ink">{cnText}</span>
       <h2 className="mt-1 font-display text-3xl leading-[1.1] text-content sm:text-4xl">{title}</h2>
       {sub && <p className="mt-2 text-sm text-muted">{sub}</p>}
     </div>
@@ -379,9 +379,9 @@ export default function ReservationFlow({
           </div>
           <p className="font-display text-2xl text-content">{T("rDoneTitle")}</p>
           <p className="mt-2 text-sm text-muted">{T("rCodeShort")}</p>
-          <p className="mt-1 font-poster text-3xl tracking-wider text-fire">{code}</p>
+          <p className="mt-1 font-poster text-3xl tracking-wider text-fire-ink">{code}</p>
           <KnotDivider className="my-7 text-fire/50" />
-          <span lang="zh" aria-hidden="true" className="font-cn text-2xl leading-none text-fire">点菜</span>
+          <span lang="zh" aria-hidden="true" className="font-cn text-2xl leading-none text-fire-ink">点菜</span>
           <h2 className="mt-1 font-display text-3xl leading-[1.1] text-content">{T("rPreorderQ")}</h2>
           <p className="mx-auto mt-3 max-w-sm text-muted">{T("rPreorderDesc")}</p>
           <div className="mt-8 grid gap-3">
@@ -429,7 +429,7 @@ export default function ReservationFlow({
                 <span
                   className={cn(
                     "flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold transition duration-500",
-                    done ? "bg-fire text-brand-cream group-enabled:group-hover:bg-fire-deep" : active ? "bg-card text-fire ring-2 ring-fire shadow-lg shadow-fire/20" : "bg-sand text-muted"
+                    done ? "bg-fire text-brand-cream group-enabled:group-hover:bg-fire-deep" : active ? "bg-card text-fire-ink ring-2 ring-fire shadow-lg shadow-fire/20" : "bg-sand text-muted"
                   )}
                 >
                   {done ? <Check size={18} strokeWidth={2.6} /> : n}
@@ -510,7 +510,7 @@ export default function ReservationFlow({
                 ) : (
                   <p className="mx-auto mt-6 max-w-sm rounded-2xl bg-sand px-4 py-3 text-sm text-muted">
                     {TB("bigGroup")}{" "}
-                    {tel && <a href={tel} className="inline-flex items-center gap-1 font-semibold text-fire"><Phone size={13} /> {phone}</a>}
+                    {tel && <a href={tel} className="inline-flex items-center gap-1 font-semibold text-fire-ink"><Phone size={13} /> {phone}</a>}
                   </p>
                 )}
               </StepAnim>
@@ -541,7 +541,7 @@ export default function ReservationFlow({
                             aria-pressed={selected}
                             onClick={() => { setDate(ds); setStep(3); }}
                             className={cn(
-                              "relative mx-auto flex h-11 w-11 items-center justify-center rounded-full text-[15px] tabular-nums transition",
+                              "relative mx-auto flex size-10 items-center justify-center rounded-full text-[15px] tabular-nums transition sm:size-11",
                               selected ? "bg-fire font-semibold text-brand-cream shadow-lg shadow-fire/30" : disabled ? "cursor-not-allowed text-muted opacity-40" : "text-content hover:bg-fire/10 hover:text-fire",
                               isToday && !selected && "ring-1 ring-fire/50"
                             )}
@@ -570,7 +570,7 @@ export default function ReservationFlow({
                   )}
                   {eveTimes.length > 0 && (
                     <div>
-                      <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted"><Moon size={14} className="text-fire" /> {P("slotEvening")}</p>
+                      <p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted"><Moon size={14} className="text-fire-ink" /> {P("slotEvening")}</p>
                       <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">{eveTimes.map(slotBtn)}</div>
                     </div>
                   )}
@@ -593,7 +593,7 @@ export default function ReservationFlow({
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">{T("rTable")} {tableText}</p>
                     <p className="text-muted">{TB("guests", { count: party })} · {dateText} · {time}</p>
-                    {selectedTable.minSpend ? <p className="text-fire">{T("rMinSpend")}: {formatMoney(selectedTable.minSpend)}</p> : null}
+                    {selectedTable.minSpend ? <p className="text-fire-ink">{T("rMinSpend")}: {formatMoney(selectedTable.minSpend)}</p> : null}
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -629,7 +629,7 @@ export default function ReservationFlow({
 
       {step === 4 && booting && (
         <div className={cn(cardCls, "mx-auto flex max-w-md items-center justify-center gap-3 text-sm text-muted")}>
-          <Loader2 size={18} className="animate-spin text-fire" /> {TB("checking")}
+          <Loader2 size={18} className="animate-spin text-fire-ink" /> {TB("checking")}
         </div>
       )}
 
@@ -646,7 +646,7 @@ export default function ReservationFlow({
                   onClick={() => { setError(null); setStep(r.n); }}
                   className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-card px-3.5 text-sm text-content ring-1 ring-line transition hover:ring-fire"
                 >
-                  <span className="text-fire">{r.icon}</span> {r.value}
+                  <span className="text-fire-ink">{r.icon}</span> {r.value}
                 </button>
               ))}
             </div>
@@ -714,7 +714,7 @@ function PreorderMenu({
     <StepAnim className="mx-auto max-w-4xl pb-24">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <span lang="zh" aria-hidden="true" className="font-cn text-2xl leading-none text-fire">点菜</span>
+          <span lang="zh" aria-hidden="true" className="font-cn text-2xl leading-none text-fire-ink">点菜</span>
           <h2 className="mt-1 font-display text-3xl leading-[1.1] text-content sm:text-4xl">{T("poTitle")}</h2>
           <p className="mt-1 text-sm text-muted">{T("poSub")}</p>
         </div>
@@ -739,7 +739,7 @@ function PreorderMenu({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-display text-lg leading-tight text-content">{t(it.name, locale)}</p>
-                <p className="text-sm font-semibold tabular-nums text-fire">{formatMoney(it.price)}</p>
+                <p className="text-sm font-semibold tabular-nums text-fire-ink">{formatMoney(it.price)}</p>
               </div>
               {qty === 0 ? (
                 <button type="button" onClick={() => add(it.id)} aria-label={`${P("add")}: ${t(it.name, locale)}`} className="flex h-11 w-11 items-center justify-center rounded-full bg-fire text-brand-cream transition hover:bg-fire-deep active:scale-95"><Plus size={18} /></button>

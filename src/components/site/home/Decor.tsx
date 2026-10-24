@@ -73,7 +73,7 @@ export function PlateFallback({ char, glyph = "text-6xl", className }: { char: s
         <span className="lattice-bg absolute inset-0 text-fire/[0.08]" />
         <span className="absolute inset-[9%] rounded-full border-2 border-fire/15" />
         <span className="absolute inset-0 flex items-center justify-center">
-          <span lang="zh" className={cn("font-cn leading-none text-fire", glyph)}>{char}</span>
+          <span lang="zh" className={cn("font-cn leading-none text-fire-ink", glyph)}>{char}</span>
         </span>
       </span>
     </div>

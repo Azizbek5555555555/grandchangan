@@ -14,7 +14,7 @@ export function SpicyVeg({ spicy, veg, tone = "light", className }: { spicy: num
       {spicy > 0 && (
         <span className="inline-flex items-center" title={t(`spicy.${SPICY_KEYS[spicy]}`)}>
           {Array.from({ length: spicy }).map((_, i) => (
-            <Flame key={i} size={14} aria-hidden="true" className={cn("-mx-px", tone === "dark" ? "fill-saffron/30 text-saffron" : "fill-fire/20 text-fire")} />
+            <Flame key={i} size={14} aria-hidden="true" className={cn("-mx-px", tone === "dark" ? "fill-saffron/30 text-saffron" : "fill-fire/20 text-fire-ink")} />
           ))}
           <span className="sr-only">{t(`spicy.${SPICY_KEYS[spicy]}`)}</span>
         </span>

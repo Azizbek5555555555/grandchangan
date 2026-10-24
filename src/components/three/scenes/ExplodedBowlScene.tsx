@@ -126,8 +126,8 @@ function ExplodedContent({ reduced, mobile, trackRef, labels }: Pick<ExplodedSce
                 <Html position={[-1.5, L.y, 0]} zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
                   <div
                     ref={(el) => { labelEls.current[layers.length - 1 - i] = el; }}
-                    className="flex items-center gap-3 whitespace-nowrap opacity-0"
-                    style={{ transform: "translate(-100%, -50%)" }}
+                    className="flex items-center gap-3 whitespace-nowrap"
+                    style={{ transform: "translate(-100%, -50%)", opacity: reduced ? 1 : 0 }}
                   >
                     <span className="max-w-[8.5rem] whitespace-normal text-right font-display text-[13px] italic leading-tight text-brand-cream sm:max-w-none sm:whitespace-nowrap sm:text-lg">{label}</span>
                     <span className="h-px w-8 bg-brand-gold/70 sm:w-16" />
