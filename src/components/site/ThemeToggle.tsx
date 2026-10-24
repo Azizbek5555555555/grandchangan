@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
+/**
+ * Yorug'/qorong'i tema tugmasi. `className` berilsa — standart ko'rinish butunlay almashadi
+ * (admin Sidebar shunday ishlatadi). Standart ko'rinish qizil/tungi fon ustidagi header uchun.
+ */
 export default function ThemeToggle({ className }: { className?: string }) {
   const T = useTranslations("Site");
   const [dark, setDark] = useState(false);
@@ -21,8 +26,20 @@ export default function ThemeToggle({ className }: { className?: string }) {
   }
 
   return (
-    <button onClick={toggle} aria-label={T("theme")} className={className || "flex h-9 w-9 items-center justify-center rounded-full transition hover:bg-white/10"}>
-      {dark ? <Sun size={18} className="text-brand-gold-light" /> : <Moon size={18} />}
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={T("theme")}
+      aria-pressed={dark}
+      className={
+        className ||
+        cn(
+          "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brand-cream/25 text-brand-cream transition",
+          "hover:border-brand-cream/50 hover:bg-brand-cream/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron"
+        )
+      }
+    >
+      {dark ? <Sun size={18} aria-hidden="true" className="text-brand-gold-light" /> : <Moon size={18} aria-hidden="true" />}
     </button>
   );
 }

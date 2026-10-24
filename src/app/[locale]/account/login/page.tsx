@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { requestOtpAction, verifyOtpAction } from "@/lib/auth/actions";
 
@@ -35,34 +35,40 @@ export default function CustomerLoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-surface-2 px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-card p-8 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold text-content">{tc("login")}</h1>
+    <div className="relative isolate flex min-h-screen flex-col items-center justify-center overflow-hidden bg-fire px-4 py-16">
+      <span aria-hidden="true" className="lattice-bg absolute inset-0 -z-10 text-fire-deep/60" />
+      <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute -right-8 bottom-0 -z-10 select-none text-[16rem] leading-none text-fire-deep sm:text-[24rem]">长安</span>
+      <Link href="/" className="mb-8 flex items-center gap-3 text-brand-cream">
+        <span lang="zh" className="font-cn text-4xl text-saffron">长安</span>
+        <span className="font-poster text-lg leading-none">GRAND<br />CHANGAN</span>
+      </Link>
+      <div className="w-full max-w-sm rounded-3xl bg-card p-8 shadow-2xl shadow-night/40">
+        <h1 className="mb-6 text-center font-display text-3xl text-content">{tc("login")}</h1>
         {step === 1 ? (
           <div className="space-y-4">
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="w-full rounded-lg border border-line px-3 py-2.5" />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            <input type="tel" inputMode="tel" autoComplete="tel" aria-label={st("cPhone")} value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className="h-12 w-full rounded-xl border border-line bg-paper px-4 text-base text-content outline-none transition focus:border-fire focus:ring-2 focus:ring-fire/20" />
+            {error && <p className="text-sm text-danger">{error}</p>}
             <button
               onClick={() => submit(() => requestOtpAction(phone), () => setStep(2))}
               disabled={loading || phone.length < 7}
-              className="w-full rounded-lg bg-brand-red py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-50"
+              className="h-12 w-full rounded-full bg-fire font-semibold text-brand-cream transition hover:bg-fire-deep disabled:opacity-50"
             >
               {loading ? "..." : ta("sendCode")}
             </button>
           </div>
         ) : (
           <div className="space-y-4">
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder={st("rNamePh")} className="w-full rounded-lg border border-line px-3 py-2.5" />
-            <input value={code} onChange={(e) => setCode(e.target.value)} placeholder={ta("codePh")} className="w-full rounded-lg border border-line px-3 py-2.5 text-center text-lg tracking-widest" />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder={st("rNamePh")} className="h-12 w-full rounded-xl border border-line bg-paper px-4 text-base text-content outline-none transition focus:border-fire focus:ring-2 focus:ring-fire/20" />
+            <input value={code} onChange={(e) => setCode(e.target.value)} placeholder={ta("codePh")} className="h-12 w-full rounded-xl border border-line bg-paper px-4 text-base text-content outline-none transition focus:border-fire focus:ring-2 focus:ring-fire/20 text-center text-lg tracking-widest" />
+            {error && <p className="text-sm text-danger">{error}</p>}
             <button
               onClick={() => submit(() => verifyOtpAction(phone, name, code), () => router.replace("/account"))}
               disabled={loading || code.length < 4}
-              className="w-full rounded-lg bg-brand-red py-2.5 font-medium text-white hover:bg-brand-red-dark disabled:opacity-50"
+              className="h-12 w-full rounded-full bg-fire font-semibold text-brand-cream transition hover:bg-fire-deep disabled:opacity-50"
             >
               {loading ? "..." : ta("confirm")}
             </button>
-            <button onClick={() => setStep(1)} className="w-full text-sm text-muted">{ta("changeNumber")}</button>
+            <button onClick={() => setStep(1)} className="min-h-11 w-full text-sm text-muted hover:text-content">{ta("changeNumber")}</button>
           </div>
         )}
       </div>

@@ -6,14 +6,18 @@ import HeaderClient from "./HeaderClient";
 /**
  * Sayt header'i. Burger menyudagi telefon, manzil va ijtimoiy tarmoqlar admin
  * Sozlamalar'idan olinadi (avval kodda qotirilgan edi).
+ *
+ * `solid` — header doim to'q panel bo'lsin (sahifa tepasida qizil/tungi hero bo'lmasa).
+ * Berilmasa, yo'l bo'yicha avtomatik aniqlanadi (chrome/nav.ts -> hasDarkHero).
  */
-export default async function SiteHeader() {
+export default async function SiteHeader({ solid }: { solid?: boolean } = {}) {
   const locale = await getLocale();
   const setting = await prisma.siteSetting.findUnique({ where: { key: "general" } });
   const g = (setting?.value as Record<string, unknown>) || {};
   const phone = Array.isArray(g.phones) && g.phones[0] ? String(g.phones[0]) : "+998 90 503 15 68";
   return (
     <HeaderClient
+      solid={solid}
       contact={{
         phone,
         address: t(g.address, locale) || "Ibn Xoldun 10B, Samarqand",

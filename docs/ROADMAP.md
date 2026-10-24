@@ -31,13 +31,36 @@ Holat: **tayyor** (branch `claude/pensive-gauss-fqg6hx`) — review + E2E test o
 - Bron sahifasi: 4-qadam (stol tanlash) ham shu xarita bilan.
 - Xona 1/2 da stol yo'q — "qo'ng'iroq qiling".
 
-## Keyin — 3-bosqich: Sayt dizaynini yaxshilash (frontend)
-E2E testda topilgan (bu ishdan oldin ham bo'lgan) kamchiliklar — dizayn bosqichida tuzatiladi:
-- Bosh sahifa "Mashhur taomlar" bo'limi foni shaffof — orqadagi sticky hero ko'rinadi, sarlavha o'qilmaydi
-- Telefonda (390px) header logosi "Joy band qilish" tugmasini bosadi
-- PageHero sarlavhalarida pastki harf qismlari kesiladi ("Joy band qilish")
-- Telefonda xaritadagi kabina/stol bosish joylari kichik (kattalashtirish bilan ishlaydi)
-- seed.ts hali eski "Asosiy zal" 1–4 stollarini yaratadi (faqat lokal/yangi baza uchun)
+## Hozirgi — 3-bosqich: Saytni BUTUNLAY qayta dizayn qilish (frontend)
+Holat: **asosiy qism tayyor (commit 2bae0f7), mustaqil review kutilmoqda** — namunalar: qizil lag'mon hero /
+qorong'i ATXONDO / krem sakuri + 2-to'plam (湯包家 qorong'i, 冶春 tush rasmi va 4 panel, exploded salat/banan, matcha menyu).
+- Joylashuv: bosh sahifa — exploded 3D kosa (ExplodeSection) + 4 panelli lenta (PanelShowcase); menyu — qorong'i
+  "Oshpaz tanlovi" (ChefSignature) + "Choy marosimi" (TeaRitual); biz haqimizda — tush rasmi (InkDecor);
+  tadbirlar — qorong'i vertikal yorliqlar; galereya — lightbox.
+- Agentlar limitga urilib to'xtadi (Aziz to'xtatdi) — qolganini lead bitta sessiyada tugatdi.
+- Aziz: 3 xil variant KERAK EMAS (webz-design-variants skilini ishlatma!). To'g'ridan-to'g'ri saytning o'zini
+  namunalar asosida yasash, animatsiyalar + Xitoy taomlarining 3D modellari (three.js) bilan. "Bomba" bo'lsin.
+- Dizayn qoidalari: **docs/DESIGN.md** ("Olovli Chang'an": fire/wine/saffron/night/paper/sand tokenlari,
+  Dela Gothic One + Playfair + Inter + Ma Shan Zheng, kit: src/components/site/kit/*).
+- Poydevor commit'lari: 5a2261a (tokenlar, shriftlar, kit, three.js), eaefdde (PageHero cn/tone).
+- Agent team (har birining fayllari alohida):
+  - three — src/components/three/** (HeroBowl, DimSumSteamer, Lanterns — protsedural 3D)
+  - home — bosh sahifa + src/components/site/home/** + HomeFloorSection
+  - chrome — Header/HeaderClient/Footer/PageHero/LocaleSwitcher/ThemeToggle/CustomCursor/not-found
+  - pages — menu, reservation(+ReservationFlow, FloorAvailabilityMap), about, gallery, blog, events, contact, account
+  - lead — globals.css, kit, layout, messages/*.json (agentlarning i18n kalitlari scratchpad/i18n/*.json da,
+    lead birlashtiradi), package.json, oxirida build + mustaqil review.
+- Magnific: hisob bepul (0 kredit), konteyner tarmog'i magnific.com'ni bloklaydi → stock rasm ishlatilmadi;
+  taom rasmlari bazadan (admin yuklaydi), yo'q bo'lsa DishFallback. Aziz tarmoqqa *.magnific.com qo'shsa — rasm olish mumkin.
+- Lokal test: Postgres :55432 (lokal bazaga 14 ta test taom qo'shilgan), dev server :3100.
+- Eski kamchiliklar (shu bosqichda tuzatiladi): "Mashhur taomlar" foni shaffof; telefonda logo
+  "Joy band qilish" tugmasini bosadi; PageHero sarlavhalarida harflar kesiladi (TextReveal tuzatildi);
+  mobil xaritada kichik bosish joylari; seed.ts eski stollar.
+
+## Kutilmoqda — domen
+- www.grandchangan.uz ishlayapti (Railway, SSL). grandchangan.uz (www siz) uchun Eskiz'ga tiket
+  yuborilgan: 301 yo'naltirish yoki ALIAS so'ralgan. Bo'lmasa — Cloudflare (NS o'zgartirish).
+  Railway'da ikkala domen qo'shilgan; TXT tasdiq yozuvlari Eskiz DNS'da bor.
 
 ## Qoidalar (Aziz)
 - Og'ir vazifada parallel-agents skill: avval variant + sabab bir qatorda; bir faylni ikki agent

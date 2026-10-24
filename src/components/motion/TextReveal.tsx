@@ -39,11 +39,15 @@ export default function TextReveal({ text, className, trigger = "scroll", delay 
     { scope: ref }
   );
 
-  const Tag = as as React.ElementType;
+  // R3F JSX turlarini global qo'shadi — ElementType juda keng bo'lib qoladi, shuning uchun aniq HTML teg turi
+  const labelled = as === "h1" || as === "h2" || as === "h3";
+  const Tag = as as unknown as React.FC<React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement | null> }>;
   return (
-    <Tag ref={ref} className={className} aria-label={text}>
+    // aria-label faqat sarlavhalarda ishlaydi; span'da so'zlar o'zi o'qiladi (aria-hidden emas)
+    <Tag ref={ref} className={className} aria-label={labelled ? text : undefined}>
       {words.map((w, i) => (
-        <span key={i} className="inline-block overflow-hidden align-bottom" aria-hidden="true">
+        // py/-my: harf dumlari (y, g, q) va bosh harf ustidagi belgilar overflow'da kesilmasin
+        <span key={i} className="-my-[0.14em] inline-block overflow-hidden py-[0.14em] align-bottom" aria-hidden={labelled || undefined}>
           <span data-word className="inline-block">{w}&nbsp;</span>
         </span>
       ))}

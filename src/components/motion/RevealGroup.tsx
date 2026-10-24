@@ -23,7 +23,7 @@ export default function RevealGroup({
         items,
         { opacity: 0, y },
         {
-          opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger,
+          opacity: 1, y: 0, duration: 0.8, ease: "power3.out", stagger, clearProps: "transform",
           scrollTrigger: { trigger: el, start: "top 80%", once: true },
         }
       );

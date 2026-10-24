@@ -28,8 +28,31 @@
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
 
+  /* ---- 3-bosqich dizayni (public sayt): "Olovli Chang'an" palitrasi ----
+     Doim bir xil rangli bo'limlar uchun (qizil hero, vino, tungi bloklar).
+     Yorug'/qorong'i temaga qarab o'zgaradigan bo'limlar — paper/sand (pastda). */
+  --color-fire: #c8161d;
+  --color-fire-deep: #9e0f14;
+  --color-wine: #5e0a0d;
+  --color-wine-deep: #430709;
+  --color-saffron: #f4a62a;
+  --color-saffron-deep: #d98a12;
+  --color-night: #0e0a09;
+  --color-night-2: #17110f;
+  --color-night-3: #241b18;
+  --color-jade: #2f7a3a;
+  --color-leaf: #6fa83a;
+  --color-paper: var(--paper);
+  /* Krem/karta fondagi qizil MATN — qorong'i temada o'qiladigan och qizilga o'tadi */
+  --color-fire-ink: var(--fire-ink);
+  --color-sand: var(--sand);
+
   --font-sans: var(--font-sans-var), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-serif-var), "Times New Roman", ui-serif, Georgia, serif;
+  /* Katta jasur afisha sarlavhalari (hero, bo'lim sarlavhalari) */
+  --font-poster: var(--font-poster-var), var(--font-sans-var), ui-sans-serif, sans-serif;
+  /* Xitoycha mo'yqalam bezak yozuvlari (长安, 招牌菜 ...) */
+  --font-cn: var(--font-cn-var), "Noto Serif SC", "Songti SC", serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -46,6 +69,10 @@
   --success-soft: #dcfce7;
   --background: var(--surface);
   --foreground: var(--content);
+  /* Public sayt krem bo'limlari */
+  --paper: #fbf1e1;
+  --sand: #f3e2c7;
+  --fire-ink: #c8161d;
 }
 .dark {
   --surface: #130d08;
@@ -57,6 +84,10 @@
   --danger: #ff7b72;
   --success: #4ade80;
   --success-soft: rgba(74, 222, 128, 0.15);
+  --paper: #17110f;
+  --sand: #1f1714;
+  --fire-ink: #ff7b72;
+  color-scheme: dark;
 }
 html { background: var(--surface); }
 
@@ -232,3 +263,50 @@ body.cursor-none, body.cursor-none * { cursor: none !important; }
   100% { transform: translateY(112vh) translateX(60px) rotate(340deg); opacity: 0; }
 }
 .petal { animation-name: petalFall; animation-iteration-count: infinite; animation-timing-function: linear; will-change: transform; }
+
+/* ==========================================================================
+   3-bosqich: "Olovli Chang'an" — public sayt dizayn yordamchilari
+   (qoidalar: docs/DESIGN.md)
+   ========================================================================== */
+.font-poster { font-family: var(--font-poster); letter-spacing: -0.005em; }
+.font-cn { font-family: var(--font-cn); }
+
+/* Organik "blob" shakllar (tugma, rasm ramkasi) */
+.rounded-blob { border-radius: 46% 54% 52% 48% / 58% 44% 56% 42%; }
+.rounded-blob-2 { border-radius: 58% 42% 45% 55% / 48% 58% 42% 52%; }
+
+/* Xitoycha "huiwen" (回纹) naqsh lentasi — rang matn rangidan (text-*) olinadi */
+.fret-band {
+  height: 24px;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='24' viewBox='0 0 40 24'%3E%3Cpath d='M0 22H40M8 22V3H32V16H16V9H24' fill='none' stroke='black' stroke-width='2.4'/%3E%3C/svg%3E") repeat-x left center / 40px 24px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='24' viewBox='0 0 40 24'%3E%3Cpath d='M0 22H40M8 22V3H32V16H16V9H24' fill='none' stroke='black' stroke-width='2.4'/%3E%3C/svg%3E") repeat-x left center / 40px 24px;
+}
+
+/* Xitoy deraza panjarasi — fon uchun juda nozik naqsh (rang: text-*) */
+.lattice-bg {
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") repeat / 56px 56px;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") repeat / 56px 56px;
+}
+
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+.animate-bob { animation: bob 6s ease-in-out infinite; }
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+.animate-spin-slow { animation: spinSlow 48s linear infinite; }
+@keyframes steamRise {
+  0% { transform: translateY(0) scaleX(1); opacity: 0; }
+  25% { opacity: 0.5; }
+  100% { transform: translateY(-90px) scaleX(1.7); opacity: 0; }
+}
+.animate-steam { animation: steamRise 3.6s ease-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-bob, .animate-spin-slow, .animate-steam, .animate-marquee, .animate-marquee-rev, .animate-kenburns { animation: none !important; }
+}
+
+/* Tush cho'tkasi chetli ramka (rasm uchun) — namuna: 冶春 sayti */
+.ink-mask {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 6C20 1 40 4 60 2C75 1 90 3 97 5C99 25 96 45 98 65C99 80 97 92 95 96C75 99 55 96 35 98C20 99 8 97 4 95C1 75 3 55 1 35C0 20 2 10 3 6Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 6C20 1 40 4 60 2C75 1 90 3 97 5C99 25 96 45 98 65C99 80 97 92 95 96C75 99 55 96 35 98C20 99 8 97 4 95C1 75 3 55 1 35C0 20 2 10 3 6Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}

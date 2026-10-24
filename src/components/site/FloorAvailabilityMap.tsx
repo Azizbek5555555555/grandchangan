@@ -2,9 +2,9 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Loader2, Phone, Users } from "lucide-react";
+import { Hand, Loader2, Phone, Users } from "lucide-react";
 import FloorMap, { useRoomName, type TableVisualState } from "@/components/floorplan/FloorMap";
-import { ROOMS, bookableTables, type FloorRoom, type FloorTable } from "@/lib/floorplan/layout";
+import { MAP_ZONES, ROOMS, bookableTables, type FloorRoom, type FloorTable } from "@/lib/floorplan/layout";
 import type { getAvailability } from "@/lib/reservation/actions";
 import { cn, formatMoney, t as tl } from "@/lib/utils";
 
@@ -14,6 +14,9 @@ import { cn, formatMoney, t as tl } from "@/lib/utils";
  * Xaritada kodi topilmagan baza stollari pastda oddiy tugmalar ("Boshqa stollar") bo'lib chiqadi —
  * admin xaritadan stollarni yaratmaguncha ham bron ishlayveradi.
  * Faqat ko'rinish: ma'lumotni (zones) va tanlovni chaqiruvchi boshqaradi.
+ *
+ * Telefonda xarita kichik (stol ~20px) — shuning uchun xarita ostida "Ro'yxatdan tanlash" bloki:
+ * har bir stol katta (≥44px) tugma, xonalar bo'yicha guruhlangan (quickPick, standart — yoqilgan).
  */
 
 export type AvailZone = Awaited<ReturnType<typeof getAvailability>>["zones"][number];
@@ -36,6 +39,7 @@ export default function FloorAvailabilityMap({
   loading = false,
   phone,
   action,
+  quickPick = true,
 }: {
   /** getAvailability natijasi; null — hali yuklanmagan (stollar oddiy ko'rinishda) */
   zones: AvailZone[] | null;
@@ -49,29 +53,35 @@ export default function FloorAvailabilityMap({
   phone?: string;
   /** Tanlangan (bo'sh) stol uchun kartadagi tugma(lar), masalan "Shu stolni band qilish" */
   action?: (table: AvailTable, info: TablePick) => React.ReactNode;
+  /** Telefon/planshetda xarita ostidagi katta tugmali stollar ro'yxati (lg dan kichik ekranlarda) */
+  quickPick?: boolean;
 }) {
   const tb = useTranslations("Booking");
   const ts = useTranslations("Site");
   const tf = useTranslations("Floor");
+  const tp = useTranslations("Pages2");
   const locale = useLocale();
   const roomName = useRoomName();
   const dark = tone === "dark";
+  // Ranglar faqat tokenlar: "dark" — tungi blok (namuna 2), "theme" — krem bo'lim (yorug'/qorong'i tema)
   const C = dark
     ? {
-        card: "border-brand-cream/15 bg-brand-ink-soft text-brand-cream",
-        muted: "text-brand-cream/60",
-        divider: "border-brand-cream/10",
-        chip: "border-brand-cream/15 text-brand-cream hover:border-brand-gold/70",
-        eyebrow: "text-brand-gold",
-        link: "text-brand-gold-light hover:text-brand-gold",
+        card: "border-brand-cream/12 bg-night-2 text-brand-cream",
+        muted: "text-brand-cream/65",
+        divider: "border-brand-cream/12",
+        chip: "border-brand-cream/20 bg-night-3 text-brand-cream hover:border-saffron",
+        eyebrow: "text-saffron",
+        link: "text-saffron hover:text-brand-gold-light",
+        legend: "bg-night-3/80 text-brand-cream/75",
       }
     : {
         card: "border-line bg-card text-content",
         muted: "text-muted",
         divider: "border-line",
-        chip: "border-line text-content hover:border-brand-gold",
-        eyebrow: "text-muted",
-        link: "text-content underline decoration-brand-gold underline-offset-4 hover:decoration-2",
+        chip: "border-line bg-card text-content hover:border-fire",
+        eyebrow: "text-fire-ink",
+        link: "text-fire-ink underline decoration-fire/40 underline-offset-4 hover:decoration-2",
+        legend: "bg-sand text-muted",
       };
   const DOT: Record<TableVisualState, string> = {
     free: "bg-brand-gold ring-2 ring-brand-gold/30",
@@ -103,6 +113,15 @@ export default function FloorAvailabilityMap({
   }, [zones]);
 
   const loaded = zones !== null;
+
+  // "Ro'yxatdan tanlash": xarita stollari bazadagi stolga bog'langanlari, zallar bo'yicha (VIP, zal, kabina, alohida)
+  const quick = useMemo(() => {
+    const lang = (["uz", "ru", "en", "zh"] as const).find((l) => l === locale) ?? "uz";
+    const all = bookableTables(ROOMS).filter((x) => db.byCode.has(norm(x.table.code ?? "")));
+    return MAP_ZONES
+      .map((z) => ({ key: z.key, name: z.name[lang], items: all.filter((x) => z.kinds.includes(x.room.kind)) }))
+      .filter((g) => g.items.length > 0);
+  }, [db, locale]);
   const entryFor = useCallback((mt: FloorTable) => (mt.code ? db.byCode.get(norm(mt.code)) : undefined), [db]);
 
   const visualOf = useCallback((e: Entry | undefined): TableVisualState => {
@@ -178,7 +197,7 @@ export default function FloorAvailabilityMap({
       <div>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-display text-3xl leading-none">{code}</p>
+            <p className="font-display text-4xl leading-none">{code}</p>
             {sub && <p className={cn("mt-1 text-xs", C.muted)}>{sub}</p>}
           </div>
           {v && pill(v)}
@@ -209,7 +228,7 @@ export default function FloorAvailabilityMap({
         {tf(`kinds.${room.kind}`) !== roomName(room) && (
           <p className={cn("text-[11px] uppercase tracking-[0.25em]", C.eyebrow)}>{tf(`kinds.${room.kind}`)}</p>
         )}
-        <h3 className="mt-1 font-display text-2xl">{roomName(room)}</h3>
+        <h3 className="mt-1 font-display text-2xl leading-tight sm:text-3xl">{roomName(room)}</h3>
 
         {focusTable && (
           <div className={cn("mt-4", multi && cn("rounded-xl border p-3", C.divider))}>
@@ -233,9 +252,9 @@ export default function FloorAvailabilityMap({
                     aria-pressed={active}
                     aria-label={tableLabel(mt)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition",
+                      "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition",
                       C.chip,
-                      active && "border-brand-gold",
+                      active && "border-brand-gold ring-2 ring-brand-gold/40",
                       v && v !== "free" && v !== "selected" && "opacity-60"
                     )}
                   >
@@ -263,12 +282,12 @@ export default function FloorAvailabilityMap({
   return (
     <div className={cn("min-w-0", className)}>
       {/* Belgilar (xaritadagi ko'rinish bilan bir xil) */}
-      <div className={cn("mb-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs", C.muted)}>
+      <div className={cn("mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl px-4 py-2.5 text-xs", C.legend)}>
         <Legend swatch="border-brand-gold bg-brand-gold/15" label={ts("rFree")} />
         <Legend swatch="border-brand-red bg-brand-red/40" label={ts("rBusy")} />
         <Legend swatch="border-brand-gold bg-transparent opacity-60" label={ts("rSmall")} />
         <Legend swatch="border-brand-gold-light bg-brand-gold" label={ts("rSelected")} />
-        {loaded && <span className="ml-auto">{tb("freeCount", { count: db.free })}</span>}
+        {loaded && <span className={cn("ml-auto font-semibold", dark ? "text-saffron" : "text-content")}>{tb("freeCount", { count: db.free })}</span>}
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-5">
@@ -285,13 +304,17 @@ export default function FloorAvailabilityMap({
             pageScroll
           />
           {loading && (
-            <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-brand-ink/85 px-3 py-1.5 text-xs text-brand-cream shadow-lg">
+            <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-night/90 px-3 py-1.5 text-xs text-brand-cream shadow-lg">
               <Loader2 size={14} className="animate-spin" /> {tb("loading")}
             </div>
           )}
+          {/* Telefonda FloorMap o'z maslahatini yashiradi — qisqa maslahat shu yerda */}
+          <p className={cn("mt-2 flex items-center gap-1.5 text-xs sm:hidden", C.muted)}>
+            <Hand size={13} aria-hidden="true" /> {tp("mapTouchHint")}
+          </p>
         </div>
 
-        <aside aria-live="polite" className={cn("min-w-0 rounded-2xl border p-5", C.card)}>
+        <aside aria-live="polite" className={cn("min-w-0 rounded-[1.5rem] border p-5", C.card)}>
           {focusRoom ? (
             roomInfo(focusRoom)
           ) : selected ? (
@@ -338,7 +361,7 @@ export default function FloorAvailabilityMap({
                     onSelectTable(e.table, { room: null, mapTable: null });
                   }}
                   className={cn(
-                    "inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition disabled:cursor-not-allowed disabled:opacity-50",
+                    "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition disabled:cursor-not-allowed disabled:opacity-50",
                     v === "selected" ? "border-brand-gold bg-brand-gold text-brand-ink" : C.chip
                   )}
                 >
@@ -350,6 +373,46 @@ export default function FloorAvailabilityMap({
                 </button>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* Telefon/planshet: katta tugmali stollar ro'yxati (xaritadagi kichik stollarni bosish qiyin) */}
+      {quickPick && loaded && quick.length > 0 && (
+        <div className="mt-5 lg:hidden">
+          <p className={cn("text-[11px] font-semibold uppercase tracking-[0.22em]", C.eyebrow)}>{tp("quickPick")}</p>
+          <p className={cn("mt-1 text-xs", C.muted)}>{tp("quickPickHint")}</p>
+          <div className="mt-3 space-y-4">
+            {quick.map((grp) => (
+              <div key={grp.key}>
+                <p className={cn("mb-2 text-sm font-medium", dark ? "text-brand-cream" : "text-content")}>{grp.name}</p>
+                <div className="flex flex-wrap gap-2">
+                  {grp.items.map(({ table: mt, room }) => {
+                    const e = entryFor(mt);
+                    const v = visualOf(e);
+                    const can = v === "free" || v === "selected";
+                    return (
+                      <button
+                        key={mt.id}
+                        type="button"
+                        disabled={!can}
+                        aria-pressed={v === "selected"}
+                        aria-label={tableLabel(mt)}
+                        onClick={() => pickTable(mt, room)}
+                        className={cn(
+                          "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition disabled:cursor-not-allowed disabled:opacity-45",
+                          v === "selected" ? "border-brand-gold bg-brand-gold text-brand-ink" : C.chip
+                        )}
+                      >
+                        <span className={cn("h-2.5 w-2.5 rounded-full", DOT[v])} />
+                        <b className="font-semibold">{mt.code}</b>
+                        <span className={v === "selected" ? "text-brand-ink/70" : C.muted}>{e?.table.seats ?? mt.seats}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

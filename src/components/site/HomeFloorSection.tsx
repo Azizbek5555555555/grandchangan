@@ -10,7 +10,8 @@ import { RESTAURANT_TZ, addDays, formatDayMonth, restaurantDay } from "@/lib/tim
 import { dayOfWeekOf, hoursFor, slotsForDay, type DayHours } from "@/lib/hours";
 import { cn } from "@/lib/utils";
 import Reveal from "@/components/motion/Reveal";
-import TextReveal from "@/components/motion/TextReveal";
+import SectionHead from "@/components/site/kit/SectionHead";
+import { btnClass } from "@/components/site/kit/ButtonLink";
 import FloorAvailabilityMap, { type AvailZone } from "./FloorAvailabilityMap";
 
 /**
@@ -117,8 +118,8 @@ export default function HomeFloorSection({
     return () => io.disconnect();
   }, []);
 
-  // Bo'lim balandligi o'zgarsa (xabarlar, "Boshqa stollar", telefonda karta) — pastdagi Fold3D va
-  // Reveal triggerlarining joyi eskiradi. ScrollTrigger'ni kechiktirib qayta hisoblaymiz.
+  // Bo'lim balandligi o'zgarsa (xabarlar, "Boshqa stollar", telefonda karta) — pastdagi
+  // Reveal/Parallax triggerlarining joyi eskiradi. ScrollTrigger'ni kechiktirib qayta hisoblaymiz.
   useEffect(() => {
     const el = sectionRef.current;
     if (!el || typeof ResizeObserver === "undefined") return;
@@ -185,36 +186,28 @@ export default function HomeFloorSection({
   }, [date, locale]);
 
   const tel = `tel:${phone.replace(/[^\d+]/g, "")}`;
-  const label = "mb-2 block text-[11px] uppercase tracking-[0.25em] text-brand-cream/50";
-  const field = "h-11 rounded-xl border border-brand-cream/20 bg-brand-ink px-3 text-sm text-brand-cream [color-scheme:dark] outline-none transition focus:border-brand-gold disabled:opacity-40";
+  const label = "mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-muted";
+  const field = "h-11 rounded-xl border border-line bg-paper px-3 text-sm text-content outline-none transition focus:border-fire focus:ring-4 focus:ring-fire/10 disabled:opacity-40 [.dark_&]:[color-scheme:dark]";
   const chip = (active: boolean) => cn(
-    "h-11 shrink-0 rounded-full border px-4 text-sm transition",
-    active ? "border-brand-gold bg-brand-gold font-medium text-brand-ink" : "border-brand-cream/20 text-brand-cream/80 hover:border-brand-gold/60 hover:text-brand-cream"
+    "h-11 shrink-0 rounded-full border px-4 text-sm font-semibold transition",
+    active ? "border-fire bg-fire text-brand-cream shadow-md shadow-fire/20" : "border-line bg-paper text-content hover:border-fire hover:text-fire"
   );
 
   return (
     <section
       ref={sectionRef}
       id="floor-map"
-      className="relative -mt-12 overflow-hidden rounded-t-[2.75rem] bg-brand-ink py-24 text-brand-cream shadow-[0_-50px_90px_-30px_var(--color-brand-ink)] lg:py-32"
+      className="relative overflow-hidden bg-paper pb-16 pt-14 sm:pb-20 sm:pt-16 lg:pb-24"
     >
-      {/* Fon: yumshoq oltin nur va xira ieroglif */}
-      <span className="pointer-events-none absolute left-1/2 top-0 h-72 w-[42rem] max-w-full -translate-x-1/2 rounded-full bg-brand-gold/10 blur-3xl" />
-      <span className="pointer-events-none absolute -right-6 top-10 select-none font-display text-[10rem] leading-none text-brand-cream/[0.03] sm:text-[14rem]">席位</span>
+      {/* Fon: xira ieroglif */}
+      <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute -right-4 top-6 select-none text-[9rem] leading-none text-fire/[0.07] sm:text-[13rem]">席位</span>
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="mx-auto max-w-3xl text-center">
-          <Reveal y={14}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-gold">{tb("eyebrow")}</p></Reveal>
-          <div className="flex flex-wrap items-baseline justify-center gap-x-4">
-            <TextReveal text={tb("title1")} className="font-display text-4xl text-brand-cream sm:text-6xl" />
-            <TextReveal text={tb("title2")} className="font-display text-4xl accent-gold sm:text-6xl" delay={0.1} />
-          </div>
-          <Reveal y={16} delay={0.15}><p className="mx-auto mt-5 max-w-xl text-brand-cream/60">{tb("subtitle")}</p></Reveal>
-        </div>
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
+        <SectionHead cn="平面图" eyebrow={tb("eyebrow")} title={tb("title1")} accent={tb("title2")} sub={tb("subtitle")} />
 
-        <Reveal y={30} delay={0.1} className="mt-12">
+        <Reveal y={40} delay={0.1} className="mt-10 sm:mt-12">
           {/* Boshqaruv: sana, vaqt, kishi soni */}
-          <div className="grid grid-cols-2 gap-4 rounded-2xl border border-brand-cream/10 bg-brand-ink-soft/70 p-4 sm:p-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="grid grid-cols-2 gap-4 rounded-[24px] border border-line bg-card p-4 shadow-lg shadow-content/5 sm:p-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
             <div className="col-span-2 min-w-0 lg:col-span-1">
               <span className={label}>{ts("rDate")}</span>
               <div role="group" aria-label={ts("rDate")} className="flex flex-wrap gap-2">
@@ -251,17 +244,17 @@ export default function HomeFloorSection({
 
             <div className="min-w-0">
               <span className={label}>{ts("rGuests")}</span>
-              <div role="group" aria-label={ts("rGuests")} className="flex h-11 items-center justify-between rounded-xl border border-brand-cream/20 bg-brand-ink">
+              <div role="group" aria-label={ts("rGuests")} className="flex h-11 items-center justify-between rounded-xl border border-line bg-paper">
                 <button
                   type="button"
                   aria-label={tb("guestsLess")}
                   disabled={guests <= 1}
                   onClick={() => setGuests((g) => Math.max(1, g - 1))}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-l-xl text-brand-cream transition hover:bg-brand-cream/10 disabled:opacity-30"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-l-xl text-content transition hover:bg-fire/10 hover:text-fire disabled:opacity-30"
                 >
                   <Minus size={16} />
                 </button>
-                <span className="min-w-0 truncate px-1 text-sm font-medium tabular-nums" aria-live="polite">
+                <span className="min-w-0 truncate px-1 text-sm font-semibold tabular-nums text-content" aria-live="polite">
                   {tb("guests", { count: guests })}
                 </span>
                 <button
@@ -269,7 +262,7 @@ export default function HomeFloorSection({
                   aria-label={tb("guestsMore")}
                   disabled={guests >= MAX_GUESTS}
                   onClick={() => setGuests((g) => Math.min(MAX_GUESTS, g + 1))}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-r-xl text-brand-cream transition hover:bg-brand-cream/10 disabled:opacity-30"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-r-xl text-content transition hover:bg-fire/10 hover:text-fire disabled:opacity-30"
                 >
                   <Plus size={16} />
                 </button>
@@ -284,7 +277,7 @@ export default function HomeFloorSection({
             {failed && (
               <Note>
                 {tb("loadError")}{" "}
-                <button type="button" onClick={() => setRetry((n) => n + 1)} className="inline-flex items-center gap-1 font-medium text-brand-gold-light hover:text-brand-gold">
+                <button type="button" onClick={() => setRetry((n) => n + 1)} className="inline-flex min-h-11 items-center gap-1 font-semibold text-fire-ink hover:text-fire-deep">
                   <RotateCw size={13} /> {tb("retry")}
                 </button>
               </Note>
@@ -292,7 +285,7 @@ export default function HomeFloorSection({
             {guests >= MAX_GUESTS && (
               <Note>
                 {tb("bigGroup")}{" "}
-                <a href={tel} className="inline-flex items-center gap-1 font-medium text-brand-gold-light hover:text-brand-gold">
+                <a href={tel} className="inline-flex items-center gap-1 font-semibold text-fire-ink hover:text-fire-deep">
                   <Phone size={13} /> {phone}
                 </a>
               </Note>
@@ -301,7 +294,7 @@ export default function HomeFloorSection({
 
           <FloorAvailabilityMap
             className="mt-6"
-            tone="dark"
+            tone="theme"
             zones={zones}
             loading={loading}
             selectedTableId={selectedId}
@@ -309,12 +302,12 @@ export default function HomeFloorSection({
             phone={phone}
             action={(t) => loading ? null : (
               <>
-                <p className="mb-3 text-xs text-brand-cream/60">
+                <p className="mb-3 text-xs text-muted">
                   {dateLabel} · {time} · {tb("guests", { count: guests })}
                 </p>
                 <Link
                   href={{ pathname: "/reservation", query: { date, time, guests: String(guests), table: t.id } }}
-                  className="btn-gold-sheen group inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-red px-6 py-3.5 text-sm font-medium text-brand-cream transition hover:bg-brand-red-dark"
+                  className={cn(btnClass("fire", "md"), "group w-full")}
                 >
                   {tb("bookThis")} <ArrowRight size={16} className="transition group-hover:translate-x-1" />
                 </Link>
@@ -329,6 +322,6 @@ export default function HomeFloorSection({
 
 function Note({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-xl border border-brand-gold/25 bg-brand-gold/10 px-4 py-2.5 text-sm text-brand-cream/85">{children}</p>
+    <p className="rounded-xl border border-saffron/40 bg-saffron/10 px-4 py-2.5 text-sm text-content">{children}</p>
   );
 }
