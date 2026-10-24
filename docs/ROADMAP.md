@@ -32,7 +32,12 @@ Holat: **tayyor** (branch `claude/pensive-gauss-fqg6hx`) — review + E2E test o
 - Xona 1/2 da stol yo'q — "qo'ng'iroq qiling".
 
 ## Hozirgi — 3-bosqich: Saytni BUTUNLAY qayta dizayn qilish (frontend)
-Holat: **qurilmoqda** — namunalar keldi (qizil lag'mon hero / qorong'i ATXONDO / krem sakuri).
+Holat: **asosiy qism tayyor (commit 2bae0f7), mustaqil review kutilmoqda** — namunalar: qizil lag'mon hero /
+qorong'i ATXONDO / krem sakuri + 2-to'plam (湯包家 qorong'i, 冶春 tush rasmi va 4 panel, exploded salat/banan, matcha menyu).
+- Joylashuv: bosh sahifa — exploded 3D kosa (ExplodeSection) + 4 panelli lenta (PanelShowcase); menyu — qorong'i
+  "Oshpaz tanlovi" (ChefSignature) + "Choy marosimi" (TeaRitual); biz haqimizda — tush rasmi (InkDecor);
+  tadbirlar — qorong'i vertikal yorliqlar; galereya — lightbox.
+- Agentlar limitga urilib to'xtadi (Aziz to'xtatdi) — qolganini lead bitta sessiyada tugatdi.
 - Aziz: 3 xil variant KERAK EMAS (webz-design-variants skilini ishlatma!). To'g'ridan-to'g'ri saytning o'zini
   namunalar asosida yasash, animatsiyalar + Xitoy taomlarining 3D modellari (three.js) bilan. "Bomba" bo'lsin.
 - Dizayn qoidalari: **docs/DESIGN.md** ("Olovli Chang'an": fire/wine/saffron/night/paper/sand tokenlari,
