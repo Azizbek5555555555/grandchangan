@@ -1,31 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
-import { X, Instagram, Send, Phone, MapPin, ArrowUpRight } from "lucide-react";
+import { Link, usePathname } from "@/i18n/navigation";
+import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { btnClass } from "@/components/site/kit/ButtonLink";
 import LocaleSwitcher from "./LocaleSwitcher";
 import ThemeToggle from "./ThemeToggle";
+import Logo from "./chrome/Logo";
+import MobileMenu from "./chrome/MobileMenu";
+import { NAV, hasDarkHero, isActive, type HeaderContact } from "./chrome/nav";
 
-const NAV = [
-  { href: "/", key: "home" },
-  { href: "/menu", key: "menu" },
-  { href: "/reservation", key: "reservation" },
-  { href: "/gallery", key: "gallery" },
-  { href: "/blog", key: "blog" },
-  { href: "/about", key: "about" },
-  { href: "/contact", key: "contact" },
-] as const;
+export type { HeaderContact };
 
-export type HeaderContact = { phone: string; address: string; instagram?: string; telegram?: string };
+const MENU_ID = "site-mobile-menu";
 
-export default function HeaderClient({ contact }: { contact: HeaderContact }) {
-  const t = useTranslations("Common");
+/**
+ * Sayt header'i (client qismi).
+ * - Qizil/tungi hero ustida shaffof + krem matn; 40px dan keyin — to'q yarim-shaffof panel (bg-night/90 + blur), ixchamroq.
+ * - Tepasida hero bo'lmagan sahifalarda (yoki `solid`) — doim to'q panel, matn o'qilsin.
+ * - lg+: qatorda havolalar + til + tema + CTA; telefonda: logo + ixcham CTA + burger (≥44px).
+ */
+export default function HeaderClient({ contact, solid = false }: { contact: HeaderContact; solid?: boolean }) {
+  const tc = useTranslations("Common");
   const st = useTranslations("Site");
-  const ht = useTranslations("Home");
+  const T = useTranslations("Chrome");
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const burgerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -34,101 +38,109 @@ export default function HeaderClient({ contact }: { contact: HeaderContact }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [open]);
+  // Sahifa almashsa — menyu yopiladi
+  useEffect(() => setOpen(false), [pathname]);
+
+  const close = useCallback(() => setOpen(false), []);
+  const filled = solid || scrolled || !hasDarkHero(pathname);
+  const label = (ns: "Common" | "Site", key: string) => (ns === "Common" ? tc(key) : st(key));
 
   return (
     <>
-      <header className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-500", scrolled ? "bg-brand-ink/90 py-3 shadow-[0_1px_0_rgba(200,162,75,0.15)] backdrop-blur-md" : "bg-transparent py-5")}>
-        <div className="mx-auto grid max-w-7xl grid-cols-3 items-center px-5">
-          {/* Chap: burger */}
-          <button onClick={() => setOpen(true)} className="group flex items-center gap-3 justify-self-start text-brand-cream">
-            <span className="flex flex-col gap-[5px]">
-              <span className="h-[2px] w-7 bg-brand-gold transition-all group-hover:w-5" />
-              <span className="h-[2px] w-5 bg-surface-2 transition-all group-hover:w-7" />
-              <span className="h-[2px] w-6 bg-surface-2 transition-all group-hover:w-4" />
-            </span>
-            <span className="hidden text-xs font-medium uppercase tracking-[0.25em] text-brand-cream/90 sm:inline">{t("menu")}</span>
-          </button>
-
-          {/* Markaz: logo */}
-          <Link href="/" className="justify-self-center font-display text-2xl tracking-wide text-brand-gold-light">
-            Grand<span className="text-brand-cream">Changan</span>
+      <header
+        className={cn(
+          "fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,backdrop-filter] duration-500",
+          filled ? "border-brand-gold/15 bg-night/90 backdrop-blur-md" : "border-transparent bg-transparent"
+        )}
+      >
+        <div
+          className={cn(
+            "mx-auto flex max-w-7xl items-center gap-2 px-4 transition-[height] duration-500 sm:gap-3 sm:px-8",
+            scrolled ? "h-16" : "h-20 lg:h-24"
+          )}
+        >
+          {/* Logo — kichrayishi mumkin (min-w-0), CTA va burger esa hech qachon siqilmaydi */}
+          <Link
+            href="/"
+            aria-label={`GrandChangan — ${tc("home")}`}
+            className="mr-auto min-w-0 shrink rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron lg:mr-0"
+          >
+            <Logo size="md" />
           </Link>
 
-          {/* O'ng: til + bron */}
-          <div className="flex items-center gap-3 justify-self-end text-brand-cream">
-            <div className="hidden sm:block"><LocaleSwitcher /></div>
-            <ThemeToggle className="hidden h-9 w-9 items-center justify-center rounded-full text-brand-cream transition hover:bg-white/10 sm:flex" />
-            <Link href="/reservation" className="rounded-full border border-brand-gold/60 px-5 py-2 text-xs font-medium uppercase tracking-wider text-brand-gold-light transition hover:bg-brand-gold hover:text-content">
-              {t("reservation")}
+          {/* Desktop navigatsiya */}
+          <nav aria-label={T("navLabel")} className="hidden flex-1 justify-center lg:flex">
+            <ul className="flex items-center xl:gap-1">
+              {NAV.map((n) => {
+                const active = isActive(pathname, n.href);
+                return (
+                  <li key={n.href} className={cn(n.xlOnly && "hidden xl:block")}>
+                    <Link
+                      href={n.href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "group relative flex h-11 items-center whitespace-nowrap rounded-full px-2.5 text-[14px] font-medium transition xl:px-3 xl:text-[15px]",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron",
+                        active ? "text-brand-cream" : "text-brand-cream/85 hover:text-brand-cream"
+                      )}
+                    >
+                      {label(n.ns, n.key)}
+                      {/* Faol sahifa belgisi — zafar chiziq */}
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "absolute inset-x-2.5 bottom-1.5 h-0.5 origin-left rounded-full bg-saffron transition-transform duration-300 xl:inset-x-3",
+                          active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-50"
+                        )}
+                      />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <LocaleSwitcher className="hidden lg:block" />
+            <div className="hidden lg:block">
+              <ThemeToggle />
+            </div>
+
+            <Link
+              href="/reservation"
+              className={cn(
+                btnClass("saffron", "md"),
+                "h-11 shrink-0 whitespace-nowrap px-4 text-[13px] sm:px-5 sm:text-sm",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cream"
+              )}
+            >
+              {/* Telefonda qisqa yozuv — logo bilan to'qnashmasin */}
+              <span className="sm:hidden">{T("ctaShort")}</span>
+              <span className="hidden sm:inline">{st("fReserve")}</span>
+              <ArrowUpRight size={16} aria-hidden="true" className="hidden sm:block" />
             </Link>
+
+            {/* Burger — faqat lg dan kichik ekranlarda */}
+            <button
+              ref={burgerRef}
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-expanded={open}
+              aria-controls={MENU_ID}
+              aria-label={T("openMenu")}
+              className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brand-cream/30 text-brand-cream transition hover:bg-brand-cream/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron lg:hidden"
+            >
+              <span aria-hidden="true" className="flex w-5 flex-col items-end gap-[5px]">
+                <span className="h-0.5 w-5 rounded-full bg-current" />
+                <span className="h-0.5 w-3.5 rounded-full bg-saffron transition-all duration-300 group-hover:w-5" />
+                <span className="h-0.5 w-5 rounded-full bg-current" />
+              </span>
+            </button>
           </div>
         </div>
       </header>
 
-      {/* ============ TO'LIQ EKRANLI MENYU ============ */}
-      <div className={cn("fixed inset-0 z-[60] transition-all duration-500", open ? "visible opacity-100" : "invisible opacity-0")}>
-        <div className="absolute inset-0 bg-brand-ink" onClick={() => setOpen(false)} />
-        <div className="relative grid h-full grid-cols-1 lg:grid-cols-2">
-          {/* Chap: linklar */}
-          <div className="flex flex-col justify-center px-8 sm:px-16 lg:px-24">
-            <nav className="space-y-1">
-              {NAV.map((n, i) => (
-                <Link
-                  key={n.href}
-                  href={n.href}
-                  onClick={() => setOpen(false)}
-                  className="group flex items-baseline gap-4"
-                  style={{ transition: "transform .6s cubic-bezier(0.16,1,0.3,1), opacity .6s", transitionDelay: open ? `${120 + i * 55}ms` : "0ms", transform: open ? "translateY(0)" : "translateY(24px)", opacity: open ? 1 : 0 }}
-                >
-                  <span className="text-xs text-brand-gold/70">0{i}</span>
-                  <span className="font-display text-4xl text-brand-cream/90 transition-colors group-hover:text-brand-gold-light sm:text-5xl">{t(n.key)}</span>
-                </Link>
-              ))}
-            </nav>
-            <div className="mt-10 flex items-center gap-3">
-              <div className="text-brand-cream"><LocaleSwitcher /></div>
-              <ThemeToggle className="flex h-9 w-9 items-center justify-center rounded-full text-brand-cream transition hover:bg-white/10" />
-            </div>
-          </div>
-
-          {/* O'ng: kontakt */}
-          <div className="hidden flex-col justify-center border-l border-white/5 bg-brand-ink-soft px-16 lg:flex">
-            <p className="font-display text-4xl text-brand-gold-light">GrandChangan</p>
-            <p className="mt-2 text-sm text-brand-cream/50">{st("heroTag")}</p>
-
-            <div className="mt-12 space-y-8">
-              <div>
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-brand-gold">{st("hWhere")}</p>
-                <p className="flex items-start gap-2 text-brand-cream/80"><MapPin size={16} className="mt-1 text-brand-gold/70" /> {contact.address}</p>
-              </div>
-              <div>
-                <p className="mb-2 text-xs uppercase tracking-[0.25em] text-brand-gold">{st("hBooking")}</p>
-                <a href={`tel:${contact.phone.replace(/[^\d+]/g, "")}`} className="flex items-center gap-2 text-brand-cream/80 hover:text-brand-gold-light"><Phone size={16} className="text-brand-gold/70" /> {contact.phone}</a>
-              </div>
-              <div>
-                <p className="mb-3 text-xs uppercase tracking-[0.25em] text-brand-gold">{st("hSocial")}</p>
-                <div className="flex gap-3">
-                  {contact.instagram && <a href={contact.instagram} target="_blank" rel="noreferrer" aria-label="Instagram" className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-content"><Instagram size={18} /></a>}
-                  {contact.telegram && <a href={contact.telegram} target="_blank" rel="noreferrer" aria-label="Telegram" className="flex h-10 w-10 items-center justify-center rounded-full border border-brand-gold/30 text-brand-gold-light transition hover:bg-brand-gold hover:text-content"><Send size={18} /></a>}
-                </div>
-              </div>
-            </div>
-
-            <Link href="/reservation" onClick={() => setOpen(false)} className="btn-gold-sheen mt-12 inline-flex w-fit items-center gap-2 rounded-full bg-brand-red px-8 py-3.5 font-medium text-white hover:bg-brand-red-dark">
-              {ht("book_table")} <ArrowUpRight size={18} />
-            </Link>
-          </div>
-
-          {/* Yopish */}
-          <button onClick={() => setOpen(false)} className="absolute right-6 top-6 flex items-center gap-2 text-sm uppercase tracking-widest text-brand-cream/80 transition hover:text-brand-gold">
-            <X size={22} /> {st("close")}
-          </button>
-        </div>
-      </div>
+      <MobileMenu id={MENU_ID} open={open} onClose={close} contact={contact} pathname={pathname} returnFocusRef={burgerRef} />
     </>
   );
 }

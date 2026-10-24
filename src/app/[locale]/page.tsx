@@ -1,434 +1,205 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
-import { Link } from "@/i18n/navigation";
-import { t, formatMoney } from "@/lib/utils";
-import { Star, ArrowRight, Flame, Leaf, UtensilsCrossed, MessageSquare, Languages } from "lucide-react";
+import { t } from "@/lib/utils";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
-import ReviewForm from "@/components/site/ReviewForm";
-import Petals from "@/components/site/Petals";
-import Fold3D from "@/components/motion/Fold3D";
-import Reveal from "@/components/motion/Reveal";
-import RevealGroup from "@/components/motion/RevealGroup";
-import TextReveal from "@/components/motion/TextReveal";
-import Parallax from "@/components/motion/Parallax";
-import Counter from "@/components/motion/Counter";
-import ZoomImage from "@/components/motion/ZoomImage";
-import HorizontalScroll from "@/components/motion/HorizontalScroll";
-import RotateOnScroll from "@/components/motion/RotateOnScroll";
 import HomeFloorSection from "@/components/site/HomeFloorSection";
+import ButtonLink from "@/components/site/kit/ButtonLink";
+import SectionHead from "@/components/site/kit/SectionHead";
+import Wave from "@/components/site/kit/Wave";
+import Hero from "@/components/site/home/Hero";
+import SignatureGrid from "@/components/site/home/SignatureGrid";
+import About from "@/components/site/home/About";
+import Showcase from "@/components/site/home/Showcase";
+import DimSumBand from "@/components/site/home/DimSumBand";
+import MenuPreview from "@/components/site/home/MenuPreview";
+import ReserveBlock from "@/components/site/home/ReserveBlock";
+import GallerySection from "@/components/site/home/GallerySection";
+import Reviews from "@/components/site/home/Reviews";
+import { DISH_SELECT, glyphOf, splitHeadline, toDish, usable, zhOf } from "@/components/site/home/data";
+import type { HomeCategory, HomeDish } from "@/components/site/home/types";
+import { ROOMS, floorTotals } from "@/lib/floorplan/layout";
+import { dayOfWeekOf, hoursFor, sameEveryDay } from "@/lib/hours";
 import { RESTAURANT_TZ, restaurantDay } from "@/lib/time";
+import { ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
-const spicyCount = (lvl: string) => ({ NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 }[lvl] ?? 0);
-const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
-/** Haqiqiy son: 20 dan kichigi aniq, kattasi o'nlikka pastga yaxlitlab "+" bilan (97 -> 90+) */
-const statValue = (n: number) => (n < 20 ? { to: n, suffix: "" } : { to: Math.floor(n / 10) * 10, suffix: "+" });
-const STAT_COLS: Record<number, string> = { 1: "md:grid-cols-1", 2: "md:grid-cols-2", 3: "md:grid-cols-3", 4: "md:grid-cols-4" };
+const HAN = /\p{Script=Han}/u;
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const tr = await getTranslations({ locale, namespace: "Home" });
-  const st = await getTranslations({ locale, namespace: "Site" });
+  const [h2, st, th] = await Promise.all([
+    getTranslations({ locale, namespace: "Home2" }),
+    getTranslations({ locale, namespace: "Site" }),
+    getTranslations({ locale, namespace: "Home" }),
+  ]);
 
-  const [hero, featured, reviews, gallery, dishesCount, reviewAgg, showcaseBanners, workingHours, generalSetting] = await Promise.all([
-    prisma.banner.findFirst({ where: { position: "HERO", isActive: true }, orderBy: { sortOrder: "asc" } }),
-    prisma.menuItem.findMany({ where: { isFeatured: true, isAvailable: true }, take: 6, orderBy: { sortOrder: "asc" } }),
-    prisma.review.findMany({ where: { status: "APPROVED" }, take: 6, orderBy: { createdAt: "desc" } }),
-    prisma.galleryImage.findMany({ where: { isActive: true }, take: 8, orderBy: { sortOrder: "asc" } }),
-    prisma.menuItem.count({ where: { isAvailable: true } }),
+  const [heroBanners, featuredRaw, latestRaw, catsRaw, reviewsRaw, reviewAgg, gallery, workingHours, generalSetting] = await Promise.all([
+    prisma.banner.findMany({ where: { position: "HERO", isActive: true }, orderBy: { sortOrder: "asc" }, take: 5 }),
+    prisma.menuItem.findMany({ where: { isFeatured: true, isAvailable: true }, take: 6, orderBy: { sortOrder: "asc" }, select: DISH_SELECT }),
+    prisma.menuItem.findMany({ where: { isAvailable: true }, take: 6, orderBy: { createdAt: "desc" }, select: DISH_SELECT }),
+    // Menyu bo'limi: mavjud taomi bor faol kategoriyalar (8 tagacha), har biridan 6 tagacha taom
+    prisma.menuCategory.findMany({
+      where: { isActive: true, items: { some: { isAvailable: true } } },
+      orderBy: { sortOrder: "asc" },
+      take: 8,
+      select: {
+        id: true,
+        name: true,
+        _count: { select: { items: { where: { isAvailable: true } } } },
+        items: { where: { isAvailable: true }, take: 6, orderBy: [{ isFeatured: "desc" }, { sortOrder: "asc" }], select: DISH_SELECT },
+      },
+    }),
+    prisma.review.findMany({ where: { status: "APPROVED" }, take: 7, orderBy: { createdAt: "desc" } }),
     prisma.review.aggregate({ _avg: { rating: true }, _count: true, where: { status: "APPROVED" } }),
-    prisma.banner.findMany({ where: { position: "HOME_SECONDARY", isActive: true }, orderBy: { sortOrder: "asc" } }),
-    // Restoran xaritasi bo'limi uchun: ish vaqti (bron soatlari) va telefon (Header bilan bir xil manba)
+    prisma.galleryImage.findMany({ where: { isActive: true }, take: 8, orderBy: { sortOrder: "asc" } }),
+    // Ish vaqti (hero, bron bloki va xarita bo'limi) va telefon (Header bilan bir xil manba)
     prisma.workingHour.findMany({ select: { dayOfWeek: true, openTime: true, closeTime: true, isClosed: true } }),
     prisma.siteSetting.findUnique({ where: { key: "general" } }),
   ]);
+
   const general = (generalSetting?.value as Record<string, unknown>) || {};
   const phone = Array.isArray(general.phones) && general.phones[0] ? String(general.phones[0]) : "+998 90 503 15 68";
+  const today = restaurantDay();
   // Restoran vaqti (server hisoblaydi — xarita bo'limi SSR va hydration'da bir xil boshlanadi)
   const nowHM = new Intl.DateTimeFormat("en-GB", { timeZone: RESTAURANT_TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
 
-  const heroImg = usable(hero?.imageUrl);
-  // Faqat haqiqiy ma'lumot: tasdiqlangan sharh bo'lmasa reyting/sharhlar plitkasi ko'rsatilmaydi
-  const reviewCount = reviewAgg._count || 0;
-  const avgRating = reviewCount > 0 ? Number(reviewAgg._avg.rating ?? 0) : null;
-  const dishesStat = statValue(dishesCount);
-  const reviewsStat = statValue(reviewCount);
-  const statCount = 2 + (avgRating !== null ? 2 : 0) - (dishesCount > 0 ? 0 : 1);
+  // ---------- Hero ----------
+  const now = Date.now();
+  const hero = heroBanners.find(
+    (b) => t(b.title, locale).trim() && (!b.startAt || b.startAt.getTime() <= now) && (!b.endAt || b.endAt.getTime() >= now)
+  );
+  const heroTitle = hero ? t(hero.title, locale).trim() : "";
+  const lines = heroTitle ? splitHeadline(heroTitle) : [h2("heroLine1"), h2("heroLine2"), h2("heroLine3")];
+  // Standart sarlavhada rangli qator tilga qarab (1–3), banner sarlavhasida — oxirgi qator
+  const accentLine = heroTitle ? lines.length - 1 : Math.min(2, Math.max(0, (parseInt(h2("heroAccent"), 10) || 2) - 1));
+  const heroSub = hero?.subtitle ? t(hero.subtitle, locale) : h2("heroSub");
+
+  // Raqamlar — zal xaritasidan (21 stol, 128 o'rin, 5 VIP xona)
+  const totals = floorTotals();
+  const vipRooms = ROOMS.filter((r) => r.kind === "vip").length;
+  const every = sameEveryDay(workingHours);
+  const todayHours = hoursFor(workingHours, dayOfWeekOf(today));
+  const hoursValue = every
+    ? `${every.openTime}–${every.closeTime}`
+    : todayHours.isClosed ? st("closed") : `${todayHours.openTime}–${todayHours.closeTime}`;
+  const hoursLabel = every ? st("fOpen") : h2("today");
+
+  // ---------- Taomlar ----------
+  const featured = featuredRaw.map((d) => toDish(d, locale));
+  const latest = latestRaw.map((d) => toDish(d, locale));
+  // Mashhur taomlar bo'lmasa — eng yangi mavjud taomlar; ular ham bo'lmasa bo'lim yashiriladi
+  const signature = featured.length ? featured : latest;
+  // Oshpaz tanlovi: avval rasmlilari, keyin TOP taomlar (3 ta)
+  const pool: HomeDish[] = [...featured, ...latest.filter((d) => !featured.some((f) => f.id === d.id))];
+  const showcase = pool
+    .map((d, i) => ({ d, i }))
+    .sort((a, b) => Number(!!b.d.img) - Number(!!a.d.img) || a.i - b.i)
+    .slice(0, 3)
+    .map((x) => x.d);
+  const pick = featured[0] ?? null;
+  const sticker = pick ? { ring: h2("chefPick"), center: pick.zh ?? pick.name } : null;
+
+  const cats: HomeCategory[] = catsRaw.map((c) => ({
+    id: c.id,
+    name: t(c.name, locale),
+    zh: locale === "zh" ? null : zhOf(c.name),
+    count: c._count.items,
+    glyph: glyphOf(c.name),
+    dishes: c.items.map((d) => toDish(d, locale)),
+  }));
+
+  // ---------- Rasmlar va sharhlar ----------
   const g = gallery.map((x) => usable(x.url)).filter(Boolean) as string[];
-  const bandImg = g[3] || g[0] || heroImg;
-  const reserveImg = g[4] || g[1] || heroImg;
-  const showcase = showcaseBanners.length
-    ? showcaseBanners.map((b, i) => ({ title: t(b.title, locale), text: b.subtitle ? t(b.subtitle, locale) : "", img: usable(b.imageUrl) }))
-    : [
-        { title: st("sc1t"), text: st("sc1x") },
-        { title: st("sc2t"), text: st("sc2x") },
-        { title: st("sc3t"), text: st("sc3x") },
-        { title: st("sc4t"), text: st("sc4x") },
-      ].map((d, i) => ({ ...d, img: g.length ? g[i % g.length] : null }));
+  const reserveImg = g[3] ?? g[0] ?? null;
+  const reviews = reviewsRaw.map((r) => ({ id: r.id, author: r.authorName, rating: r.rating, comment: r.comment ?? "" }));
+  const reviewTotal = reviewAgg._count || 0;
+  const avgRating = reviewTotal > 0 ? Number(reviewAgg._avg.rating ?? 0) : null;
 
   return (
     <>
       <SiteHeader />
-      <Fold3D targetId="reserve-fold" />
 
-      {/* ==================== 1. HERO ==================== */}
-      <section className="sticky top-0 z-0 flex min-h-screen items-center overflow-hidden bg-brand-ink">
-        {heroImg ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={heroImg} alt="" className="absolute inset-0 h-full w-full object-cover animate-kenburns" />
-        ) : (
-          <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(60% 60% at 78% 12%, rgba(200,162,75,0.18) 0%, transparent 60%), radial-gradient(55% 55% at 8% 92%, rgba(179,18,23,0.22) 0%, transparent 55%)" }} />
-        )}
-        <div className="absolute inset-0 hero-scrim" />
-        <Petals />
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 text-center">
-          <Reveal y={20}>
-            <div className="mb-6 flex items-center justify-center gap-3">
-              <span className="h-px w-10 bg-brand-gold" />
-              <span className="text-xs uppercase tracking-[0.4em] text-brand-gold">{st("heroTag")}</span>
-              <span className="h-px w-10 bg-brand-gold" />
-            </div>
-          </Reveal>
-          <TextReveal as="h1" trigger="load" text={hero?.title ? t(hero.title, locale) : "GrandChangan"} className="font-display text-6xl leading-[1.02] text-brand-cream sm:text-8xl" />
-          <Reveal y={20} delay={0.3}>
-            <p className="mx-auto mt-6 max-w-xl text-lg text-brand-cream/70">{hero?.subtitle ? t(hero.subtitle, locale) : tr("hero_subtitle")}</p>
-          </Reveal>
-          <Reveal y={20} delay={0.45}>
-            <div className="mt-10 flex flex-wrap justify-center gap-4">
-              <Link href="/reservation" className="btn-gold-sheen group inline-flex items-center gap-2 rounded-full bg-brand-red px-8 py-4 text-sm font-medium text-white transition hover:bg-brand-red-dark">
-                {tr("book_table")} <ArrowRight size={16} className="transition group-hover:translate-x-1" />
-              </Link>
-              <Link href="/menu" className="inline-flex items-center rounded-full border border-brand-cream/25 px-8 py-4 text-sm font-medium text-brand-cream transition hover:border-brand-gold hover:text-brand-gold-light">{tr("view_menu")}</Link>
-            </div>
-          </Reveal>
-        </div>
-        <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-center">
-          <p className="mb-2 text-[10px] uppercase tracking-[0.3em] text-brand-cream/50">{st("scrollCue")}</p>
-          <div className="mx-auto h-10 w-px bg-surface-2/20"><div className="mx-auto h-2 w-px bg-brand-gold scroll-cue-dot" /></div>
-        </div>
-      </section>
+      <main>
+        {/* 1. HERO */}
+        <Hero
+          tag={st("heroTag")}
+          lines={lines}
+          accentLine={accentLine}
+          sub={heroSub}
+          cnHeadline={locale === "zh" && HAN.test(lines.join(""))}
+          bookLabel={th("book_table")}
+          menuLabel={th("view_menu")}
+          facts={[
+            { value: String(totals.tables), label: h2("factTables") },
+            { value: String(totals.seats), label: h2("factSeats") },
+            { value: String(vipRooms), label: h2("factVip") },
+          ]}
+          hours={{ value: hoursValue, label: hoursLabel }}
+          sticker={sticker}
+          waveClass={signature.length > 0 ? "text-paper" : "text-night"}
+        />
 
-      {/* ===== KONTENT VARAG'I — hero ustiga ko'tariladi ===== */}
-      <div className="relative z-10">
-      {/* ==================== 3. STORY ==================== */}
-      <section className="relative -mt-12 overflow-hidden rounded-t-[2.75rem] bg-surface-2 py-24 shadow-[0_-50px_90px_-30px_rgba(0,0,0,0.6)] lg:py-36">
-        <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-2">
-          <div className="relative h-[440px] rounded-3xl lg:h-[600px]">
-            {g[0] ? (
-              <ZoomImage src={g[0]} className="h-full w-full rounded-3xl" />
-            ) : (
-              <div className="flex h-full items-center justify-center rounded-3xl bg-brand-ink font-display text-3xl text-brand-gold/25">GrandChangan</div>
-            )}
-          </div>
-          <div>
-            <Reveal y={16}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">{st("storyEyebrow")}</p></Reveal>
-            <TextReveal text={st("storyTitle1")} className="font-display text-5xl leading-tight text-content sm:text-6xl" />
-            <TextReveal text={st("storyTitle2")} className="font-display text-5xl leading-tight accent-gold sm:text-6xl" delay={0.1} />
-            <RevealGroup className="mt-8 space-y-5 text-lg" stagger={0.15} y={24}>
-              <p className="text-muted">{st("storyP1")}</p>
-              <p className="text-muted">{st("storyP2")}</p>
-            </RevealGroup>
-            <Reveal y={16} delay={0.2}>
-              <Link href="/about" className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-brand-red">{st("more")} <ArrowRight size={16} /></Link>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== 3.5 SIGNATURE PLATE (aylanadigan tarelka) ==================== */}
-      <section className="relative overflow-hidden bg-card py-28 lg:py-40">
-        <div className="mx-auto max-w-6xl px-6 text-center">
-          <Reveal y={14}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">{st("plateEyebrow")}</p></Reveal>
-          <div className="flex flex-wrap items-baseline justify-center gap-x-4">
-            <TextReveal text={st("plateTitle1")} className="font-display text-5xl text-content sm:text-6xl" />
-            <TextReveal text={st("plateTitle2")} className="font-display text-5xl accent-gold sm:text-6xl" delay={0.1} />
-          </div>
-        </div>
-        <div className="relative mx-auto mt-16 flex h-[460px] max-w-6xl items-center justify-center sm:h-[620px]">
-          {g[5] ? (
-            <Parallax speed={34} className="absolute -left-2 top-0 hidden w-56 -rotate-6 sm:block lg:left-4 lg:w-72">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={g[5]} alt="" className="h-72 w-56 rounded-xl border-4 border-white object-cover shadow-2xl lg:h-96 lg:w-72" />
-            </Parallax>
-          ) : null}
-          {g[6] ? (
-            <Parallax speed={-28} className="absolute -right-2 bottom-0 hidden w-56 rotate-6 sm:block lg:right-4 lg:w-72">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={g[6]} alt="" className="h-72 w-56 rounded-xl border-4 border-white object-cover shadow-2xl lg:h-96 lg:w-72" />
-            </Parallax>
-          ) : null}
-
-          {g[7] ? (
-            <Parallax speed={-40} className="absolute right-24 top-0 hidden w-40 rotate-3 lg:block">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={g[7]} alt="" className="h-52 w-40 rounded-xl border-4 border-white object-cover shadow-2xl" />
-            </Parallax>
-          ) : null}
-          {g[3] ? (
-            <Parallax speed={44} className="absolute bottom-2 left-24 hidden w-40 -rotate-3 lg:block">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={g[3]} alt="" className="h-52 w-40 rounded-xl border-4 border-white object-cover shadow-2xl" />
-            </Parallax>
-          ) : null}
-
-          <RotateOnScroll deg={180} scaleFrom={0.75} className="relative h-72 w-72 sm:h-[440px] sm:w-[440px]">
-            <div className="absolute inset-0 rounded-full border-[3px] border-brand-gold/60" />
-            <div className="absolute inset-4 overflow-hidden rounded-full shadow-2xl">
-              {g[2] ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={g[2]} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-surface-2 font-display text-xl text-brand-gold/30">GrandChangan</div>
-              )}
-            </div>
-          </RotateOnScroll>
-
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="rounded-full bg-brand-ink/75 px-7 py-5 text-center backdrop-blur-sm">
-              <p className="font-display text-2xl text-brand-cream sm:text-3xl">GrandChangan</p>
-              <p className="mt-1 text-[10px] uppercase tracking-[0.35em] text-brand-gold">signature</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==================== 4. PARALLAX QUOTE BAND ==================== */}
-      <section className="relative -mt-12 rounded-t-[2.75rem] shadow-[0_-50px_90px_-30px_rgba(0,0,0,0.6)] flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center">
-        {bandImg ? (
-          <Parallax className="absolute -inset-y-[18%] inset-x-0" speed={14}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={bandImg} alt="" className="h-full w-full object-cover opacity-60" />
-          </Parallax>
-        ) : (
-          <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(50% 60% at 50% 40%, rgba(200,162,75,0.14), transparent 70%)" }} />
-        )}
-        <div className="absolute inset-0 bg-brand-ink/60" />
-        <div className="relative z-10 mx-auto max-w-4xl px-6">
-          <TextReveal text={st("quote1")} className="font-display text-4xl leading-tight text-brand-cream sm:text-6xl" />
-          <TextReveal text={st("quote2")} className="font-display text-4xl leading-tight accent-gold sm:text-6xl" delay={0.15} />
-          <Reveal delay={0.3}><p className="mx-auto mt-8 max-w-lg text-brand-cream/60">{st("quoteSub")}</p></Reveal>
-        </div>
-      </section>
-
-      {/* ==================== 5. SIGNATURE DISHES ==================== */}
-      <section className="mx-auto max-w-7xl px-6 py-24 lg:py-32">
-        <div className="mb-16 text-center">
-          <Reveal y={14}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">{st("dishesEyebrow")}</p></Reveal>
-          <div className="flex flex-wrap items-baseline justify-center gap-x-4">
-            <TextReveal text={st("dishesTitle1")} className="font-display text-5xl text-content sm:text-6xl" />
-            <TextReveal text={st("dishesTitle2")} className="font-display text-5xl accent-gold sm:text-6xl" delay={0.1} />
-          </div>
-        </div>
-        {featured.length > 0 ? (
-          <RevealGroup className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3" stagger={0.1} y={50}>
-            {featured.map((it) => {
-              const img = usable(it.imageUrl);
-              return (
-                <div key={it.id} className="group overflow-hidden rounded-3xl border border-line bg-card transition hover:border-brand-gold/40 hover:shadow-2xl">
-                  <div className="relative h-64 overflow-hidden bg-brand-ink">
-                    {img ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={img} alt="" className="h-full w-full object-cover transition duration-[900ms] group-hover:scale-110" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center font-display text-2xl text-brand-gold/25">GrandChangan</div>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="font-display text-2xl text-content">{t(it.name, locale)}</h3>
-                      <span className="whitespace-nowrap font-semibold text-brand-red">{formatMoney(Number(it.discountPrice ?? it.price))}</span>
-                    </div>
-                    {it.description ? <p className="mt-2 line-clamp-2 text-sm text-muted">{t(it.description, locale)}</p> : null}
-                    <div className="mt-3 flex items-center gap-2">
-                      {Array.from({ length: spicyCount(it.spicyLevel) }).map((_, i) => <Flame key={i} size={13} className="text-brand-red" />)}
-                      {it.isVegetarian && <Leaf size={13} className="text-green-600" />}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </RevealGroup>
-        ) : (
-          <p className="rounded-3xl border border-dashed border-line p-12 text-center text-muted">{st("dishesEmpty")}</p>
-        )}
-      </section>
-
-      {/* ==================== 6. HORIZONTAL SHOWCASE ==================== */}
-      <section className="bg-brand-ink text-brand-cream">
-        <div className="mx-auto max-w-7xl px-6 pt-24 text-center">
-          <p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-gold">{st("scEyebrow")}</p>
-          <div className="flex flex-wrap items-baseline justify-center gap-x-4">
-            <TextReveal text={st("scTitle1")} className="font-display text-5xl sm:text-6xl" />
-            <TextReveal text={st("scTitle2")} className="font-display text-5xl accent-gold sm:text-6xl" delay={0.1} />
-          </div>
-          <p className="mt-4 text-sm text-brand-cream/40">{st("scHint")}</p>
-        </div>
-        <HorizontalScroll>
-          <div className="h-1 w-[26vw] shrink-0 sm:w-[30vw]" />
-          {showcase.map((e, i) => (
-            <div key={i} data-hs-card className="mx-4 flex h-[80vh] w-[82vw] shrink-0 items-center sm:mx-6 sm:w-[640px]">
-              <div className="w-full overflow-hidden rounded-[2rem] border border-brand-gold/20 bg-brand-ink-soft">
-                <div className="relative h-[46vh] overflow-hidden sm:h-[440px]">
-                  {e.img ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={e.img} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center bg-brand-ink"><UtensilsCrossed size={64} className="text-brand-gold/40" /></div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-ink-soft via-transparent to-transparent" />
-                  <span className="absolute right-7 top-5 font-display text-7xl text-brand-cream/15">0{i + 1}</span>
-                </div>
-                <div className="p-9">
-                  <h3 className="font-display text-4xl text-brand-cream">{e.title}</h3>
-                  {e.text ? <p className="mt-4 max-w-md text-lg text-brand-cream/60">{e.text}</p> : null}
-                </div>
+        {/* 2. MASHHUR TAOMLAR */}
+        {signature.length > 0 && (
+          <section className="relative bg-paper pb-32 pt-14 sm:pb-40 sm:pt-16 lg:pb-44">
+            <div className="mx-auto max-w-7xl px-5 sm:px-8">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                <SectionHead cn="招牌菜" eyebrow={st("dishesEyebrow")} title={st("dishesTitle1")} accent={st("dishesTitle2")} sub={h2("sigSub")} />
+                <ButtonLink href="/menu" variant="ghost-dark" size="md" className="group shrink-0 self-start sm:self-auto">
+                  {st("fullMenu")}
+                  <ArrowRight size={16} className="transition group-hover:translate-x-1" />
+                </ButtonLink>
               </div>
+              <SignatureGrid dishes={signature} allLabel={st("menuAll")} />
             </div>
-          ))}
-          <div className="flex h-[80vh] w-[70vw] shrink-0 items-center justify-center px-8 text-center sm:w-[46vw]">
-            <div>
-              <h2 className="font-display text-4xl sm:text-5xl">{st("scCta1")}<br /><span className="accent-gold">{st("scCta2")}</span></h2>
-              <Link href="/reservation" className="btn-gold-sheen mt-8 inline-flex items-center gap-2 rounded-full bg-brand-red px-9 py-4 font-medium text-white hover:bg-brand-red-dark">{tr("book_table")} <ArrowRight size={18} /></Link>
-            </div>
-          </div>
-          <div className="h-1 w-[10vw] shrink-0" />
-        </HorizontalScroll>
-      </section>
-
-      {/* ==================== 7. STATS ==================== */}
-      <section className="relative overflow-hidden bg-brand-ink py-24">
-        <span className="pointer-events-none absolute inset-0" style={{ backgroundImage: "radial-gradient(60% 60% at 50% 0%, rgba(200,162,75,0.10) 0%, transparent 60%)" }} />
-        <div className="relative mx-auto max-w-5xl px-6">
-          <Reveal className="mb-10 text-center">
-            <p className="text-xs uppercase tracking-[0.35em] text-brand-gold">{st("statsEyebrow")}</p>
-            <div className="mx-auto mt-4 w-24"><div className="animated-line" /></div>
-          </Reveal>
-          <Reveal>
-            <div className={`grid grid-cols-2 divide-y divide-brand-gold/15 overflow-hidden rounded-[2rem] border border-brand-gold/20 bg-brand-ink-soft/40 sm:divide-y-0 md:divide-x ${STAT_COLS[statCount] || "md:grid-cols-4"}`}>
-              {avgRating !== null && (
-                <div className="flex flex-col items-center px-6 py-12">
-                  <Star size={22} className="mb-4 text-brand-gold" />
-                  <div className="flex items-baseline gap-1 font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={avgRating} decimals={1} /><Star size={20} className="fill-brand-gold text-brand-gold" /></div>
-                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statRating")}</p>
-                </div>
-              )}
-              {avgRating !== null && (
-                <div className="flex flex-col items-center px-6 py-12">
-                  <MessageSquare size={22} className="mb-4 text-brand-gold" />
-                  <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={reviewsStat.to} suffix={reviewsStat.suffix} /></div>
-                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statReviews")}</p>
-                </div>
-              )}
-              {dishesCount > 0 && (
-                <div className="flex flex-col items-center px-6 py-12">
-                  <UtensilsCrossed size={22} className="mb-4 text-brand-gold" />
-                  <div className="font-display text-6xl text-brand-gold-light sm:text-7xl"><Counter to={dishesStat.to} suffix={dishesStat.suffix} /></div>
-                  <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statDishes")}</p>
-                </div>
-              )}
-              <div className="flex flex-col items-center px-6 py-12">
-                <Languages size={22} className="mb-4 text-brand-gold" />
-                <div className="font-display text-6xl text-brand-gold-light sm:text-7xl">4</div>
-                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-brand-cream/50">{st("statLangs")}</p>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ==================== 8. ATMOSPHERE ==================== */}
-      {g.length >= 3 && (
-        <section className="overflow-hidden bg-surface-2 pb-28">
-          <div className="mx-auto max-w-7xl px-6">
-            <div className="mb-12 text-center">
-              <Reveal y={14}><p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-red">{st("atmoEyebrow")}</p></Reveal>
-              <TextReveal text={st("atmoTitle")} className="font-display text-5xl text-content sm:text-6xl" />
-            </div>
-            <div className="grid grid-cols-3 gap-4 sm:gap-6">
-              <Parallax className="col-span-1" speed={16}><ZoomImage src={g[0]} className="h-64 w-full rounded-2xl sm:h-80" /></Parallax>
-              <Parallax className="col-span-1 mt-12" speed={26}><ZoomImage src={g[1]} className="h-64 w-full rounded-2xl sm:h-80" /></Parallax>
-              <Parallax className="col-span-1" speed={12}><ZoomImage src={g[2]} className="h-64 w-full rounded-2xl sm:h-80" /></Parallax>
-            </div>
-            <div className="mt-12 text-center">
-              <Link href="/gallery" className="inline-flex items-center gap-2 rounded-full border border-brand-ink/20 px-8 py-3 text-sm font-medium text-content transition hover:bg-brand-ink hover:text-brand-cream">{st("fullGallery")} <ArrowRight size={16} /></Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ==================== 8.5 RESTORAN XARITASI (stol tanlash va bron) ==================== */}
-      <HomeFloorSection hours={workingHours} phone={phone} today={restaurantDay()} nowHM={nowHM} />
-
-      {/* ===== 9–10: RESERVE varaq bo'lib buklanadi, ostidan SHARHLAR ochiladi (Fold3D) ===== */}
-      <div className="relative bg-brand-ink">
-      {/* ==================== 9. RESERVE CTA ==================== */}
-      <section id="reserve-fold" className="relative flex min-h-[85vh] items-center justify-center overflow-hidden bg-brand-ink text-center">
-        {reserveImg ? (
-          <Parallax className="absolute -inset-y-[18%] inset-x-0" speed={12}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={reserveImg} alt="" className="h-full w-full object-cover opacity-50" />
-          </Parallax>
-        ) : (
-          <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(50% 60% at 50% 50%, rgba(179,18,23,0.25), transparent 70%)" }} />
+            <Wave className="text-night" variant="b" />
+          </section>
         )}
-        <div className="absolute inset-0 bg-brand-ink/55" />
-        <div className="relative z-10 mx-auto max-w-3xl px-6">
-          <Reveal y={16}><p className="mb-4 text-xs uppercase tracking-[0.3em] text-brand-gold">{st("reserveEyebrow")}</p></Reveal>
-          <TextReveal text={st("reserveTitle")} className="font-display text-5xl text-brand-cream sm:text-7xl" />
-          <Reveal y={16} delay={0.2}><p className="mx-auto mt-6 max-w-lg text-brand-cream/60">{st("reserveSub")}</p></Reveal>
-          <Reveal y={16} delay={0.35}>
-            <Link href="/reservation" className="btn-gold-sheen mt-10 inline-flex items-center gap-2 rounded-full bg-brand-red px-10 py-4 font-medium text-white transition hover:bg-brand-red-dark">{st("reserveBtn")} <ArrowRight size={18} /></Link>
-          </Reveal>
-        </div>
-      </section>
 
-      {/* ==================== 10. REVIEWS ==================== */}
-      <section className="relative -mt-12 rounded-t-[2.75rem] shadow-[0_-50px_90px_-30px_rgba(0,0,0,0.6)] overflow-hidden bg-brand-ink py-28 text-brand-cream">
-        <span className="pointer-events-none absolute -left-10 bottom-0 select-none font-display text-[14rem] leading-none text-white/[0.03]">评价</span>
-        <div className="relative mx-auto max-w-7xl px-6">
-          <div className="mb-14 text-center">
-            <p className="mb-3 text-xs uppercase tracking-[0.3em] text-brand-gold">{st("reviewsEyebrow")}</p>
-            <TextReveal text={st("reviewsTitle")} className="font-display text-5xl text-brand-cream sm:text-6xl" />
-            <div className="mx-auto mt-6 w-40"><div className="animated-line" /></div>
-          </div>
+        {/* 3. BIZ HAQIMIZDA */}
+        <About locale={locale} images={g} stats={{ tables: totals.tables, seats: totals.seats, vip: vipRooms }} />
 
-          {reviews.length > 0 && (
-            <>
-              {/* katta featured sharh */}
-              <Reveal>
-                <div className="mx-auto mb-10 max-w-3xl rounded-[2rem] border border-brand-gold/20 bg-brand-ink-soft p-10 text-center sm:p-14">
-                  <div className="mb-5 flex justify-center">
-                    {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={20} className={i < reviews[0].rating ? "fill-brand-gold text-brand-gold" : "text-brand-cream/20"} />)}
-                  </div>
-                  {reviews[0].comment && <p className="font-display text-2xl leading-relaxed text-brand-cream sm:text-3xl">&ldquo;{reviews[0].comment}&rdquo;</p>}
-                  <p className="mt-6 text-sm uppercase tracking-[0.2em] text-brand-gold">{reviews[0].authorName}</p>
-                </div>
-              </Reveal>
+        {/* 4. OSHPAZ TANLOVI */}
+        {showcase.length > 0 ? <Showcase locale={locale} dishes={showcase} /> : <div className="h-16 bg-sand" />}
 
-              {reviews.length > 1 && (
-                <RevealGroup className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" stagger={0.1} y={40}>
-                  {reviews.slice(1).map((r) => (
-                    <div key={r.id} className="rounded-2xl border border-white/10 bg-brand-ink-soft/60 p-7">
-                      <div className="mb-3 flex">{Array.from({ length: 5 }).map((_, i) => <Star key={i} size={15} className={i < r.rating ? "fill-brand-gold text-brand-gold" : "text-brand-cream/15"} />)}</div>
-                      {r.comment && <p className="text-brand-cream/70">&ldquo;{r.comment}&rdquo;</p>}
-                      <p className="mt-4 font-display text-lg text-brand-gold-light">{r.authorName}</p>
-                    </div>
-                  ))}
-                </RevealGroup>
-              )}
-            </>
-          )}
+        {/* 5. DIM SUM */}
+        <DimSumBand locale={locale} />
 
-          <div className="mt-16"><Reveal><ReviewForm /></Reveal></div>
-        </div>
-      </section>
-      </div>
-
+        {/* 6. MENYU */}
+        {cats.length > 0 && (
+          <section className="relative isolate overflow-hidden bg-night pb-32 pt-16 text-brand-cream sm:pb-40 sm:pt-20">
+            <span aria-hidden="true" className="pointer-events-none absolute -right-40 top-20 -z-10 size-[30rem] rounded-full bg-fire-deep/25 blur-3xl" />
+            <div className="mx-auto max-w-7xl px-5 sm:px-8">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                <SectionHead tone="dark" font="serif" cn="菜单" eyebrow={h2("menuEyebrow")} title={h2("menuTitle")} accent={h2("menuAccent")} />
+                <ButtonLink href="/menu" variant="gold-outline" size="md" className="group shrink-0 self-start sm:self-auto">
+                  {st("fullMenu")}
+                  <ArrowRight size={16} className="transition group-hover:translate-x-1" />
+                </ButtonLink>
+              </div>
+              <MenuPreview cats={cats} />
             </div>
-            <SiteFooter locale={locale} />
+            <Wave className="text-paper" variant="c" />
+          </section>
+        )}
+
+        {/* 7. RESTORAN XARITASI (stol tanlash va bron) */}
+        <HomeFloorSection hours={workingHours} phone={phone} today={today} nowHM={nowHM} />
+
+        {/* 8. STOL BAND QILING */}
+        <ReserveBlock locale={locale} image={reserveImg} hours={`${hoursLabel} · ${hoursValue}`} />
+
+        {/* 9. GALEREYA */}
+        {g.length >= 3 && <GallerySection locale={locale} images={g} />}
+
+        {/* 10. SHARHLAR */}
+        <Reviews locale={locale} reviews={reviews} avg={avgRating} total={reviewTotal} />
+      </main>
+
+      <SiteFooter locale={locale} />
     </>
   );
 }
