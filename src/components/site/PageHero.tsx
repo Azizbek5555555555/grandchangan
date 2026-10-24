@@ -2,9 +2,17 @@ import TextReveal from "@/components/motion/TextReveal";
 import Parallax from "@/components/motion/Parallax";
 import Reveal from "@/components/motion/Reveal";
 
-export default function PageHero({
-  title, subtitle, bgImage,
-}: { title: string; subtitle?: string; bgImage?: string | null }) {
+export type PageHeroProps = {
+  title: string;
+  subtitle?: string;
+  bgImage?: string | null;
+  /** Xitoycha bezak yozuvi (masalan menyu uchun "菜单") */
+  cn?: string;
+  /** Fon: fire — qizil (standart), night — tungi */
+  tone?: "fire" | "night";
+};
+
+export default function PageHero({ title, subtitle, bgImage }: PageHeroProps) {
   return (
     <section className="relative flex min-h-[34vh] items-end overflow-hidden bg-brand-ink pb-12 pt-28">
       {bgImage ? (
