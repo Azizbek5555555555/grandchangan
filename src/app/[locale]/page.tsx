@@ -16,6 +16,8 @@ import MenuPreview from "@/components/site/home/MenuPreview";
 import ReserveBlock from "@/components/site/home/ReserveBlock";
 import GallerySection from "@/components/site/home/GallerySection";
 import Reviews from "@/components/site/home/Reviews";
+import ExplodeSection from "@/components/site/home/ExplodeSection";
+import PanelShowcase from "@/components/site/home/PanelShowcase";
 import { DISH_SELECT, glyphOf, splitHeadline, toDish, usable, zhOf } from "@/components/site/home/data";
 import type { HomeCategory, HomeDish } from "@/components/site/home/types";
 import { ROOMS, floorTotals } from "@/lib/floorplan/layout";
@@ -165,6 +167,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         {/* 4. OSHPAZ TANLOVI */}
         {showcase.length > 0 ? <Showcase locale={locale} dishes={showcase} /> : <div className="h-16 bg-sand" />}
 
+        {/* 4.5 BIR KOSADA — qatlamli 3D kosa (sticky scroll) */}
+        <ExplodeSection locale={locale} />
+
         {/* 5. DIM SUM */}
         <DimSumBand locale={locale} />
 
@@ -188,6 +193,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         {/* 7. RESTORAN XARITASI (stol tanlash va bron) */}
         <HomeFloorSection hours={workingHours} phone={phone} today={today} nowHM={nowHM} />
+
+        {/* 7.5 KASHF ETING — 4 panelli lenta */}
+        <PanelShowcase
+          heading={<SectionHead tone="dark" font="serif" cn="特色" eyebrow={h2("panelEyebrow")} title={h2("panelTitle")} accent={h2("panelAccent")} />}
+          panels={[
+            { title: h2("panel1t"), sub: h2("panel1s"), href: "/gallery", img: g[0] ?? null },
+            { title: h2("panel2t"), sub: h2("panel2s"), href: "/menu", img: signature.find((d) => d.img)?.img ?? g[1] ?? null },
+            { title: h2("panel3t"), sub: h2("panel3s"), href: "/about", img: g[2] ?? null },
+            { title: h2("panel4t"), sub: h2("panel4s"), href: "/reservation", img: g[3] ?? null },
+          ]}
+        />
 
         {/* 8. STOL BAND QILING */}
         <ReserveBlock locale={locale} image={reserveImg} hours={`${hoursLabel} · ${hoursValue}`} />

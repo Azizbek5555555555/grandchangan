@@ -21,9 +21,9 @@ import { P } from "../palette";
 /* Hero: lag'mon kosasi, palochkalar lag'monni ko'tarib turadi, atrofda masalliqlar uchadi.
    Kirish (~1.2s) → suzish/aylanish → scroll bo'yicha egilish va masalliqlar tarqalishi */
 
-const TIP = new THREE.Vector3(0.34, 2.02, 0.32);
-const DIR_UP = new THREE.Vector3(0.72, 0.64, -0.3).normalize();
-const DIR_LO = new THREE.Vector3(0.76, 0.54, -0.37).normalize();
+const TIP = new THREE.Vector3(0.34, 1.95, 0.32);
+const DIR_UP = new THREE.Vector3(0.8, 0.56, -0.28).normalize();
+const DIR_LO = new THREE.Vector3(0.84, 0.46, -0.35).normalize();
 const AXIS = new THREE.Vector3(DIR_UP.x + DIR_LO.x, 0, DIR_UP.z + DIR_LO.z).normalize();
 const GAP = 0.05; // palochka va lag'mon radiuslari yig'indisi
 
@@ -109,7 +109,7 @@ function HeroContent({ reduced, mobile, trackRef }: Pick<SceneProps, "reduced" |
           <Noodles layout={layout} mobile={mobile} timeRef={noodleTime} />
           <BowlToppings kit={kit} layout={layout} mobile={mobile} />
           <group ref={sticks}>
-            <Chopsticks poses={poses} length={2.5} />
+            <Chopsticks poses={poses} length={2.15} />
           </group>
           <SoftParticles
             position={[0, 1.0, 0]}

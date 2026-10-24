@@ -39,7 +39,7 @@ export default async function NotFound() {
           <span className="sr-only">404</span>
           <span aria-hidden="true">4</span>
           {/* 0 — likopcha: zafar halqa ichida mo'yqalamdagi belgi */}
-          <span aria-hidden="true" className="relative inline-flex h-[0.82em] w-[0.82em] items-center justify-center rounded-full border-[0.075em] border-saffron">
+          <span aria-hidden="true" className="relative inline-flex h-[0.82em] w-[0.82em] translate-y-[0.04em] items-center justify-center rounded-full border-[0.075em] border-saffron">
             <span className="absolute inset-[0.07em] rounded-full border-[0.012em] border-dashed border-saffron/70" />
             <span lang="zh" className="font-cn text-[0.36em] leading-none text-saffron">迷</span>
           </span>

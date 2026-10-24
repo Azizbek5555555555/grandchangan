@@ -33,8 +33,8 @@ const OTHER = "__other";
  * Qidiruv va "faqat vegetarian" filtri saqlangan.
  */
 export default function MenuBrowser({
-  categories, items, locale,
-}: { categories: Cat[]; items: Item[]; locale: string }) {
+  categories, items, locale, showFeatured = true,
+}: { categories: Cat[]; items: Item[]; locale: string; /** false — tepadagi "招牌菜" qatori chiqmaydi (sahifada alohida blok bor) */ showFeatured?: boolean }) {
   const T = useTranslations("Site");
   const P = useTranslations("Pages2");
   const [q, setQ] = useState("");
@@ -133,7 +133,7 @@ export default function MenuBrowser({
   return (
     <div className="relative bg-paper">
       {/* ---- Oshpaz tavsiyasi (TOP belgilangan taomlar) ---- */}
-      {featured.length > 0 && (
+      {showFeatured && featured.length > 0 && (
         <section aria-labelledby="menu-featured" className="relative mx-auto max-w-7xl px-5 pb-6 pt-14 sm:px-8 sm:pt-20">
           <Reveal y={16}>
             <div className="flex flex-wrap items-end justify-between gap-4">

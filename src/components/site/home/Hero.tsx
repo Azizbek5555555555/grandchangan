@@ -37,6 +37,8 @@ type Props = {
 const DELAYS = ["delay-[120ms]", "delay-[220ms]", "delay-[320ms]"];
 
 export default function Hero({ tag, lines, accentLine, sub, cnHeadline, bookLabel, menuLabel, facts, hours, sticker, waveClass = "text-paper" }: Props) {
+  // Qisqa qatorlar (masalan "Grand / Changan") kattaroq yoziladi; uzunlari — ustunga sig'adigan o'lchamda
+  const short = Math.max(...lines.map((l) => l.length)) <= 8;
   return (
     <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-fire pb-24 pt-28 text-brand-cream sm:pb-28 lg:pb-32 lg:pt-32">
       {/* Fon: iliq zafar nur va nozik panjara naqshi */}
@@ -58,7 +60,9 @@ export default function Hero({ tag, lines, accentLine, sub, cnHeadline, bookLabe
               "mt-6 text-balance",
               cnHeadline
                 ? "font-cn text-[clamp(3.6rem,11vw,7.5rem)] leading-[1.08]"
-                : "font-poster text-[clamp(2.7rem,7.2vw,6.3rem)] leading-[1.05]"
+                : short
+                  ? "font-poster text-[clamp(2.8rem,13vw,5rem)] leading-[1.05] [overflow-wrap:anywhere] lg:text-[clamp(4.4rem,7vw,6.6rem)]"
+                  : "font-poster text-[clamp(2.3rem,10.6vw,4.4rem)] leading-[1.05] [overflow-wrap:anywhere] lg:text-[clamp(3.6rem,5.6vw,6.2rem)]"
             )}
           >
             {lines.map((l, i) => (

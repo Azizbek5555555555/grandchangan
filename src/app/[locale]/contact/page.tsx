@@ -6,6 +6,8 @@ import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import PageHero from "@/components/site/PageHero";
 import Reveal from "@/components/motion/Reveal";
+import SectionHead from "@/components/site/kit/SectionHead";
+import { CloudLine } from "@/components/site/pages/Ornament";
 
 export const dynamic = "force-dynamic";
 
@@ -31,26 +33,31 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   return (
     <>
       <SiteHeader />
-      <PageHero title={tc("contact")} subtitle={st("contactSub")} />
-      <div className="mx-auto max-w-6xl px-5 py-16">
+      <PageHero title={tc("contact")} subtitle={st("contactSub")} cn="联系" />
+      <main className="bg-paper">
+      <div className="mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8">
+        <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <SectionHead font="serif" cn="联系我们" eyebrow={st("contactSub")} title={st("hWhere")} />
+          <CloudLine className="w-40 text-fire/40" />
+        </div>
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
           <Reveal className="flex flex-col justify-between">
             <div className="space-y-4">
-              <a href={`tel:${phone.replace(/\s/g, "")}`} className="flex items-center gap-4 rounded-2xl border border-line bg-card p-5 transition hover:border-brand-red/40">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-red/10"><Phone size={20} className="text-brand-red" /></span>
+              <a href={`tel:${phone.replace(/\s/g, "")}`} className="flex items-center gap-4 group rounded-2xl border border-line bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-fire/50 hover:shadow-lg">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-fire transition group-hover:bg-fire-deep"><Phone size={20} className="text-brand-cream" /></span>
                 <div><p className="text-xs uppercase tracking-wider text-muted">{st("cPhone")}</p><p className="font-medium text-content">{phone}</p></div>
               </a>
-              <a href={`mailto:${email}`} className="flex items-center gap-4 rounded-2xl border border-line bg-card p-5 transition hover:border-brand-red/40">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-red/10"><Mail size={20} className="text-brand-red" /></span>
+              <a href={`mailto:${email}`} className="flex items-center gap-4 group rounded-2xl border border-line bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-fire/50 hover:shadow-lg">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-fire transition group-hover:bg-fire-deep"><Mail size={20} className="text-brand-cream" /></span>
                 <div><p className="text-xs uppercase tracking-wider text-muted">{st("cEmail")}</p><p className="font-medium text-content">{email}</p></div>
               </a>
-              <a href={mapLink} target="_blank" rel="noreferrer" className="flex items-center gap-4 rounded-2xl border border-line bg-card p-5 transition hover:border-brand-red/40">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-red/10"><MapPin size={20} className="text-brand-red" /></span>
+              <a href={mapLink} target="_blank" rel="noreferrer" className="flex items-center gap-4 group rounded-2xl border border-line bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-fire/50 hover:shadow-lg">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-fire transition group-hover:bg-fire-deep"><MapPin size={20} className="text-brand-cream" /></span>
                 <div><p className="text-xs uppercase tracking-wider text-muted">{st("cAddress")}</p><p className="font-medium text-content">{address}</p></div>
               </a>
             </div>
             <div className="mt-8 rounded-2xl border border-line bg-card p-5">
-              <h2 className="mb-3 font-display text-xl text-content">{st("cHours")}</h2>
+              <h2 className="mb-3 flex items-center gap-3 font-display text-2xl text-content"><span lang="zh" aria-hidden="true" className="font-cn text-fire">时</span>{st("cHours")}</h2>
               <ul className="space-y-1.5 text-sm text-muted">
                 {hours.map((h) => (
                   <li key={h.dayOfWeek} className="flex justify-between border-b border-line py-1.5 last:border-0">
@@ -62,15 +69,16 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
             </div>
           </Reveal>
           <Reveal delay={0.1} className="flex flex-col">
-            <div className="relative min-h-[460px] flex-1 overflow-hidden rounded-2xl border border-line shadow-sm">
+            <div className="relative min-h-[460px] flex-1 overflow-hidden rounded-3xl border-4 border-card shadow-xl shadow-content/10">
               <iframe src={mapSrc} title="GrandChangan" className="absolute inset-0 h-full w-full" style={{ border: 0 }} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
             </div>
-            <a href={mapLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-brand-ink py-3 font-medium text-brand-cream transition hover:bg-brand-ink/90">
+            <a href={mapLink} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center justify-center gap-2 min-h-12 rounded-full bg-night py-3 font-semibold text-brand-cream transition hover:bg-night-3">
               {st("openMaps")} <ExternalLink size={16} />
             </a>
           </Reveal>
         </div>
       </div>
+      </main>
       <SiteFooter locale={locale} />
     </>
   );

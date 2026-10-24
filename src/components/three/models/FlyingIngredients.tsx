@@ -30,7 +30,7 @@ const ITEMS: Item[] = [
   { kind: "ring", pos: [-0.5, -1.7, 1.45], s: 1.1, rot: [1.4, 0.8, 0.2], spin: [-0.4, 0.2, 0.3], bob: 0.08, ph: 4.4, delay: 0.34 },
   { kind: "ring", pos: [2.15, 2.15, -1.1], s: 1.0, rot: [0.3, 0.2, 1.5], spin: [0.2, 0.4, 0.4], bob: 0.06, ph: 5.5, delay: 0.38 },
   { kind: "ring", pos: [-2.05, -0.8, -1.3], s: 1.0, rot: [0.8, 1.4, 0.2], spin: [0.3, -0.2, 0.3], bob: 0.07, ph: 0.8, delay: 0.4 },
-  { kind: "leaf", pos: [-2.0, 2.2, -0.9], s: 0.95, rot: [-0.9, 0.6, 0.7], spin: [0.12, 0.2, 0.1], bob: 0.1, ph: 1.9, delay: 0.08, mobile: true },
+  { kind: "leaf", pos: [-2.0, 2.1, -0.6], s: 0.95, rot: [0.35, -0.5, 0.75], spin: [0.08, 0.12, 0.06], bob: 0.1, ph: 1.9, delay: 0.08, mobile: true },
   { kind: "cilantro", pos: [1.5, 1.7, 0.95], s: 1.7, rot: [1.1, 0.4, 0.3], spin: [0.4, 0.6, 0.2], bob: 0.08, ph: 2.9, delay: 0.24, mobile: true },
   { kind: "cilantro", pos: [-0.45, 2.65, 0.4], s: 1.5, rot: [0.6, 1.2, -0.4], spin: [-0.3, 0.5, 0.3], bob: 0.07, ph: 3.9, delay: 0.36 },
 ];

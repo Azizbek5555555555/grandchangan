@@ -77,7 +77,8 @@ function buildBowl(segments: number, profileN: number) {
   return { geo, total, apex: acc[PROFILE.apexIdx], footTop: acc[PROFILE.footIdx], innerRadiusAt };
 }
 
-export default function Bowl({ mobile }: { mobile: boolean }) {
+/** part: "bowl" — faqat kosa, "broth" — faqat sho'rva (qatlamli ko'rinish uchun) */
+export default function Bowl({ mobile, part = "all" }: { mobile: boolean; part?: "all" | "bowl" | "broth" }) {
   const res = useDisposable(() => {
     const b = buildBowl(mobile ? 72 : 112, mobile ? 56 : 80);
     const tex = bowlTexture({
@@ -107,18 +108,18 @@ export default function Bowl({ mobile }: { mobile: boolean }) {
       roughness: 0.12,
       metalness: 0,
       clearcoat: 1,
-      clearcoatRoughness: 0.04,
+      clearcoatRoughness: 0.03,
       bumpMap: ripple,
-      bumpScale: 0.6,
-      envMapIntensity: 1.3,
+      bumpScale: 0.12,
+      envMapIntensity: 0.75,
     });
     return { geo: b.geo, tex, mat, brothGeo, brothMap, ripple, brothMat };
   }, [mobile]);
 
   return (
     <group>
-      <mesh geometry={res.geo} material={res.mat} />
-      <mesh geometry={res.brothGeo} material={res.brothMat} position={[0, BOWL.brothY, 0]} />
+      {part !== "broth" && <mesh geometry={res.geo} material={res.mat} />}
+      {part !== "bowl" && <mesh geometry={res.brothGeo} material={res.brothMat} position={[0, BOWL.brothY, 0]} />}
     </group>
   );
 }

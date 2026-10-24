@@ -4,6 +4,7 @@ import MenuBrowser from "@/components/site/MenuBrowser";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import PageHero from "@/components/site/PageHero";
+import { ChefSignature, TeaRitual, type SpecialItem } from "@/components/site/pages/MenuSpecials";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +24,23 @@ export default async function MenuPage({ params }: { params: Promise<{ locale: s
     discountPrice: i.discountPrice != null ? Number(i.discountPrice) : null,
   }));
 
+  // Oshpaz tanlovi (TOP taomlar, avval rasmlilari) va "Choy marosimi" (choy, ichimlik, shirinlik)
+  const specials = plainItems as SpecialItem[];
+  const signature = specials
+    .filter((i) => (i as unknown as { isFeatured: boolean }).isFeatured)
+    .sort((a, b) => Number(!!b.imageUrl) - Number(!!a.imageUrl))
+    .slice(0, 3);
+  const teaCats = categories.filter((c) => ["tea", "drinks", "dessert"].includes(c.slug));
+  const tea = specials.filter((i) => teaCats.some((c) => c.id === i.categoryId)).slice(0, 6);
+
   return (
     <>
       <SiteHeader />
       <PageHero title={tc("menu")} subtitle={st("menuSub")} cn="菜单" />
+      <ChefSignature items={signature} locale={locale} />
       <main className="bg-paper">
-        <MenuBrowser categories={plainCats} items={plainItems} locale={locale} />
+        <MenuBrowser categories={plainCats} items={plainItems} locale={locale} showFeatured={signature.length === 0} />
+        <TeaRitual items={tea} locale={locale} anchorId={teaCats[0]?.id ?? null} />
       </main>
       <SiteFooter locale={locale} />
     </>

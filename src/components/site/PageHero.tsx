@@ -55,6 +55,15 @@ export default function PageHero({ title, subtitle, bgImage, cn: cnText, tone = 
           night ? "-right-32 -top-24 text-fire/30" : "-left-40 -top-40 text-fire-deep/60"
         )}
       />
+      {/* Zafar "likopcha" halqasi — o'ng tomonda nozik ramka (cn bo'lmasa ham bo'sh qolmasin) */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 top-1/2 -z-10 hidden h-[30rem] w-[30rem] -translate-y-1/2 rounded-full border-2 border-dashed border-saffron/25 md:block lg:right-[6%] lg:h-[34rem] lg:w-[34rem]"
+      />
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-12 top-1/2 -z-10 hidden h-[24rem] w-[24rem] -translate-y-1/2 rounded-full border border-saffron/15 md:block lg:right-[calc(6%+3rem)] lg:h-[28rem] lg:w-[28rem]"
+      />
       {cnText && (
         <span
           aria-hidden="true"

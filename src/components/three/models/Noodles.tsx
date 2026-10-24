@@ -36,31 +36,28 @@ function nestCurves(count: number, L: NoodleLayout, seed: number) {
   const R = L.radius;
   const curves: THREE.CatmullRomCurve3[] = [];
   for (let k = 0; k < count; k++) {
-    let a = r() * Math.PI * 2;
-    const d = Math.sqrt(r()) * R * 0.78;
-    let x = Math.cos(a) * d;
-    let z = Math.sin(a) * d;
-    // asosan aylana bo'ylab (uya buralishi), biroz tasodifiy
-    const swirl = r() > 0.3 ? 1 : -1;
-    let heading = a + (swirl * Math.PI) / 2 + (r() - 0.5) * 0.9;
-    const n = 10 + Math.floor(r() * 4);
+    // uya: asosan konsentrik spiral yoylar (silliq, uzun), radius sekin "suzadi"
+    const dir = r() > 0.25 ? 1 : -1;
+    const a0 = r() * Math.PI * 2;
+    const sweep = (2.2 + r() * 2.2) * dir;
+    const r0 = 0.12 + Math.pow(r(), 0.8) * R * 0.78;
+    const drift = (r() - 0.5) * 0.5;
+    const wobA = 0.04 + r() * 0.06;
+    const wobF = 2 + r() * 3;
+    const ph = r() * 6;
+    const n = 14;
     const pts: THREE.Vector3[] = [];
     for (let i = 0; i < n; i++) {
-      const end = i === 0 || i === n - 1;
-      const y = end ? L.brothY - 0.04 : moundY(x, z, L) + (r() - 0.5) * 0.04 - (r() < 0.12 ? 0.05 : 0);
+      const u = i / (n - 1);
+      const a = a0 + sweep * u;
+      const rad = THREE.MathUtils.clamp(r0 + drift * u + Math.sin(u * wobF * Math.PI + ph) * wobA, 0.05, R * 0.9);
+      const x = Math.cos(a) * rad;
+      const z = Math.sin(a) * rad;
+      // uchlari sho'rvaga botadi, o'rtasida yuzada biroz to'lqinlanadi
+      const edge = Math.min(u, 1 - u);
+      const sink = edge < 0.12 ? (1 - edge / 0.12) * (moundY(x, z, L) - L.brothY + 0.05) : 0;
+      const y = moundY(x, z, L) + Math.sin(u * 7 + ph) * 0.018 - sink;
       pts.push(new THREE.Vector3(x, y, z));
-      heading += (r() - 0.5) * 0.75 + swirl * 0.22;
-      const step = 0.26 + r() * 0.1;
-      let nx = x + Math.cos(heading) * step;
-      let nz = z + Math.sin(heading) * step;
-      if (Math.hypot(nx, nz) > R * 0.9) {
-        heading = Math.atan2(-z, -x) + (r() - 0.5) * 1.4;
-        nx = x + Math.cos(heading) * step;
-        nz = z + Math.sin(heading) * step;
-      }
-      x = nx;
-      z = nz;
-      a = Math.atan2(z, x);
     }
     curves.push(new THREE.CatmullRomCurve3(pts, false, "centripetal"));
   }
@@ -125,9 +122,12 @@ export default function Noodles({
   layout,
   mobile,
   timeRef,
+  nestOnly = false,
 }: {
   layout: NoodleLayout;
   mobile: boolean;
+  /** true — faqat kosadagi uya (palochka ko'targan tutamsiz) */
+  nestOnly?: boolean;
   /** {t, lift} — sahna har kadr yangilaydi */
   timeRef: RefObject<{ t: number; lift: number }>;
 }) {
@@ -138,7 +138,7 @@ export default function Noodles({
     const liftN = mobile ? 12 : 18;
     const nest = nestCurves(nestN, layout, 101).map((c) =>
       paint(
-        tube(c, { segments: mobile ? 30 : 40, radial: 5, radius: roundedRadius(NOODLE_R, 0.02) }),
+        tube(c, { segments: mobile ? 36 : 52, radial: 5, radius: roundedRadius(NOODLE_R, 0.015) }),
         shade.clone().multiplyScalar(0.9 + r() * 0.16),
       ),
     );
@@ -207,7 +207,7 @@ export default function Noodles({
   return (
     <group>
       <mesh geometry={res.nestGeo} material={res.nestMat} />
-      <mesh geometry={res.liftGeo} material={res.liftMat} frustumCulled={false} />
+      {!nestOnly && <mesh geometry={res.liftGeo} material={res.liftMat} frustumCulled={false} />}
     </group>
   );
 }

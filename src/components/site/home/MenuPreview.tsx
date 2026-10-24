@@ -108,18 +108,19 @@ export default function MenuPreview({ cats }: { cats: HomeCategory[] }) {
           {active.dishes.map((d) => (
             <article
               key={`${active.id}-${d.id}`}
-              className="group flex flex-col rounded-[24px] border border-brand-cream/10 bg-night-2 p-3 transition-[border-color,background-color] duration-300 hover:border-saffron/40 hover:bg-night-3"
+              className="group flex gap-4 rounded-[24px] border border-brand-cream/10 bg-night-2 p-3 transition-[border-color,background-color] duration-300 hover:border-saffron/40 hover:bg-night-3 sm:flex-col sm:gap-0"
             >
+              {/* Telefonda — chapda kichik kvadrat rasm, kattaroq ekranda — tepada keng rasm */}
               <SafeImg
                 src={d.img}
                 alt={d.name}
-                className="aspect-[4/3] w-full rounded-2xl"
+                className="aspect-square w-24 shrink-0 self-start rounded-2xl sm:aspect-[4/3] sm:w-full"
                 imgClassName="transition duration-700 group-hover:scale-110"
-                fallback={<GlyphPanel char={d.glyph} tone={d.veg ? "wine" : "night"} className="rounded-2xl" size="text-[4.5rem]" />}
+                fallback={<GlyphPanel char={d.glyph} tone={d.veg ? "wine" : "night"} className="rounded-2xl" size="text-[2.6rem] sm:text-[4.5rem]" />}
               />
-              <div className="flex flex-1 flex-col px-2 pb-2 pt-4">
+              <div className="flex min-w-0 flex-1 flex-col pr-1 sm:px-2 sm:pb-2 sm:pt-4">
                 <div className="flex items-start justify-between gap-3">
-                  <h3 className="min-w-0 font-display text-xl font-semibold leading-snug text-brand-cream">{d.name}</h3>
+                  <h3 className="min-w-0 font-display text-lg font-semibold leading-snug text-brand-cream sm:text-xl">{d.name}</h3>
                   <SpicyVeg spicy={d.spicy} veg={d.veg} tone="dark" className="mt-1.5 shrink-0" />
                 </div>
                 {d.zh && <p lang="zh" className="font-cn mt-1 text-lg leading-none text-saffron/80">{d.zh}</p>}

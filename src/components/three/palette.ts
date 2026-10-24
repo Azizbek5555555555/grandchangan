@@ -65,6 +65,7 @@ export const P = {
   rattan: "#8a5a2b",
   dough: "#f5eddd",
   doughWarm: "#ead6b2",
+  parchment: "#efe2c4",
   plate: "#1b100e",
   plateRim: "#2b1a16",
 

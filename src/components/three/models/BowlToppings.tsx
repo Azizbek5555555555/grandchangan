@@ -38,7 +38,22 @@ function scatter(count: number, seed: number, L: Layout, avoid: (x: number, z: n
   return out;
 }
 
-export default function BowlToppings({ kit, layout, mobile }: { kit: FoodKit; layout: Layout; mobile: boolean }) {
+export type ToppingPart = "beef" | "chok" | "rings" | "leaves" | "seeds";
+const ALL_PARTS: ToppingPart[] = ["beef", "chok", "rings", "leaves", "seeds"];
+
+export default function BowlToppings({
+  kit,
+  layout,
+  mobile,
+  parts = ALL_PARTS,
+}: {
+  kit: FoodKit;
+  layout: Layout;
+  mobile: boolean;
+  /** Qaysi bezaklar chiziladi (qatlamli ko'rinishda har qatlam alohida) */
+  parts?: ToppingPart[];
+}) {
+  const has = (k: ToppingPart) => parts.includes(k);
   const onBeef = (x: number, z: number) => x < -0.05 && z < 0.25 && Math.hypot(x + 0.45, z + 0.3) < 0.55;
   const rings = useMemo(() => scatter(mobile ? 18 : 30, 5, layout, onBeef), [layout, mobile]);
   const leaves = useMemo(() => scatter(mobile ? 7 : 12, 9, layout, (x, z) => x > 0.55), [layout, mobile]);
@@ -90,7 +105,7 @@ export default function BowlToppings({ kit, layout, mobile }: { kit: FoodKit; la
 
   return (
     <group>
-      {BEEF.map((b, i) => (
+      {has("beef") && BEEF.map((b, i) => (
         <mesh
           key={`b${i}`}
           geometry={kit.geo.beef[i % kit.geo.beef.length]}
@@ -99,15 +114,15 @@ export default function BowlToppings({ kit, layout, mobile }: { kit: FoodKit; la
           rotation={[b.tilt, b.yaw, b.tilt * 0.5]}
         />
       ))}
-      {CHOK.map((c, i) => (
+      {has("chok") && CHOK.map((c, i) => (
         <group key={`c${i}`} position={[c.x, layout.brothY + 0.06, c.z]} rotation={[0, c.yaw, 0]}>
           {/* barg uzunligi -z bo'ylab markazga qarab, uchi yuqoriga egilgan */}
           <mesh geometry={kit.geo.leaf} material={kit.mat.leaf} rotation={[-Math.PI / 2 + c.lift, 0, 0]} scale={c.s} />
         </group>
       ))}
-      <instancedMesh ref={ringRef} args={[kit.geo.ring, kit.mat.ring, rings.length]} />
-      <instancedMesh ref={leafRef} args={[kit.geo.cilantro, kit.mat.cilantro, leaves.length]} />
-      <instancedMesh ref={seedRef} args={[kit.geo.sesame, kit.mat.sesame, seeds.length]} />
+      <instancedMesh ref={ringRef} args={[kit.geo.ring, kit.mat.ring, rings.length]} visible={has("rings")} />
+      <instancedMesh ref={leafRef} args={[kit.geo.cilantro, kit.mat.cilantro, leaves.length]} visible={has("leaves")} />
+      <instancedMesh ref={seedRef} args={[kit.geo.sesame, kit.mat.sesame, seeds.length]} visible={has("seeds")} />
     </group>
   );
 }

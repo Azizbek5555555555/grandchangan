@@ -23,7 +23,7 @@ export default async function DimSumBand({ locale }: { locale: string }) {
 
   return (
     <section className="relative isolate overflow-hidden bg-wine py-32 text-brand-cream sm:py-36 lg:py-44">
-      <Wave top className="text-sand" variant="b" />
+      <Wave top className="text-night" variant="b" />
 
       {/* Xitoycha yozuvlar lentasi */}
       <div aria-hidden="true" lang="zh" className="pointer-events-none absolute inset-x-0 top-[14%] -z-10 flex select-none overflow-hidden">

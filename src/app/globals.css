@@ -299,3 +299,9 @@ body.cursor-none, body.cursor-none * { cursor: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .animate-bob, .animate-spin-slow, .animate-steam, .animate-marquee, .animate-marquee-rev, .animate-kenburns { animation: none !important; }
 }
+
+/* Tush cho'tkasi chetli ramka (rasm uchun) — namuna: 冶春 sayti */
+.ink-mask {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 6C20 1 40 4 60 2C75 1 90 3 97 5C99 25 96 45 98 65C99 80 97 92 95 96C75 99 55 96 35 98C20 99 8 97 4 95C1 75 3 55 1 35C0 20 2 10 3 6Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M3 6C20 1 40 4 60 2C75 1 90 3 97 5C99 25 96 45 98 65C99 80 97 92 95 96C75 99 55 96 35 98C20 99 8 97 4 95C1 75 3 55 1 35C0 20 2 10 3 6Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
