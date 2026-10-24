@@ -39,7 +39,8 @@ export default function Reveal({
     { scope: ref }
   );
 
-  const Tag = as as React.ElementType;
+  // R3F JSX turlarini global qo'shadi — ElementType juda keng bo'lib qoladi, shuning uchun aniq HTML teg turi
+  const Tag = as as unknown as React.FC<React.HTMLAttributes<HTMLElement> & { ref?: React.Ref<HTMLElement | null> }>;
   return (
     <Tag ref={ref} data-reveal className={className}>
       {children}
