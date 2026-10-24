@@ -247,7 +247,7 @@ export default function ReservationFlow({
 
   // ---- Umumiy fon (krem bo'lim, nozik panjara naqsh va blob) ----
   const shell = (children: React.ReactNode, wide = false) => (
-    <section className="relative overflow-hidden bg-paper">
+    <section className="relative overflow-x-clip bg-paper">
       <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 text-fire/[0.05]" />
       <Blob className="absolute -right-48 top-24 w-[30rem] text-sand" variant="c" />
       <Blob className="absolute -left-56 bottom-10 w-[26rem] text-sand" variant="a" />

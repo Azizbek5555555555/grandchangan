@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, Clock, Flame, Leaf as LeafIcon, Scale, ShieldCheck } from "lucide-react";
 import ButtonLink from "@/components/site/kit/ButtonLink";
-import DishFallback from "@/components/site/kit/DishFallback";
 import SectionHead from "@/components/site/kit/SectionHead";
 import Parallax from "@/components/motion/Parallax";
 import Reveal from "@/components/motion/Reveal";
@@ -9,7 +8,7 @@ import RevealGroup from "@/components/motion/RevealGroup";
 import RotateOnScroll from "@/components/motion/RotateOnScroll";
 import { cn, formatMoney } from "@/lib/utils";
 import SafeImg from "./SafeImg";
-import { Sprig } from "./Decor";
+import { PlateFallback, Sprig } from "./Decor";
 import { SPICY_KEYS } from "./data";
 import type { HomeDish } from "./types";
 
@@ -23,7 +22,6 @@ export default async function Showcase({ locale, dishes }: { locale: string; dis
 
   return (
     <section className="relative overflow-hidden bg-sand pb-28 pt-16 sm:pb-36 sm:pt-20 lg:pb-44">
-      <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 text-fire/[0.05]" />
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <SectionHead
           align="center"
@@ -59,24 +57,16 @@ export default async function Showcase({ locale, dishes }: { locale: string; dis
                     <Parallax speed={-14} className={cn("absolute z-10 w-[36%]", flip ? "-bottom-[6%] -left-[12%]" : "-bottom-[6%] -right-[12%]")}>
                       <Sprig className={cn("aspect-[4/3] w-full rotate-180", flip && "-scale-x-100")} tone="jade" />
                     </Parallax>
-                    <RotateOnScroll deg={flip ? -45 : 45} scaleFrom={0.88} className="relative h-full w-full">
+                    <RotateOnScroll deg={flip ? -40 : 40} scaleFrom={0.94} className="relative h-full w-full">
                       <div className="h-full w-full rounded-full bg-paper p-3 shadow-2xl shadow-content/20 sm:p-4">
                         <SafeImg
                           src={d.img}
                           alt={d.name}
                           className="h-full w-full rounded-full"
-                          fallback={<DishFallback char={d.glyph} className="rounded-full" />}
+                          fallback={<PlateFallback char={d.glyph} glyph="text-[7rem] sm:text-[9rem] lg:text-[10rem]" />}
                         />
                       </div>
                     </RotateOnScroll>
-                    {/* Narx yorlig'i */}
-                    <span className={cn(
-                      "absolute bottom-[6%] z-20 flex size-24 flex-col items-center justify-center rounded-full bg-fire text-center text-brand-cream shadow-xl shadow-fire/30 sm:size-28",
-                      flip ? "right-[2%]" : "left-[2%]"
-                    )}>
-                      <span className="font-poster text-lg leading-none sm:text-xl">{formatMoney(d.price, "").trim()}</span>
-                      <span className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-cream/80">so&apos;m</span>
-                    </span>
                   </div>
                 </div>
 

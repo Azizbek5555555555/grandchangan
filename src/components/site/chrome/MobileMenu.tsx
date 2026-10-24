@@ -43,8 +43,13 @@ export default function MobileMenu({ id, open, onClose, contact, pathname, retur
   useEffect(() => {
     if (open) {
       wasOpen.current = true;
-      const r = requestAnimationFrame(() => closeRef.current?.focus({ preventScroll: true }));
-      return () => cancelAnimationFrame(r);
+      const focusClose = () => {
+        if (!panelRef.current?.contains(document.activeElement)) closeRef.current?.focus({ preventScroll: true });
+      };
+      focusClose();
+      // Zaxira: brauzer ko'rinishni kechroq yangilasa ham fokus albatta ko'chsin
+      const tm = window.setTimeout(focusClose, 120);
+      return () => window.clearTimeout(tm);
     }
     if (wasOpen.current) {
       wasOpen.current = false;
@@ -163,22 +168,21 @@ export default function MobileMenu({ id, open, onClose, contact, pathname, retur
                       href={n.href}
                       onClick={onClose}
                       aria-current={active ? "page" : undefined}
-                      className="group flex min-h-11 items-center gap-3 rounded-xl py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron"
+                      className="group flex min-h-11 items-center gap-3 rounded-xl py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron sm:gap-5"
                     >
-                      <span aria-hidden="true" className="w-6 shrink-0 text-[11px] font-semibold tabular-nums text-brand-cream/70">
-                        {String(i + 1).padStart(2, "0")}
+                      {/* Chapda xitoycha belgi (bezak), o'ngda katta afisha yozuvi */}
+                      <span aria-hidden="true" lang="zh" className="font-cn w-6 shrink-0 text-center text-[1.05rem] leading-none text-saffron [writing-mode:vertical-rl] sm:w-8 sm:text-2xl">
+                        {n.cn}
                       </span>
                       <span
                         className={cn(
-                          "font-poster min-w-0 text-[clamp(1.85rem,8.6vw,3.25rem)] leading-[1.1] transition duration-300 group-hover:translate-x-1.5",
+                          "font-poster min-w-0 break-words text-[clamp(1.6rem,7.6vw,3.25rem)] leading-[1.1] transition duration-300 group-hover:translate-x-1.5 motion-reduce:transition-none",
                           active ? "text-saffron" : "text-brand-cream"
                         )}
                       >
                         {label(n.ns, n.key)}
                       </span>
-                      <span aria-hidden="true" lang="zh" className="font-cn shrink-0 self-start pt-1 text-lg leading-none text-saffron">
-                        {n.cn}
-                      </span>
+                      {active && <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full bg-saffron" />}
                     </Link>
                   </li>
                 );

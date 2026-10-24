@@ -52,7 +52,7 @@ export default function MenuPreview({ cats }: { cats: HomeCategory[] }) {
   if (!active) return null;
 
   return (
-    <div className="mt-12 grid gap-8 lg:mt-16 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-12">
+    <div className="mt-12 grid gap-8 lg:mt-16 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12">
       {/* ---------- Kategoriyalar ---------- */}
       <div
         role="group"
@@ -77,10 +77,10 @@ export default function MenuPreview({ cats }: { cats: HomeCategory[] }) {
               <span aria-hidden="true" className={cn("hidden w-6 font-poster text-xs lg:inline", on ? "text-saffron" : "text-brand-cream/35")}>
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="flex min-w-0 flex-1 items-baseline gap-2">
-                <span className="truncate font-display text-[17px] font-medium lg:text-lg">{c.name}</span>
+              <span className="flex min-w-0 flex-1 items-baseline gap-2 lg:flex-col lg:gap-1 lg:py-2">
+                <span className="whitespace-nowrap font-display text-[17px] font-medium leading-tight lg:whitespace-normal lg:text-lg">{c.name}</span>
                 {c.zh && (
-                  <span lang="zh" aria-hidden="true" className={cn("font-cn hidden text-base leading-none sm:inline", on ? "text-saffron" : "text-saffron/70")}>
+                  <span lang="zh" aria-hidden="true" className={cn("font-cn hidden shrink-0 whitespace-nowrap text-base leading-none sm:inline", on ? "text-saffron" : "text-saffron/70")}>
                     {c.zh}
                   </span>
                 )}

@@ -7,9 +7,9 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Link } from "@/i18n/navigation";
-import DishFallback from "@/components/site/kit/DishFallback";
 import { cn } from "@/lib/utils";
 import SafeImg from "./SafeImg";
+import { PlateFallback } from "./Decor";
 import { Price, SpicyVeg } from "./DishBadges";
 import type { HomeDish } from "./types";
 
@@ -94,11 +94,8 @@ export function DishCard({ dish, className }: { dish: HomeDish; className?: stri
   return (
     <article className={cn("group relative w-full pt-[5.5rem] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]", className)}>
       <div className="relative flex h-full flex-col rounded-[28px] border border-line bg-card px-6 pb-6 pt-[6.75rem] text-center shadow-sm transition duration-500 ease-out-expo group-hover:-translate-y-2 group-hover:border-fire/40 group-hover:shadow-2xl group-hover:shadow-fire/15">
-        {/* Kategoriya */}
-        <span className="absolute left-5 top-5 rounded-full bg-sand px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">
-          {dish.catName}
-        </span>
         <div className="pb-5">
+          <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-muted">{dish.catName}</p>
           {dish.zh && (
             <p lang="zh" className="font-cn text-xl leading-none text-fire">{dish.zh}</p>
           )}
@@ -122,12 +119,12 @@ export function DishCard({ dish, className }: { dish: HomeDish; className?: stri
       </div>
 
       {/* Dumaloq rasm — karta tepasidan chiqib turadi */}
-      <div className="absolute left-1/2 top-0 size-44 -translate-x-1/2 rounded-full bg-paper p-2 shadow-xl shadow-content/10 transition duration-700 ease-out-expo group-hover:-translate-y-3 group-hover:rotate-[10deg]">
+      <div className="absolute left-1/2 top-0 size-44 -translate-x-1/2 rounded-full bg-paper p-1.5 shadow-xl shadow-fire/15 transition duration-700 ease-out-expo group-hover:-translate-y-3 group-hover:rotate-[10deg]">
         <SafeImg
           src={dish.img}
           alt={dish.name}
           className="size-full rounded-full"
-          fallback={<DishFallback char={dish.glyph} className="rounded-full" />}
+          fallback={<PlateFallback char={dish.glyph} glyph="text-[3.4rem]" />}
         />
       </div>
     </article>

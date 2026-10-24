@@ -22,8 +22,8 @@ export default async function ReserveBlock({ locale, image, hours }: { locale: s
         <Reveal y={60}>
           <div className="relative isolate overflow-hidden rounded-[32px] bg-night-2 text-brand-cream shadow-2xl shadow-content/20 sm:rounded-[44px] lg:grid lg:min-h-[560px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
             {/* Bloblar */}
-            <Blob variant="b" className="absolute -right-24 -top-28 -z-10 w-[26rem] text-fire sm:w-[34rem]" />
-            <Blob variant="c" className="absolute -bottom-40 left-[30%] -z-10 w-[24rem] text-fire-deep/70" />
+            <Blob variant="b" className="absolute -bottom-32 -left-28 -z-10 w-[24rem] text-fire sm:w-[30rem]" />
+            <Blob variant="c" className="absolute -right-28 -top-36 -z-10 w-[20rem] text-fire-deep/80 sm:w-[24rem]" />
 
             {/* Interyer rasmi — arkali ramkada */}
             <div className="relative p-4 sm:p-6 lg:p-8 lg:pr-0">

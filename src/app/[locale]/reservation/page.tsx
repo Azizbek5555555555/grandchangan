@@ -66,8 +66,10 @@ export default async function ReservationPage({
   return (
     <>
       <SiteHeader />
-      <PageHero title={tc("reservation")} subtitle={st("reservationSub")} />
-      <ReservationFlow key={JSON.stringify(initial ?? {})} locale={locale} menu={menu} hours={hours} phone={phone} initial={initial} />
+      <PageHero title={tc("reservation")} subtitle={st("reservationSub")} cn="订座" />
+      <main className="bg-paper">
+        <ReservationFlow key={JSON.stringify(initial ?? {})} locale={locale} menu={menu} hours={hours} phone={phone} initial={initial} />
+      </main>
       <SiteFooter locale={locale} />
     </>
   );

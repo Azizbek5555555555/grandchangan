@@ -81,7 +81,7 @@ export default function PageHero({ title, subtitle, bgImage, cn: cnText, tone = 
           as="h1"
           trigger="load"
           text={title}
-          className="font-poster max-w-5xl text-balance text-[clamp(2.05rem,8.4vw,5.75rem)] leading-[1.1] text-brand-cream"
+          className="font-poster max-w-5xl text-balance text-[clamp(1.85rem,8.6vw,5.75rem)] leading-[1.1] text-brand-cream"
         />
         {subtitle && (
           <Reveal y={16} delay={0.25}>

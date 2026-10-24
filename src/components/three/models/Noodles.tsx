@@ -11,7 +11,7 @@ import { P } from "../palette";
 /* Qo'lda cho'zilgan lag'mon: kosadagi "uya" (ko'p to'lqinli naychalar) +
    palochkalar ko'targan, osilib tebranayotgan tutam (vertex shader'da tebranish) */
 
-const NOODLE_R = 0.028;
+const NOODLE_R = 0.036;
 
 export type NoodleLayout = {
   brothY: number;
@@ -28,7 +28,7 @@ export type NoodleLayout = {
 /** Uya tepaligi: markazda baland, devor yonida sho'rvaga yaqin */
 export function moundY(x: number, z: number, L: Pick<NoodleLayout, "brothY" | "radius">) {
   const rr = Math.min(1, Math.hypot(x, z) / L.radius);
-  return L.brothY + 0.025 + 0.2 * Math.pow(1 - rr * rr, 1.2);
+  return L.brothY + 0.03 + 0.21 * Math.pow(1 - rr * rr, 1.1);
 }
 
 function nestCurves(count: number, L: NoodleLayout, seed: number) {
@@ -43,13 +43,14 @@ function nestCurves(count: number, L: NoodleLayout, seed: number) {
     // asosan aylana bo'ylab (uya buralishi), biroz tasodifiy
     const swirl = r() > 0.3 ? 1 : -1;
     let heading = a + (swirl * Math.PI) / 2 + (r() - 0.5) * 0.9;
-    const n = 8 + Math.floor(r() * 4);
+    const n = 10 + Math.floor(r() * 4);
     const pts: THREE.Vector3[] = [];
     for (let i = 0; i < n; i++) {
-      const dip = i === 0 || i === n - 1 ? -0.07 : r() < 0.12 ? -0.04 : 0;
-      pts.push(new THREE.Vector3(x, moundY(x, z, L) + (r() - 0.5) * 0.045 + dip, z));
-      heading += (r() - 0.5) * 1.0 + swirl * 0.25;
-      const step = 0.24 + r() * 0.12;
+      const end = i === 0 || i === n - 1;
+      const y = end ? L.brothY - 0.04 : moundY(x, z, L) + (r() - 0.5) * 0.04 - (r() < 0.12 ? 0.05 : 0);
+      pts.push(new THREE.Vector3(x, y, z));
+      heading += (r() - 0.5) * 0.75 + swirl * 0.22;
+      const step = 0.26 + r() * 0.1;
       let nx = x + Math.cos(heading) * step;
       let nz = z + Math.sin(heading) * step;
       if (Math.hypot(nx, nz) > R * 0.9) {
@@ -72,7 +73,7 @@ function liftedCurves(count: number, L: NoodleLayout, seed: number) {
   const n = new THREE.Vector3().crossVectors(L.axis, up).normalize().negate(); // kameraga tomon
   const curves: THREE.CatmullRomCurve3[] = [];
   for (let k = 0; k < count; k++) {
-    const s = (r() - 0.5) * 0.17;
+    const s = (r() - 0.5) * 0.24;
     const B = L.tip.clone().addScaledVector(L.axis, s);
     const tail = 0.12 + r() * 0.38;
     const A = B.clone()
@@ -133,8 +134,8 @@ export default function Noodles({
   const res = useDisposable(() => {
     const r = rng(3);
     const shade = new THREE.Color(P.noodle);
-    const nestN = mobile ? 26 : 40;
-    const liftN = mobile ? 10 : 15;
+    const nestN = mobile ? 22 : 34;
+    const liftN = mobile ? 12 : 18;
     const nest = nestCurves(nestN, layout, 101).map((c) =>
       paint(
         tube(c, { segments: mobile ? 30 : 40, radial: 5, radius: roundedRadius(NOODLE_R, 0.02) }),
@@ -151,7 +152,7 @@ export default function Noodles({
         tube(c, {
           segments: mobile ? 40 : 56,
           radial: 5,
-          radius: roundedRadius(NOODLE_R * 0.95, 0.03),
+          radius: roundedRadius(NOODLE_R * 0.92, 0.03),
           attrs: [
             {
               name: "aSway",

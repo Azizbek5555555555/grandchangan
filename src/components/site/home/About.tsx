@@ -32,7 +32,7 @@ export default async function About({
       <Parallax speed={10} className="pointer-events-none absolute -left-48 top-16 -z-10 w-[34rem] sm:w-[44rem]">
         <Blob variant="a" className="w-full text-fire-deep/80 animate-spin-slow" />
       </Parallax>
-      <Parallax speed={-14} className="pointer-events-none absolute -right-40 bottom-10 -z-10 w-[26rem] sm:w-[34rem]">
+      <Parallax speed={-14} className="pointer-events-none absolute -bottom-40 -right-56 -z-10 w-[26rem] sm:w-[34rem]">
         <Blob variant="c" className="w-full text-fire/85" />
       </Parallax>
       <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute right-[4%] top-10 -z-10 select-none text-[9rem] leading-none text-brand-cream/[0.04] sm:text-[14rem]">
@@ -46,21 +46,21 @@ export default async function About({
             <SafeImg
               src={a}
               className="h-full w-full rounded-b-[28px] rounded-t-full border border-brand-gold/30 shadow-2xl shadow-night"
-              fallback={<GlyphPanel char="长安" vertical tone="night" size="text-[clamp(3.5rem,30%,7rem)]" />}
+              fallback={<GlyphPanel char="长安" vertical tone="night" size="text-[5rem] sm:text-[6.5rem]" />}
             />
           </Parallax>
           <Parallax speed={-10} className="absolute right-0 top-[7%] aspect-square w-[39%]">
             <SafeImg
               src={b}
               className="h-full w-full rounded-[28px] shadow-2xl shadow-night"
-              fallback={<GlyphPanel char="茶" tone="fire" />}
+              fallback={<GlyphPanel char="茶" tone="fire" size="text-[3.5rem] sm:text-[5rem]" />}
             />
           </Parallax>
           <Parallax speed={16} className="absolute bottom-0 right-[3%] aspect-square w-[47%]">
             <SafeImg
               src={c}
               className="h-full w-full rounded-full ring-8 ring-night shadow-2xl shadow-night"
-              fallback={<GlyphPanel char="福" tone="saffron" />}
+              fallback={<GlyphPanel char="福" tone="saffron" size="text-[4rem] sm:text-[5.5rem]" />}
             />
           </Parallax>
           <Seal text="长安" className="absolute bottom-[10%] left-[44%] z-10 h-20 w-11 rotate-[-6deg] text-2xl" />

@@ -33,9 +33,9 @@ export const P = {
   noodleShade: "#d9ad5f",
 
   // masalliqlar
-  beef: "#7a3a24",
-  beefDark: "#43190d",
-  beefFat: "#c99573",
+  beef: "#9a5236",
+  beefDark: "#5a2716",
+  beefFat: "#d9a582",
   chokStem: "#e7eed1",
   chokStemDeep: "#bfd39a",
   chokLeaf: "#3f8f2f",

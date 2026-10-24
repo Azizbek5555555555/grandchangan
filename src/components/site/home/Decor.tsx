@@ -31,7 +31,7 @@ export function Sprig({ className, tone = "leaf" }: { className?: string; tone?:
 
 type PanelTone = "night" | "fire" | "saffron" | "wine" | "sand";
 const PANEL: Record<PanelTone, { bg: string; lattice: string; ink: string }> = {
-  night: { bg: "bg-night-3", lattice: "text-brand-gold/15", ink: "text-brand-gold-light/80" },
+  night: { bg: "bg-night-3", lattice: "text-brand-gold/[0.07]", ink: "text-brand-gold-light/85" },
   fire: { bg: "bg-fire", lattice: "text-fire-deep/60", ink: "text-brand-cream/90" },
   saffron: { bg: "bg-saffron", lattice: "text-saffron-deep/50", ink: "text-fire-deep" },
   wine: { bg: "bg-wine", lattice: "text-wine-deep/70", ink: "text-saffron/90" },
@@ -55,6 +55,26 @@ export function GlyphPanel({
         className={cn("font-cn relative leading-none", size, p.ink, vertical && "[writing-mode:vertical-rl]")}
       >
         {char}
+      </span>
+    </div>
+  );
+}
+
+/**
+ * Taom rasmi yo'q bo'lganda — chinni tarelka ko'rinishidagi zaxira: qizil hoshiya, krem markaz,
+ * nozik panjara va katta mo'yqalam ieroglif (kategoriya belgisi). Dumaloq; ota o'lchamini to'ldiradi.
+ * glyph — ieroglif o'lchami (tarelka kattaligiga mos klass).
+ */
+export function PlateFallback({ char, glyph = "text-6xl", className }: { char: string; glyph?: string; className?: string }) {
+  return (
+    <div aria-hidden="true" className={cn("relative h-full w-full overflow-hidden rounded-full bg-fire", className)}>
+      <span className="absolute inset-[3%] rounded-full border border-dashed border-brand-cream/45" />
+      <span className="absolute inset-[9%] overflow-hidden rounded-full bg-sand">
+        <span className="lattice-bg absolute inset-0 text-fire/[0.08]" />
+        <span className="absolute inset-[9%] rounded-full border-2 border-fire/15" />
+        <span className="absolute inset-0 flex items-center justify-center">
+          <span lang="zh" className={cn("font-cn leading-none text-fire", glyph)}>{char}</span>
+        </span>
       </span>
     </div>
   );

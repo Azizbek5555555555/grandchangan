@@ -81,21 +81,21 @@ export default function Hero({ tag, lines, accentLine, sub, cnHeadline, bookLabe
           </div>
 
           {/* Raqamlar: zal xaritasidan (stollar, o'rinlar, VIP) va ish vaqti bazadan */}
-          <dl className={cn(ENTER, "mt-12 grid max-w-xl grid-cols-2 gap-y-6 delay-[640ms] sm:flex sm:flex-wrap sm:gap-y-4")}>
+          <dl className={cn(ENTER, "mt-12 grid grid-cols-2 gap-x-6 gap-y-6 delay-[640ms] sm:flex sm:flex-nowrap sm:gap-0")}>
             {facts.map((f) => (
-              <div key={f.label} className="pr-6 sm:border-r sm:border-brand-cream/20 sm:px-6 sm:first:pl-0">
+              <div key={f.label} className="min-w-0 sm:border-r sm:border-brand-cream/20 sm:px-5 sm:first:pl-0 xl:px-6">
                 <dt className="sr-only">{f.label}</dt>
-                <dd className="font-poster text-3xl leading-none sm:text-[2.1rem]">{f.value}</dd>
-                <dd aria-hidden="true" className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-cream/75">{f.label}</dd>
+                <dd className="whitespace-nowrap font-poster text-3xl leading-none sm:text-[2.1rem]">{f.value}</dd>
+                <dd aria-hidden="true" className="mt-2 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-brand-cream/75">{f.label}</dd>
               </div>
             ))}
-            <div className="pr-6 sm:px-6">
+            <div className="min-w-0 sm:pl-5 xl:pl-6">
               <dt className="sr-only">{hours.label}</dt>
-              <dd className="flex items-center gap-2 font-poster text-xl leading-none sm:text-2xl">
+              <dd className="flex items-center gap-2 whitespace-nowrap font-poster text-xl leading-none sm:text-2xl">
                 <Clock size={18} className="shrink-0 text-saffron" aria-hidden="true" />
                 {hours.value}
               </dd>
-              <dd aria-hidden="true" className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand-cream/75">{hours.label}</dd>
+              <dd aria-hidden="true" className="mt-2 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-brand-cream/75">{hours.label}</dd>
             </div>
           </dl>
         </div>

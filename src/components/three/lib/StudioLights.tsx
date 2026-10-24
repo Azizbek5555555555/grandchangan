@@ -22,6 +22,8 @@ export default function StudioLights({ variant, keyIntensity = 2.2 }: { variant:
         <Lightformer form="rect" intensity={3} color={P.keyWarm} position={[-3, 5, 4]} scale={[7, 4, 1]} target={[0, 0, 0]} />
         {/* yuqoridan halqa — sir/sho'rvada chiroyli yaltirash */}
         <Lightformer form="ring" intensity={2} color={P.white} position={[0, 7, 0]} scale={4} target={[0, 0, 0]} />
+        {/* orqadan past softbox — sho'rva va sirda yaltiroq aks */}
+        <Lightformer form="rect" intensity={2.2} color={P.keyWarm} position={[-1, 3, -7]} scale={[6, 2.5, 1]} target={[0, 0, 0]} />
         {/* orqa-o'ng kontur */}
         <Lightformer form="rect" intensity={4} color={P.rimWarm} position={[6, 2, -4]} scale={[3, 6, 1]} target={[0, 0, 0]} />
         {/* chap yon ingichka chiziq — silindrlarda vertikal yaltirash */}

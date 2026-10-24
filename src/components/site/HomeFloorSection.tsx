@@ -199,8 +199,7 @@ export default function HomeFloorSection({
       id="floor-map"
       className="relative overflow-hidden bg-paper pb-16 pt-14 sm:pb-20 sm:pt-16 lg:pb-24"
     >
-      {/* Fon: xira ieroglif va nozik panjara */}
-      <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 text-fire/[0.04]" />
+      {/* Fon: xira ieroglif */}
       <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute -right-4 top-6 select-none text-[9rem] leading-none text-fire/[0.07] sm:text-[13rem]">席位</span>
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">

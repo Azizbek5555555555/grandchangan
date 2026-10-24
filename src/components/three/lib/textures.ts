@@ -372,7 +372,7 @@ export function beefTexture(size = 512) {
   // qovurilgan chetlar
   const g = ctx.createRadialGradient(size / 2, size / 2, size * 0.2, size / 2, size / 2, size * 0.56);
   g.addColorStop(0, "rgba(0,0,0,0)");
-  g.addColorStop(1, rgba(P.beefDark, 0.85));
+  g.addColorStop(1, rgba(P.beefDark, 0.6));
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, size, size);
   return toTexture(c);
