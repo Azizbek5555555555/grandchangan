@@ -287,8 +287,8 @@ body.cursor-none, body.cursor-none * { cursor: none !important; }
 /* Xitoy deraza panjarasi — fon uchun juda nozik naqsh (rang: text-*) */
 .lattice-bg {
   background-color: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") repeat / 56px 56px;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") repeat / 56px 56px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") 0 0 / 56px 56px repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") 0 0 / 56px 56px repeat;
 }
 
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
