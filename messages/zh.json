@@ -676,7 +676,11 @@
     "panel3t": "我们的厨房",
     "panel3s": "火候、炒锅与手艺",
     "panel4t": "VIP包间",
-    "panel4s": "6–8人私人包间"
+    "panel4s": "6–8人私人包间",
+    "showCourse": "第{n}道",
+    "specWeight": "分量",
+    "specTime": "烹制时间",
+    "specSpice": "辣度"
   },
   "Pages2": {
     "otherDishes": "其他菜品",

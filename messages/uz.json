@@ -676,7 +676,11 @@
     "panel3t": "Oshxonamiz",
     "panel3s": "Olov, vok va mahorat",
     "panel4t": "VIP xonalar",
-    "panel4s": "6–8 kishilik yopiq xonalar"
+    "panel4s": "6–8 kishilik yopiq xonalar",
+    "showCourse": "{n}-taom",
+    "specWeight": "Og'irligi",
+    "specTime": "Tayyorlanishi",
+    "specSpice": "Achchiqligi"
   },
   "Pages2": {
     "otherDishes": "Boshqa taomlar",

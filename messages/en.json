@@ -676,7 +676,11 @@
     "panel3t": "Our kitchen",
     "panel3s": "Fire, wok and craft",
     "panel4t": "VIP rooms",
-    "panel4s": "Private rooms for 6–8 guests"
+    "panel4s": "Private rooms for 6–8 guests",
+    "showCourse": "Course {n}",
+    "specWeight": "Weight",
+    "specTime": "Cooking time",
+    "specSpice": "Spice level"
   },
   "Pages2": {
     "otherDishes": "Other dishes",
