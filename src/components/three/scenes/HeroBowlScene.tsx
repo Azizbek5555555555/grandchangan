@@ -30,7 +30,7 @@ const GAP = 0.05; // palochka va lag'mon radiuslari yig'indisi
 const TARGET: [number, number, number] = [0, 0.3, 0];
 const VIEW_DIR: [number, number, number] = [0, 0.5, 1];
 
-function HeroContent({ reduced, mobile, trackRef }: Pick<SceneProps, "reduced" | "mobile" | "trackRef">) {
+function HeroContent({ reduced, mobile, trackRef, tone }: Pick<SceneProps, "reduced" | "mobile" | "trackRef"> & { tone: HeroTone }) {
   useFitCamera(TARGET, VIEW_DIR, 5.0, 4.3);
   const kit = useFoodKit(mobile);
 
@@ -101,8 +101,8 @@ function HeroContent({ reduced, mobile, trackRef }: Pick<SceneProps, "reduced" |
 
   return (
     <>
-      <StudioLights variant="fire" />
-      <BlobShadow ref={shadow} color={P.shadowFire} opacity={0.42} position={[0, -0.95, 0]} scale={[3.6, 1.5]} />
+      <StudioLights variant={tone === "night" ? "wine" : "fire"} keyIntensity={tone === "night" ? 2.6 : 2.2} />
+      <BlobShadow ref={shadow} color={tone === "night" ? P.shadowNight : P.shadowFire} opacity={0.42} position={[0, -0.95, 0]} scale={[3.6, 1.5]} />
       <group ref={rig}>
         <group position={[0, -0.5, 0]}>
           <Bowl mobile={mobile} />
@@ -131,10 +131,12 @@ function HeroContent({ reduced, mobile, trackRef }: Pick<SceneProps, "reduced" |
   );
 }
 
-export default function HeroBowlScene(props: SceneProps) {
+export type HeroTone = "fire" | "night";
+
+export default function HeroBowlScene(props: SceneProps & { tone?: HeroTone }) {
   return (
     <SceneCanvas {...props} camera={{ fov: 30, position: [0, 3, 8], near: 0.1, far: 60 }}>
-      <HeroContent reduced={props.reduced} mobile={props.mobile} trackRef={props.trackRef} />
+      <HeroContent reduced={props.reduced} mobile={props.mobile} trackRef={props.trackRef} tone={props.tone ?? "fire"} />
     </SceneCanvas>
   );
 }
