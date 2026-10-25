@@ -52,11 +52,11 @@ export default function MenuHero({
           </div>
 
           {stats.length > 0 && (
-            <dl translate="no" className={cn(ENTER, "mt-12 flex gap-10 border-t border-brand-gold/20 pt-6 delay-500")}>
+            <dl className={cn(ENTER, "mt-12 flex gap-10 border-t border-brand-gold/20 pt-6 delay-500")}>
               {stats.map((s) => (
                 <div key={s.label}>
                   <dt className="sr-only">{s.label}</dt>
-                  <dd className="font-display text-5xl leading-none text-brand-gold-light">{s.value}</dd>
+                  <dd translate="no" className="font-display text-5xl leading-none text-brand-gold-light">{s.value}</dd>
                   <dd aria-hidden="true" className="mt-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-cream/70">{s.label}</dd>
                 </div>
               ))}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play, Star } from "lucide-react";
 import { Birds, Mountains, Pavilion } from "@/components/site/pages/InkDecor";
 import Wave from "@/components/site/kit/Wave";
 import { cn } from "@/lib/utils";
@@ -27,6 +27,9 @@ type Labels = {
   avgLabel: string;
   countLabel: string;
   region: string;
+  pause: string;
+  play: string;
+  slide: string;
 };
 
 const AUTOPLAY_MS = 8000;
@@ -60,13 +63,16 @@ function InkScene({ variant }: { variant: number }) {
 /**
  * Sharhlar "kino sahnasi": har sharh — to'liq ekranli fon (Ken Burns bilan sekin yaqinlashadi) ustida katta
  * serif iqtibos, muallif, yulduzlar va taom nomi. Avtomatik almashadi (8 s), sichqoncha/fokus ustida
- * yoki ekrandan tashqarida to'xtaydi, reduced-motion'da avtomatik almashmaydi. Klaviatura: ←/→.
+ * yoki ekrandan tashqarida to'xtaydi, pauza tugmasi bilan butunlay to'xtatiladi (WCAG 2.2.2),
+ * reduced-motion'da avtomatik almashmaydi. Klaviatura: ←/→. rating 0 / author "" — taklif slaydi (yulduz va muallifsiz).
  */
 export default function ReviewsStage({
   slides, avg, labels, topWaveClass,
 }: { slides: StageSlide[]; avg: number | null; labels: Labels; topWaveClass?: string }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
+  /** Foydalanuvchi pauza tugmasini bosgan */
+  const [stopped, setStopped] = useState(false);
   const [visible, setVisible] = useState(false);
   const [reduced, setReduced] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
@@ -83,7 +89,7 @@ export default function ReviewsStage({
     return () => io.disconnect();
   }, []);
 
-  const playing = n > 1 && visible && !paused && !reduced;
+  const playing = n > 1 && visible && !paused && !stopped && !reduced;
   useEffect(() => {
     if (!playing) return;
     const id = window.setTimeout(() => go(active + 1), AUTOPLAY_MS);
@@ -150,44 +156,68 @@ export default function ReviewsStage({
           <span lang="zh" aria-hidden="true" className="font-cn text-3xl leading-none text-saffron">评价</span>
           <span className="text-xs font-semibold uppercase tracking-[0.3em] text-brand-cream/75">{labels.eyebrow}</span>
           <span aria-hidden="true" className="hidden h-px w-16 bg-brand-gold/50 sm:block" />
+          {avg !== null && (
+            <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-gold-light lg:hidden">
+              <Star size={14} aria-hidden="true" className="fill-saffron text-saffron" />
+              <span translate="no">{avg.toFixed(1)}</span>
+              <span className="font-normal text-brand-cream/75">· {labels.countLabel}</span>
+            </span>
+          )}
         </div>
         <h2 className="mt-3 font-display text-4xl leading-[1.05] text-brand-cream sm:text-5xl">{labels.title}</h2>
 
         <div className="mt-10 grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
           {/* ---------- Faol sharh ---------- */}
-          <figure key={s.id} aria-live={playing ? "off" : "polite"} className="max-w-3xl animate-[rv-in_900ms_var(--ease-out-expo)_both] motion-reduce:animate-none">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <Stars n={s.rating} size={18} />
-              <span className="sr-only">{s.rating}/5</span>
-              <span translate="no" className="text-xs font-semibold tracking-[0.3em] text-brand-cream/55">
-                {String(active + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}
-              </span>
-            </div>
-            {s.comment && (
-              <blockquote
-                className={cn(
-                  "mt-6 line-clamp-6 text-balance font-display italic leading-[1.18] text-brand-cream",
-                  long ? "text-2xl sm:text-3xl lg:text-[2.4rem]" : "text-3xl sm:text-[2.75rem] lg:text-[3.4rem]"
+          {/* aria-live barqaror o'ramda — almashgan slayd ekran o'quvchida o'qiladi */}
+          <div aria-live={playing ? "off" : "polite"} aria-atomic="true" className="min-w-0">
+            <figure
+              key={s.id}
+              role="group"
+              aria-roledescription={labels.slide}
+              aria-label={`${active + 1} / ${n}`}
+              className="max-w-3xl animate-[rv-in_900ms_var(--ease-out-expo)_both] motion-reduce:animate-none"
+            >
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                {s.rating > 0 && (
+                  <>
+                    <Stars n={s.rating} size={18} />
+                    <span className="sr-only">{s.rating}/5</span>
+                  </>
                 )}
-              >
-                {s.comment}
-              </blockquote>
-            )}
-            <figcaption className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
-              <span className="flex items-center gap-3">
-                <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full border border-brand-gold/60 font-display text-xl text-brand-gold-light">
-                  {s.author.trim().charAt(0).toUpperCase() || "G"}
+                <span translate="no" className="text-xs font-semibold tracking-[0.3em] text-brand-cream/75">
+                  {String(active + 1).padStart(2, "0")} / {String(n).padStart(2, "0")}
                 </span>
-                <span className="text-lg font-semibold tracking-wide">{s.author}</span>
-              </span>
-              {s.dish && (
-                <span className="inline-flex items-center gap-2 rounded-full border border-brand-cream/20 bg-night/40 px-4 py-1.5 text-sm text-brand-cream/85 backdrop-blur-sm">
-                  <span className="text-brand-cream/55">{labels.tasted}</span>
-                  <span className="font-display italic text-brand-gold-light">{s.dish}</span>
-                </span>
+              </div>
+              {s.comment && (
+                <blockquote
+                  className={cn(
+                    "mt-6 line-clamp-6 text-balance font-display italic leading-[1.18] text-brand-cream",
+                    long ? "text-2xl sm:text-3xl lg:text-[2.4rem]" : "text-3xl sm:text-[2.75rem] lg:text-[3.4rem]"
+                  )}
+                >
+                  {s.comment}
+                </blockquote>
               )}
-            </figcaption>
-          </figure>
+              {(s.author || s.dish) && (
+                <figcaption className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
+                  {s.author && (
+                    <span className="flex items-center gap-3">
+                      <span aria-hidden="true" className="flex size-12 items-center justify-center rounded-full border border-brand-gold/60 font-display text-xl text-brand-gold-light">
+                        {s.author.trim().charAt(0).toUpperCase() || "G"}
+                      </span>
+                      <span className="text-lg font-semibold tracking-wide">{s.author}</span>
+                    </span>
+                  )}
+                  {s.dish && (
+                    <span className="inline-flex items-center gap-2 rounded-full border border-brand-cream/20 bg-night/40 px-4 py-1.5 text-sm text-brand-cream/85 backdrop-blur-sm">
+                      <span className="text-brand-cream/75">{labels.tasted}</span>
+                      <span className="font-display italic text-brand-gold-light">{s.dish}</span>
+                    </span>
+                  )}
+                </figcaption>
+              )}
+            </figure>
+          </div>
 
           {/* ---------- Baho muhri ---------- */}
           {avg !== null && (
@@ -211,7 +241,7 @@ export default function ReviewsStage({
         {/* ---------- Boshqaruv: progress chiziqlari + tugmalar ---------- */}
         {n > 1 && (
           <div className="mt-12 flex items-center gap-6 border-t border-brand-cream/15 pt-6">
-            <div className="flex flex-1 gap-2">
+            <div className="hidden flex-1 gap-2 sm:flex">
               {slides.map((sl, i) => (
                 <button
                   key={sl.id}
@@ -236,7 +266,18 @@ export default function ReviewsStage({
                 </button>
               ))}
             </div>
-            <div className="flex shrink-0 gap-2">
+            <div className="ml-auto flex shrink-0 gap-2">
+              {!reduced && (
+                <button
+                  type="button"
+                  onClick={() => setStopped((v) => !v)}
+                  aria-label={stopped ? labels.play : labels.pause}
+                  aria-pressed={stopped}
+                  className="flex size-12 items-center justify-center rounded-full border border-brand-cream/30 text-brand-cream transition hover:border-saffron hover:text-saffron focus-visible:outline-2 focus-visible:outline-saffron"
+                >
+                  {stopped ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
+                </button>
+              )}
               <button type="button" onClick={() => go(active - 1)} aria-label={labels.prev} className="flex size-12 items-center justify-center rounded-full border border-brand-cream/30 text-brand-cream transition hover:border-saffron hover:bg-saffron hover:text-brand-ink focus-visible:outline-2 focus-visible:outline-saffron">
                 <ChevronLeft size={20} aria-hidden="true" />
               </button>

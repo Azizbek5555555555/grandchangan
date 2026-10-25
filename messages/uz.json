@@ -692,7 +692,10 @@
     "rvAvg": "Mehmonlar bahosi",
     "rvWriteTitle": "Sizning hikoyangiz ham",
     "rvWriteAccent": "shu yerda bo'lsin",
-    "rvWriteSub": "Tashrifingiz qanday o'tdi? Bir necha so'z yozing — sharhingiz moderatsiyadan so'ng shu sahnada chiqadi."
+    "rvWriteSub": "Tashrifingiz qanday o'tdi? Bir necha so'z yozing — sharhingiz moderatsiyadan so'ng shu sahnada chiqadi.",
+    "rvPause": "Avtomatik almashishni to'xtatish",
+    "rvPlay": "Avtomatik almashishni davom ettirish",
+    "rvSlide": "sharh"
   },
   "Pages2": {
     "otherDishes": "Boshqa taomlar",

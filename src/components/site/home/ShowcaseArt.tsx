@@ -56,9 +56,9 @@ export default function ShowcaseArt({
 
       {/* Tush "enso" halqasi: qalin asosiy chiziq + ingichka "quruq cho'tka" izi */}
       <svg aria-hidden="true" viewBox="0 0 200 200" className={cn("pointer-events-none absolute -inset-[6%] size-[112%] text-content", flip ? "-rotate-[150deg]" : "rotate-[30deg]")}>
-        <circle data-enso cx="100" cy="100" r="95" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" pathLength={1} strokeDasharray="0.9 1" opacity="0.7" />
-        <circle data-enso cx="100" cy="100" r="97.4" fill="none" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" pathLength={1} strokeDasharray="0.62 1" opacity="0.5" transform="rotate(14 100 100)" />
-        <circle data-enso cx="100" cy="100" r="92.6" fill="none" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" pathLength={1} strokeDasharray="0.4 1" opacity="0.45" transform="rotate(-8 100 100)" />
+        <circle data-enso cx="100" cy="100" r="95" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" pathLength={1} strokeDasharray="0.9 2" opacity="0.7" />
+        <circle data-enso cx="100" cy="100" r="97.4" fill="none" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" pathLength={1} strokeDasharray="0.62 2" opacity="0.5" transform="rotate(14 100 100)" />
+        <circle data-enso cx="100" cy="100" r="92.6" fill="none" stroke="currentColor" strokeWidth="0.6" strokeLinecap="round" pathLength={1} strokeDasharray="0.4 2" opacity="0.45" transform="rotate(-8 100 100)" />
       </svg>
 
       <div data-plate className="relative h-full w-full will-change-transform">{children}</div>

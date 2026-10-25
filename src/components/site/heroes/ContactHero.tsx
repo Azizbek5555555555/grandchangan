@@ -75,23 +75,23 @@ export default function ContactHero({
         <div className="min-w-0">
           <p className={cn(ENTER, "flex items-center gap-3")}>
             <span aria-hidden="true" lang="zh" className="font-cn text-3xl leading-none text-saffron">联系</span>
-            <span translate="no" className="text-[11px] font-semibold tracking-[0.3em] text-brand-cream/80 sm:text-xs">39.65° N · 66.96° E</span>
+            <span translate="no" className="text-[11px] font-semibold tracking-[0.3em] text-brand-cream/90 sm:text-xs">39.65° N · 66.96° E</span>
           </p>
           <HeroTitle text={title} className="mt-5 font-poster text-[clamp(2.4rem,9vw,6rem)] leading-[1.06] text-brand-cream" />
           <p className={cn(ENTER, "mt-5 max-w-md text-lg text-brand-cream/90 delay-200")}>{sub}</p>
 
           <dl className={cn(ENTER, "mt-10 max-w-lg divide-y divide-brand-cream/20 border-y border-brand-cream/20 delay-300")}>
             {rows.map((r) => (
-              <div key={r.k} className="flex items-center gap-4 py-4">
-                <span aria-hidden="true" className="flex size-11 shrink-0 items-center justify-center rounded-full border border-brand-gold/60 text-saffron">
-                  <r.icon size={18} />
-                </span>
-                <div className="min-w-0">
-                  <dt className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-cream/70">{r.k}</dt>
-                  <dd className="mt-0.5 text-base font-semibold sm:text-lg">
-                    {r.href ? <a href={r.href} translate="no" className="underline-offset-4 hover:underline">{r.v}</a> : r.v}
-                  </dd>
-                </div>
+              <div key={r.k} className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-center gap-x-4 py-4">
+                <dt className="contents">
+                  <span aria-hidden="true" className="row-span-2 flex size-11 items-center justify-center rounded-full border border-brand-gold/60 text-saffron">
+                    <r.icon size={18} />
+                  </span>
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-cream/90">{r.k}</span>
+                </dt>
+                <dd className="col-start-2 text-base font-semibold sm:text-lg">
+                  {r.href ? <a href={r.href} translate="no" className="inline-flex min-h-11 items-center underline-offset-4 hover:underline">{r.v}</a> : r.v}
+                </dd>
               </div>
             ))}
           </dl>

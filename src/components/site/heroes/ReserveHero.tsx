@@ -42,8 +42,8 @@ export default function ReserveHero({
           {/* Asosiy qism */}
           <div className="relative min-w-0 px-7 pb-10 pt-8 sm:px-12 sm:pb-12 sm:pt-10">
             <FretBand className="max-w-[16rem] text-brand-gold/60" />
-            <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.36em] text-brand-gold-light">{ticketLabel}</p>
-            <HeroTitle text={title} className="mt-3 font-poster text-[clamp(2.1rem,7.4vw,4.6rem)] leading-[1.08] text-brand-cream" />
+            <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.36em] text-brand-cream">{ticketLabel}</p>
+            <HeroTitle text={title} className="mt-3 font-poster text-[clamp(1.5rem,6.6vw,4.6rem)] leading-[1.08] text-brand-cream" />
             <p className={cn(ENTER, "mt-4 max-w-md text-base leading-relaxed text-brand-cream/90 delay-200 sm:text-lg")}>{sub}</p>
             <div className={cn(ENTER, "mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold delay-300")}>
               <span className="inline-flex items-center gap-2"><Clock size={16} aria-hidden="true" className="text-saffron" />{hours}</span>

@@ -692,7 +692,10 @@
     "rvAvg": "宾客评分",
     "rvWriteTitle": "您的故事",
     "rvWriteAccent": "也值得被讲述",
-    "rvWriteSub": "您的用餐体验如何？写下几句话——审核通过后，您的评价将出现在这里。"
+    "rvWriteSub": "您的用餐体验如何？写下几句话——审核通过后，您的评价将出现在这里。",
+    "rvPause": "暂停自动播放",
+    "rvPlay": "继续自动播放",
+    "rvSlide": "评价"
   },
   "Pages2": {
     "otherDishes": "其他菜品",

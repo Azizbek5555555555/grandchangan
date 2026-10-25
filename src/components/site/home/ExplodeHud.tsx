@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { smooth } from "@/components/three/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
  * "Bir kosada" bo'limining jonli ko'rsatkichi: 3D kosa qatlamlarga ajralgan sari hozirgi qatlam raqami
  * (01/06), nomi va 6 bo'lakli progress chizig'i. Progress — ExplodedBowlScene bilan bir xil formula
- * ([data-explode-track] bo'limi yopishgan paytdagi scroll ulushi). labels — yuqoridan pastga
+ * ([data-explode-track] bo'limi yopishgan paytdagi scroll ulushi, smoothstep; reduced-motion'da — 1). labels — yuqoridan pastga
  * (ziravorlar … kosa); ko'rsatkich pastdan yuqoriga (kosa → ziravorlar) yuradi.
  */
 export default function ExplodeHud({ labels, className }: { labels: string[]; className?: string }) {
@@ -24,7 +25,9 @@ export default function ExplodeHud({ labels, className }: { labels: string[]; cl
       raf = 0;
       const r = sec.getBoundingClientRect();
       const travel = Math.max(1, r.height - window.innerHeight);
-      const p = Math.min(1, Math.max(0, (-r.top / travel - 0.1) / 0.7));
+      const p = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? 1
+        : smooth((-r.top / travel - 0.1) / 0.7);
       if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
       // ExplodedBowlScene'dagi nomlar jadvali: li-nom (pastdan) p ≥ 0.2 + li·0.11 da chiqa boshlaydi
       let shown = 0;

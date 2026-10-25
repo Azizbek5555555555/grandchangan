@@ -29,7 +29,8 @@ export default async function Reviews({
 
   const slides: StageSlide[] = reviews.length
     ? reviews.map((r) => ({ id: r.id, author: r.author, rating: r.rating, comment: r.comment, img: r.img, dish: r.dish }))
-    : [{ id: "invite", author: "GrandChangan", rating: 5, comment: t("reviewsFirst"), img: backdrop, dish: null }];
+    : // Taklif slaydi: yulduz va muallifsiz (restoran o'zi haqida "sharh" yozgandek ko'rinmasin)
+      [{ id: "invite", author: "", rating: 0, comment: t("reviewsFirst"), img: backdrop, dish: null }];
 
   return (
     <>
@@ -47,6 +48,9 @@ export default async function Reviews({
           avgLabel: t("rvAvg"),
           countLabel: t("reviewsCount", { count: total }),
           region: st("reviewsTitle"),
+          pause: t("rvPause"),
+          play: t("rvPlay"),
+          slide: t("rvSlide"),
         }}
       />
 

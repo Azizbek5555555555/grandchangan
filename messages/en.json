@@ -692,7 +692,10 @@
     "rvAvg": "Guest rating",
     "rvWriteTitle": "Your story belongs",
     "rvWriteAccent": "here too",
-    "rvWriteSub": "How was your visit? Leave a few words — after moderation your review will appear here."
+    "rvWriteSub": "How was your visit? Leave a few words — after moderation your review will appear here.",
+    "rvPause": "Pause autoplay",
+    "rvPlay": "Resume autoplay",
+    "rvSlide": "review"
   },
   "Pages2": {
     "otherDishes": "Other dishes",
