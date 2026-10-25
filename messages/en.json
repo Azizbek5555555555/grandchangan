@@ -730,7 +730,12 @@
     "heroPaper": "The Chang'an Daily",
     "heroPosts": "{count, plural, one {# article} other {# articles}}",
     "heroCity": "Samarkand",
-    "heroAboutEyebrow": "From the start of the Silk Road to Samarkand"
+    "heroAboutEyebrow": "From the start of the Silk Road to Samarkand",
+    "floorHalls": "Our halls",
+    "floorTablesCount": "{count, plural, one {# table} other {# tables}}",
+    "floorUpTo": "up to {n} guests",
+    "floorFreeOf": "{free} of {total} free",
+    "floorCall": "Prefer to book by phone? We'll find you the best table — or a whole room for your celebration."
   },
   "About2": {
     "storyEyebrow": "Our story",

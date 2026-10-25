@@ -730,7 +730,12 @@
     "heroPaper": "Chang'an kundaligi",
     "heroPosts": "{count} ta maqola",
     "heroCity": "Samarqand",
-    "heroAboutEyebrow": "Ipak yo'lining boshidan — Samarqandgacha"
+    "heroAboutEyebrow": "Ipak yo'lining boshidan — Samarqandgacha",
+    "floorHalls": "Zallarimiz",
+    "floorTablesCount": "{count} ta stol",
+    "floorUpTo": "{n} kishigacha",
+    "floorFreeOf": "{total} tadan {free} tasi bo'sh",
+    "floorCall": "Telefon orqali bron qilish qulayroqmi? Eng yaxshi stolni — yoki bayramingiz uchun butun xonani tanlab beramiz."
   },
   "About2": {
     "storyEyebrow": "Bizning hikoya",

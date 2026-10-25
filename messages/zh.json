@@ -730,7 +730,12 @@
     "heroPaper": "长安日报",
     "heroPosts": "{count} 篇文章",
     "heroCity": "撒马尔罕",
-    "heroAboutEyebrow": "从丝路起点到撒马尔罕"
+    "heroAboutEyebrow": "从丝路起点到撒马尔罕",
+    "floorHalls": "用餐区域",
+    "floorTablesCount": "{count} 张桌",
+    "floorUpTo": "最多 {n} 人",
+    "floorFreeOf": "空闲 {free}/{total}",
+    "floorCall": "更喜欢电话预订？我们为您挑选最好的座位，或为您的庆典安排整间包房。"
   },
   "About2": {
     "storyEyebrow": "我们的故事",

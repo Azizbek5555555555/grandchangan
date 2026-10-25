@@ -12,7 +12,10 @@ import { cn } from "@/lib/utils";
 import Reveal from "@/components/motion/Reveal";
 import SectionHead from "@/components/site/kit/SectionHead";
 import { btnClass } from "@/components/site/kit/ButtonLink";
+import Wave from "@/components/site/kit/Wave";
 import FloorAvailabilityMap, { type AvailZone } from "./FloorAvailabilityMap";
+import LacquerFrame from "./floor/LacquerFrame";
+import FloorStats from "./floor/FloorStats";
 
 /**
  * Bosh sahifa: "Restoran xaritasi" bo'limi. Mijoz sana, vaqt va kishi sonini tanlaydi —
@@ -186,30 +189,41 @@ export default function HomeFloorSection({
   }, [date, locale]);
 
   const tel = `tel:${phone.replace(/[^\d+]/g, "")}`;
-  const label = "mb-2 block text-[11px] font-semibold uppercase tracking-[0.22em] text-muted";
-  const field = "h-11 rounded-xl border border-line bg-paper px-3 text-sm text-content outline-none transition focus:border-fire focus:ring-4 focus:ring-fire/10 disabled:opacity-40 [.dark_&]:[color-scheme:dark]";
+  // "Lak quti" ichidagi boshqaruv: oltin yorliqlar, qorong'i shisha maydonlar (tema bo'yicha o'zgarmaydi)
+  const label = "mb-2 flex items-baseline gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-gold-light";
+  const field = "h-11 rounded-xl border border-brand-cream/15 bg-night-3/70 px-3 text-sm text-brand-cream outline-none transition [color-scheme:dark] hover:border-brand-gold/50 focus:border-brand-gold focus:ring-4 focus:ring-brand-gold/15 disabled:opacity-40";
   const chip = (active: boolean) => cn(
     "h-11 shrink-0 rounded-full border px-4 text-sm font-semibold transition",
-    active ? "border-fire bg-fire text-brand-cream shadow-md shadow-fire/20" : "border-line bg-paper text-content hover:border-fire hover:text-fire"
+    active
+      ? "border-brand-gold-light bg-brand-gold text-brand-ink shadow-md shadow-brand-gold/20"
+      : "border-brand-cream/15 bg-night-3/70 text-brand-cream hover:border-brand-gold hover:text-brand-gold-light"
   );
+  const cnTag = (zh: string) => <span aria-hidden="true" lang="zh" className="font-cn text-sm normal-case tracking-normal text-brand-gold/70">{zh}</span>;
 
   return (
     <section
       ref={sectionRef}
       id="floor-map"
-      className="relative overflow-hidden bg-paper pb-16 pt-14 sm:pb-20 sm:pt-16 lg:pb-24"
+      className="relative overflow-hidden bg-paper pb-28 pt-14 sm:pb-36 sm:pt-16 lg:pb-40"
     >
-      {/* Fon: xira ieroglif */}
-      <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute -right-4 top-6 select-none text-[9rem] leading-none text-fire/[0.07] sm:text-[13rem]">席位</span>
+      {/* Fon: xira ieroglif va panjara naqshi */}
+      <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute -right-4 top-6 select-none text-[9rem] leading-none text-fire/[0.06] sm:text-[13rem]">席位</span>
+      <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-x-0 bottom-0 h-2/3 text-fire/[0.035] [mask-image:linear-gradient(to_bottom,transparent,black_40%)]" />
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
-        <SectionHead cn="平面图" eyebrow={tb("eyebrow")} title={tb("title1")} accent={tb("title2")} sub={tb("subtitle")} />
+        <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+          <SectionHead font="serif" cn="平面图" eyebrow={tb("eyebrow")} title={tb("title1")} accent={tb("title2")} sub={tb("subtitle")} />
+          <Reveal y={24} delay={0.15} className="shrink-0">
+            <FloorStats />
+          </Reveal>
+        </div>
 
-        <Reveal y={40} delay={0.1} className="mt-10 sm:mt-12">
+        <Reveal y={40} delay={0.1} className="-mx-2 mt-10 sm:mx-0 sm:mt-14">
+          <LacquerFrame>
           {/* Boshqaruv: sana, vaqt, kishi soni */}
-          <div className="grid grid-cols-2 gap-4 rounded-[24px] border border-line bg-card p-4 shadow-lg shadow-content/5 sm:p-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
-            <div className="col-span-2 min-w-0 lg:col-span-1">
-              <span className={label}>{ts("rDate")}</span>
+          <div className="grid grid-cols-1 gap-4 rounded-2xl border border-brand-gold/20 bg-night-2/80 p-4 shadow-xl shadow-night/40 backdrop-blur-sm sm:grid-cols-2 sm:p-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
+            <div className="min-w-0 sm:col-span-2 lg:col-span-1">
+              <span className={label}>{cnTag("日期")}{ts("rDate")}</span>
               <div role="group" aria-label={ts("rDate")} className="flex flex-wrap gap-2">
                 <button type="button" onClick={() => changeDate(clock.today)} aria-pressed={date === clock.today} className={chip(date === clock.today)}>
                   {tb("today")}
@@ -230,7 +244,7 @@ export default function HomeFloorSection({
             </div>
 
             <label className="min-w-0">
-              <span className={label}>{ts("rTime")}</span>
+              <span className={label}>{cnTag("时间")}{ts("rTime")}</span>
               <select
                 value={canQuery ? time : ""}
                 disabled={times.length === 0}
@@ -243,18 +257,18 @@ export default function HomeFloorSection({
             </label>
 
             <div className="min-w-0">
-              <span className={label}>{ts("rGuests")}</span>
-              <div role="group" aria-label={ts("rGuests")} className="flex h-11 items-center justify-between rounded-xl border border-line bg-paper">
+              <span className={label}>{cnTag("人数")}{ts("rGuests")}</span>
+              <div role="group" aria-label={ts("rGuests")} className="flex h-11 items-center justify-between rounded-xl border border-brand-cream/15 bg-night-3/70">
                 <button
                   type="button"
                   aria-label={tb("guestsLess")}
                   disabled={guests <= 1}
                   onClick={() => setGuests((g) => Math.max(1, g - 1))}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-l-xl text-content transition hover:bg-fire/10 hover:text-fire disabled:opacity-30"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-l-xl text-brand-cream transition hover:bg-brand-gold/15 hover:text-brand-gold-light disabled:opacity-30"
                 >
                   <Minus size={16} />
                 </button>
-                <span className="min-w-0 truncate px-1 text-sm font-semibold tabular-nums text-content" aria-live="polite">
+                <span className="min-w-0 truncate px-1 text-sm font-semibold tabular-nums text-brand-cream" aria-live="polite">
                   {tb("guests", { count: guests })}
                 </span>
                 <button
@@ -262,7 +276,7 @@ export default function HomeFloorSection({
                   aria-label={tb("guestsMore")}
                   disabled={guests >= MAX_GUESTS}
                   onClick={() => setGuests((g) => Math.min(MAX_GUESTS, g + 1))}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-r-xl text-content transition hover:bg-fire/10 hover:text-fire disabled:opacity-30"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-r-xl text-brand-cream transition hover:bg-brand-gold/15 hover:text-brand-gold-light disabled:opacity-30"
                 >
                   <Plus size={16} />
                 </button>
@@ -277,7 +291,7 @@ export default function HomeFloorSection({
             {failed && (
               <Note>
                 {tb("loadError")}{" "}
-                <button type="button" onClick={() => setRetry((n) => n + 1)} className="inline-flex min-h-11 items-center gap-1 font-semibold text-fire-ink hover:text-fire-deep">
+                <button type="button" onClick={() => setRetry((n) => n + 1)} className="inline-flex min-h-11 items-center gap-1 font-semibold text-saffron hover:text-brand-gold-light">
                   <RotateCw size={13} /> {tb("retry")}
                 </button>
               </Note>
@@ -285,7 +299,7 @@ export default function HomeFloorSection({
             {guests >= MAX_GUESTS && (
               <Note>
                 {tb("bigGroup")}{" "}
-                <a href={tel} className="inline-flex items-center gap-1 font-semibold text-fire-ink hover:text-fire-deep">
+                <a href={tel} className="inline-flex min-h-11 items-center gap-1 font-semibold text-saffron hover:text-brand-gold-light">
                   <Phone size={13} /> {phone}
                 </a>
               </Note>
@@ -294,7 +308,7 @@ export default function HomeFloorSection({
 
           <FloorAvailabilityMap
             className="mt-6"
-            tone="theme"
+            tone="dark"
             zones={zones}
             loading={loading}
             selectedTableId={selectedId}
@@ -302,26 +316,29 @@ export default function HomeFloorSection({
             phone={phone}
             action={(t) => loading ? null : (
               <>
-                <p className="mb-3 text-xs text-muted">
+                <p className="mb-3 text-xs tracking-wide text-brand-cream/70">
                   {dateLabel} · {time} · {tb("guests", { count: guests })}
                 </p>
                 <Link
                   href={{ pathname: "/reservation", query: { date, time, guests: String(guests), table: t.id } }}
-                  className={cn(btnClass("fire", "md"), "group w-full")}
+                  className={cn(btnClass("fire", "md"), "group w-full ring-1 ring-brand-gold/50 ring-offset-2 ring-offset-night-2")}
                 >
                   {tb("bookThis")} <ArrowRight size={16} className="transition group-hover:translate-x-1" />
                 </Link>
               </>
             )}
           />
+          </LacquerFrame>
         </Reveal>
       </div>
+      {/* Keyingi bo'lim (4 panelli lenta) — tungi fon */}
+      <Wave className="text-night" variant="a" />
     </section>
   );
 }
 
 function Note({ children }: { children: React.ReactNode }) {
   return (
-    <p className="rounded-xl border border-saffron/40 bg-saffron/10 px-4 py-2.5 text-sm text-content">{children}</p>
+    <p className="rounded-xl border border-saffron/35 bg-saffron/10 px-4 py-2.5 text-sm text-brand-cream">{children}</p>
   );
 }
