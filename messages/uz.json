@@ -601,7 +601,9 @@
     "railLabel": "Sahifa bo'limlari",
     "railUp": "Oldingi bo'lim",
     "railDown": "Keyingi bo'lim",
-    "railTop": "Tepaga qaytish"
+    "railTop": "Tepaga qaytish",
+    "skip": "Asosiy mazmunga o'tish",
+    "footMotto": "Qadimiy Chang'an — Ipak yo'lining boshlanishi. Uning ta'mi endi Samarqandda."
   },
   "title": "Xarita va bron stollari",
   "status": "Xaritada {map} stol. Bazada bog'langan: {linked}. Eski faol stollar: {extra}.",
@@ -695,7 +697,18 @@
     "rvWriteSub": "Tashrifingiz qanday o'tdi? Bir necha so'z yozing — sharhingiz moderatsiyadan so'ng shu sahnada chiqadi.",
     "rvPause": "Avtomatik almashishni to'xtatish",
     "rvPlay": "Avtomatik almashishni davom ettirish",
-    "rvSlide": "sharh"
+    "rvSlide": "sharh",
+    "sigPrev": "Oldingi taomlar",
+    "sigNext": "Keyingi taomlar",
+    "galOpen": "Galereyada ochish",
+    "valFresh": "Yangi masalliqlar",
+    "valFreshS": "Har kuni yangi keltiriladi, faqat halal.",
+    "valRecipe": "Asl retseptlar",
+    "valRecipeS": "Sichuan va Kanton oshxonasi an'anasi.",
+    "valWok": "Vok olovi",
+    "valWokS": "Kuchli olovda bir zumda — haqiqiy «vok nafasi».",
+    "valCare": "Mehr bilan",
+    "valCareS": "Har bir tarelka e'tibor va mehmondo'stlik bilan."
   },
   "Pages2": {
     "otherDishes": "Boshqa taomlar",
@@ -803,6 +816,10 @@
     "teaAccent": "marosimi",
     "teaSub": "Xitoy choyi, ichimliklar va shirinliklar — taomdan keyin sokin damlar uchun.",
     "teaExplore": "Barchasini ko'rish",
-    "new": "Yangi"
+    "new": "Yangi",
+    "browseTitle": "Bugun",
+    "browseAccent": "dasturxonda",
+    "motto": "Har bir taom — o'z ta'mi",
+    "mottoSub": "Sichuan va Kanton an'analari — Samarqand dasturxonida."
   }
 }

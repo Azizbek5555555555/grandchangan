@@ -7,19 +7,27 @@ export type NavItem = {
   ns: "Common" | "Site";
   key: string;
   cn: string;
-  /** Faqat xl ekranda header'da ko'rinadi (lg da CTA tugmasi shu vazifani bajaradi) */
-  xlOnly?: boolean;
+  /** Desktop header'da ko'rsatilmaydi — "Stol band qilish" CTA tugmasi shu vazifani bajaradi (mobil menyu va footer'da bor) */
+  headerHidden?: boolean;
 };
 
 export const NAV: NavItem[] = [
   { href: "/menu", ns: "Common", key: "menu", cn: "菜单" },
-  { href: "/reservation", ns: "Site", key: "hBooking", cn: "订座", xlOnly: true },
+  { href: "/reservation", ns: "Site", key: "hBooking", cn: "订座", headerHidden: true },
   { href: "/gallery", ns: "Common", key: "gallery", cn: "画廊" },
   { href: "/events", ns: "Common", key: "events", cn: "宴会" },
   { href: "/blog", ns: "Common", key: "blog", cn: "博客" },
   { href: "/about", ns: "Common", key: "about", cn: "关于" },
   { href: "/contact", ns: "Common", key: "contact", cn: "联系" },
 ];
+
+/**
+ * Desktop header'da havolalar logo-lavhaning ikki tomoniga 3 tadan bo'linadi:
+ * chapda — menyu, galereya, tadbirlar; o'ngda — blog, biz haqimizda, aloqa (bron — CTA tugmasida).
+ */
+const HEADER_NAV = NAV.filter((n) => !n.headerHidden);
+export const NAV_LEFT = HEADER_NAV.slice(0, 3);
+export const NAV_RIGHT = HEADER_NAV.slice(3);
 
 /** Bosh sahifa — faqat mobil menyuda va footer'da (header'da logo shu vazifada) */
 export const HOME_ITEM: NavItem = { href: "/", ns: "Common", key: "home", cn: "首页" };
