@@ -2,17 +2,13 @@
 
 let webgl: boolean | null = null;
 
-/** WebGL2 bormi (three r163+ faqat WebGL2). Natija keshlanadi, sinov konteksti darhol bo'shatiladi */
+/**
+ * WebGL2 API bormi (three r163+ faqat WebGL2). Sinov konteksti ochilmaydi — u sekin qurilmalarda birinchi
+ * 3D'ni sezilarli kechiktirardi; GPU haqiqatda ishlamasa Canvas xatosi Lazy3D'dagi SceneBoundary'da ushlanadi.
+ */
 export function supportsWebGL(): boolean {
   if (webgl !== null) return webgl;
-  try {
-    const c = document.createElement("canvas");
-    const gl = c.getContext("webgl2");
-    webgl = !!gl;
-    gl?.getExtension("WEBGL_lose_context")?.loseContext();
-  } catch {
-    webgl = false;
-  }
+  webgl = typeof window !== "undefined" && typeof window.WebGL2RenderingContext !== "undefined";
   return webgl;
 }
 

@@ -8,6 +8,6 @@ const load = () => import("./scenes/DimSumScene");
 const Scene = dynamic(load, { ssr: false, loading: () => null });
 
 /** Bambuk bug'latgich + chuchvaralar; bo'lim ko'ringanda qopqoq ochilib bug' chiqadi. Konteynerga o'lcham bering. */
-export default function DimSumSteamer({ className }: { className?: string }) {
-  return <Lazy3D className={className} Scene={Scene} load={load} />;
+export default function DimSumSteamer({ className, poster }: { className?: string; poster?: string }) {
+  return <Lazy3D className={className} Scene={Scene} load={load} poster={poster} />;
 }

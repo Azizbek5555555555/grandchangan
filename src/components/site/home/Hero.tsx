@@ -71,7 +71,7 @@ export default function Hero({ tag, lines, accentLine, sub, cnHeadline, bookLabe
           </span>
           <span aria-hidden="true" className="absolute inset-[9%] rounded-full border border-brand-gold/30" />
           <span aria-hidden="true" className="absolute inset-[13%] animate-spin-slow rounded-full border border-dashed border-brand-gold/20" />
-          <HeroBowl tone="night" className="absolute inset-0" />
+          <HeroBowl tone="night" poster="/3d/hero-bowl.webp" className="absolute inset-0" />
           {sticker && <GoldSeal ring={sticker.ring} center={sticker.center} />}
         </div>
 

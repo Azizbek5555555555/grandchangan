@@ -1,8 +1,8 @@
 "use client";
 
-import { Canvas, type CanvasProps } from "@react-three/fiber";
+import { Canvas, useFrame, type CanvasProps } from "@react-three/fiber";
 import * as THREE from "three";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import type { SceneProps } from "./types";
 
 type Props = Omit<SceneProps, "trackRef"> & {
@@ -35,10 +35,21 @@ export default function SceneCanvas({ active, reduced, mobile, onFail, onReady, 
           },
           { once: true },
         );
-        onReady();
       }}
     >
+      <FirstFrame onReady={onReady} />
       {children}
     </Canvas>
   );
+}
+
+/** Birinchi kadr haqiqatda chizilgach (shader'lar kompilyatsiya bo'lgan) — onReady: poster shundan keyin almashadi */
+function FirstFrame({ onReady }: { onReady: () => void }) {
+  const done = useRef(false);
+  useFrame(() => {
+    if (done.current) return;
+    done.current = true;
+    requestAnimationFrame(() => onReady());
+  });
+  return null;
 }
