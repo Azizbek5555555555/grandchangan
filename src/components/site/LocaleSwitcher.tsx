@@ -17,6 +17,8 @@ type Props = {
    * Ikkalasi ham qizil/tungi fon ustida (krem matn).
    */
   variant?: "dropdown" | "inline";
+  /** dropdown ro'yxati qaysi chetga tekislanadi (header chap chetida — "left"); standart "right" */
+  align?: "left" | "right";
   className?: string;
 };
 
@@ -24,7 +26,7 @@ type Props = {
  * Til almashtirgich. Haqiqiy havolalar (next-intl Link + locale) — joriy sahifa saqlanadi,
  * `replace` bilan tarix to'lmaydi (avvalgi router.replace xatti-harakati).
  */
-export default function LocaleSwitcher({ variant = "dropdown", className }: Props) {
+export default function LocaleSwitcher({ variant = "dropdown", align = "right", className }: Props) {
   const pathname = usePathname();
   const current = useLocale();
   const T = useTranslations("Chrome");
@@ -107,7 +109,8 @@ export default function LocaleSwitcher({ variant = "dropdown", className }: Prop
       <div
         id={listId}
         className={cn(
-          "absolute right-0 top-full z-10 mt-2 w-44 origin-top-right rounded-2xl border border-brand-gold/25 bg-night-2 p-1.5 shadow-2xl transition duration-200",
+          align === "left" ? "left-0 origin-top-left" : "right-0 origin-top-right",
+          "absolute top-full z-10 mt-2 w-44 rounded-2xl border border-brand-gold/25 bg-night-2 p-1.5 shadow-2xl transition duration-200",
           open ? "visible scale-100 opacity-100" : "invisible scale-95 opacity-0"
         )}
       >

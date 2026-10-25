@@ -601,7 +601,9 @@
     "railLabel": "Page sections",
     "railUp": "Previous section",
     "railDown": "Next section",
-    "railTop": "Back to top"
+    "railTop": "Back to top",
+    "skip": "Skip to main content",
+    "footMotto": "Ancient Chang'an — where the Silk Road began. Now its flavours live in Samarkand."
   },
   "title": "Map & bookable tables",
   "status": "{map, plural, one {# table} other {# tables}} on the map. Linked in the database: {linked}. Old active tables: {extra}.",
@@ -695,7 +697,18 @@
     "rvWriteSub": "How was your visit? Leave a few words — after moderation your review will appear here.",
     "rvPause": "Pause autoplay",
     "rvPlay": "Resume autoplay",
-    "rvSlide": "review"
+    "rvSlide": "review",
+    "sigPrev": "Previous dishes",
+    "sigNext": "Next dishes",
+    "galOpen": "Open in gallery",
+    "valFresh": "Fresh ingredients",
+    "valFreshS": "Delivered daily, always halal.",
+    "valRecipe": "Authentic recipes",
+    "valRecipeS": "Sichuan and Cantonese tradition.",
+    "valWok": "Wok fire",
+    "valWokS": "Flash-cooked over high flame — true wok hei.",
+    "valCare": "Made with care",
+    "valCareS": "Every plate served with attention and warmth."
   },
   "Pages2": {
     "otherDishes": "Other dishes",
@@ -730,7 +743,12 @@
     "heroPaper": "The Chang'an Daily",
     "heroPosts": "{count, plural, one {# article} other {# articles}}",
     "heroCity": "Samarkand",
-    "heroAboutEyebrow": "From the start of the Silk Road to Samarkand"
+    "heroAboutEyebrow": "From the start of the Silk Road to Samarkand",
+    "floorHalls": "Our halls",
+    "floorTablesCount": "{count, plural, one {# table} other {# tables}}",
+    "floorUpTo": "up to {n} guests",
+    "floorFreeOf": "{free} of {total} free",
+    "floorCall": "Prefer to book by phone? We'll find you the best table — or a whole room for your celebration."
   },
   "About2": {
     "storyEyebrow": "Our story",
@@ -798,6 +816,10 @@
     "teaAccent": "ritual",
     "teaSub": "Chinese tea, drinks and desserts — for a calm finish to your meal.",
     "teaExplore": "See all",
-    "new": "New"
+    "new": "New",
+    "browseTitle": "Today",
+    "browseAccent": "on the table",
+    "motto": "Every dish, its own flavour",
+    "mottoSub": "Sichuan and Cantonese traditions, served at a Samarkand table."
   }
 }

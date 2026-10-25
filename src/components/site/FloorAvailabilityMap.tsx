@@ -7,6 +7,7 @@ import FloorMap, { useRoomName, type TableVisualState } from "@/components/floor
 import { MAP_ZONES, ROOMS, bookableTables, type FloorRoom, type FloorTable } from "@/lib/floorplan/layout";
 import type { getAvailability } from "@/lib/reservation/actions";
 import { cn, formatMoney, t as tl } from "@/lib/utils";
+import HallOverview, { CallCard } from "./floor/HallOverview";
 
 /**
  * Mijozlar uchun xarita + bo'sh/band stollar (bosh sahifa va bron sahifasining 4-qadami).
@@ -66,13 +67,13 @@ export default function FloorAvailabilityMap({
   // Ranglar faqat tokenlar: "dark" — tungi blok (namuna 2), "theme" — krem bo'lim (yorug'/qorong'i tema)
   const C = dark
     ? {
-        card: "border-brand-cream/12 bg-night-2 text-brand-cream",
+        card: "border-brand-gold/25 bg-night-2 text-brand-cream",
         muted: "text-brand-cream/65",
         divider: "border-brand-cream/12",
-        chip: "border-brand-cream/20 bg-night-3 text-brand-cream hover:border-saffron",
-        eyebrow: "text-saffron",
+        chip: "border-brand-cream/20 bg-night-3 text-brand-cream hover:border-brand-gold",
+        eyebrow: "text-brand-gold-light",
         link: "text-saffron hover:text-brand-gold-light",
-        legend: "bg-night-3/80 text-brand-cream/75",
+        legend: "border border-brand-gold/20 bg-night-2/80 text-brand-cream/80",
       }
     : {
         card: "border-line bg-card text-content",
@@ -81,7 +82,7 @@ export default function FloorAvailabilityMap({
         chip: "border-line bg-card text-content hover:border-fire",
         eyebrow: "text-fire-ink",
         link: "text-fire-ink underline decoration-fire/40 underline-offset-4 hover:decoration-2",
-        legend: "bg-sand text-muted",
+        legend: "border border-line bg-sand text-muted",
       };
   const DOT: Record<TableVisualState, string> = {
     free: "bg-brand-gold ring-2 ring-brand-gold/30",
@@ -144,6 +145,11 @@ export default function FloorAvailabilityMap({
     return parts.join(" · ");
   }, [entryFor, loaded, stateText, visualOf, tb]);
   const dimRoom = useCallback((room: FloorRoom) => !room.bookable, []);
+  // Bo'sh panel (zallar haqida) uchun: xarita stoli hozir bo'shmi
+  const isFreeMap = useCallback((mt: FloorTable) => {
+    const v = visualOf(entryFor(mt));
+    return v === "free" || v === "selected";
+  }, [visualOf, entryFor]);
 
   function pickTable(mt: FloorTable, room: FloorRoom) {
     setFocus({ roomId: room.id, tableId: mt.id });
@@ -197,7 +203,7 @@ export default function FloorAvailabilityMap({
       <div>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-display text-4xl leading-none">{code}</p>
+            <p className={cn("font-display text-4xl leading-none", dark && "text-brand-gold-light")}>{code}</p>
             {sub && <p className={cn("mt-1 text-xs", C.muted)}>{sub}</p>}
           </div>
           {v && pill(v)}
@@ -279,63 +285,138 @@ export default function FloorAvailabilityMap({
     );
   };
 
+  // Telefon/planshet: katta tugmali stollar ro'yxati (xaritadagi kichik stollarni bosish qiyin).
+  // Xarita bilan panel orasida turadi — ro'yxatdan tanlagach "band qilish" tugmasi darhol ostida.
+  const quickList = quickPick && loaded && quick.length > 0 && (
+    <div className={cn("rounded-2xl border p-4 lg:hidden", dark ? "border-brand-cream/10 bg-night-2/60" : "border-line bg-card")}>
+      <p className={cn("text-[11px] font-semibold uppercase tracking-[0.22em]", C.eyebrow)}>{tp("quickPick")}</p>
+      <p className={cn("mt-1 text-xs", C.muted)}>{tp("quickPickHint")}</p>
+      <div className="mt-3 space-y-4">
+        {quick.map((grp) => (
+          <div key={grp.key}>
+            <p className={cn("mb-2 font-display text-base", dark ? "text-brand-cream" : "text-content")}>{grp.name}</p>
+            <div className="flex flex-wrap gap-2">
+              {grp.items.map(({ table: mt, room }) => {
+                const e = entryFor(mt);
+                const v = visualOf(e);
+                const can = v === "free" || v === "selected";
+                return (
+                  <button
+                    key={mt.id}
+                    type="button"
+                    disabled={!can}
+                    aria-pressed={v === "selected"}
+                    aria-label={tableLabel(mt)}
+                    onClick={() => pickTable(mt, room)}
+                    className={cn(
+                      "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition disabled:cursor-not-allowed disabled:opacity-45",
+                      v === "selected" ? "border-brand-gold bg-brand-gold text-brand-ink" : C.chip
+                    )}
+                  >
+                    <span className={cn("h-2.5 w-2.5 rounded-full", DOT[v])} />
+                    <b className="font-semibold">{mt.code}</b>
+                    <span className={v === "selected" ? "text-brand-ink/70" : C.muted}>{e?.table.seats ?? mt.seats}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className={cn("min-w-0", className)}>
-      {/* Belgilar (xaritadagi ko'rinish bilan bir xil) */}
-      <div className={cn("mb-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl px-4 py-2.5 text-xs", C.legend)}>
-        <Legend swatch="border-brand-gold bg-brand-gold/15" label={ts("rFree")} />
-        <Legend swatch="border-brand-red bg-brand-red/40" label={ts("rBusy")} />
-        <Legend swatch="border-brand-gold bg-transparent opacity-60" label={ts("rSmall")} />
-        <Legend swatch="border-brand-gold-light bg-brand-gold" label={ts("rSelected")} />
-        {loaded && <span className={cn("ml-auto font-semibold", dark ? "text-saffron" : "text-content")}>{tb("freeCount", { count: db.free })}</span>}
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-5">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-6">
         <div className="relative min-w-0">
-          <FloorMap
-            className="aspect-[1450/880] w-full"
-            selectedId={focusRoom?.id ?? null}
-            onSelect={pickRoom}
-            onSelectTable={pickTable}
-            tableState={tableState}
-            tableLabel={tableLabel}
-            dimRoom={dimRoom}
-            hint={tb("mapHint")}
-            pageScroll
-          />
-          {loading && (
-            <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-night/90 px-3 py-1.5 text-xs text-brand-cream shadow-lg">
-              <Loader2 size={14} className="animate-spin" /> {tb("loading")}
-            </div>
-          )}
+          {/* Xarita atrofidagi oltin ramka (FloorMap'ning o'zi o'zgarmaydi — faqat tashqi ko'rinishi) */}
+          <div className={cn("relative rounded-[18px] p-1 sm:p-1.5", dark ? "bg-gradient-to-br from-brand-gold/45 via-brand-gold/10 to-brand-gold/35" : "bg-gradient-to-br from-brand-gold/60 via-line to-brand-gold/50")}>
+            <FloorMap
+              className="aspect-[1450/880] w-full rounded-[14px] border-brand-gold/20"
+              selectedId={focusRoom?.id ?? null}
+              onSelect={pickRoom}
+              onSelectTable={pickTable}
+              tableState={tableState}
+              tableLabel={tableLabel}
+              dimRoom={dimRoom}
+              hint={tb("mapHint")}
+              pageScroll
+            />
+            {loading && (
+              <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-2 rounded-full border border-brand-gold/30 bg-night/90 px-3 py-1.5 text-xs text-brand-cream shadow-lg sm:left-4 sm:top-4">
+                <Loader2 size={14} className="animate-spin text-brand-gold-light" /> {tb("loading")}
+              </div>
+            )}
+          </div>
           {/* Telefonda FloorMap o'z maslahatini yashiradi — qisqa maslahat shu yerda */}
           <p className={cn("mt-2 flex items-center gap-1.5 text-xs sm:hidden", C.muted)}>
             <Hand size={13} aria-hidden="true" /> {tp("mapTouchHint")}
           </p>
+          {/* Belgilar (xaritadagi ko'rinish bilan bir xil) */}
+          <div className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl px-4 py-3 text-xs", C.legend)}>
+            <Legend swatch="border-brand-gold bg-brand-gold/15" label={ts("rFree")} />
+            <Legend swatch="border-brand-red bg-brand-red/40" label={ts("rBusy")} />
+            <Legend swatch="border-brand-gold bg-transparent opacity-60" label={ts("rSmall")} />
+            <Legend swatch="border-brand-gold-light bg-brand-gold" label={ts("rSelected")} />
+            {loaded && (
+              <span
+                className={cn(
+                  "ml-auto inline-flex items-center gap-2 rounded-full border px-3 py-1 font-semibold",
+                  dark ? "border-brand-gold/40 bg-brand-gold/10 text-brand-gold-light" : "border-brand-gold/60 bg-card text-content"
+                )}
+              >
+                <span aria-hidden="true" className="relative flex h-2 w-2">
+                  {db.free > 0 && <span className="absolute inline-flex h-full w-full rounded-full bg-brand-gold opacity-60 motion-safe:animate-ping" />}
+                  <span className={cn("relative inline-flex h-2 w-2 rounded-full", db.free > 0 ? "bg-brand-gold" : "bg-brand-red")} />
+                </span>
+                {tb("freeCount", { count: db.free })}
+              </span>
+            )}
+          </div>
         </div>
 
-        <aside aria-live="polite" className={cn("min-w-0 rounded-[1.5rem] border p-5", C.card)}>
-          {focusRoom ? (
-            roomInfo(focusRoom)
-          ) : selected ? (
-            tableDetails(selected.table.number, selected.table.seats, selected, tl(selected.zone.name, locale))
-          ) : (
-            <div>
-              <p className={cn("text-[11px] uppercase tracking-[0.25em]", C.eyebrow)}>{ts("rTable")}</p>
-              <h3 className="mt-1 font-display text-2xl">{tb("introTitle")}</h3>
-              <p className={cn("mt-2 text-sm", C.muted)}>{tb("introText")}</p>
-            </div>
-          )}
+        {quickList}
 
-          {selectedFree && (action || !showingSelected) && (
-            <div className={cn("mt-5 border-t pt-4", C.divider)}>
-              {!showingSelected && (
-                <p className="mb-3 flex items-center gap-2 text-sm">
-                  <span className={cn("h-2 w-2 rounded-full", DOT.selected)} />
-                  {tb("selectedLine", { code: selectedFree.table.number })} · {tb("seats", { count: selectedFree.table.seats })}
-                </p>
-              )}
-              {action?.(selectedFree.table, pickInfo)}
+        <aside className={cn("relative flex min-w-0 flex-col overflow-hidden rounded-[1.25rem] border p-5 sm:p-6", C.card)}>
+          {/* Panel bezagi: yuqori oltin chiziq va xira ieroglif */}
+          <span aria-hidden="true" className="hairline-gold pointer-events-none absolute inset-x-6 top-0" />
+          <span
+            aria-hidden="true"
+            lang="zh"
+            className={cn("font-cn pointer-events-none absolute -bottom-6 -right-2 select-none text-[7rem] leading-none", dark ? "text-brand-gold/[0.06]" : "text-fire/[0.05]")}
+          >
+            席
+          </span>
+          <div aria-live="polite" className="relative">
+            {focusRoom ? (
+              roomInfo(focusRoom)
+            ) : selected ? (
+              tableDetails(selected.table.number, selected.table.seats, selected, tl(selected.zone.name, locale))
+            ) : (
+              <div>
+                <p className={cn("text-[11px] uppercase tracking-[0.25em]", C.eyebrow)}>{ts("rTable")}</p>
+                <h3 className="mt-1 font-display text-2xl sm:text-3xl">{tb("introTitle")}</h3>
+                <p className={cn("mt-2 text-sm leading-relaxed", C.muted)}>{tb("introText")}</p>
+                <HallOverview loaded={loaded} isFree={isFreeMap} dark={dark} />
+              </div>
+            )}
+
+            {selectedFree && (action || !showingSelected) && (
+              <div className={cn("mt-5 border-t pt-4", C.divider)}>
+                {!showingSelected && (
+                  <p className="mb-3 flex items-center gap-2 text-sm">
+                    <span className={cn("h-2 w-2 rounded-full", DOT.selected)} />
+                    {tb("selectedLine", { code: selectedFree.table.number })} · {tb("seats", { count: selectedFree.table.seats })}
+                  </p>
+                )}
+                {action?.(selectedFree.table, pickInfo)}
+              </div>
+            )}
+          </div>
+          {phone && (
+            <div className="relative mt-auto pt-5">
+              <CallCard phone={phone} dark={dark} />
             </div>
           )}
         </aside>
@@ -343,8 +424,8 @@ export default function FloorAvailabilityMap({
 
       {/* Xaritaga hali bog'lanmagan baza stollari — bron baribir ishlaydi */}
       {loaded && db.unmatched.length > 0 && (
-        <div className="mt-5">
-          <p className="text-sm font-medium">{tb("otherTables")}</p>
+        <div className={cn("mt-5 border-t pt-5", C.divider)}>
+          <p className={cn("font-display text-lg", dark ? "text-brand-cream" : "text-content")}>{tb("otherTables")}</p>
           <p className={cn("mb-3 text-xs", C.muted)}>{tb("otherTablesHint")}</p>
           <div className="flex flex-wrap gap-2">
             {db.unmatched.map((e) => {
@@ -377,46 +458,6 @@ export default function FloorAvailabilityMap({
         </div>
       )}
 
-      {/* Telefon/planshet: katta tugmali stollar ro'yxati (xaritadagi kichik stollarni bosish qiyin) */}
-      {quickPick && loaded && quick.length > 0 && (
-        <div className="mt-5 lg:hidden">
-          <p className={cn("text-[11px] font-semibold uppercase tracking-[0.22em]", C.eyebrow)}>{tp("quickPick")}</p>
-          <p className={cn("mt-1 text-xs", C.muted)}>{tp("quickPickHint")}</p>
-          <div className="mt-3 space-y-4">
-            {quick.map((grp) => (
-              <div key={grp.key}>
-                <p className={cn("mb-2 text-sm font-medium", dark ? "text-brand-cream" : "text-content")}>{grp.name}</p>
-                <div className="flex flex-wrap gap-2">
-                  {grp.items.map(({ table: mt, room }) => {
-                    const e = entryFor(mt);
-                    const v = visualOf(e);
-                    const can = v === "free" || v === "selected";
-                    return (
-                      <button
-                        key={mt.id}
-                        type="button"
-                        disabled={!can}
-                        aria-pressed={v === "selected"}
-                        aria-label={tableLabel(mt)}
-                        onClick={() => pickTable(mt, room)}
-                        className={cn(
-                          "inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm transition disabled:cursor-not-allowed disabled:opacity-45",
-                          v === "selected" ? "border-brand-gold bg-brand-gold text-brand-ink" : C.chip
-                        )}
-                      >
-                        <span className={cn("h-2.5 w-2.5 rounded-full", DOT[v])} />
-                        <b className="font-semibold">{mt.code}</b>
-                        <span className={v === "selected" ? "text-brand-ink/70" : C.muted}>{e?.table.seats ?? mt.seats}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {loaded && db.byId.size === 0 && (
         <div className={cn("mt-5 rounded-2xl border p-4 text-sm", C.card)}>
           <p className={C.muted}>{tb("noTables")}</p>
@@ -429,7 +470,7 @@ export default function FloorAvailabilityMap({
 
 function Legend({ swatch, label }: { swatch: string; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1.5">
+    <span className="inline-flex items-center gap-2">
       <span className={cn("h-3.5 w-3.5 rounded-full border-2", swatch)} /> {label}
     </span>
   );

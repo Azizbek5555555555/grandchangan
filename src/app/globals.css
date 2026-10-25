@@ -31,10 +31,11 @@
   /* ---- 3-bosqich dizayni (public sayt): "Olovli Chang'an" palitrasi ----
      Doim bir xil rangli bo'limlar uchun (qizil hero, vino, tungi bloklar).
      Yorug'/qorong'i temaga qarab o'zgaradigan bo'limlar — paper/sand (pastda). */
-  --color-fire: #c8161d;
-  --color-fire-deep: #9e0f14;
-  --color-wine: #5e0a0d;
-  --color-wine-deep: #430709;
+  /* To'q "imperator" qizili — ochiq qizil saytni oddiy/bolalarcha ko'rsatardi (Aziz, 2026-10-25) */
+  --color-fire: #9f0f17;
+  --color-fire-deep: #740a10;
+  --color-wine: #4a080b;
+  --color-wine-deep: #320508;
   --color-saffron: #f4a62a;
   --color-saffron-deep: #d98a12;
   --color-night: #0e0a09;
@@ -72,7 +73,7 @@
   /* Public sayt krem bo'limlari */
   --paper: #fbf1e1;
   --sand: #f3e2c7;
-  --fire-ink: #c8161d;
+  --fire-ink: #9f0f17;
 }
 .dark {
   --surface: #130d08;
@@ -286,8 +287,8 @@ body.cursor-none, body.cursor-none * { cursor: none !important; }
 /* Xitoy deraza panjarasi — fon uchun juda nozik naqsh (rang: text-*) */
 .lattice-bg {
   background-color: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") repeat / 56px 56px;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") repeat / 56px 56px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") 0 0 / 56px 56px repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M0 28H14V14H42V42H14V28M28 0V14M28 42V56M42 28H56' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E") 0 0 / 56px 56px repeat;
 }
 
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }

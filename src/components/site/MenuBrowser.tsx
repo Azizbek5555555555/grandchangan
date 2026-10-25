@@ -3,13 +3,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Clock, Flame, Leaf, Scale, Search, X } from "lucide-react";
+import { ArrowRight, Leaf, Search, X } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { cn, t, formatMoney, type Localized } from "@/lib/utils";
-import DishFallback from "@/components/site/kit/DishFallback";
 import Reveal from "@/components/motion/Reveal";
-import RevealGroup from "@/components/motion/RevealGroup";
-import SafeImg from "@/components/site/pages/SafeImg";
-import { CloudLine } from "@/components/site/pages/Ornament";
+import SectionHead from "@/components/site/kit/SectionHead";
+import Wave from "@/components/site/kit/Wave";
+import { usable } from "@/components/site/home/data";
+import { PorcelainPlate } from "@/components/site/home/ShowcaseArt";
+import DishCell, { type CellDish } from "@/components/site/menu/DishCell";
+import { FillerCell, type FillKind } from "@/components/site/menu/Cells";
+import { rowFill } from "@/components/site/menu/grid";
+import { PlatedDish } from "@/components/site/menu/Plated";
+import { useCellReveal } from "@/components/site/menu/useCellReveal";
 
 type Cat = { id: string; name: unknown; slug: string };
 type Item = {
@@ -19,29 +25,71 @@ type Item = {
   isFeatured?: boolean; weightGrams?: number | null; prepTimeMin?: number | null;
 };
 
-const spicyDots = (level: string) => {
-  const map: Record<string, number> = { NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 };
-  return map[level] || 0;
-};
+const SPICY: Record<string, number> = { NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 };
+const HAN = /\p{Script=Han}/u;
 /** JSON nomdan xitoycha variant (bezak uchun) */
 const zhOf = (v: unknown) => (v && typeof v === "object" ? (v as Localized).zh?.trim() || "" : "");
+const firstHan = (s: string) => Array.from(s).find((c) => HAN.test(c)) ?? "";
 const OTHER = "__other";
+/** Bo'sh kataklar o'rnidagi bezaklar navbat bilan almashadi */
+const FILLS: FillKind[] = ["reserve", "motto"];
 
 /**
- * Menyu: chapda yopishqoq kategoriyalar ro'yxati (scroll bo'yicha faol), o'ngda kategoriya
- * bo'limlari va dumaloq rasmli taom kartalari. Telefonda — gorizontal yopishqoq chip'lar.
- * Qidiruv va "faqat vegetarian" filtri saqlangan.
+ * Menyu (namuna 03): qorong'i "tungi saroy" foni, oltin chiziqli ramka. Yuqorida qidiruv/filtr qatori,
+ * chapda yopishqoq kategoriyalar paneli (scroll bo'yicha faol), o'ngda har bir kategoriya — panjara:
+ * birinchi katakcha kategoriya sarlavhasi, keyin tosh tagcha ustidagi taomlar. Oxirgi qator doim to'la
+ * (keng katakcha yoki bezak katakcha). Telefonda — gorizontal yopishqoq chip'lar.
+ * Pastda "Halal / Oldindan buyurtma / Choy" lentasi.
  */
 export default function MenuBrowser({
-  categories, items, locale, showFeatured = true,
-}: { categories: Cat[]; items: Item[]; locale: string; /** false — tepadagi "招牌菜" qatori chiqmaydi (sahifada alohida blok bor) */ showFeatured?: boolean }) {
+  categories, items, locale, showFeatured = true, waveTo,
+}: {
+  categories: Cat[];
+  items: Item[];
+  locale: string;
+  /** false — tepadagi "招牌菜" qatori chiqmaydi (sahifada alohida blok bor) */
+  showFeatured?: boolean;
+  /** Keyingi bo'lim boshqa rangda bo'lsa — pastdagi to'lqin rangi (masalan "text-paper") */
+  waveTo?: string;
+}) {
   const T = useTranslations("Site");
   const P = useTranslations("Pages2");
+  const M = useTranslations("Menu2");
   const [q, setQ] = useState("");
   const [vegOnly, setVegOnly] = useState(false);
   const [active, setActive] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
   const chipsRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
+  useCellReveal(rootRef);
+
+  const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
+
+  const toCell = useCallback(
+    (it: Item): CellDish => {
+      const zh = zhOf(it.name);
+      const disc = it.discountPrice;
+      const hasDisc = disc != null && disc > 0 && disc < it.price;
+      return {
+        id: it.id,
+        name: t(it.name, locale),
+        zh: locale === "zh" ? null : zh || null,
+        desc: t(it.description, locale),
+        price: hasDisc ? disc! : it.price,
+        oldPrice: hasDisc ? it.price : null,
+        img: usable(it.imageUrl),
+        glyph: firstHan(zh) || firstHan(zhOf(catById.get(it.categoryId)?.name)) || "菜",
+        spicy: SPICY[it.spicyLevel] ?? 0,
+        veg: it.isVegetarian,
+        halal: it.isHalal,
+        grams: it.weightGrams ?? null,
+        mins: it.prepTimeMin ?? null,
+        isNew: it.isNew,
+        featured: !!it.isFeatured,
+      };
+    },
+    [locale, catById]
+  );
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -60,17 +108,17 @@ export default function MenuBrowser({
   const groups = useMemo(() => {
     const known = new Set(categories.map((c) => c.id));
     const out = categories
-      .map((c) => ({ id: c.id, name: t(c.name, locale), zh: zhOf(c.name), items: filtered.filter((i) => i.categoryId === c.id) }))
+      .map((c) => ({ id: c.id, slug: c.slug, name: t(c.name, locale), zh: zhOf(c.name), items: filtered.filter((i) => i.categoryId === c.id) }))
       .filter((g) => g.items.length > 0);
     const rest = filtered.filter((i) => !known.has(i.categoryId));
-    if (rest.length) out.push({ id: OTHER, name: P("otherDishes"), zh: "", items: rest });
+    if (rest.length) out.push({ id: OTHER, slug: OTHER, name: P("otherDishes"), zh: "", items: rest });
     return out;
   }, [categories, filtered, locale, P]);
 
-  const catById = useMemo(() => new Map(categories.map((c) => [c.id, c])), [categories]);
   const featured = useMemo(() => items.filter((i) => i.isFeatured).slice(0, 8), [items]);
   const filtering = q.trim() !== "" || vegOnly;
   const current = active && groups.some((g) => g.id === active) ? active : groups[0]?.id ?? null;
+  const teaGroup = groups.find((g) => g.slug === "tea") ?? groups.find((g) => g.slug === "drinks");
 
   // Scroll bo'yicha faol kategoriya (ekran yuqori uchdan biri atrofidagi bo'lim)
   useEffect(() => {
@@ -107,9 +155,12 @@ export default function MenuBrowser({
     const desktop = window.matchMedia("(min-width: 1024px)").matches;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     // Yopishqoq header (+ telefonda chip'lar qatori) ostida to'xtasin
-    const offset = (desktop ? 120 : 150) + offsetExtra;
+    const offset = (desktop ? 100 : 140) + offsetExtra;
     const y = el.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top: Math.max(0, y), behavior: reduce ? "auto" : "smooth" });
+    // Lenis yoqilgan bo'lsa — u orqali (aks holda native smooth scroll Lenis bilan to'qnashadi)
+    const lenis = (window as unknown as { __lenis?: { scrollTo: (t: number, o?: { duration?: number; immediate?: boolean }) => void } }).__lenis;
+    if (lenis) lenis.scrollTo(Math.max(0, y), { duration: 1.1, immediate: reduce });
+    else window.scrollTo({ top: Math.max(0, y), behavior: reduce ? "auto" : "smooth" });
   }, []);
 
   function goCat(id: string) {
@@ -122,90 +173,98 @@ export default function MenuBrowser({
     setVegOnly(false);
     // Filtr olib tashlangach karta joyiga tushsin
     requestAnimationFrame(() => {
-      scrollToId(`dish-${id}`, 40);
+      scrollToId(`dish-${id}`, 20);
       setFlash(id);
       window.setTimeout(() => setFlash((f) => (f === id ? null : f)), 2200);
     });
   }
 
   const reset = () => { setQ(""); setVegOnly(false); };
+  let fillN = 0;
 
   return (
-    <div className="relative bg-paper">
-      {/* ---- Oshpaz tavsiyasi (TOP belgilangan taomlar) ---- */}
-      {showFeatured && featured.length > 0 && (
-        <section aria-labelledby="menu-featured" className="relative mx-auto max-w-7xl px-5 pb-6 pt-14 sm:px-8 sm:pt-20">
-          <Reveal y={16}>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="flex items-center gap-3">
-                  <span lang="zh" className="font-cn text-3xl leading-none text-fire-ink">招牌菜</span>
-                  <span className="text-xs font-semibold uppercase tracking-[0.24em] text-muted">{T("dishesEyebrow")}</span>
-                </p>
-                <h2 id="menu-featured" className="mt-2 font-display text-4xl leading-[1.05] text-content sm:text-5xl">
-                  {T("dishesTitle1")} <span className="italic text-fire-ink">{T("dishesTitle2")}</span>
-                </h2>
-              </div>
-              <CloudLine className="hidden w-44 text-fire/40 sm:block" />
-            </div>
-          </Reveal>
-          <RevealGroup
-            className="-mx-5 mt-8 flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 pt-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-x-8 sm:gap-y-6 sm:overflow-visible sm:px-0"
-            stagger={0.08}
-            y={30}
-          >
-            {featured.map((it, i) => (
-              <button
-                key={it.id}
-                type="button"
-                onClick={() => goDish(it.id)}
-                className="group flex w-44 shrink-0 snap-start flex-col items-center text-center outline-none sm:w-52"
-              >
-                <span
-                  className={cn(
-                    "relative block aspect-square w-40 overflow-hidden rounded-full bg-sand shadow-xl shadow-fire/15 ring-[6px] ring-card transition duration-700 group-hover:-rotate-6 group-hover:scale-[1.04] group-focus-visible:ring-fire sm:w-44 lg:w-48",
-                    i % 2 === 1 && "sm:mt-8"
-                  )}
-                >
-                  <SafeImg
-                    src={it.imageUrl}
-                    alt={t(it.name, locale)}
-                    className="h-full w-full object-cover"
-                    fallback={<DishFallback char={zhOf(it.name).charAt(0) || "菜"} />}
-                  />
-                </span>
-                <span className="mt-4 font-display text-lg leading-tight text-content transition group-hover:text-fire">{t(it.name, locale)}</span>
-                {locale !== "zh" && zhOf(it.name) && <span lang="zh" className="font-cn text-base text-fire/70">{zhOf(it.name)}</span>}
-                <span className="mt-1 text-sm font-bold tabular-nums text-fire-ink">{formatMoney(it.discountPrice ?? it.price)}</span>
-              </button>
-            ))}
-          </RevealGroup>
-        </section>
-      )}
+    <section
+      ref={rootRef}
+      aria-label={T("fullMenu")}
+      className={cn("relative isolate overflow-x-clip bg-night text-brand-cream", waveTo ? "pb-28 sm:pb-36" : "pb-20 sm:pb-28")}
+    >
+      <span aria-hidden="true" className="hairline-gold absolute inset-x-[8%] top-0" />
+      <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 -z-10 text-brand-gold/[0.035]" />
+      <span aria-hidden="true" className="pointer-events-none absolute -left-40 top-40 -z-10 size-[34rem] rounded-full bg-fire-deep/20 blur-[110px]" />
+      <span aria-hidden="true" className="pointer-events-none absolute -right-40 bottom-40 -z-10 size-[30rem] rounded-full bg-brand-gold/[0.06] blur-[110px]" />
 
-      {/* ---- Qidiruv va filtr ---- */}
-      <div className="mx-auto max-w-7xl px-5 pt-8 sm:px-8">
-        <Reveal y={14}>
-          <div className="flex flex-col gap-3 rounded-[1.75rem] bg-card p-3 shadow-lg shadow-night/5 ring-1 ring-line sm:flex-row sm:items-center sm:p-4">
+      <div className="mx-auto max-w-7xl px-4 pt-16 sm:px-8 sm:pt-24">
+        {/* ---- Sarlavha ---- */}
+        <div className="flex flex-col gap-6 px-1 sm:flex-row sm:items-end sm:justify-between sm:px-0">
+          <SectionHead tone="dark" font="serif" cn="菜单" eyebrow={T("fullMenu")} title={M("browseTitle")} accent={M("browseAccent")} />
+          <Link
+            href="/reservation"
+            className="group inline-flex min-h-11 items-center gap-3 self-start text-sm font-semibold text-brand-gold-light transition hover:text-saffron sm:self-auto sm:pb-3"
+          >
+            <span aria-hidden="true" className="h-px w-10 bg-brand-gold/50 transition-all group-hover:w-14" />
+            {M("order")}
+            <ArrowRight size={16} aria-hidden="true" className="transition group-hover:translate-x-1" />
+          </Link>
+        </div>
+
+        {/* ---- Oshpaz tavsiyasi (TOP taomlar) — sahifada alohida blok bo'lmasa ---- */}
+        {showFeatured && featured.length > 0 && (
+          <div className="mt-12">
+            <Reveal y={16}>
+              <p className="flex items-center gap-3 px-1">
+                <span lang="zh" className="font-cn text-2xl leading-none text-saffron">招牌菜</span>
+                <span className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cream/75">{T("dishesEyebrow")}</span>
+                <span aria-hidden="true" className="h-px flex-1 bg-brand-gold/20" />
+              </p>
+            </Reveal>
+            <div className="-mx-4 mt-6 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:justify-center sm:gap-6 sm:overflow-visible sm:px-0">
+              {featured.map((it) => {
+                const d = toCell(it);
+                return (
+                  <button
+                    key={it.id}
+                    type="button"
+                    onClick={() => goDish(it.id)}
+                    className="group flex w-44 shrink-0 snap-start flex-col items-center rounded-2xl p-2 text-center outline-none transition hover:bg-night-2 focus-visible:ring-2 focus-visible:ring-saffron sm:w-52"
+                  >
+                    <PlatedDish img={d.img} alt="" glyph={d.glyph} variant="lacquer" glyphClass="text-5xl" />
+                    <span className="mt-3 font-display text-lg leading-tight text-brand-cream transition group-hover:text-saffron">{d.name}</span>
+                    {d.zh && <span lang="zh" className="font-cn text-base text-brand-gold-light">{d.zh}</span>}
+                    <span className="mt-1 text-sm font-semibold tabular-nums text-saffron">{formatMoney(d.price)}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ---- Oltin ramka ---- */}
+        <div className="mt-10 overflow-clip rounded-[1.75rem] border border-brand-gold/25 bg-night shadow-2xl shadow-night sm:mt-14 lg:grid lg:grid-cols-[260px_minmax(0,1fr)]">
+          {/* Qidiruv va filtr */}
+          <div className="flex flex-col gap-3 border-b border-brand-gold/15 bg-night-2 p-3 sm:flex-row sm:items-center sm:p-4 lg:col-span-2">
+            <p className="hidden shrink-0 items-center gap-3 pl-3 pr-4 lg:flex lg:w-[244px]">
+              <span lang="zh" aria-hidden="true" className="font-cn shrink-0 whitespace-nowrap text-3xl leading-none text-brand-gold-light">菜单</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-cream/75">{P("categories")}</span>
+            </p>
             <label className="relative flex-1">
               <span className="sr-only">{T("menuSearch")}</span>
-              <Search size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+              <Search size={18} aria-hidden="true" className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-brand-gold-light/80" />
               <input
                 type="search"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder={T("menuSearch")}
                 enterKeyHint="search"
-                className="h-12 w-full rounded-full border border-line bg-paper pl-11 pr-11 text-base text-content outline-none transition placeholder:text-muted focus:border-fire focus:ring-4 focus:ring-fire/15 [&::-webkit-search-cancel-button]:hidden"
+                className="h-12 w-full rounded-full border border-brand-gold/25 bg-night pl-11 pr-11 text-base text-brand-cream outline-none transition placeholder:text-brand-cream/55 focus:border-saffron focus:ring-4 focus:ring-saffron/15 [&::-webkit-search-cancel-button]:hidden"
               />
               {q && (
                 <button
                   type="button"
                   onClick={() => setQ("")}
                   aria-label={P("clearSearch")}
-                  className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-muted transition hover:bg-sand hover:text-content"
+                  className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-brand-cream/70 transition hover:bg-night-3 hover:text-brand-cream"
                 >
-                  <X size={16} />
+                  <X size={16} aria-hidden="true" />
                 </button>
               )}
             </label>
@@ -217,209 +276,218 @@ export default function MenuBrowser({
                 onClick={() => setVegOnly((v) => !v)}
                 className={cn(
                   "inline-flex h-12 shrink-0 items-center gap-2.5 whitespace-nowrap rounded-full border px-4 text-sm font-medium transition",
-                  vegOnly ? "border-jade bg-jade text-brand-cream" : "border-line bg-paper text-content hover:border-jade"
+                  vegOnly ? "border-jade bg-jade text-brand-cream" : "border-brand-gold/25 bg-night text-brand-cream hover:border-leaf"
                 )}
               >
-                <span className={cn("relative h-5 w-9 rounded-full transition", vegOnly ? "bg-brand-cream/30" : "bg-sand")}>
-                  <span className={cn("absolute top-0.5 h-4 w-4 rounded-full transition-all", vegOnly ? "left-[18px] bg-brand-cream" : "left-0.5 bg-jade")} />
+                <span className={cn("relative h-5 w-9 rounded-full transition", vegOnly ? "bg-brand-cream/30" : "bg-night-3")}>
+                  <span className={cn("absolute top-0.5 h-4 w-4 rounded-full transition-all", vegOnly ? "left-[18px] bg-brand-cream" : "left-0.5 bg-leaf")} />
                 </span>
                 <Leaf size={15} aria-hidden="true" /> {T("menuVegOnly")}
               </button>
-              <p className="min-w-0 truncate px-2 text-sm text-muted" aria-live="polite">
+              <p className="min-w-0 truncate px-2 text-sm tabular-nums text-brand-cream/70" aria-live="polite">
                 {P("dishCount", { count: filtered.length })}
               </p>
             </div>
           </div>
-        </Reveal>
-      </div>
 
-      {/* ---- Telefon/planshet: yopishqoq gorizontal kategoriyalar ---- */}
-      {groups.length > 1 && (
-        <div className="sticky top-16 z-30 mt-6 border-y border-line bg-paper lg:hidden">
-          <div ref={chipsRef} className="flex gap-2 overflow-x-auto px-5 py-2.5 [scrollbar-width:none] sm:px-8">
-            {groups.map((g) => (
-              <button
-                key={g.id}
-                type="button"
-                data-chip={g.id}
-                aria-current={current === g.id ? "true" : undefined}
-                onClick={() => goCat(g.id)}
-                className={cn(
-                  "inline-flex h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium transition",
-                  current === g.id ? "bg-fire text-brand-cream shadow-md shadow-fire/25" : "bg-card text-content ring-1 ring-line"
-                )}
-              >
-                {g.zh && <span lang="zh" className={cn("font-cn text-base leading-none", current === g.id ? "text-saffron" : "text-fire-ink")}>{g.zh.charAt(0)}</span>}
-                {g.name}
-                <span className={cn("text-xs tabular-nums", current === g.id ? "text-brand-cream/75" : "text-muted")}>{g.items.length}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="mx-auto max-w-7xl px-5 pb-24 pt-8 sm:px-8 lg:grid lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-14 lg:pb-32 lg:pt-14">
-        {/* ---- Kompyuter: chapda yopishqoq kategoriyalar ro'yxati ---- */}
-        <aside className="hidden lg:block">
-          <nav aria-label={P("categories")} className="sticky top-28">
-            <p className="mb-4 flex items-baseline gap-3 px-3">
-              <span lang="zh" className="font-cn shrink-0 whitespace-nowrap text-4xl leading-none text-fire-ink">菜单</span>
-              <span className="truncate text-xs font-semibold uppercase tracking-[0.24em] text-muted">{P("categories")}</span>
-            </p>
-            <ul className="space-y-1 border-l border-line">
-              {groups.map((g) => {
-                const on = current === g.id;
-                return (
-                  <li key={g.id} className="relative">
-                    <span aria-hidden="true" className={cn("absolute -left-px top-2 bottom-2 w-[3px] rounded-full transition-all duration-500", on ? "bg-fire" : "bg-transparent")} />
+          {/* Telefon/planshet: yopishqoq gorizontal kategoriyalar */}
+          {groups.length > 1 && (
+            <div className="sticky top-[68px] z-30 border-b border-brand-gold/15 bg-night/95 backdrop-blur lg:hidden">
+              <div ref={chipsRef} className="flex gap-2 overflow-x-auto px-3 py-2.5 [scrollbar-width:none] sm:px-4">
+                {groups.map((g) => {
+                  const on = current === g.id;
+                  return (
                     <button
+                      key={g.id}
                       type="button"
-                      onClick={() => goCat(g.id)}
+                      data-chip={g.id}
                       aria-current={on ? "true" : undefined}
+                      onClick={() => goCat(g.id)}
                       className={cn(
-                        "group ml-3 flex min-h-11 w-[calc(100%-0.75rem)] items-center gap-3 rounded-2xl px-3 py-2 text-left transition",
-                        on ? "bg-card text-fire-ink shadow-md shadow-night/5" : "text-content hover:bg-card/70"
+                        "inline-flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium transition",
+                        on ? "border-saffron/70 bg-fire-deep text-brand-cream" : "border-brand-gold/20 text-brand-cream/85 hover:border-brand-gold/40"
                       )}
                     >
-                      <span lang="zh" className={cn("font-cn w-7 shrink-0 text-center text-xl leading-none transition", on ? "text-fire-ink" : "text-fire/45 group-hover:text-fire/80")}>
-                        {g.zh ? g.zh.charAt(0) : "·"}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate font-display text-[17px]">{g.name}</span>
-                        {g.zh && locale !== "zh" && <span lang="zh" className="block text-xs text-muted">{g.zh}</span>}
-                      </span>
-                      <span className={cn("text-xs tabular-nums", on ? "text-fire-ink" : "text-muted")}>{g.items.length}</span>
+                      {g.zh && <span lang="zh" aria-hidden="true" className={cn("font-cn text-base leading-none", on ? "text-saffron" : "text-brand-gold-light")}>{firstHan(g.zh)}</span>}
+                      {g.name}
+                      <span className={cn("text-xs tabular-nums", on ? "text-brand-cream/80" : "text-brand-cream/60")}>{g.items.length}</span>
                     </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </aside>
-
-        {/* ---- Kategoriya bo'limlari ---- */}
-        <div className="min-w-0">
-          {groups.map((g, gi) => (
-            <section key={g.id} id={`cat-${g.id}`} aria-labelledby={`cat-h-${g.id}`} className={cn("scroll-mt-40 lg:scroll-mt-32", gi > 0 && "mt-16 sm:mt-24")}>
-              <Reveal y={20}>
-                <div className="relative flex items-end gap-4 border-b border-line pb-4">
-                  {g.zh && (
-                    <span lang="zh" aria-hidden="true" className="font-cn text-5xl leading-none text-fire-ink sm:text-6xl">
-                      {g.zh}
-                    </span>
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <h2 id={`cat-h-${g.id}`} className="font-display text-3xl leading-[1.08] text-content sm:text-4xl">{g.name}</h2>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted">{P("dishCount", { count: g.items.length })}</p>
-                  </div>
-                  <span aria-hidden="true" className="absolute -bottom-px left-0 h-[3px] w-16 rounded-full bg-fire" />
-                </div>
-              </Reveal>
-              <RevealGroup className="mt-6 grid grid-cols-1 gap-4 sm:mt-4 sm:grid-cols-2 sm:gap-x-6 sm:gap-y-2 xl:grid-cols-3" stagger={0.07} y={34}>
-                {g.items.map((it) => (
-                  <DishCard
-                    key={it.id}
-                    it={it}
-                    locale={locale}
-                    flash={flash === it.id}
-                    catZh={zhOf(catById.get(it.categoryId)?.name)}
-                  />
-                ))}
-              </RevealGroup>
-            </section>
-          ))}
-
-          {filtered.length === 0 && (
-            <div className="mx-auto max-w-md rounded-[2rem] bg-card p-8 text-center ring-1 ring-line">
-              <div className="mx-auto h-28 w-28 overflow-hidden rounded-full">
-                <DishFallback char="无" />
+                  );
+                })}
               </div>
-              <p className="mt-5 font-display text-2xl text-content">{T("menuNothing")}</p>
-              {filtering && (
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="mt-5 inline-flex h-12 items-center justify-center rounded-full bg-fire px-6 text-sm font-semibold text-brand-cream transition hover:bg-fire-deep"
-                >
-                  {P("resetFilters")}
-                </button>
-              )}
             </div>
           )}
+
+          {/* Kompyuter: chapda yopishqoq kategoriyalar paneli */}
+          <aside className="hidden border-r border-brand-gold/15 bg-night-2/60 lg:block">
+            <div className="flex h-full flex-col">
+              <div className="flex-1">
+                <nav aria-label={P("categories")} className="sticky top-24 px-4 py-6">
+                  <ul className="space-y-1">
+                    {groups.map((g, i) => {
+                      const on = current === g.id;
+                      return (
+                        <li key={g.id} className="relative">
+                          <span aria-hidden="true" className={cn("absolute -left-4 bottom-2 top-2 w-[3px] rounded-r-full transition-all duration-500", on ? "bg-saffron" : "bg-transparent")} />
+                          <button
+                            type="button"
+                            onClick={() => goCat(g.id)}
+                            aria-current={on ? "true" : undefined}
+                            className={cn(
+                              "group flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition",
+                              on ? "bg-night-3 text-brand-cream" : "text-brand-cream/75 hover:bg-night-3/60 hover:text-brand-cream"
+                            )}
+                          >
+                            <span
+                              lang="zh"
+                              aria-hidden="true"
+                              className={cn(
+                                "font-cn flex size-9 shrink-0 items-center justify-center rounded-full border text-lg leading-none transition",
+                                on ? "border-saffron/60 text-saffron" : "border-brand-gold/20 text-brand-gold-light/80 group-hover:border-brand-gold/40"
+                              )}
+                            >
+                              {firstHan(g.zh) || String(i + 1)}
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block font-display text-[17px] leading-tight">{g.name}</span>
+                              {g.zh && locale !== "zh" && <span lang="zh" className="block text-xs text-brand-cream/60">{g.zh}</span>}
+                            </span>
+                            <span className={cn("text-xs tabular-nums", on ? "text-saffron" : "text-brand-cream/60")}>{g.items.length}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </nav>
+              </div>
+              {/* Shior kartasi (namuna 03 dagi "From Uji" kartasi o'rnida) */}
+              <div className="relative isolate m-4 mt-0 flex gap-4 overflow-hidden rounded-2xl border border-brand-gold/20 bg-night-3 p-5">
+                <span aria-hidden="true" className="lattice-bg absolute inset-0 -z-10 text-brand-gold/[0.06]" />
+                <span lang="zh" aria-hidden="true" className="font-cn shrink-0 text-3xl leading-[1.1] text-brand-gold-light [writing-mode:vertical-rl]">一品一味</span>
+                <div className="min-w-0">
+                  <p className="font-display text-xl italic leading-tight text-brand-cream">{M("motto")}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-brand-cream/70">{M("mottoSub")}</p>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* Kategoriya panjaralari */}
+          <div className="-mb-px min-w-0">
+            {groups.map((g, gi) => {
+              const fill = rowFill(g.items.length + 1);
+              const kind = FILLS[fillN % FILLS.length];
+              if (fill.filler) fillN++;
+              return (
+                <section key={g.id} id={`cat-${g.id}`} aria-labelledby={`cat-h-${g.id}`} className="scroll-mt-36 lg:scroll-mt-24">
+                  <div className="-mr-px grid sm:grid-cols-2 xl:grid-cols-3">
+                    {/* Kategoriya sarlavhasi — panjaraning birinchi katakchasi */}
+                    <div className="relative isolate overflow-hidden border-b border-r border-brand-gold/15 bg-night-2 px-6 py-6 sm:p-8">
+                      <span aria-hidden="true" className="lattice-bg absolute inset-0 -z-10 text-brand-gold/[0.05]" />
+                      {g.zh && (
+                        <span lang="zh" aria-hidden="true" className="font-cn absolute -right-2 top-4 -z-10 hidden text-[8.5rem] leading-[1.02] text-brand-gold/[0.06] [writing-mode:vertical-rl] sm:block">
+                          {g.zh}
+                        </span>
+                      )}
+                      <div data-rv className="flex h-full items-center gap-5 sm:flex-col sm:items-start sm:gap-0">
+                        <span
+                          lang="zh"
+                          aria-hidden="true"
+                          className="font-cn flex size-16 shrink-0 items-center justify-center rounded-full border border-brand-gold/40 text-3xl leading-none text-brand-gold-light sm:size-20 sm:text-4xl"
+                        >
+                          {firstHan(g.zh) || "菜"}
+                        </span>
+                        <div className="min-w-0 flex-1 sm:mt-8 sm:flex sm:w-full sm:flex-col">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-brand-gold-light/85 tabular-nums">
+                            {String(gi + 1).padStart(2, "0")} / {String(groups.length).padStart(2, "0")}
+                            {g.zh && locale !== "zh" && <span lang="zh" className="ml-2 tracking-normal">{g.zh}</span>}
+                          </p>
+                          <h3 id={`cat-h-${g.id}`} className="mt-2 font-display text-3xl leading-[1.08] text-brand-cream sm:text-[2.4rem]">{g.name}</h3>
+                          <span aria-hidden="true" className="mt-5 hidden h-px w-full bg-gradient-to-r from-brand-gold/50 to-transparent sm:block" />
+                          <p className="mt-1.5 text-sm text-brand-cream/70 sm:mt-4">{P("dishCount", { count: g.items.length })}</p>
+                          <span aria-hidden="true" className="fret-band mt-auto hidden w-24 pt-10 text-brand-gold/25 sm:block" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {g.items.map((it, i) => (
+                      <DishCell
+                        key={it.id}
+                        domId={`dish-${it.id}`}
+                        d={toCell(it)}
+                        as="h4"
+                        flash={flash === it.id}
+                        className={cn("scroll-mt-36 lg:scroll-mt-28", i === g.items.length - 1 && fill.last)}
+                      />
+                    ))}
+                    {fill.filler && (
+                      <FillerCell kind={kind} className="hidden xl:flex" cnText="长安风味" title={kind === "motto" ? T("sc1t") : undefined} sub={kind === "motto" ? T("sc1x") : undefined} />
+                    )}
+                  </div>
+                </section>
+              );
+            })}
+
+            {filtered.length === 0 && (
+              <div className="flex flex-col items-center border-b border-brand-gold/15 px-6 py-16 text-center">
+                <div className="size-32">
+                  <PorcelainPlate char="无" glyph="text-5xl" />
+                </div>
+                <p className="mt-6 font-display text-2xl text-brand-cream">{T("menuNothing")}</p>
+                {filtering && (
+                  <button
+                    type="button"
+                    onClick={reset}
+                    className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-saffron px-6 text-sm font-semibold text-brand-ink transition hover:bg-saffron-deep"
+                  >
+                    {P("resetFilters")}
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Pastki lenta: halal, oldindan buyurtma, choy */}
+          <div className="relative grid border-t border-brand-gold/15 bg-night-2 sm:grid-cols-3 lg:col-span-2">
+            <FootNote glyph="清" title={T("sc4t")} text={T("sc4x")} />
+            <FootNote glyph="订" title={T("poTitle")} text={T("poSub")}>
+              <Link href="/reservation" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-saffron transition hover:gap-3">
+                {M("order")} <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            </FootNote>
+            {teaGroup ? (
+              <FootNote glyph="茶" title={`${M("teaTitle")} ${M("teaAccent")}`} text={M("teaSub")} last>
+                <button type="button" onClick={() => goCat(teaGroup.id)} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-saffron transition hover:gap-3">
+                  {M("teaExplore")} <ArrowRight size={16} aria-hidden="true" />
+                </button>
+              </FootNote>
+            ) : (
+              <FootNote glyph="座" title={T("reserveTitle")} text={T("reserveSub")} last>
+                <Link href="/reservation" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-saffron transition hover:gap-3">
+                  {T("reserveBtn")} <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+              </FootNote>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {waveTo && <Wave className={waveTo} variant="c" />}
+    </section>
   );
 }
 
-function DishCard({ it, locale, flash, catZh }: { it: Item; locale: string; flash: boolean; catZh: string }) {
-  const T = useTranslations("Site");
-  const P = useTranslations("Pages2");
-  const name = t(it.name, locale);
-  const zh = zhOf(it.name);
-  const desc = t(it.description, locale);
-  const spicy = spicyDots(it.spicyLevel);
-  const hasDiscount = it.discountPrice != null && it.discountPrice < it.price;
-
+function FootNote({ glyph, title, text, last = false, children }: { glyph: string; title: string; text: string; last?: boolean; children?: React.ReactNode }) {
   return (
-    <article
-      id={`dish-${it.id}`}
-      className={cn(
-        "group relative flex gap-4 rounded-[1.75rem] bg-card p-4 shadow-lg shadow-night/5 ring-1 ring-line transition duration-500",
-        "hover:-translate-y-1 hover:shadow-2xl hover:shadow-fire/10 hover:ring-fire/30",
-        "sm:mt-16 sm:flex-col sm:gap-0 sm:px-6 sm:pb-6 sm:pt-24 sm:text-center",
-        flash && "ring-2 ring-fire"
-      )}
-    >
-      {/* Dumaloq rasm — kompyuterda karta tepasidan chiqib turadi (namuna 1) */}
-      <div
-        className={cn(
-          "relative h-24 w-24 shrink-0 overflow-hidden rounded-full bg-sand shadow-lg shadow-night/15 ring-4 ring-paper transition duration-700",
-          "group-hover:rotate-6 sm:absolute sm:-top-16 sm:left-1/2 sm:h-36 sm:w-36 sm:-translate-x-1/2 sm:ring-[6px] sm:group-hover:scale-105"
-        )}
-      >
-        <SafeImg
-          src={it.imageUrl}
-          alt={name}
-          className="h-full w-full object-cover"
-          fallback={<DishFallback char={zh.charAt(0) || catZh.charAt(0) || "菜"} />}
-        />
+    <div className={cn("flex gap-4 border-brand-gold/15 p-6 sm:p-7", !last && "border-b sm:border-b-0 sm:border-r")}>
+      <span lang="zh" aria-hidden="true" className="font-cn flex size-12 shrink-0 items-center justify-center rounded-full border border-brand-gold/35 text-xl leading-none text-brand-gold-light">
+        {glyph}
+      </span>
+      <div className="min-w-0">
+        <p className="font-display text-lg leading-tight text-brand-cream">{title}</p>
+        <p className="mt-1.5 text-sm leading-relaxed text-brand-cream/70">{text}</p>
+        {children && <div className="mt-1">{children}</div>}
       </div>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        {(it.isNew || it.isFeatured) && (
-          <div className="mb-1.5 flex flex-wrap gap-1.5 sm:justify-center">
-            {it.isNew && <span className="rounded-full bg-saffron px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-ink">{T("badgeNew")}</span>}
-            {it.isFeatured && <span className="rounded-full bg-fire px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-cream">{P("chefPick")}</span>}
-          </div>
-        )}
-        <h3 className="font-display text-xl leading-tight text-content">{name}</h3>
-        {zh && locale !== "zh" && <p lang="zh" className="font-cn mt-0.5 text-lg leading-tight text-fire/75">{zh}</p>}
-        {desc && <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted">{desc}</p>}
-
-        <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs text-muted sm:justify-center">
-          {it.weightGrams ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-sand px-2.5 py-1"><Scale size={12} aria-hidden="true" /> {P("grams", { n: it.weightGrams })}</span>
-          ) : null}
-          {it.prepTimeMin ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-sand px-2.5 py-1"><Clock size={12} aria-hidden="true" /> {P("minutes", { n: it.prepTimeMin })}</span>
-          ) : null}
-          {spicy > 0 && (
-            <span className="inline-flex items-center gap-0.5 rounded-full bg-fire/10 px-2 py-1 text-fire-ink" title={P("spicy", { n: spicy })} aria-label={P("spicy", { n: spicy })}>
-              {Array.from({ length: spicy }).map((_, i) => <Flame key={i} size={12} aria-hidden="true" className="fill-current" />)}
-            </span>
-          )}
-          {it.isVegetarian && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-jade px-2.5 py-1 font-medium text-brand-cream"><Leaf size={12} aria-hidden="true" /> {P("veg")}</span>
-          )}
-          {it.isHalal && <span className="rounded-full px-2.5 py-1 ring-1 ring-line">{T("halal")}</span>}
-        </div>
-
-        <div className="mt-auto flex items-baseline gap-2 pt-4 sm:justify-center">
-          <span className="text-lg font-bold tabular-nums text-fire-ink sm:text-xl">{formatMoney(hasDiscount ? it.discountPrice! : it.price)}</span>
-          {hasDiscount && <s className="text-sm tabular-nums text-muted">{formatMoney(it.price)}</s>}
-        </div>
-      </div>
-    </article>
+    </div>
   );
 }

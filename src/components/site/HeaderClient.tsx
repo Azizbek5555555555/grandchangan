@@ -1,26 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { btnClass } from "@/components/site/kit/ButtonLink";
 import LocaleSwitcher from "./LocaleSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import Logo from "./chrome/Logo";
+import Fret from "./chrome/Fret";
 import MobileMenu from "./chrome/MobileMenu";
-import { NAV, hasDarkHero, isActive, type HeaderContact } from "./chrome/nav";
+import SealCta from "./chrome/SealCta";
+import { NAV_LEFT, NAV_RIGHT, hasDarkHero, isActive, type HeaderContact, type NavItem } from "./chrome/nav";
 
 export type { HeaderContact };
 
 const MENU_ID = "site-mobile-menu";
+const RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-light";
 
 /**
- * Sayt header'i (client qismi).
- * - Qizil/tungi hero ustida shaffof + krem matn; 40px dan keyin — to'q yarim-shaffof panel (bg-night/90 + blur), ixchamroq.
- * - Tepasida hero bo'lmagan sahifalarda (yoki `solid`) — doim to'q panel, matn o'qilsin.
- * - lg+: qatorda havolalar + til + tema + CTA; telefonda: logo + ixcham CTA + burger (≥44px).
+ * Sayt header'i (client qismi) — xitoycha saroy darvozasi kompozitsiyasi.
+ * - lg+: markazda osma 匾额 lavha-logo, havolalar uning ikki tomonida (har biri ustida xitoycha belgi),
+ *   chap chetda til + tema, o'ng chetda "Stol band qilish" (lak-qizil, oltin ramka, muhr belgisi).
+ * - Telefonda: logo + ixcham CTA + burger (≥44px).
+ * - Qorong'i hero ustida shaffof; scroll'da (yoki krem hero'li sahifalarda) — to'q panel + oltin huiwen chegara.
+ *   Scroll'da ixchamlashadi: xitoycha belgilar yig'iladi, lavha kichrayadi.
  */
 export default function HeaderClient({ contact, solid = false }: { contact: HeaderContact; solid?: boolean }) {
   const tc = useTranslations("Common");
@@ -43,101 +46,194 @@ export default function HeaderClient({ contact, solid = false }: { contact: Head
 
   const close = useCallback(() => setOpen(false), []);
   const filled = solid || scrolled || !hasDarkHero(pathname);
-  const label = (ns: "Common" | "Site", key: string) => (ns === "Common" ? tc(key) : st(key));
+  const label = (n: NavItem) => (n.ns === "Common" ? tc(n.key) : st(n.key));
+
+  // "Asosiy mazmunga o'tish": sahifalardagi <main> ga fokus (id talab qilinmaydi)
+  function skipToMain(e: MouseEvent<HTMLAnchorElement>) {
+    const main = document.querySelector("main");
+    if (!main) return;
+    e.preventDefault();
+    if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+    main.style.outline = "none";
+    main.focus();
+  }
+
+  const navLink = (n: NavItem) => {
+    const active = isActive(pathname, n.href);
+    return (
+      <li key={n.href}>
+        <Link
+          href={n.href}
+          aria-current={active ? "page" : undefined}
+          className={cn("group relative flex min-h-11 flex-col items-center justify-center whitespace-nowrap px-2 py-1 xl:px-3", RING)}
+        >
+          {/* Xitoycha belgi — faol sahifada qizil muhr ichida; scroll'da yig'iladi */}
+          <span
+            aria-hidden="true"
+            className={cn(
+              "flex items-end justify-center overflow-hidden transition-[height,opacity] duration-500 motion-reduce:transition-none",
+              scrolled ? "h-0 opacity-0" : "h-[22px] opacity-100"
+            )}
+          >
+            <span
+              lang="zh"
+              className={cn(
+                "font-cn inline-flex h-[19px] items-center px-1 text-[13px] leading-none tracking-[0.18em] transition-colors duration-300",
+                active
+                  ? "rounded-[2px] bg-fire text-brand-cream shadow-sm shadow-night/40"
+                  : "text-brand-gold-light/60 group-hover:text-brand-gold-light"
+              )}
+            >
+              {n.cn}
+            </span>
+          </span>
+          <span
+            className={cn(
+              "font-display mt-0.5 text-[15px] tracking-[0.01em] transition-colors duration-300 xl:text-[15.5px]",
+              active ? "text-brand-gold-light" : "text-brand-cream/90 group-hover:text-brand-cream"
+            )}
+          >
+            {label(n)}
+          </span>
+          {/* Oltin chiziq — markazdan yoyiladi, o'rtasida romb */}
+          <span
+            aria-hidden="true"
+            className={cn(
+              "pointer-events-none absolute inset-x-2 bottom-0 flex items-center justify-center transition duration-500 ease-out-expo motion-reduce:transition-none xl:inset-x-3",
+              active ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
+            )}
+          >
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent to-brand-gold" />
+            <span className="mx-1 size-[5px] rotate-45 bg-brand-gold-light" />
+            <span className="h-px flex-1 bg-gradient-to-l from-transparent to-brand-gold" />
+          </span>
+        </Link>
+      </li>
+    );
+  };
+
+  // Premium CTA (lak-qizil, oltin ramka, muhr). Telefonda va lg da qisqa yozuv — logo bilan to'qnashmasin
+  const cta = (short: boolean) => <SealCta>{short ? T("ctaShort") : st("fReserve")}</SealCta>;
 
   return (
     <>
-      <header
-        className={cn(
-          "fixed inset-x-0 top-0 z-50 border-b transition-[background-color,border-color,backdrop-filter] duration-500",
-          filled ? "border-brand-gold/15 bg-night/90 backdrop-blur-md" : "border-transparent bg-transparent"
-        )}
+      <a
+        href="#main"
+        onClick={skipToMain}
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:inline-flex focus:h-11 focus:items-center focus:rounded-[3px] focus:bg-brand-cream focus:px-5 focus:text-sm focus:font-semibold focus:text-brand-ink focus:outline-none focus:ring-2 focus:ring-fire"
       >
+        {T("skip")}
+      </a>
+
+      <header className="fixed inset-x-0 top-0 z-50">
+        {/* Fon: to'q lak panel + juda nozik panjara naqsh (faqat to'ldirilgan holatda) */}
         <div
+          aria-hidden="true"
           className={cn(
-            "mx-auto flex max-w-7xl items-center gap-2 px-4 transition-[height] duration-500 sm:gap-3 sm:px-8",
-            scrolled ? "h-16" : "h-20 lg:h-24"
+            "absolute inset-0 overflow-hidden bg-night/[0.93] backdrop-blur-md transition-opacity duration-500",
+            filled ? "opacity-100" : "opacity-0"
           )}
         >
-          {/* Logo — kichrayishi mumkin (min-w-0), CTA va burger esa hech qachon siqilmaydi */}
-          <Link
-            href="/"
-            aria-label={`GrandChangan — ${tc("home")}`}
-            className="mr-auto min-w-0 shrink rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron lg:mr-0"
-          >
+          <span className="lattice-bg absolute inset-0 text-brand-gold/[0.045]" />
+          <span className="absolute inset-x-0 top-0 h-full bg-gradient-to-b from-wine/40 to-transparent" />
+        </div>
+        {/* Pastki chegara: oltin ip + huiwen lenta */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0">
+          <Fret
+            tile={16}
+            className={cn("h-[9.6px] text-brand-gold/40 transition-opacity duration-500", filled ? "opacity-100" : "opacity-0")}
+          />
+          <span
+            className={cn(
+              "block h-px bg-gradient-to-r from-transparent via-brand-gold to-transparent transition-opacity duration-500",
+              filled ? "opacity-80" : "opacity-35"
+            )}
+          />
+        </div>
+
+        {/* ====== Telefon / planshet (lg dan kichik) ====== */}
+        <div
+          className={cn(
+            "relative mx-auto flex max-w-7xl items-center gap-2 px-4 pb-2 transition-[height] duration-500 sm:gap-3 sm:px-8 lg:hidden",
+            scrolled ? "h-[68px]" : "h-[78px]"
+          )}
+        >
+          <Link href="/" aria-label={`GrandChangan — ${tc("home")}`} className={cn("mr-auto min-w-0 shrink rounded-[3px]", RING)}>
             <Logo size="md" />
           </Link>
+          {cta(true)}
+          {/* Burger — panjara eshik tugmasi */}
+          <button
+            ref={burgerRef}
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-expanded={open}
+            aria-controls={MENU_ID}
+            aria-label={T("openMenu")}
+            className={cn(
+              "group relative flex size-11 shrink-0 items-center justify-center rounded-[3px] border border-brand-gold/50 text-brand-cream transition hover:border-brand-gold-light hover:bg-brand-gold/10",
+              RING
+            )}
+          >
+            <span aria-hidden="true" className="pointer-events-none absolute inset-[3px] rounded-[2px] border border-brand-gold/20" />
+            <span aria-hidden="true" className="flex w-5 flex-col items-center gap-[5px]">
+              <span className="h-px w-5 bg-current" />
+              <span className="flex w-5 items-center gap-1">
+                <span className="h-px flex-1 bg-brand-gold-light" />
+                <span className="size-[4px] rotate-45 bg-brand-gold-light transition-transform duration-500 group-hover:rotate-[225deg]" />
+                <span className="h-px flex-1 bg-brand-gold-light" />
+              </span>
+              <span className="h-px w-5 bg-current" />
+            </span>
+          </button>
+        </div>
 
-          {/* Desktop navigatsiya */}
-          <nav aria-label={T("navLabel")} className="hidden flex-1 justify-center lg:flex">
-            <ul className="flex items-center xl:gap-1">
-              {NAV.map((n) => {
-                const active = isActive(pathname, n.href);
-                return (
-                  <li key={n.href} className={cn(n.xlOnly && "hidden xl:block")}>
-                    <Link
-                      href={n.href}
-                      aria-current={active ? "page" : undefined}
-                      className={cn(
-                        "group relative flex h-11 items-center whitespace-nowrap rounded-full px-2.5 text-[14px] font-medium transition xl:px-3 xl:text-[15px]",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron",
-                        active ? "text-brand-cream" : "text-brand-cream/85 hover:text-brand-cream"
-                      )}
-                    >
-                      {label(n.ns, n.key)}
-                      {/* Faol sahifa belgisi — zafar chiziq */}
-                      <span
-                        aria-hidden="true"
-                        className={cn(
-                          "absolute inset-x-2.5 bottom-1.5 h-0.5 origin-left rounded-full bg-saffron transition-transform duration-300 xl:inset-x-3",
-                          active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-50"
-                        )}
-                      />
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <LocaleSwitcher className="hidden lg:block" />
-            <div className="hidden lg:block">
+        {/* ====== Desktop (lg+): [til, tema · havolalar] [匾额] [havolalar · CTA] ====== */}
+        <nav
+          aria-label={T("navLabel")}
+          className={cn(
+            "relative mx-auto hidden max-w-7xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center px-6 pb-2.5 transition-[height] duration-500 lg:grid xl:px-8",
+            scrolled ? "h-[70px]" : "h-[96px]"
+          )}
+        >
+          <div className="flex min-w-0 items-center justify-between gap-2">
+            <div className="flex shrink-0 items-center gap-2">
+              <LocaleSwitcher align="left" />
               <ThemeToggle />
             </div>
+            <ul className="flex min-w-0 items-center justify-end">{NAV_LEFT.map(navLink)}</ul>
+          </div>
 
+          {/* Osma lavha: tepadan ikki oltin ip bilan osilgan */}
+          <div className="relative mx-3 flex justify-center xl:mx-6">
             <Link
-              href="/reservation"
+              href="/"
+              aria-label={`GrandChangan — ${tc("home")}`}
               className={cn(
-                btnClass("saffron", "md"),
-                "h-11 shrink-0 whitespace-nowrap px-4 text-[13px] sm:px-5 sm:text-sm",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cream"
+                "relative block origin-center rounded-[2px] transition-transform duration-500 ease-out-expo motion-reduce:transition-none",
+                scrolled ? "scale-[0.78]" : "scale-100",
+                RING
               )}
             >
-              {/* Telefonda qisqa yozuv — logo bilan to'qnashmasin */}
-              <span className="sm:hidden">{T("ctaShort")}</span>
-              <span className="hidden sm:inline">{st("fReserve")}</span>
-              <ArrowUpRight size={16} aria-hidden="true" className="hidden sm:block" />
-            </Link>
-
-            {/* Burger — faqat lg dan kichik ekranlarda */}
-            <button
-              ref={burgerRef}
-              type="button"
-              onClick={() => setOpen(true)}
-              aria-expanded={open}
-              aria-controls={MENU_ID}
-              aria-label={T("openMenu")}
-              className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-brand-cream/30 text-brand-cream transition hover:bg-brand-cream/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron lg:hidden"
-            >
-              <span aria-hidden="true" className="flex w-5 flex-col items-end gap-[5px]">
-                <span className="h-0.5 w-5 rounded-full bg-current" />
-                <span className="h-0.5 w-3.5 rounded-full bg-saffron transition-all duration-300 group-hover:w-5" />
-                <span className="h-0.5 w-5 rounded-full bg-current" />
+              <span aria-hidden="true" className="pointer-events-none absolute bottom-full left-[18%] h-24 w-px bg-gradient-to-t from-brand-gold/80 to-brand-gold/0" />
+              <span aria-hidden="true" className="pointer-events-none absolute bottom-full right-[18%] h-24 w-px bg-gradient-to-t from-brand-gold/80 to-brand-gold/0" />
+              <Logo variant="plaque" />
+              {/* Lavha ostidagi kichik qizil popuk */}
+              <span aria-hidden="true" className="pointer-events-none absolute left-1/2 top-full flex -translate-x-1/2 flex-col items-center">
+                <span className="size-[5px] rotate-45 bg-brand-gold-light" />
+                <span className="h-2.5 w-[3px] rounded-b-full bg-fire" />
               </span>
-            </button>
+            </Link>
           </div>
-        </div>
+
+          <div className="flex min-w-0 items-center justify-between gap-2">
+            <ul className="flex min-w-0 items-center">{NAV_RIGHT.map(navLink)}</ul>
+            <div className="shrink-0">
+              <span className="xl:hidden">{cta(true)}</span>
+              <span className="hidden xl:inline">{cta(false)}</span>
+            </div>
+          </div>
+        </nav>
       </header>
 
       <MobileMenu id={MENU_ID} open={open} onClose={close} contact={contact} pathname={pathname} returnFocusRef={burgerRef} />

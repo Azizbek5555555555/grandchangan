@@ -601,7 +601,9 @@
     "railLabel": "页面章节",
     "railUp": "上一部分",
     "railDown": "下一部分",
-    "railTop": "返回顶部"
+    "railTop": "返回顶部",
+    "skip": "跳到主要内容",
+    "footMotto": "古都长安，丝绸之路的起点——如今它的味道来到了撒马尔罕。"
   },
   "title": "平面图与可预订餐桌",
   "status": "平面图上有 {map} 张餐桌。数据库中已关联：{linked}。旧的启用餐桌：{extra}。",
@@ -695,7 +697,18 @@
     "rvWriteSub": "您的用餐体验如何？写下几句话——审核通过后，您的评价将出现在这里。",
     "rvPause": "暂停自动播放",
     "rvPlay": "继续自动播放",
-    "rvSlide": "评价"
+    "rvSlide": "评价",
+    "sigPrev": "上一组菜品",
+    "sigNext": "下一组菜品",
+    "galOpen": "在画廊中查看",
+    "valFresh": "新鲜食材",
+    "valFreshS": "每日新鲜送达，全部清真。",
+    "valRecipe": "正宗配方",
+    "valRecipeS": "传承川菜与粤菜风味。",
+    "valWok": "猛火锅气",
+    "valWokS": "猛火快炒，锅气十足。",
+    "valCare": "用心款待",
+    "valCareS": "每一道菜都饱含心意与热情。"
   },
   "Pages2": {
     "otherDishes": "其他菜品",
@@ -730,7 +743,12 @@
     "heroPaper": "长安日报",
     "heroPosts": "{count} 篇文章",
     "heroCity": "撒马尔罕",
-    "heroAboutEyebrow": "从丝路起点到撒马尔罕"
+    "heroAboutEyebrow": "从丝路起点到撒马尔罕",
+    "floorHalls": "用餐区域",
+    "floorTablesCount": "{count} 张桌",
+    "floorUpTo": "最多 {n} 人",
+    "floorFreeOf": "空闲 {free}/{total}",
+    "floorCall": "更喜欢电话预订？我们为您挑选最好的座位，或为您的庆典安排整间包房。"
   },
   "About2": {
     "storyEyebrow": "我们的故事",
@@ -798,6 +816,10 @@
     "teaAccent": "之礼",
     "teaSub": "中国茶、饮品与甜点——为一餐画上宁静的句号。",
     "teaExplore": "查看全部",
-    "new": "新品"
+    "new": "新品",
+    "browseTitle": "今日",
+    "browseAccent": "席上",
+    "motto": "一品一味，各有其韵",
+    "mottoSub": "川粤传统，呈于撒马尔罕的餐桌。"
   }
 }

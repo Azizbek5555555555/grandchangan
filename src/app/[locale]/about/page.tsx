@@ -65,7 +65,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       <SiteHeader />
       <AboutHero title={tc("about")} sub={st("aboutSub")} eyebrow={p2("heroAboutEyebrow")} image={imgs[0] ?? null} />
 
-      <main className="overflow-x-clip bg-paper">
+      <main id="main" className="overflow-x-clip bg-paper">
         {/* ===== 1. Hikoya — tush rasmi uslubida ===== */}
         <section className="relative isolate overflow-hidden pb-48 pt-16 sm:pb-56 sm:pt-24">
           <Birds className="absolute right-[8%] top-10 w-40 text-content/25 sm:w-56" />

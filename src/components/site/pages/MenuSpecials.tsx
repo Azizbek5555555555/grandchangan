@@ -5,10 +5,12 @@ import { cn, formatMoney, t } from "@/lib/utils";
 import SectionHead from "@/components/site/kit/SectionHead";
 import Wave from "@/components/site/kit/Wave";
 import Reveal from "@/components/motion/Reveal";
-import RevealGroup from "@/components/motion/RevealGroup";
 import Parallax from "@/components/motion/Parallax";
-import SafeImg from "@/components/site/home/SafeImg";
-import { PlateFallback } from "@/components/site/home/Decor";
+import { Seal } from "@/components/site/home/Decor";
+import { PlatedDish } from "@/components/site/menu/Plated";
+import DishCell, { type CellDish } from "@/components/site/menu/DishCell";
+import { FillerCell } from "@/components/site/menu/Cells";
+import { rowFill } from "@/components/site/menu/grid";
 
 export type SpecialItem = {
   id: string;
@@ -29,11 +31,36 @@ export type SpecialItem = {
 
 const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
 const zh = (v: unknown) => (v && typeof v === "object" ? String((v as Record<string, string>).zh || "") : "");
+const firstHan = (s: string) => Array.from(s).find((c) => /\p{Script=Han}/u.test(c)) ?? "";
 const SPICY: Record<string, number> = { NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 };
 
+/** Bazadagi taom → menyu katakchasi ma'lumoti */
+function toCell(it: SpecialItem, locale: string, fallbackGlyph: string): CellDish {
+  const cnName = zh(it.name);
+  const hasDisc = it.discountPrice != null && it.discountPrice > 0 && it.discountPrice < it.price;
+  return {
+    id: it.id,
+    name: t(it.name, locale),
+    zh: locale === "zh" ? null : cnName || null,
+    desc: t(it.description, locale),
+    price: hasDisc ? it.discountPrice! : it.price,
+    oldPrice: hasDisc ? it.price : null,
+    img: usable(it.imageUrl),
+    glyph: firstHan(cnName) || fallbackGlyph,
+    spicy: SPICY[it.spicyLevel] ?? 0,
+    veg: it.isVegetarian,
+    halal: it.isHalal,
+    grams: it.weightGrams,
+    mins: it.prepTimeMin,
+    isNew: it.isNew,
+  };
+}
+
 /**
- * Menyu tepasi — "Oshpaz tanlovi" (namuna: 湯包家): qorong'i fon, tarelkalar chap/o'ng almashadi,
- * har birida vertikal xitoycha yorliq, xususiyatlar ro'yxati (zafar nuqtalar), tarkibi va "Buyurtma" havolasi.
+ * Menyu tepasi — "Oshpaz tanlovi" (namuna 08 + 10): krem fon (qorong'i hero va qorong'i menyu orasida
+ * nafas oladigan joy), tosh tagcha ustidagi katta tarelkalar chap/o'ng almashadi, har birida vertikal
+ * qizil xitoycha yorliq, xususiyatlar ro'yxati, tarkibi va "Oldindan buyurtma" havolasi.
+ * Pastda to'lqin — keyingi qorong'i menyu rangida.
  */
 export async function ChefSignature({ items, locale }: { items: SpecialItem[]; locale: string }) {
   if (!items.length) return null;
@@ -42,13 +69,12 @@ export async function ChefSignature({ items, locale }: { items: SpecialItem[]; l
   const st = await getTranslations({ locale, namespace: "Site" });
 
   return (
-    <section className="relative isolate overflow-hidden bg-night pb-32 pt-16 text-brand-cream sm:pb-40">
-      {/* Menyu hero'si ham qorong'i — orada faqat nozik oltin chiziq */}
-      <span aria-hidden="true" className="hairline-gold absolute inset-x-[8%] top-0" />
-      <span aria-hidden="true" className="lattice-bg absolute inset-0 -z-10 text-brand-gold/[0.04]" />
+    <section className="relative isolate overflow-hidden bg-paper pb-32 pt-12 text-content sm:pb-40 sm:pt-16">
+      <span aria-hidden="true" className="lattice-bg absolute inset-0 -z-10 text-fire/[0.035]" />
+      <span aria-hidden="true" className="pointer-events-none absolute -left-40 top-1/3 -z-10 size-[32rem] rounded-full bg-saffron/10 blur-3xl" />
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
-        <SectionHead align="center" tone="dark" font="serif" cn="招牌菜" eyebrow={m("sigEyebrow")} title={m("sigTitle")} accent={m("sigAccent")} />
-        <div className="mt-16 space-y-20 sm:space-y-28">
+        <SectionHead align="center" font="serif" cn="招牌菜" eyebrow={m("sigEyebrow")} title={m("sigTitle")} accent={m("sigAccent")} />
+        <div className="mt-14 space-y-20 sm:mt-20 sm:space-y-28">
           {items.map((it, i) => {
             const flip = i % 2 === 1;
             const name = t(it.name, locale);
@@ -62,12 +88,14 @@ export async function ChefSignature({ items, locale }: { items: SpecialItem[]; l
               it.prepTimeMin ? m("prep", { n: it.prepTimeMin }) : null,
             ].filter(Boolean) as string[];
             return (
-              <article key={it.id} className={cn("grid items-center gap-10 md:grid-cols-2 md:gap-16", flip && "md:[&>*:first-child]:order-2")}>
-                <Reveal y={40} className="relative mx-auto w-full max-w-[24rem]">
-                  <span aria-hidden="true" className="absolute inset-[-10%] rounded-full bg-fire-deep/25 blur-3xl" />
-                  <Parallax speed={flip ? -6 : 6}>
-                    <div className="relative aspect-square overflow-hidden rounded-full border-[10px] border-night-3 shadow-2xl shadow-night">
-                      <SafeImg src={usable(it.imageUrl)} alt={name} className="h-full w-full" imgClassName="h-full w-full object-cover" fallback={<PlateFallback char={(cnName || name).slice(0, 1)} glyph="text-8xl" />} />
+              <article key={it.id} className={cn("grid items-center gap-8 md:grid-cols-2 md:gap-16", flip && "md:[&>*:first-child]:order-2")}>
+                <Reveal y={40} className="relative mx-auto w-full max-w-[26rem]">
+                  {/* Tagcha ortidagi oltin halqa */}
+                  <span aria-hidden="true" className="absolute left-1/2 top-[2%] aspect-square w-[78%] -translate-x-1/2 rounded-full border border-brand-gold/40" />
+                  <span aria-hidden="true" className="absolute left-1/2 top-[-4%] aspect-square w-[90%] -translate-x-1/2 animate-spin-slow rounded-full border border-dashed border-brand-gold/25" />
+                  <Parallax speed={flip ? -5 : 5}>
+                    <div className="group">
+                      <PlatedDish img={usable(it.imageUrl)} alt={name} glyph={firstHan(cnName) || name.slice(0, 1)} glyphClass="text-[5rem] sm:text-[6.5rem]" />
                     </div>
                   </Parallax>
                   {cnName && locale !== "zh" && (
@@ -75,8 +103,8 @@ export async function ChefSignature({ items, locale }: { items: SpecialItem[]; l
                       lang="zh"
                       aria-hidden="true"
                       className={cn(
-                        "font-cn absolute top-4 flex items-center rounded-md border border-saffron/40 bg-fire-deep px-2 py-4 text-2xl leading-tight text-brand-cream shadow-lg [writing-mode:vertical-rl] sm:text-3xl",
-                        flip ? "-left-2 sm:-left-4" : "-right-2 sm:-right-4"
+                        "font-cn absolute top-0 flex items-center rounded-md border border-saffron/40 bg-fire-deep px-2 py-4 text-2xl leading-tight text-brand-cream shadow-lg [writing-mode:vertical-rl] sm:text-3xl",
+                        flip ? "left-0 sm:-left-4" : "right-0 sm:-right-4"
                       )}
                     >
                       {cnName}
@@ -84,29 +112,32 @@ export async function ChefSignature({ items, locale }: { items: SpecialItem[]; l
                   )}
                 </Reveal>
                 <Reveal y={30} delay={0.1}>
-                  <p className="font-poster text-5xl text-saffron/30">0{i + 1}</p>
-                  <h3 className="mt-2 font-display text-4xl leading-tight sm:text-5xl">{name}</h3>
-                  {it.description ? <p className="mt-4 max-w-md text-lg leading-relaxed text-brand-cream/75">{t(it.description, locale)}</p> : null}
+                  <p className="flex items-center gap-4">
+                    <span className="font-display text-5xl italic leading-none text-fire-ink/30">0{i + 1}</span>
+                    <span aria-hidden="true" className="h-px w-16 bg-brand-gold/60" />
+                  </p>
+                  <h3 className="mt-4 font-display text-4xl leading-[1.08] sm:text-5xl">{name}</h3>
+                  {it.description ? <p className="mt-4 max-w-md text-lg leading-relaxed text-muted">{t(it.description, locale)}</p> : null}
                   {feats.length > 0 && (
                     <>
-                      <p className="mt-8 inline-block rounded-full bg-night-3 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand-gold-light">{m("features")}</p>
-                      <ul className="mt-4 grid gap-2.5 text-brand-cream/85 sm:grid-cols-2">
+                      <p className="mt-8 inline-block rounded-full bg-sand px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-fire-ink">{m("features")}</p>
+                      <ul className="mt-4 grid gap-2.5 text-content sm:grid-cols-2">
                         {feats.map((f) => (
-                          <li key={f} className="flex items-start gap-3"><span className="mt-2 size-2 shrink-0 rounded-full bg-saffron" />{f}</li>
+                          <li key={f} className="flex items-start gap-3"><span className="mt-2 size-2 shrink-0 rotate-45 bg-fire" />{f}</li>
                         ))}
                       </ul>
                     </>
                   )}
                   {comp && (
                     <>
-                      <p className="mt-6 inline-block rounded-full bg-night-3 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-brand-gold-light">{m("composition")}</p>
-                      <p className="mt-3 max-w-md text-brand-cream/75">{comp}</p>
+                      <p className="mt-6 inline-block rounded-full bg-sand px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-fire-ink">{m("composition")}</p>
+                      <p className="mt-3 max-w-md text-muted">{comp}</p>
                     </>
                   )}
-                  <div className="mt-8 flex flex-wrap items-center gap-6">
-                    <p className="font-display text-3xl text-saffron">{formatMoney(it.discountPrice ?? it.price)}</p>
-                    <Link href="/reservation" className="inline-flex min-h-11 items-center gap-2 font-semibold text-saffron transition hover:gap-3">
-                      {m("order")} <ArrowRight size={18} />
+                  <div className="mt-8 flex flex-wrap items-center gap-6 border-t border-line pt-6">
+                    <p className="font-display text-3xl tabular-nums text-fire-ink">{formatMoney(it.discountPrice ?? it.price)}</p>
+                    <Link href="/reservation" className="inline-flex min-h-11 items-center gap-2 font-semibold text-fire-ink transition hover:gap-3">
+                      {m("order")} <ArrowRight size={18} aria-hidden="true" />
                     </Link>
                   </div>
                 </Reveal>
@@ -115,66 +146,54 @@ export async function ChefSignature({ items, locale }: { items: SpecialItem[]; l
           })}
         </div>
       </div>
-      <Wave className="text-paper" variant="c" />
+      <Wave className="text-night" variant="c" />
     </section>
   );
 }
 
 /**
- * Menyu pasti — "Choy marosimi" (namuna: matcha menyusi): ramkali katta panel, chapda kirish ustuni,
- * o'ngda taomlar qorong'i "tosh lagan" ustida: teg, nom, oltin xitoycha nom, tavsif, chiplar, narx.
+ * Menyu pasti — "Choy marosimi" (namuna 03 ning krem varianti): qorong'i menyudan keyin yorug' choyxona.
+ * Ramkali panel: chapda kirish ustuni (茶 belgisi, sarlavha, "Barchasini ko'rish"), o'ngda taomlar
+ * menyudagi kabi katakchalarda (tosh tagcha, teglar, narx). Oxirgi qator doim to'la.
  */
 export async function TeaRitual({ items, locale, anchorId }: { items: SpecialItem[]; locale: string; anchorId: string | null }) {
   if (!items.length) return null;
   const m = await getTranslations({ locale, namespace: "Menu2" });
-  const p = await getTranslations({ locale, namespace: "Pages2" });
+  const fill = rowFill(items.length);
 
   return (
-    <section className="bg-paper px-5 pb-28 pt-6 sm:px-8">
-      <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-brand-gold/25 bg-night text-brand-cream shadow-2xl shadow-content/20">
-        <span aria-hidden="true" className="pointer-events-none absolute -right-32 -top-32 size-[30rem] rounded-full bg-jade/20 blur-3xl" />
+    <section className="relative isolate bg-paper px-4 pb-24 pt-10 sm:px-8 sm:pb-32 sm:pt-14">
+      <span aria-hidden="true" className="lattice-bg absolute inset-0 -z-10 text-fire/[0.03]" />
+      <div className="relative mx-auto max-w-7xl overflow-clip rounded-[1.75rem] border border-line bg-sand shadow-xl shadow-content/5">
+        <span aria-hidden="true" className="pointer-events-none absolute -right-32 -top-32 size-[30rem] rounded-full bg-jade/10 blur-3xl" />
         <div className="relative grid lg:grid-cols-[300px_minmax(0,1fr)]">
-          <div className="flex flex-col justify-between gap-10 border-b border-brand-gold/15 p-8 lg:border-b-0 lg:border-r lg:p-10">
+          <div className="flex flex-col justify-between gap-10 border-b border-line p-8 lg:border-b-0 lg:border-r lg:p-10">
             <div>
-              <span lang="zh" aria-hidden="true" className="font-cn flex size-14 items-center justify-center rounded-full border border-brand-gold/40 text-2xl text-brand-gold-light">茶</span>
-              <h2 className="mt-6 font-display text-4xl leading-tight">{m("teaTitle")} <i className="text-brand-gold-light">{m("teaAccent")}</i></h2>
-              <span className="mt-4 block h-px w-full bg-brand-gold/30" />
-              <p className="mt-4 text-sm leading-relaxed text-brand-cream/70">{m("teaSub")}</p>
+              <span lang="zh" aria-hidden="true" className="font-cn flex size-14 items-center justify-center rounded-full border border-fire/30 text-2xl text-fire-ink">茶</span>
+              <h2 className="mt-6 font-display text-4xl leading-[1.08] text-content">{m("teaTitle")} <i className="text-fire-ink">{m("teaAccent")}</i></h2>
+              <span aria-hidden="true" className="mt-5 block h-px w-full bg-gradient-to-r from-brand-gold/60 to-transparent" />
+              <p className="mt-5 text-sm leading-relaxed text-muted">{m("teaSub")}</p>
               {anchorId && (
-                <a href={`#cat-${anchorId}`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-brand-cream/40 px-5 text-sm font-semibold transition hover:border-saffron hover:text-saffron">
-                  {m("teaExplore")} <ArrowRight size={16} />
+                <a href={`#cat-${anchorId}`} className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full border border-content/25 px-5 text-sm font-semibold text-content transition hover:border-fire hover:text-fire-ink">
+                  {m("teaExplore")} <ArrowRight size={16} aria-hidden="true" />
                 </a>
               )}
             </div>
-            <p lang="zh" aria-hidden="true" className="font-cn hidden text-5xl leading-[1.15] text-brand-gold/25 [writing-mode:vertical-rl] lg:block">一杯清茶</p>
+            <Seal text="一杯清茶" className="hidden self-start px-1.5 py-3 text-xl lg:inline-flex" />
           </div>
-          <RevealGroup className="grid sm:grid-cols-2 xl:grid-cols-3" stagger={0.08} y={30}>
-            {items.map((it) => {
-              const name = t(it.name, locale);
-              const cnName = zh(it.name);
-              return (
-                <article key={it.id} className="flex flex-col border-b border-brand-gold/15 p-7 sm:[&:nth-child(odd)]:border-r xl:[&:nth-child(odd)]:border-r-0 xl:[&:not(:nth-child(3n))]:border-r">
-                  <div className="relative mx-auto mb-6 mt-2 h-40 w-full max-w-[13rem]">
-                    <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-12 rounded-[50%] bg-night-3 shadow-[0_18px_30px_-12px] shadow-night" />
-                    <div className="absolute inset-x-6 bottom-5 top-0 overflow-hidden rounded-full border-4 border-night-2">
-                      <SafeImg src={usable(it.imageUrl)} alt={name} className="h-full w-full" imgClassName="h-full w-full object-cover" fallback={<PlateFallback char={(cnName || name).slice(0, 1)} glyph="text-5xl" />} />
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {it.isNew && <span className="rounded-full border border-saffron/60 px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-saffron">{m("new")}</span>}
-                    {it.isVegetarian && <span className="rounded-full border border-brand-cream/40 px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-brand-cream/85">{p("veg")}</span>}
-                  </div>
-                  <h3 className="mt-3 font-display text-2xl">{name}</h3>
-                  {cnName && locale !== "zh" && <p lang="zh" className="font-cn mt-1 text-sm text-brand-gold-light">{cnName}</p>}
-                  {it.description ? <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-brand-cream/65">{t(it.description, locale)}</p> : null}
-                  <div className="mt-auto flex items-center justify-between pt-5">
-                    <p className="font-semibold text-saffron">{formatMoney(it.discountPrice ?? it.price)}</p>
-                    {it.weightGrams ? <span className="rounded-full bg-night-3 px-3 py-1 text-xs text-brand-cream/70">{p("grams", { n: it.weightGrams })}</span> : null}
-                  </div>
-                </article>
-              );
-            })}
-          </RevealGroup>
+          <div className="-mb-px min-w-0">
+            <div className="-mr-px grid h-full sm:grid-cols-2 xl:grid-cols-3">
+              {items.map((it, i) => (
+                <DishCell
+                  key={it.id}
+                  d={toCell(it, locale, "茶")}
+                  tone="paper"
+                  className={i === items.length - 1 ? fill.last : undefined}
+                />
+              ))}
+              {fill.filler && <FillerCell kind="motto" tone="paper" cnText="以茶会友" className="hidden xl:flex" />}
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -6,14 +6,17 @@ import Wave from "@/components/site/kit/Wave";
 import Parallax from "@/components/motion/Parallax";
 import Reveal from "@/components/motion/Reveal";
 import RevealGroup from "@/components/motion/RevealGroup";
+import { cn } from "@/lib/utils";
 import CountUp from "./CountUp";
 import SafeImg from "./SafeImg";
 import { GlyphPanel, Seal } from "./Decor";
 import LanternsDrop from "./LanternsDrop";
+import { GoldCorners, IconBowl, IconLeaf, IconTeapot, IconWok, PoemScroll } from "./AboutArt";
 
 /**
- * 3-bo'lim: BIZ HAQIMIZDA (namuna 2 — qorong'i "saroy"): katta qizil bloblar, foto-kollaj
- * (arkali baland rasm + kvadrat + doira), nafis serif sarlavha, nom tarixi va raqamlar.
+ * 3-bo'lim: BIZ HAQIMIZDA (namuna 2 — qorong'i "saroy"): osma fonarlar, oltin ramkali foto-kollaj
+ * (arkali baland rasm + kvadrat + doira) va osma she'r o'ramasi, nafis serif sarlavha, nom tarixi,
+ * oltin chiziqli raqamlar va pastda ingichka ikonli qadriyatlar lentasi (namuna 04).
  */
 export default async function About({
   locale, images, stats,
@@ -25,9 +28,15 @@ export default async function About({
   const st = await getTranslations({ locale, namespace: "Site" });
   const t = await getTranslations({ locale, namespace: "Home2" });
   const [a, b, c] = [images[0] ?? null, images[1] ?? null, images[2] ?? null];
+  const values = [
+    { Icon: IconLeaf, title: t("valFresh"), sub: t("valFreshS") },
+    { Icon: IconBowl, title: t("valRecipe"), sub: t("valRecipeS") },
+    { Icon: IconWok, title: t("valWok"), sub: t("valWokS") },
+    { Icon: IconTeapot, title: t("valCare"), sub: t("valCareS") },
+  ];
 
   return (
-    <section className="relative isolate overflow-hidden bg-night pb-28 pt-40 text-brand-cream sm:pb-32 sm:pt-44 lg:pb-40 lg:pt-48">
+    <section data-home="about" className="relative isolate overflow-hidden bg-night pb-28 pt-40 text-brand-cream sm:pb-32 sm:pt-44 lg:pb-40 lg:pt-48">
       {/* Osilgan 2D fonarlar — bo'limga kelganda tepadan tushib, chayqalib yonadi */}
       <LanternsDrop
         items={[
@@ -46,28 +55,41 @@ export default async function About({
       <div className="mx-auto grid max-w-7xl items-center gap-16 px-5 sm:px-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
         {/* ---------- Foto-kollaj ---------- */}
         <div className="relative mx-auto h-[520px] w-full max-w-[700px] sm:h-[700px] lg:h-[780px]">
-          <Parallax speed={6} className="absolute left-0 top-0 h-[84%] w-[57%]">
+          <Parallax speed={6} className="absolute left-[3%] top-[2%] h-[80%] w-[54%]">
+            {/* oltin ramka — arka tashqarisida ingichka ikkinchi chiziq */}
+            <span aria-hidden="true" className="absolute -inset-3 rounded-b-[36px] rounded-t-full border border-brand-gold/45" />
+            <span aria-hidden="true" className="absolute -top-3 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-brand-gold" />
             <SafeImg
               src={a}
               className="h-full w-full rounded-b-[28px] rounded-t-full border border-brand-gold/30 shadow-2xl shadow-night"
               fallback={<GlyphPanel char="长安" vertical tone="night" size="text-[5rem] sm:text-[6.5rem]" />}
             />
           </Parallax>
-          <Parallax speed={-10} className="absolute right-0 top-[7%] aspect-square w-[39%]">
+          <Parallax speed={-10} className="absolute right-[2%] top-[7%] aspect-square w-[37%]">
+            <GoldCorners />
             <SafeImg
               src={b}
-              className="h-full w-full rounded-[28px] shadow-2xl shadow-night"
+              className="h-full w-full rounded-[22px] shadow-2xl shadow-night"
               fallback={<GlyphPanel char="茶" tone="fire" size="text-[3.5rem] sm:text-[5rem]" />}
             />
           </Parallax>
-          <Parallax speed={16} className="absolute bottom-0 right-[3%] aspect-square w-[47%]">
+          <Parallax speed={16} className="absolute bottom-[2%] right-[4%] aspect-square w-[45%]">
+            {/* aylanib turuvchi oltin nuqtali halqa */}
+            <svg aria-hidden="true" viewBox="0 0 200 200" className="animate-spin-slow absolute -inset-[7%] text-brand-gold/60">
+              <circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" strokeWidth="0.8" strokeDasharray="0.5 4.5" strokeLinecap="round" />
+              <circle cx="100" cy="2" r="2.4" fill="currentColor" />
+            </svg>
             <SafeImg
               src={c}
               className="h-full w-full rounded-full ring-8 ring-night shadow-2xl shadow-night"
               fallback={<GlyphPanel char="福" tone="saffron" size="text-[4rem] sm:text-[5.5rem]" />}
             />
           </Parallax>
-          <Seal text="长安" className="absolute bottom-[10%] left-[44%] z-10 h-20 w-11 rotate-[-6deg] text-2xl" />
+          {/* osma she'r o'ramasi (Li Bo) — kollajning chap pastida */}
+          <Parallax speed={-6} className="absolute bottom-[1%] left-0 z-10 w-[17%] min-w-16 max-w-28 rotate-[-3deg]">
+            <PoemScroll />
+          </Parallax>
+          <Seal text="长安" className="absolute bottom-[12%] left-[46%] z-10 h-20 w-11 rotate-[-6deg] text-2xl" />
         </div>
 
         {/* ---------- Matn ---------- */}
@@ -89,19 +111,30 @@ export default async function About({
           </RevealGroup>
 
           <Reveal y={24} delay={0.1}>
-            <dl className="mt-10 grid max-w-lg grid-cols-3 divide-x divide-brand-cream/15 rounded-[24px] border border-brand-cream/10 bg-night-2/80 py-6 backdrop-blur-sm">
-              {[
-                { v: stats.tables, l: t("statTables") },
-                { v: stats.seats, l: t("statSeats") },
-                { v: stats.vip, l: t("statVip") },
-              ].map((s) => (
-                <div key={s.l} className="px-3 text-center">
-                  <dt className="sr-only">{s.l}</dt>
-                  <dd className="font-display text-4xl text-saffron sm:text-5xl"><CountUp to={s.v} /></dd>
-                  <dd aria-hidden="true" className="mt-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-cream/70">{s.l}</dd>
-                </div>
-              ))}
-            </dl>
+            {/* Raqamlar — oltin chiziqlar orasida, har biri ustida ieroglif */}
+            <div className="mt-11 max-w-lg">
+              <Rule />
+              <dl className="grid grid-cols-3 py-6">
+                {[
+                  { v: stats.tables, l: t("statTables"), cn: "桌" },
+                  { v: stats.seats, l: t("statSeats"), cn: "座" },
+                  { v: stats.vip, l: t("statVip"), cn: "雅" },
+                ].map((s, i) => (
+                  <div key={s.l} className="relative flex flex-col items-center px-2 text-center">
+                    {i > 0 && (
+                      <span aria-hidden="true" className="absolute inset-y-1 left-0 w-px bg-gradient-to-b from-transparent via-brand-gold/45 to-transparent" />
+                    )}
+                    <dt>
+                      <span aria-hidden="true" lang="zh" className="font-cn block text-lg leading-none text-saffron/80">{s.cn}</span>
+                      <span className="sr-only">{s.l}</span>
+                    </dt>
+                    <dd className="mt-2 font-display text-[2.6rem] leading-none text-brand-gold-light sm:text-5xl"><CountUp to={s.v} /></dd>
+                    <dd aria-hidden="true" className="mt-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-cream/70">{s.l}</dd>
+                  </div>
+                ))}
+              </dl>
+              <Rule />
+            </div>
           </Reveal>
 
           <Reveal y={20} delay={0.2}>
@@ -113,7 +146,46 @@ export default async function About({
         </div>
       </div>
 
+      {/* ---------- Qadriyatlar lentasi (namuna 04) ---------- */}
+      <div className="mx-auto mt-20 max-w-7xl px-5 sm:mt-24 sm:px-8">
+        <RevealGroup
+          className="grid grid-cols-1 overflow-hidden rounded-[24px] border border-brand-gold/25 bg-night-2/80 backdrop-blur-sm sm:grid-cols-2 lg:grid-cols-4"
+          stagger={0.1}
+          y={24}
+        >
+          {values.map(({ Icon, title, sub }, i) => (
+            <div
+              key={title}
+              className={cn(
+                "flex items-start gap-4 px-6 py-6 sm:px-7 sm:py-7",
+                i > 0 && "border-t border-brand-gold/15",
+                i === 1 && "sm:border-l sm:border-t-0",
+                i === 3 && "sm:border-l",
+                i >= 2 && "lg:border-l lg:border-t-0"
+              )}
+            >
+              <Icon className="size-11 shrink-0 text-brand-gold" />
+              <div className="min-w-0">
+                <h3 className="text-[13px] font-semibold uppercase tracking-[0.18em] text-brand-cream">{title}</h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-brand-cream/70">{sub}</p>
+              </div>
+            </div>
+          ))}
+        </RevealGroup>
+      </div>
+
       <Wave className="text-sand" variant="c" />
     </section>
+  );
+}
+
+/** Markazida romb bo'lgan ingichka oltin chiziq */
+function Rule() {
+  return (
+    <div aria-hidden="true" className="relative flex items-center">
+      <span className="hairline-gold flex-1" />
+      <span className="mx-3 size-1.5 rotate-45 bg-brand-gold" />
+      <span className="hairline-gold flex-1" />
+    </div>
   );
 }

@@ -50,7 +50,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
         })()}
         labels={{ phone: st("cPhone"), address: st("cAddress"), hours: st("cHours"), place: `${tc("brand")} · ${p2("heroCity")}` }}
       />
-      <main className="bg-paper">
+      <main id="main" className="bg-paper">
       <div className="mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8">
         <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHead font="serif" cn="联系我们" eyebrow={st("contactSub")} title={st("hWhere")} />

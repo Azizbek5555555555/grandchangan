@@ -38,7 +38,7 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
         countLine={p2("heroPosts", { count: posts.length })}
         city={p2("heroCity")}
       />
-      <main className="relative isolate overflow-x-clip bg-paper pb-28 pt-10">
+      <main id="main" className="relative isolate overflow-x-clip bg-paper pb-28 pt-10">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <div className="mb-12">
             <SectionHead font="serif" cn="新闻" eyebrow={st("blogSub")} title={tc("blog")} />

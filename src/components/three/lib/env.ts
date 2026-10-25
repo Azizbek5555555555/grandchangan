@@ -2,7 +2,11 @@
 
 let webgl: boolean | null = null;
 
-/** WebGL2 bormi (three r163+ faqat WebGL2). Natija keshlanadi, sinov konteksti darhol bo'shatiladi */
+/**
+ * WebGL2 haqiqatda ishlaydimi (three r163+ faqat WebGL2). Natija keshlanadi, sinov konteksti darhol bo'shatiladi.
+ * Faqat API borligini tekshirish yetmaydi: GPU o'chirilgan qurilmada Canvas ushlanmaydigan xato otardi.
+ * Birinchi ekrandagi sahnalarda kechikishni poster yashiradi.
+ */
 export function supportsWebGL(): boolean {
   if (webgl !== null) return webgl;
   try {

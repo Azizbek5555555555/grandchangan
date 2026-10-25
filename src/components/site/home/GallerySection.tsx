@@ -3,59 +3,46 @@ import { ArrowRight } from "lucide-react";
 import ButtonLink from "@/components/site/kit/ButtonLink";
 import FretBand from "@/components/site/kit/FretBand";
 import SectionHead from "@/components/site/kit/SectionHead";
-import Parallax from "@/components/motion/Parallax";
-import RevealGroup from "@/components/motion/RevealGroup";
-import { cn } from "@/lib/utils";
-import SafeImg from "./SafeImg";
-import { GlyphPanel } from "./Decor";
+import { Birds, Mountains } from "@/components/site/pages/InkDecor";
+import GalleryStrip, { type GalleryItem } from "./GalleryStrip";
 
-// Ustunlar bo'yicha pog'onali joylashuv (balandlik va parallaks tezligi)
-const SHAPES = [
-  { h: "aspect-[3/4]", speed: 6, extra: "" },
-  { h: "aspect-square", speed: 14, extra: "lg:mt-16" },
-  { h: "aspect-[4/5]", speed: 8, extra: "" },
-  { h: "aspect-[4/5]", speed: 12, extra: "" },
-  { h: "aspect-[3/4]", speed: 5, extra: "lg:mt-16" },
-  { h: "aspect-square", speed: 10, extra: "" },
-];
-const CHARS = ["宴", "茶", "福", "龙", "宴", "春"];
-
-/** 9-bo'lim: GALEREYA (faqat ≥3 faol rasm bo'lsa) — pog'onali kollaj, parallaks */
-export default async function GallerySection({ locale, images }: { locale: string; images: string[] }) {
+/**
+ * 9-bo'lim: GALEREYA (faqat ≥3 faol rasm bo'lsa) — tush rasmi uslubidagi qog'oz fon (namuna 11):
+ * tumanli tog'lar, qushlar, vertikal sarlavha + muhr va vertikal panellar lentasi (3–8 rasm).
+ */
+export default async function GallerySection({ locale, items }: { locale: string; items: GalleryItem[] }) {
   const st = await getTranslations({ locale, namespace: "Site" });
-  const list = images.slice(0, 6);
+  const t = await getTranslations({ locale, namespace: "Home2" });
+  const list = items.slice(0, 8);
 
   return (
-    <section className="relative overflow-hidden bg-sand pb-24 pt-0 sm:pb-32">
+    <section data-home="gallery" className="relative isolate overflow-hidden bg-sand pb-28 pt-0 sm:pb-36">
       <FretBand className="text-fire/25" />
+      {/* tush rasmi bezaklari */}
+      <Mountains className="absolute inset-x-0 bottom-0 -z-10 h-56 w-full text-content/[0.07] sm:h-72" />
+      <Birds className="absolute right-[24%] top-24 -z-10 w-32 text-content/25 sm:w-40" />
+
       <div className="mx-auto max-w-7xl px-5 pt-20 sm:px-8 sm:pt-24">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-          <SectionHead cn="画廊" eyebrow={st("atmoEyebrow")} title={st("atmoTitle")} />
-          <ButtonLink href="/gallery" variant="ghost-dark" size="md" className="group shrink-0 self-start sm:self-auto">
-            {st("fullGallery")}
-            <ArrowRight size={16} className="transition group-hover:translate-x-1" />
-          </ButtonLink>
+          <SectionHead cn="画廊" eyebrow={st("atmoEyebrow")} title={st("atmoTitle")} sub={st("gallerySub")} />
+          <div className="flex items-end gap-6 self-start sm:self-auto">
+            {/* vertikal sarlavha + muhr (namuna 11) */}
+            <div aria-hidden="true" className="hidden items-start gap-2 lg:flex">
+              <span lang="zh" className="font-cn text-[1.7rem] leading-[1.12] text-content/80 [writing-mode:vertical-rl]">长安雅集</span>
+              <span lang="zh" className="font-cn mt-1 flex size-9 items-center justify-center rounded-[4px] bg-fire text-sm leading-none text-brand-cream [writing-mode:vertical-rl]">
+                画
+              </span>
+            </div>
+            <ButtonLink href="/gallery" variant="ghost-dark" size="md" className="group shrink-0">
+              {st("fullGallery")}
+              <ArrowRight size={16} className="transition group-hover:translate-x-1" />
+            </ButtonLink>
+          </div>
         </div>
 
-        <RevealGroup className="mt-12 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3" stagger={0.08} y={50}>
-          {list.map((src, i) => {
-            const s = SHAPES[i % SHAPES.length];
-            return (
-              <div key={src + i} className={cn("min-w-0", s.extra, i >= 4 && "hidden lg:block")}>
-                <Parallax speed={s.speed}>
-                  <div className={cn("group overflow-hidden rounded-[24px] shadow-lg shadow-content/10", s.h)}>
-                    <SafeImg
-                      src={src}
-                      className="h-full w-full"
-                      imgClassName="transition duration-[1200ms] ease-out-expo group-hover:scale-110"
-                      fallback={<GlyphPanel char={CHARS[i % CHARS.length]} tone={i % 3 === 1 ? "fire" : "night"} />}
-                    />
-                  </div>
-                </Parallax>
-              </div>
-            );
-          })}
-        </RevealGroup>
+        <div className="mt-12 sm:mt-14">
+          <GalleryStrip items={list} openLabel={t("galOpen")} pauseLabel={t("rvPause")} playLabel={t("rvPlay")} />
+        </div>
       </div>
     </section>
   );

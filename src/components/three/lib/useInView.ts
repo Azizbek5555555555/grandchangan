@@ -3,10 +3,12 @@
 import { useEffect, useState, type RefObject } from "react";
 
 /**
- * Element viewport yaqinidami (rootMargin ichida).
- * near — hozir yaqinda (render yoqiladi/to'xtatiladi), seen — bir marta bo'lsa ham ko'rindi (lazy yuklash).
+ * Element viewport yaqinidami.
+ * near — hozir rootMargin ichida (render yoqiladi/to'xtatiladi);
+ * seen — bir marta bo'lsa ham mountMargin ichiga kirdi (sahna oldindan o'rnatiladi, shader'lar kompilyatsiya
+ * qilinadi — foydalanuvchi bo'limga yetganda 3D darhol tayyor turadi).
  */
-export function useNearViewport(ref: RefObject<HTMLElement | null>, rootMargin = "200px") {
+export function useNearViewport(ref: RefObject<HTMLElement | null>, rootMargin = "200px", mountMargin = rootMargin) {
   const [near, setNear] = useState(false);
   const [seen, setSeen] = useState(false);
 
@@ -27,9 +29,23 @@ export function useNearViewport(ref: RefObject<HTMLElement | null>, rootMargin =
       },
       { rootMargin },
     );
+    // Uzoqroqdan "oldindan o'rnatish" kuzatuvchisi — bir marta ishlaydi
+    const pre = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((x) => x.isIntersecting)) {
+          setSeen(true);
+          pre.disconnect();
+        }
+      },
+      { rootMargin: mountMargin },
+    );
     io.observe(el);
-    return () => io.disconnect();
-  }, [ref, rootMargin]);
+    pre.observe(el);
+    return () => {
+      io.disconnect();
+      pre.disconnect();
+    };
+  }, [ref, rootMargin, mountMargin]);
 
   return { near, seen };
 }

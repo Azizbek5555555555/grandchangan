@@ -83,7 +83,7 @@ export default async function ReservationPage({
         hours={hoursText}
         phone={phone}
       />
-      <main className="bg-paper">
+      <main id="main" className="bg-paper">
         <ReservationFlow key={JSON.stringify(initial ?? {})} locale={locale} menu={menu} hours={hours} phone={phone} initial={initial} />
       </main>
       <SiteFooter locale={locale} />

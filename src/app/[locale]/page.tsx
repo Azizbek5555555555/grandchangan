@@ -38,7 +38,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     getTranslations({ locale, namespace: "Home" }),
   ]);
 
-  const [heroBanners, featuredRaw, latestRaw, catsRaw, reviewsRaw, reviewAgg, gallery, workingHours, generalSetting] = await Promise.all([
+  const [heroBanners, featuredRaw, latestRaw, catsRaw, reviewsRaw, reviewAgg, gallery, workingHours, generalSetting, menuCount] = await Promise.all([
     prisma.banner.findMany({ where: { position: "HERO", isActive: true }, orderBy: { sortOrder: "asc" }, take: 5 }),
     prisma.menuItem.findMany({ where: { isFeatured: true, isAvailable: true }, take: 6, orderBy: { sortOrder: "asc" }, select: DISH_SELECT }),
     prisma.menuItem.findMany({ where: { isAvailable: true }, take: 6, orderBy: { createdAt: "desc" }, select: DISH_SELECT }),
@@ -65,6 +65,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     // Ish vaqti (hero, bron bloki va xarita bo'limi) va telefon (Header bilan bir xil manba)
     prisma.workingHour.findMany({ select: { dayOfWeek: true, openTime: true, closeTime: true, isClosed: true } }),
     prisma.siteSetting.findUnique({ where: { key: "general" } }),
+    // Mashhur taomlar taxtasidagi "to'liq menyu" katagi uchun — mavjud taomlar soni
+    prisma.menuItem.count({ where: { isAvailable: true } }),
   ]);
 
   const general = (generalSetting?.value as Record<string, unknown>) || {};
@@ -120,6 +122,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   // ---------- Rasmlar va sharhlar ----------
   const g = gallery.map((x) => usable(x.url)).filter(Boolean) as string[];
+  // Galereya lentasi: rasm + izoh (sahifa tilida)
+  const galleryItems = gallery
+    .map((x) => ({ src: usable(x.url), caption: x.caption ? t(x.caption, locale).trim() : "" }))
+    .filter((x): x is { src: string; caption: string } => !!x.src);
   const reserveImg = g[3] ?? g[0] ?? null;
   // Sharh sahnasi foni: mijoz rasmi → taom rasmi → galereya/taom rasmlari navbat bilan
   const stagePool = [...g, ...signature.map((d) => d.img).filter((x): x is string => !!x)];
@@ -138,7 +144,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       <SiteHeader />
 
-      <main>
+      <main id="main">
         {/* 1. HERO */}
         <Hero
           tag={st("heroTag")}
@@ -160,7 +166,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
         {/* 2. MASHHUR TAOMLAR */}
         {signature.length > 0 && (
-          <section className="relative bg-paper pb-32 pt-14 sm:pb-40 sm:pt-16 lg:pb-44">
+          <section data-home="signature" className="relative bg-paper pb-28 pt-14 sm:pb-32 sm:pt-16 lg:pb-36">
             <div className="mx-auto max-w-7xl px-5 sm:px-8">
               <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                 <SectionHead cn="招牌菜" eyebrow={st("dishesEyebrow")} title={st("dishesTitle1")} accent={st("dishesTitle2")} sub={h2("sigSub")} />
@@ -169,7 +175,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   <ArrowRight size={16} className="transition group-hover:translate-x-1" />
                 </ButtonLink>
               </div>
-              <SignatureGrid dishes={signature} allLabel={st("menuAll")} />
+              <SignatureGrid dishes={signature} menuCount={menuCount} />
             </div>
             <Wave className="text-night" variant="b" />
           </section>
@@ -223,7 +229,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <ReserveBlock locale={locale} image={reserveImg} hours={`${hoursLabel} · ${hoursValue}`} />
 
         {/* 9. GALEREYA */}
-        {g.length >= 3 && <GallerySection locale={locale} images={g} />}
+        {g.length >= 3 && <GallerySection locale={locale} items={galleryItems} />}
 
         {/* 10. SHARHLAR */}
         <Reviews locale={locale} reviews={reviews} avg={avgRating} total={reviewTotal} backdrop={g[0] ?? null} prevClass={g.length >= 3 ? "text-sand" : "text-paper"} />

@@ -1,11 +1,11 @@
 // three.js material ranglari — globals.css tokenlarini aks ettiradi (Tailwind className'da ishlatilmaydi)
-// fire #c8161d, wine #5e0a0d, night #0e0a09, saffron #f4a62a, brand-gold #c8a24b, jade #2f7a3a, leaf #6fa83a
+// fire #9f0f17, wine #4a080b, night #0e0a09, saffron #f4a62a, brand-gold #c8a24b, jade #2f7a3a, leaf #6fa83a
 
 export const P = {
   // umumiy
-  fire: "#c8161d",
-  fireDeep: "#9e0f14",
-  wine: "#5e0a0d",
+  fire: "#9f0f17",
+  fireDeep: "#740a10",
+  wine: "#4a080b",
   night: "#0e0a09",
   saffron: "#f4a62a",
   gold: "#c8a24b",
@@ -70,7 +70,7 @@ export const P = {
   plateRim: "#2b1a16",
 
   // fonar
-  lanternRed: "#c8161d",
+  lanternRed: "#a8121a",
   lanternDeep: "#7e0a10",
   lanternGlow: "#ff6a24",
   lanternHalo: "#ff8a3a",

@@ -70,7 +70,7 @@ export default function MenuHero({
           <span aria-hidden="true" className="absolute inset-[12%] rounded-full border border-brand-gold/30" />
           <span aria-hidden="true" className="absolute inset-[6%] animate-spin-slow rounded-full border border-dashed border-brand-gold/15" />
           <span aria-hidden="true" className="absolute bottom-[12%] left-1/2 h-[14%] w-[72%] -translate-x-1/2 rounded-[50%] bg-night-3 shadow-[0_30px_60px_-10px] shadow-night ring-1 ring-brand-gold/15" />
-          <DimSumSteamer className="absolute inset-0 z-10" />
+          <DimSumSteamer poster="/3d/dimsum.webp" className="absolute inset-0 z-10" />
         </div>
       </div>
 

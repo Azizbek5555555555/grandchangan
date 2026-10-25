@@ -118,6 +118,18 @@ Namuna rasmlar repo ichida: **`docs/references/`** (README.md da har birining iz
   rasmlardan (galereya, taom, mijoz sharhi rasmi), bo'lmasa protsedural SVG (tush manzarasi, chinni tarelka).
 - Krem hero'li sahifalarda (bron, blog, biz haqimizda) header doim to'q (`chrome/nav.ts` HERO_ROUTES).
 
+### Aziz 2-xabari (2026-10-25) — bajarildi
+- Qizil to'qlashtirildi: fire #9f0f17, fire-deep #740a10, wine #4a080b (globals.css + three/palette.ts + DESIGN.md).
+- Header/mobil menyu/footer butunlay yangi (`HeaderClient.tsx`, `chrome/*`, `Footer.tsx`): markazda 匾额 lavha-logo,
+  desktop header'da "Bron" havolasi yo'q (CTA bajaradi; mobil menyu va footer'da bor).
+- 3D tezligi: sahna chunk'lari oldindan yuklanadi, canvas ~1.5 ekran oldin o'rnatiladi; birinchi ekran sahnalari
+  (hero kosasi, menyu bug'latgichi) uchun `public/3d/*.webp` poster — 3D modeli o'zgarsa posterni qayta olish kerak
+  (Playwright bilan shaffof fonli skrinshot, scratchpad'dagi poster.js usuli).
+- Mashhur taomlar, Biz haqimizda, galereya (ustma-ust tushish xatosi), zal xaritasi, menyu sahifasi + bosh sahifa
+  menyusi (namuna 03) — premium qayta qilindi. `.lattice-bg` mask xatosi tuzatildi (naqsh endi ko'rinadi).
+- `parallel-agents` skill `.claude/skills/` ga o'rnatildi (agent teams o'chiq — subagentlar ishlatiladi).
+- Aziz eslatmasi: `docs/references/` — sayt QANDAY ko'rinishi haqida namunalar, saytga qo'yiladigan rasm EMAS.
+
 ### Ma'lum muammolar / eslatmalar
 - Aziz saytni `/en` da Chrome avto-tarjimasi bilan ko'rgan — "21" "двадцать один" ga, "GrandChangan" "Отель ..." ga tarjima bo'lgan.
   Ruscha uchun `/ru` ochish kerak, Chrome tarjimasini o'chirish. Raqam/brendga `translate="no"` qo'yish foydali.
