@@ -5,8 +5,10 @@ import { isMobileViewport, prefersReducedMotion, supportsWebGL } from "./lib/env
 import type { SceneProps } from "./lib/types";
 import { useNearViewport } from "./lib/useInView";
 
-/* Yengil o'rab oluvchi: avval bo'sh konteyner, viewport yaqinlashganda (rootMargin) sahna chunk'i yuklanadi.
-   Ko'rinmaganda render to'xtaydi. WebGL yo'q / kontekst yo'qoldi / xato — hech narsa chizilmaydi */
+/* Yengil o'rab oluvchi: sahna chunk'i sahifa yuklangach bo'sh vaqtda oldindan yuklanadi (load), canvas
+   bo'limga ~1.5 ekran qolganda o'rnatilib bitta kadr chiziladi (shader'lar tayyor), viewport yaqinida (rootMargin)
+   animatsiya yoqiladi — bo'limga kelganda 3D kutmasdan darhol ochiladi. Ko'rinmaganda render to'xtaydi.
+   WebGL yo'q / kontekst yo'qoldi / xato — hech narsa chizilmaydi */
 
 class SceneBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
@@ -27,13 +29,19 @@ export default function Lazy3D({
   className,
   Scene,
   rootMargin = "200px",
+  mountMargin = "150% 0px",
+  load,
 }: {
   className?: string;
   Scene: ComponentType<SceneProps>;
   rootMargin?: string;
+  /** Canvas qancha oldindan o'rnatiladi (IntersectionObserver rootMargin) */
+  mountMargin?: string;
+  /** Sahna chunk'ini oldindan yuklovchi (dynamic import bilan bir xil) */
+  load?: () => Promise<unknown>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { near, seen } = useNearViewport(ref, rootMargin);
+  const { near, seen } = useNearViewport(ref, rootMargin, mountMargin);
   const [env, setEnv] = useState<Env | null>(null);
   const [failed, setFailed] = useState(false);
   const [ready, setReady] = useState(false);
@@ -51,6 +59,19 @@ export default function Lazy3D({
     return () => mq?.removeEventListener?.("change", onChange);
   }, []);
 
+  // Sahna kodini bo'sh vaqtda oldindan yuklab qo'yish (three.js chunk'i keshda turadi)
+  useEffect(() => {
+    if (!load) return;
+    const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+    const run = () => { load().catch(() => {}); };
+    if (w.requestIdleCallback) {
+      const id = w.requestIdleCallback(run, { timeout: 1500 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const id = window.setTimeout(run, 600);
+    return () => window.clearTimeout(id);
+  }, [load]);
+
   const onFail = useCallback(() => setFailed(true), []);
   const onReady = useCallback(() => setReady(true), []);
   const show = !!env?.ok && seen && !failed;
@@ -63,7 +84,7 @@ export default function Lazy3D({
             width: "100%",
             height: "100%",
             opacity: ready ? 1 : 0,
-            transition: env.reduced ? "none" : "opacity 0.9s ease",
+            transition: env.reduced ? "none" : "opacity 0.45s ease",
           }}
         >
           <SceneBoundary onError={onFail}>

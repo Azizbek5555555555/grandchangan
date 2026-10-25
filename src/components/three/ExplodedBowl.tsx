@@ -5,8 +5,9 @@ import { useMemo } from "react";
 import Lazy3D from "./Lazy3D";
 import type { SceneProps } from "./lib/types";
 
-// three.js sahnasi alohida chunk — faqat klientda va viewport yaqinida yuklanadi
-const Scene = dynamic(() => import("./scenes/ExplodedBowlScene"), { ssr: false, loading: () => null });
+// three.js sahnasi alohida chunk — faqat klientda; sahifa yuklangach bo'sh vaqtda oldindan yuklanadi (load)
+const load = () => import("./scenes/ExplodedBowlScene");
+const Scene = dynamic(load, { ssr: false, loading: () => null });
 
 /**
  * Lag'mon kosasining qatlamli ("exploded") ko'rinishi. labels — yuqoridan pastga 6 ta nom:
@@ -23,5 +24,5 @@ export default function ExplodedBowl({ className, labels }: { className?: string
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [key],
   );
-  return <Lazy3D className={className} Scene={Bound} rootMargin="400px" />;
+  return <Lazy3D className={className} Scene={Bound} load={load} rootMargin="400px" />;
 }

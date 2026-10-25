@@ -10,11 +10,14 @@ type Props = Omit<SceneProps, "trackRef"> & {
   children: ReactNode;
 };
 
-/** Umumiy Canvas: shaffof fon, dpr chegarasi, ko'rinmaganda to'xtaydi, kontekst yo'qolsa — onFail */
+/**
+ * Umumiy Canvas: shaffof fon, dpr chegarasi, kontekst yo'qolsa — onFail. Ko'rinmaganda "demand": oldindan
+ * o'rnatilganda bitta kadr chiziladi (shader kompilyatsiyasi bo'limga yetmasdan bo'ladi), keyin to'xtaydi.
+ */
 export default function SceneCanvas({ active, reduced, mobile, onFail, onReady, camera, children }: Props) {
   return (
     <Canvas
-      frameloop={active ? (reduced ? "demand" : "always") : "never"}
+      frameloop={active && !reduced ? "always" : "demand"}
       dpr={[1, mobile ? 1.5 : 1.75]}
       gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
       camera={camera}
