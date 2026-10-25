@@ -11,6 +11,7 @@ import Fret from "./chrome/Fret";
 import NightScene from "./chrome/NightScene";
 import SealCta from "./chrome/SealCta";
 import { NAV, HOME_ITEM, telHref } from "./chrome/nav";
+import { phonesOf } from "@/lib/contact";
 
 const RING = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold-light";
 
@@ -58,7 +59,7 @@ export default async function SiteFooter({ locale }: { locale: string }) {
   const dayName = (dow: number) => new Intl.DateTimeFormat(locale, { weekday: "short" }).format(new Date(Date.UTC(2024, 0, 7 + dow)));
   const week = [1, 2, 3, 4, 5, 6, 0].map((d) => hoursFor(hours, d));
   const g = (general?.value as Record<string, unknown>) || {};
-  const phones = Array.isArray(g.phones) && g.phones.length ? (g.phones as string[]) : ["+998 90 503 15 68"];
+  const phones = phonesOf(g);
   // Aloqa sahifasidagi bilan bir xil zaxira qiymatlar
   const email = (g.email as string) || "info@grandchangan.uz";
   const address = tt(g.address, locale) || "Ibn Xoldun 10B, Samarqand";

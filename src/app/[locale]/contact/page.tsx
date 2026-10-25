@@ -10,6 +10,7 @@ import { restaurantDay } from "@/lib/time";
 import Reveal from "@/components/motion/Reveal";
 import SectionHead from "@/components/site/kit/SectionHead";
 import { CloudLine } from "@/components/site/pages/Ornament";
+import { phoneOf } from "@/lib/contact";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     prisma.workingHour.findMany({ orderBy: { dayOfWeek: "asc" } }),
   ]);
   const g = (setting?.value as Record<string, unknown>) || {};
-  const phone = Array.isArray(g.phones) && g.phones[0] ? String(g.phones[0]) : "+998 90 503 15 68";
+  const phone = phoneOf(g);
   const email = (g.email as string) || "info@grandchangan.uz";
   const address = t(g.address, locale) || "Ibn Xoldun 10B, Samarqand, Samarqand viloyati";
   const mapQuery = (g.mapQuery as string) || "Grand Changan Restaurant, Ibn Xoldun 10B, Samarqand";

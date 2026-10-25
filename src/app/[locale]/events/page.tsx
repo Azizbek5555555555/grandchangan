@@ -14,6 +14,7 @@ import { PlateFallback } from "@/components/site/home/Decor";
 import SafeImg from "@/components/site/home/SafeImg";
 import { CloudLine } from "@/components/site/pages/Ornament";
 import { cn } from "@/lib/utils";
+import { phoneOf } from "@/lib/contact";
 
 export const dynamic = "force-dynamic";
 const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
@@ -39,7 +40,7 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
   ]);
   const imgs = gallery.map((x) => usable(x.url)).filter(Boolean) as string[];
   const g = (setting?.value as Record<string, unknown>) || {};
-  const phone = Array.isArray(g.phones) && g.phones[0] ? String(g.phones[0]) : null;
+  const phone = phoneOf(g);
 
   // Sig'im — haqiqiy zal rejasidan
   const seatsOf = (kind: string) => ROOMS.filter((r) => r.kind === kind).reduce((s, r) => s + roomSeats(r).seats, 0);

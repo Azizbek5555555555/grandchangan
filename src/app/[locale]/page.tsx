@@ -24,6 +24,7 @@ import { ROOMS, floorTotals } from "@/lib/floorplan/layout";
 import { dayOfWeekOf, hoursFor, sameEveryDay } from "@/lib/hours";
 import { RESTAURANT_TZ, restaurantDay } from "@/lib/time";
 import { ArrowRight } from "lucide-react";
+import { phoneOf } from "@/lib/contact";
 
 export const dynamic = "force-dynamic";
 
@@ -70,7 +71,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ]);
 
   const general = (generalSetting?.value as Record<string, unknown>) || {};
-  const phone = Array.isArray(general.phones) && general.phones[0] ? String(general.phones[0]) : "+998 90 503 15 68";
+  const phone = phoneOf(general);
   const today = restaurantDay();
   // Restoran vaqti (server hisoblaydi — xarita bo'limi SSR va hydration'da bir xil boshlanadi)
   const nowHM = new Intl.DateTimeFormat("en-GB", { timeZone: RESTAURANT_TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());

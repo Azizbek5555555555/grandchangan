@@ -49,7 +49,7 @@ export function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-/** "+998 90 503 15 68" -> "tel:+998905031568" */
+/** "+998 77 507 06 43" -> "tel:+998775070643" */
 export function telHref(phone: string) {
   return `tel:${phone.replace(/[^\d+]/g, "")}`;
 }

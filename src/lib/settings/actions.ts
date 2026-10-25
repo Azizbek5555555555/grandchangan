@@ -22,7 +22,7 @@ export async function saveWorkingHours(hours: { dayOfWeek: number; openTime: str
   await prisma.$transaction(
     hours.map((h) => {
       // Schema'da openTime/closeTime majburiy — bo'sh kelsa standart vaqt qo'yiladi
-      const openTime = h.openTime || "11:00";
+      const openTime = h.openTime || "10:00";
       const closeTime = h.closeTime || "23:00";
       return prisma.workingHour.upsert({
         where: { dayOfWeek: h.dayOfWeek },

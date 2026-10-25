@@ -2,6 +2,7 @@ import { getLocale } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { t } from "@/lib/utils";
 import HeaderClient from "./HeaderClient";
+import { phoneOf } from "@/lib/contact";
 
 /**
  * Sayt header'i. Burger menyudagi telefon, manzil va ijtimoiy tarmoqlar admin
@@ -14,7 +15,7 @@ export default async function SiteHeader({ solid }: { solid?: boolean } = {}) {
   const locale = await getLocale();
   const setting = await prisma.siteSetting.findUnique({ where: { key: "general" } });
   const g = (setting?.value as Record<string, unknown>) || {};
-  const phone = Array.isArray(g.phones) && g.phones[0] ? String(g.phones[0]) : "+998 90 503 15 68";
+  const phone = phoneOf(g);
   return (
     <HeaderClient
       solid={solid}
