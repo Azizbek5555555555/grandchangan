@@ -597,7 +597,11 @@
     "closeMenu": "Menyuni yopish",
     "ctaShort": "Bron",
     "language": "Til",
-    "notFoundText": "Bu yo'l bizning xaritada yo'q — lekin dasturxonimiz doim tayyor. Keling, sizni to'g'ri manzilga qaytaramiz."
+    "notFoundText": "Bu yo'l bizning xaritada yo'q — lekin dasturxonimiz doim tayyor. Keling, sizni to'g'ri manzilga qaytaramiz.",
+    "railLabel": "Sahifa bo'limlari",
+    "railUp": "Oldingi bo'lim",
+    "railDown": "Keyingi bo'lim",
+    "railTop": "Tepaga qaytish"
   },
   "title": "Xarita va bron stollari",
   "status": "Xaritada {map} stol. Bazada bog'langan: {linked}. Eski faol stollar: {extra}.",

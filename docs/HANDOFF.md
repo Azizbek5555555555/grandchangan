@@ -107,7 +107,7 @@ Namuna rasmlar repo ichida: **`docs/references/`** (README.md da har birining iz
 5. **Sharhlar (`home/Reviews.tsx`)** — almashtir: premium, birinchi qarashda odamga hikoya aytadigan; **background rasmlar**dan foydalan.
 6. **Barcha sahifalarning hero'lari** (`PageHero.tsx` — hamma ichki sahifa bir xil boshlanyapti) — har biri **noodatiy va bir-biriga
    o'xshamaydigan** bo'lsin (menyu, bron, galereya, tadbirlar, blog, biz haqimizda, aloqa — har biriga o'z kompozitsiyasi).
-7. **Maxsus scroll ko'rsatkich** — o'ng tomonda doim turadigan, saytga moslab qilingan scroll: tepaga/pastga tugmalari,
+7. ✅ BAJARILDI (`src/components/site/chrome/ScrollRail.tsx`, SmoothScroll ichida; `window.__lenis`) — **Maxsus scroll ko'rsatkich** — o'ng tomonda doim turadigan, saytga moslab qilingan scroll: tepaga/pastga tugmalari,
    sahifadagi bo'limlar (nuqtalar/raqamlar), hozir qaysi bo'limdaligini ko'rsatadi, bosganda o'sha bo'limga o'tadi.
    Oddiy brauzer scroll'i emas. (Lenis bilan ishlashi kerak: `lenis.scrollTo`.)
 

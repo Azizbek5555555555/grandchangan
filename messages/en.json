@@ -597,7 +597,11 @@
     "closeMenu": "Close menu",
     "ctaShort": "Book",
     "language": "Language",
-    "notFoundText": "This path isn't on our map — but our table is always set. Let us guide you back."
+    "notFoundText": "This path isn't on our map — but our table is always set. Let us guide you back.",
+    "railLabel": "Page sections",
+    "railUp": "Previous section",
+    "railDown": "Next section",
+    "railTop": "Back to top"
   },
   "title": "Map & bookable tables",
   "status": "{map, plural, one {# table} other {# tables}} on the map. Linked in the database: {linked}. Old active tables: {extra}.",
