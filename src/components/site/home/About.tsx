@@ -1,6 +1,5 @@
 import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
-import Blob from "@/components/site/kit/Blob";
 import ButtonLink from "@/components/site/kit/ButtonLink";
 import SectionHead from "@/components/site/kit/SectionHead";
 import Wave from "@/components/site/kit/Wave";
@@ -10,6 +9,7 @@ import RevealGroup from "@/components/motion/RevealGroup";
 import CountUp from "./CountUp";
 import SafeImg from "./SafeImg";
 import { GlyphPanel, Seal } from "./Decor";
+import LanternsDrop from "./LanternsDrop";
 
 /**
  * 3-bo'lim: BIZ HAQIMIZDA (namuna 2 — qorong'i "saroy"): katta qizil bloblar, foto-kollaj
@@ -27,21 +27,25 @@ export default async function About({
   const [a, b, c] = [images[0] ?? null, images[1] ?? null, images[2] ?? null];
 
   return (
-    <section className="relative isolate overflow-hidden bg-night pb-28 pt-20 text-brand-cream sm:pb-32 sm:pt-24 lg:pb-40 lg:pt-32">
-      {/* Katta qizil bloblar */}
-      <Parallax speed={10} className="pointer-events-none absolute -left-48 top-16 -z-10 w-[34rem] sm:w-[44rem]">
-        <Blob variant="a" className="w-full text-fire-deep/80 animate-spin-slow" />
-      </Parallax>
-      <Parallax speed={-14} className="pointer-events-none absolute -bottom-40 -right-56 -z-10 w-[26rem] sm:w-[34rem]">
-        <Blob variant="c" className="w-full text-fire/85" />
-      </Parallax>
+    <section className="relative isolate overflow-hidden bg-night pb-28 pt-40 text-brand-cream sm:pb-32 sm:pt-44 lg:pb-40 lg:pt-48">
+      {/* Osilgan 2D fonarlar — bo'limga kelganda tepadan tushib, chayqalib yonadi */}
+      <LanternsDrop
+        items={[
+          { left: "2%", size: 74, rope: 70, char: "福" },
+          { left: "9%", size: 52, rope: 150, char: "喜" },
+          { left: "86%", size: 64, rope: 40, char: "春" },
+          { left: "93%", size: 46, rope: 120, char: "安" },
+        ]}
+        className="hidden md:block"
+      />
+      <LanternsDrop items={[{ left: "78%", size: 46, rope: 24, char: "福" }]} className="md:hidden" />
       <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute right-[4%] top-10 -z-10 select-none text-[9rem] leading-none text-brand-cream/[0.04] sm:text-[14rem]">
         长安
       </span>
 
-      <div className="mx-auto grid max-w-7xl items-center gap-16 px-5 sm:px-8 lg:grid-cols-2 lg:gap-20">
+      <div className="mx-auto grid max-w-7xl items-center gap-16 px-5 sm:px-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
         {/* ---------- Foto-kollaj ---------- */}
-        <div className="relative mx-auto h-[440px] w-full max-w-[540px] sm:h-[580px]">
+        <div className="relative mx-auto h-[520px] w-full max-w-[700px] sm:h-[700px] lg:h-[780px]">
           <Parallax speed={6} className="absolute left-0 top-0 h-[84%] w-[57%]">
             <SafeImg
               src={a}

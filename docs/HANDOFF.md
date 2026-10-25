@@ -21,7 +21,7 @@ Google akkaunt boshqa bo'lishi muammo emas: Claude'ga **GitHub akkauntingiz** ul
    - Environment variables (ixtiyoriy, faqat lokal test uchun, prod sirlarini YOZMANG):
      `AUTH_SECRET=test-secret-123`
 4. Repo sifatida **Azizbek5555555555/grandchangan** ni tanlab, yangi sessiya oching.
-5. Birinchi xabarga quyidagi **"Birinchi xabar"** matnini yuboring (namuna rasmlarni ham shu sessiyaga qayta yuklang).
+5. Birinchi xabarga quyidagi **"Birinchi xabar"** matnini yuboring (namuna rasmlar repo ichida — `docs/references/`).
 
 ### B variant — o'z kompyuteringizda (Windows) Claude Code CLI
 1. Node.js 22 o'rnating (nodejs.org) va Git (git-scm.com).
@@ -42,7 +42,7 @@ Avval docs/HANDOFF.md, CLAUDE.md, docs/ROADMAP.md, docs/DESIGN.md fayllarini o'q
 Keyin HANDOFF.md dagi "Navbatdagi ishlar" ro'yxatini tartib bilan bajar.
 Ish branchi: claude/pensive-gauss-fqg6hx (main'ga to'g'ridan-to'g'ri push qilma).
 Har bir tugagan ishdan keyin: npx tsc --noEmit, npm run build, commit, push.
-Men bilan o'zbek tilida gaplash. Namuna rasmlarni shu xabarga ilova qildim.
+Men bilan o'zbek tilida gaplash. Namuna rasmlar: docs/references/ (README.md da izohlar).
 ```
 
 ### Ish tartibi (har doim shunday)
@@ -92,12 +92,12 @@ Men bilan o'zbek tilida gaplash. Namuna rasmlarni shu xabarga ilova qildim.
 ## 3. Navbatdagi ishlar (Aziz, 2026-10-25) — tartib bilan
 
 Aziz fikri: "sayt yosh bolaga o'xshab qolgan, juda oddiy va detskiy; yaxshi joylari ham ko'p". Premium bo'lishi kerak.
-Namuna rasmlar: Aziz zip qilib yuborgan (`Namuna_rasmlar.zip`, rasm nomlari — qayerga mosligi). Yangi sessiyaga qayta yuklaydi.
+Namuna rasmlar repo ichida: **`docs/references/`** (README.md da har birining izohi). Qayta yuklash shart emas.
 
-1. **Bosh sahifa HERO** (birinchi ekran) — butunlay almashtirish. Hozirgi qizil fon + matn + 3D kosa "juda oddiy".
+1. ✅ BAJARILDI (commit df2eb88) — **Bosh sahifa HERO** (birinchi ekran) — butunlay almashtirish. Hozirgi qizil fon + matn + 3D kosa "juda oddiy".
    Premium, 3D, kinematik bo'lsin (Aziz namuna tashlashi mumkin; bo'lmasa o'zing qil). Mavjud 3D modellardan foydalanish mumkin
    (`HeroBowlScene`), lekin kompozitsiya/yorug'lik/tipografiya butunlay yangi, "Awwwards" darajasida.
-2. **"Biz haqimizda" bo'limi (bosh sahifa, `home/About.tsx`)** — 2 ta katta qizil blob (chap tepa va o'ng past) yoqmadi.
+2. ✅ BAJARILDI (LanternsDrop.tsx, rasmlar kattalashtirildi) — **"Biz haqimizda" bo'limi (bosh sahifa, `home/About.tsx`)** — 2 ta katta qizil blob (chap tepa va o'ng past) yoqmadi.
    Ularning o'rniga footer tepasidagi "Dasturxonimizga marhamat" bo'limidagi kabi **xitoy fonarlari**, lekin 3D emas — **2D**
    (SVG/CSS), bo'limga scroll qilib kelganda chiroyli ochilish animatsiyasi bilan (ScrollTrigger). Kollaj **rasmlarini kattaroq**
    qil — sahifaning ko'p joyini egallasa ham chiroyli.
