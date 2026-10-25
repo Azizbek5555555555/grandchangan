@@ -719,7 +719,15 @@
     "infoTitle": "Ваши данные",
     "notePlaceholder": "Например: день рождения, детский стул, у окна…",
     "add": "Добавить",
-    "less": "Убрать"
+    "less": "Убрать",
+    "heroMenuEyebrow": "Кухня Чанъаня",
+    "heroDishes": "Блюд",
+    "heroCats": "Разделов",
+    "heroTicket": "Приглашение",
+    "heroPaper": "Вестник Чанъаня",
+    "heroPosts": "{count, plural, one {# статья} few {# статьи} many {# статей} other {# статьи}}",
+    "heroCity": "Самарканд",
+    "heroAboutEyebrow": "От начала Шёлкового пути — до Самарканда"
   },
   "About2": {
     "storyEyebrow": "Наша история",

@@ -719,7 +719,15 @@
     "infoTitle": "您的信息",
     "notePlaceholder": "例如：生日、儿童座椅、靠窗……",
     "add": "添加",
-    "less": "减少"
+    "less": "减少",
+    "heroMenuEyebrow": "长安风味",
+    "heroDishes": "道菜",
+    "heroCats": "个类别",
+    "heroTicket": "请柬",
+    "heroPaper": "长安日报",
+    "heroPosts": "{count} 篇文章",
+    "heroCity": "撒马尔罕",
+    "heroAboutEyebrow": "从丝路起点到撒马尔罕"
   },
   "About2": {
     "storyEyebrow": "我们的故事",

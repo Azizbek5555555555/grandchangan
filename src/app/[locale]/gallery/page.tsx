@@ -2,7 +2,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
-import PageHero from "@/components/site/PageHero";
+import GalleryHero from "@/components/site/heroes/GalleryHero";
 import SectionHead from "@/components/site/kit/SectionHead";
 import ButtonLink from "@/components/site/kit/ButtonLink";
 import Reveal from "@/components/motion/Reveal";
@@ -27,7 +27,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
   return (
     <>
       <SiteHeader />
-      <PageHero title={tc("gallery")} subtitle={st("gallerySub")} cn="画廊" bgImage={urls[0] || null} />
+      <GalleryHero title={tc("gallery")} sub={st("gallerySub")} urls={urls} />
       <main className="relative isolate overflow-x-clip bg-paper pb-28 pt-10">
         <Birds className="absolute right-[10%] top-6 -z-10 w-44 text-content/20" />
         <div className="mx-auto max-w-7xl px-5 sm:px-8">

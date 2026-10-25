@@ -719,7 +719,15 @@
     "infoTitle": "Ma'lumotlaringiz",
     "notePlaceholder": "Masalan: tug'ilgan kun, bolalar stuli, deraza yonida…",
     "add": "Qo'shish",
-    "less": "Kamaytirish"
+    "less": "Kamaytirish",
+    "heroMenuEyebrow": "Chang'an oshxonasi",
+    "heroDishes": "Taom",
+    "heroCats": "Bo'lim",
+    "heroTicket": "Taklifnoma",
+    "heroPaper": "Chang'an kundaligi",
+    "heroPosts": "{count} ta maqola",
+    "heroCity": "Samarqand",
+    "heroAboutEyebrow": "Ipak yo'lining boshidan — Samarqandgacha"
   },
   "About2": {
     "storyEyebrow": "Bizning hikoya",

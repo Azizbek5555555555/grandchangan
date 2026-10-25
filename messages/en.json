@@ -719,7 +719,15 @@
     "infoTitle": "Your details",
     "notePlaceholder": "E.g. birthday, high chair, by the window…",
     "add": "Add",
-    "less": "Remove one"
+    "less": "Remove one",
+    "heroMenuEyebrow": "The kitchen of Chang'an",
+    "heroDishes": "Dishes",
+    "heroCats": "Sections",
+    "heroTicket": "Invitation",
+    "heroPaper": "The Chang'an Daily",
+    "heroPosts": "{count, plural, one {# article} other {# articles}}",
+    "heroCity": "Samarkand",
+    "heroAboutEyebrow": "From the start of the Silk Road to Samarkand"
   },
   "About2": {
     "storyEyebrow": "Our story",

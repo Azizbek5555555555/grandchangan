@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { t } from "@/lib/utils";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
-import PageHero from "@/components/site/PageHero";
+import BlogHero from "@/components/site/heroes/BlogHero";
 import SectionHead from "@/components/site/kit/SectionHead";
 import RevealGroup from "@/components/motion/RevealGroup";
 import Reveal from "@/components/motion/Reveal";
@@ -19,9 +19,10 @@ const CHARS = ["文", "茶", "宴", "福", "春", "味"];
 export default async function BlogListPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [st, tc] = await Promise.all([
+  const [st, tc, p2] = await Promise.all([
     getTranslations({ locale, namespace: "Site" }),
     getTranslations({ locale, namespace: "Common" }),
+    getTranslations({ locale, namespace: "Pages2" }),
   ]);
   const posts = await prisma.blogPost.findMany({ where: { status: "PUBLISHED" }, orderBy: { publishedAt: "desc" } });
   const dateFmt = new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Samarkand" });
@@ -29,7 +30,14 @@ export default async function BlogListPage({ params }: { params: Promise<{ local
   return (
     <>
       <SiteHeader />
-      <PageHero title={tc("blog")} subtitle={st("blogSub")} cn="文章" />
+      <BlogHero
+        title={tc("blog")}
+        sub={st("blogSub")}
+        paperName={p2("heroPaper")}
+        dateLine={new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Samarkand" }).format(new Date())}
+        countLine={p2("heroPosts", { count: posts.length })}
+        city={p2("heroCity")}
+      />
       <main className="relative isolate overflow-x-clip bg-paper pb-28 pt-10">
         <div className="mx-auto max-w-6xl px-5 sm:px-8">
           <div className="mb-12">

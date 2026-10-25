@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { ROOMS, floorTotals, roomSeats } from "@/lib/floorplan/layout";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
-import PageHero from "@/components/site/PageHero";
+import EventsHero from "@/components/site/heroes/EventsHero";
 import EventForm from "@/components/site/EventForm";
 import SectionHead from "@/components/site/kit/SectionHead";
 import Wave from "@/components/site/kit/Wave";
@@ -55,12 +55,12 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
   return (
     <>
       <SiteHeader />
-      <PageHero title={te("heroTitle")} subtitle={te("heroSub")} cn="宴会" tone="night" bgImage={imgs[0] ?? null} />
+      <EventsHero title={te("heroTitle")} sub={te("heroSub")} kinds={KINDS.map((k) => te(`${k.key}t`))} bgImage={imgs[0] ?? null} />
 
       <main className="overflow-x-clip">
         {/* ===== Tadbir turlari — qorong'i, vertikal yorliqli (namuna: 湯包家) ===== */}
         <section className="relative isolate overflow-hidden bg-night pb-32 pt-20 text-brand-cream sm:pb-40">
-          <Wave top className="text-paper" variant="b" />
+          <Wave top className="text-wine" variant="b" />
           <span aria-hidden="true" className="lattice-bg absolute inset-0 -z-10 text-brand-gold/[0.04]" />
           <div className="mx-auto max-w-6xl px-5 sm:px-8">
             <SectionHead align="center" tone="dark" font="serif" cn="宴会厅" eyebrow={te("eyebrow")} title={te("title")} />
