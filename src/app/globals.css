@@ -301,7 +301,12 @@ body.cursor-none, body.cursor-none * { cursor: none !important; }
 }
 .animate-steam { animation: steamRise 3.6s ease-out infinite; }
 
+/* Osilgan fonar tebranishi (2D fonarlar) — rotate xossasi GSAP transform bilan to'qnashmaydi */
+@keyframes sway { 0%, 100% { rotate: -2.5deg; } 50% { rotate: 2.5deg; } }
+.animate-sway { animation: sway 5.5s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
+  .animate-sway,
   .animate-bob, .animate-spin-slow, .animate-steam, .animate-marquee, .animate-marquee-rev, .animate-kenburns { animation: none !important; }
 }
 

@@ -5,22 +5,21 @@ import Wave from "@/components/site/kit/Wave";
 import { cn } from "@/lib/utils";
 
 /**
- * 1-bo'lim: HERO (namuna 1 — qizil lag'mon afishasi).
- * Chapda katta afisha sarlavha, o'ngda 3D lag'mon kosasi va uning ortida bezaklar.
- * Kirish animatsiyasi — sof CSS (@starting-style): JS'siz ham ishlaydi, sahifa yuklanishida
- * "miltillash" bo'lmaydi; prefers-reduced-motion'da o'chadi.
+ * 1-bo'lim: HERO — premium "Grand Mansion" afishasi uslubida (namuna: docs/references/05-premium1.jpg,
+ * 01-3d-xitoy-tayoqcha). Qorong'i fon, markazda 3D lag'mon kosasi, uning ortida oltin konturli ulkan 长安
+ * va oltin "oy" doirasi, chetlarda vertikal xitoycha yozuvlar, pastda nafis serif sarlavha.
+ * Kirish animatsiyasi — sof CSS (@starting-style), reduced-motion'da o'chadi.
  */
 
-// Yuklanishda pastdan suzib chiqish (Tailwind `starting:` = @starting-style)
 const ENTER =
-  "transition-[opacity,translate] duration-[1100ms] ease-out-expo starting:translate-y-10 starting:opacity-0 motion-reduce:transition-none";
+  "transition-[opacity,translate] duration-[1200ms] ease-out-expo starting:translate-y-8 starting:opacity-0 motion-reduce:transition-none";
 
 export type HeroFact = { value: string; label: string };
 
 type Props = {
   tag: string;
   lines: string[];
-  /** Saffron rangli qator indeksi */
+  /** Kursiv oltin qator indeksi */
   accentLine: number;
   sub: string;
   /** zh tilida sarlavha mo'yqalam shriftida */
@@ -34,116 +33,98 @@ type Props = {
   waveClass?: string;
 };
 
-const DELAYS = ["delay-[120ms]", "delay-[220ms]", "delay-[320ms]"];
-
 export default function Hero({ tag, lines, accentLine, sub, cnHeadline, bookLabel, menuLabel, facts, hours, sticker, waveClass = "text-paper" }: Props) {
-  // Qisqa qatorlar (masalan "Grand / Changan") kattaroq yoziladi; uzunlari — ustunga sig'adigan o'lchamda
-  const short = Math.max(...lines.map((l) => l.length)) <= 8;
   return (
-    <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden bg-fire pb-24 pt-28 text-brand-cream sm:pb-28 lg:pb-32 lg:pt-32">
-      {/* Fon: iliq zafar nur va nozik panjara naqshi */}
-      <span aria-hidden="true" className="pointer-events-none absolute -left-40 -top-40 -z-10 size-[38rem] rounded-full bg-saffron/15 blur-3xl" />
-      <span aria-hidden="true" className="pointer-events-none absolute -bottom-48 right-[-10%] -z-10 size-[44rem] rounded-full bg-fire-deep/70 blur-3xl" />
-      <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 -z-10 text-fire-deep/25" />
+    <section className="relative isolate overflow-hidden bg-night pb-28 pt-24 text-brand-cream sm:pb-32 lg:min-h-[100svh] lg:pb-36 lg:pt-28">
+      {/* ---------- Fon: iliq nur, panjara, tutun ---------- */}
+      <span aria-hidden="true" className="pointer-events-none absolute left-1/2 top-[38%] -z-10 size-[54rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-fire-deep/35 blur-[120px]" />
+      <span aria-hidden="true" className="pointer-events-none absolute -bottom-40 left-1/2 -z-10 h-80 w-[70rem] -translate-x-1/2 rounded-[50%] bg-saffron/10 blur-3xl" />
+      <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 -z-10 text-brand-gold/[0.035]" />
 
-      <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] lg:gap-6">
-        {/* ---------- Matn ---------- */}
-        <div className="relative z-10 min-w-0">
-          <p className={cn(ENTER, "inline-flex h-9 items-center gap-2.5 rounded-full border border-brand-cream/25 bg-fire-deep/60 px-4 text-[13px] font-medium tracking-wide text-brand-cream/90 backdrop-blur-sm")}>
-            <span className="size-2 rounded-full bg-saffron" />
-            {tag}
-          </p>
+      {/* ---------- Chetlardagi vertikal yozuvlar (kompyuterda) ---------- */}
+      <p aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute left-6 top-1/2 hidden -translate-y-1/2 text-2xl leading-[1.25] tracking-[0.35em] text-brand-gold/70 [writing-mode:vertical-rl] xl:block 2xl:left-12">
+        丝路起点 · 长安美食
+      </p>
+      <div aria-hidden="true" className="pointer-events-none absolute right-6 top-1/2 hidden -translate-y-1/2 flex-col items-center gap-4 xl:flex 2xl:right-12">
+        <span className="h-24 w-px bg-gradient-to-b from-transparent to-brand-gold/60" />
+        <span lang="zh" className="font-cn text-lg tracking-[0.4em] text-brand-gold/70 [writing-mode:vertical-rl]">撒马尔罕</span>
+        <span className="flex size-11 items-center justify-center rounded-[4px] bg-fire font-cn text-sm leading-none text-brand-cream [writing-mode:vertical-rl]" lang="zh">长安</span>
+        <span className="h-24 w-px bg-gradient-to-t from-transparent to-brand-gold/60" />
+      </div>
 
-          <h1
-            lang={cnHeadline ? "zh" : undefined}
-            className={cn(
-              "mt-6 text-balance",
-              cnHeadline
-                ? "font-cn text-[clamp(3.6rem,11vw,7.5rem)] leading-[1.08]"
-                : short
-                  ? "font-poster text-[clamp(2.8rem,13vw,5rem)] leading-[1.05] [overflow-wrap:anywhere] lg:text-[clamp(4.4rem,7vw,6.6rem)]"
-                  : "font-poster text-[clamp(2.3rem,10.6vw,4.4rem)] leading-[1.05] [overflow-wrap:anywhere] lg:text-[clamp(3.6rem,5.6vw,6.2rem)]"
-            )}
+      <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
+        {/* ---------- Eyebrow ---------- */}
+        <p className={cn(ENTER, "flex items-center justify-center gap-4 text-[11px] font-semibold uppercase tracking-[0.42em] text-brand-gold-light sm:text-xs")}>
+          <span className="h-px w-10 bg-brand-gold/60 sm:w-16" />
+          {tag}
+          <span className="h-px w-10 bg-brand-gold/60 sm:w-16" />
+        </p>
+
+        {/* ---------- Markaz: oltin oy + ulkan 长安 + 3D kosa ---------- */}
+        <div className="relative mx-auto mt-4 aspect-square w-full max-w-[min(92vw,44rem)] lg:-mb-28 lg:mt-0 lg:max-w-[min(64vh,40rem)]">
+          <span
+            aria-hidden="true"
+            lang="zh"
+            className="font-cn pointer-events-none absolute inset-x-0 top-1/2 -translate-y-[58%] select-none whitespace-nowrap text-center text-[min(40vw,17rem)] leading-none text-transparent opacity-60 [-webkit-text-stroke:1px_var(--color-brand-gold)]"
           >
-            {lines.map((l, i) => (
-              <span key={i} className={cn(ENTER, DELAYS[i] ?? DELAYS[2], "block", i === accentLine && "text-saffron")}>
-                {l}
-              </span>
-            ))}
-          </h1>
-
-          {sub && (
-            <p className={cn(ENTER, "mt-6 max-w-xl text-lg leading-relaxed text-brand-cream delay-[420ms] sm:text-xl")}>{sub}</p>
-          )}
-
-          <div className={cn(ENTER, "mt-9 flex flex-wrap gap-3 delay-[520ms] sm:gap-4")}>
-            <ButtonLink href="/reservation" variant="saffron" className="group shadow-lg shadow-wine/40">
-              {bookLabel}
-              <ArrowRight size={18} className="transition group-hover:translate-x-1" />
-            </ButtonLink>
-            <ButtonLink href="/menu" variant="ghost-light">{menuLabel}</ButtonLink>
-          </div>
-
-          {/* Raqamlar: zal xaritasidan (stollar, o'rinlar, VIP) va ish vaqti bazadan */}
-          <dl className={cn(ENTER, "mt-12 grid grid-cols-2 gap-x-6 gap-y-6 delay-[640ms] sm:flex sm:flex-nowrap sm:gap-0")}>
-            {facts.map((f) => (
-              <div key={f.label} className="min-w-0 sm:border-r sm:border-brand-cream/20 sm:px-5 sm:first:pl-0 xl:px-6">
-                <dt className="sr-only">{f.label}</dt>
-                <dd className="whitespace-nowrap font-poster text-3xl leading-none sm:text-[2.1rem]">{f.value}</dd>
-                <dd aria-hidden="true" className="mt-2 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-brand-cream/95">{f.label}</dd>
-              </div>
-            ))}
-            <div className="min-w-0 sm:pl-5 xl:pl-6">
-              <dt className="sr-only">{hours.label}</dt>
-              <dd className="flex items-center gap-2 whitespace-nowrap font-poster text-xl leading-none sm:text-2xl">
-                <Clock size={18} className="shrink-0 text-saffron" aria-hidden="true" />
-                {hours.value}
-              </dd>
-              <dd aria-hidden="true" className="mt-2 whitespace-nowrap text-xs font-semibold uppercase tracking-[0.16em] text-brand-cream/95">{hours.label}</dd>
-            </div>
-          </dl>
+            长安
+          </span>
+          <span aria-hidden="true" className="absolute inset-[9%] rounded-full border border-brand-gold/30" />
+          <span aria-hidden="true" className="absolute inset-[13%] animate-spin-slow rounded-full border border-dashed border-brand-gold/20" />
+          <HeroBowl tone="night" className="absolute inset-0" />
+          {sticker && <GoldSeal ring={sticker.ring} center={sticker.center} />}
         </div>
 
-        {/* ---------- 3D kosa va bezaklar ---------- */}
-        <div className="relative mx-auto w-[min(86vw,340px)] sm:w-[460px] lg:w-full lg:max-w-[620px]">
-          <div className="relative aspect-square">
-            {/* Ulkan 长安 (orqa fonda) */}
-            <span
-              aria-hidden="true"
-              lang="zh"
+        {/* ---------- Pastki qator: sarlavha | tugmalar ---------- */}
+        <div className="relative z-10 mt-2 grid items-end gap-10 lg:mt-0 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] lg:gap-16">
+          <div className="min-w-0">
+            <h1
+              lang={cnHeadline ? "zh" : undefined}
               className={cn(
-                "font-cn pointer-events-none absolute -right-[14%] -top-[12%] select-none whitespace-nowrap text-[clamp(8rem,34vw,17rem)] leading-none text-fire-deep [writing-mode:vertical-rl]",
-                "transition-[opacity,translate] duration-[1600ms] ease-out-expo starting:translate-y-16 starting:opacity-0 motion-reduce:transition-none"
+                "text-balance text-brand-cream",
+                cnHeadline ? "font-cn text-6xl leading-[1.1] sm:text-7xl" : "font-display text-[clamp(2.6rem,6.4vw,5.6rem)] font-normal leading-[1.02] tracking-[-0.01em]"
               )}
             >
-              长安
-            </span>
-
-            {/* To'q qizil disk + aylanuvchi zafar halqa */}
-            <div className="absolute inset-[7%] transition-[opacity,scale] duration-[1300ms] ease-out-expo delay-150 starting:scale-75 starting:opacity-0 motion-reduce:transition-none">
-              <div className="absolute inset-0 rounded-full bg-fire-deep shadow-2xl shadow-wine/60" />
-              <div className="absolute inset-[7%] rounded-full border-2 border-dashed border-saffron/35 animate-spin-slow" />
-              <div className="absolute inset-[20%] rounded-full bg-wine/35 blur-2xl" />
+              {lines.map((l, i) => (
+                <span
+                  key={i}
+                  className={cn(ENTER, i === 0 ? "delay-[150ms]" : i === 1 ? "delay-[260ms]" : "delay-[370ms]", "block", i === accentLine && "italic text-brand-gold-light")}
+                >
+                  {l}
+                </span>
+              ))}
+            </h1>
+          </div>
+          <div className={cn(ENTER, "min-w-0 delay-[480ms] lg:pb-3")}>
+            <p className="max-w-md text-base leading-relaxed text-brand-cream/85 sm:text-lg">{sub}</p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <ButtonLink href="/reservation" variant="fire" blob className="group">
+                {bookLabel}
+                <ArrowRight size={18} className="transition group-hover:translate-x-1" />
+              </ButtonLink>
+              <ButtonLink href="/menu" variant="gold-outline">{menuLabel}</ButtonLink>
             </div>
-
-            {/* 3D lag'mon kosasi ("three" agenti) */}
-            <div className="absolute inset-0 z-10 transition-[opacity,translate] duration-[1400ms] ease-out-expo delay-300 starting:translate-y-12 starting:opacity-0 motion-reduce:transition-none">
-              <HeroBowl className="h-full w-full" />
-            </div>
-
-            {/* Vertikal xitoycha lenta */}
-            <div
-              aria-hidden="true"
-              lang="zh"
-              className="font-cn absolute -left-1 top-[10%] z-20 rounded-full border border-saffron/40 bg-wine/90 px-2 py-5 text-lg leading-none tracking-[0.25em] text-saffron shadow-lg [writing-mode:vertical-rl] transition-[opacity,translate] duration-1000 ease-out-expo delay-500 starting:-translate-y-6 starting:opacity-0 motion-reduce:transition-none sm:text-xl"
-            >
-              丝路起点 · 正宗中餐
-            </div>
-
-            {/* Zafar "stiker": oshpaz tavsiyasi */}
-            {sticker && <Sticker ring={sticker.ring} center={sticker.center} />}
           </div>
         </div>
+
+        {/* ---------- Raqamlar lentasi (oltin chiziq) ---------- */}
+        <dl translate="no" className={cn(ENTER, "relative z-10 mt-12 grid grid-cols-2 gap-6 border-t border-brand-gold/25 pt-6 delay-[620ms] sm:grid-cols-4 sm:gap-0")}>
+          {facts.map((f) => (
+            <div key={f.label} className="min-w-0 sm:border-r sm:border-brand-gold/15 sm:px-6 sm:first:pl-0">
+              <dt className="sr-only">{f.label}</dt>
+              <dd className="font-display text-4xl leading-none text-brand-gold-light sm:text-5xl">{f.value}</dd>
+              <dd aria-hidden="true" className="mt-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-cream/80">{f.label}</dd>
+            </div>
+          ))}
+          <div className="min-w-0 sm:px-6">
+            <dt className="sr-only">{hours.label}</dt>
+            <dd className="flex items-center gap-2 font-display text-3xl leading-none text-brand-gold-light sm:text-4xl">
+              <Clock size={20} className="shrink-0 text-saffron" aria-hidden="true" />
+              {hours.value}
+            </dd>
+            <dd aria-hidden="true" className="mt-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-cream/80">{hours.label}</dd>
+          </div>
+        </dl>
       </div>
 
       <Wave className={waveClass} />
@@ -151,34 +132,22 @@ export default function Hero({ tag, lines, accentLine, sub, cnHeadline, bookLabe
   );
 }
 
-function Sticker({ ring, center }: { ring: string; center: string }) {
-  const han = /\p{Script=Han}/u.test(center);
-  // Halqa matni aylana uzunligini to'ldirishi uchun takrorlanadi
-  const reps = Math.max(2, Math.min(4, Math.round(36 / Math.max(ring.length, 4))));
-  const ringText = Array.from({ length: reps }, () => `${ring.toUpperCase()} • `).join("");
+/** Oltin muhr-belgi: aylanma yozuv va markazda xitoycha nom (kosa yonida) */
+function GoldSeal({ ring, center }: { ring: string; center: string }) {
+  const ringText = `${ring} · ${ring} · `;
   return (
-    <div className="absolute -bottom-[2%] right-[2%] z-20 size-[7.5rem] rotate-[-10deg] transition-[opacity,scale,rotate] duration-[1100ms] ease-out-expo delay-700 starting:rotate-[-120deg] starting:scale-50 starting:opacity-0 motion-reduce:transition-none sm:size-36 lg:right-[4%]">
-      <div className="relative size-full rounded-full bg-saffron text-brand-ink shadow-xl shadow-wine/50 ring-4 ring-saffron/30">
-        <svg viewBox="0 0 200 200" aria-hidden="true" className="absolute inset-0 size-full animate-spin-slow">
-          <defs>
-            <path id="gc-sticker-ring" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0" />
-          </defs>
-          <text fill="currentColor" fontSize="15" fontWeight="700" letterSpacing="2">
-            <textPath href="#gc-sticker-ring" textLength="496" lengthAdjust="spacing">{ringText}</textPath>
-          </text>
-        </svg>
-        <div className="absolute inset-[24%] flex items-center justify-center rounded-full border border-dashed border-brand-ink/30 text-center">
-          <span
-            lang={han ? "zh" : undefined}
-            className={cn(
-              "line-clamp-2 px-1 leading-[1.1] text-fire-deep",
-              han ? "font-cn text-xl sm:text-2xl" : "font-display text-sm font-semibold sm:text-base"
-            )}
-          >
-            {center}
-          </span>
-        </div>
-      </div>
+    <div aria-hidden="true" className="absolute left-[2%] top-[10%] z-10 size-24 sm:size-32">
+      <svg viewBox="0 0 200 200" className="absolute inset-0 size-full animate-spin-slow">
+        <defs>
+          <path id="gc-seal-ring" d="M100,100 m-80,0 a80,80 0 1,1 160,0 a80,80 0 1,1 -160,0" />
+        </defs>
+        <text className="fill-brand-gold-light" style={{ fontSize: 15, letterSpacing: 3, fontWeight: 600 }}>
+          <textPath href="#gc-seal-ring" textLength="496" lengthAdjust="spacing">{ringText.toUpperCase()}</textPath>
+        </text>
+      </svg>
+      <span className="absolute inset-[22%] flex items-center justify-center rounded-full border border-brand-gold/50 bg-night/80 backdrop-blur-sm">
+        <span lang="zh" className="font-cn text-center text-lg leading-tight text-saffron sm:text-2xl">{center}</span>
+      </span>
     </div>
   );
 }

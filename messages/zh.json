@@ -597,7 +597,11 @@
     "closeMenu": "关闭菜单",
     "ctaShort": "订座",
     "language": "语言",
-    "notFoundText": "这条路不在我们的地图上——但我们的餐桌随时为您准备。让我们带您回到正确的方向。"
+    "notFoundText": "这条路不在我们的地图上——但我们的餐桌随时为您准备。让我们带您回到正确的方向。",
+    "railLabel": "页面章节",
+    "railUp": "上一部分",
+    "railDown": "下一部分",
+    "railTop": "返回顶部"
   },
   "title": "平面图与可预订餐桌",
   "status": "平面图上有 {map} 张餐桌。数据库中已关联：{linked}。旧的启用餐桌：{extra}。",

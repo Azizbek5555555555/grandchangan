@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import ScrollRail from "@/components/site/chrome/ScrollRail";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -25,6 +26,8 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     });
 
     lenis.on("scroll", ScrollTrigger.update);
+    // ScrollRail va boshqa komponentlar silliq o'tish uchun ishlatadi
+    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
     const raf = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
@@ -33,9 +36,15 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     return () => {
       gsap.ticker.remove(raf);
       lenis.destroy();
+      delete (window as unknown as { __lenis?: Lenis }).__lenis;
       document.documentElement.classList.remove("reveal-ready");
     };
   }, [isAdmin, pathname]);
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      {!isAdmin && <ScrollRail key={pathname} />}
+    </>
+  );
 }
