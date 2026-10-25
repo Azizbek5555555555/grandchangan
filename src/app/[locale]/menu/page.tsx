@@ -50,14 +50,22 @@ export default async function MenuPage({ params }: { params: Promise<{ locale: s
         ].filter((s) => s.value > 0)}
         bookLabel={th("book_table")}
         browseLabel={th("view_menu")}
-        waveClass={signature.length ? undefined : "text-paper"}
+        waveClass={signature.length ? "text-paper" : undefined}
       />
-      <ChefSignature items={signature} locale={locale} />
-      <main className="bg-paper">
+      {/* Fon ketma-ketligi: hero (tun) → oshpaz tanlovi (krem) → menyu (tun, oltin ramka) → choy (krem) → footer (tun).
+          Oshpaz tanlovi bo'lmasa hero va menyu orasida faqat oltin chiziq qoladi. */}
+      <main>
+        <ChefSignature items={signature} locale={locale} />
         <div id="menu-browser" className="scroll-mt-20">
-          <MenuBrowser categories={plainCats} items={plainItems} locale={locale} showFeatured={signature.length === 0} />
+          <MenuBrowser
+            categories={plainCats}
+            items={plainItems}
+            locale={locale}
+            showFeatured={signature.length === 0}
+            waveTo={tea.length ? "text-paper" : undefined}
+          />
         </div>
-        <TeaRitual items={tea} locale={locale} anchorId={teaCats[0]?.id ?? null} />
+        <TeaRitual items={tea} locale={locale} anchorId={tea[0]?.categoryId ?? null} />
       </main>
       <SiteFooter locale={locale} />
     </>
