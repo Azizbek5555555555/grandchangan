@@ -7,9 +7,9 @@ export type DayHours = { dayOfWeek: number; openTime: string; closeTime: string;
 /** Bitta bron qancha davom etadi (stol shu vaqtga band bo'ladi) */
 export const SLOT_MINUTES = 120;
 
-/** Bazada yozuv bo'lmasa — har kuni 11:00–23:00 */
+/** Bazada yozuv bo'lmasa — har kuni 10:00–23:00 */
 export const DEFAULT_HOURS: DayHours[] = Array.from({ length: 7 }, (_, d) => ({
-  dayOfWeek: d, openTime: "11:00", closeTime: "23:00", isClosed: false,
+  dayOfWeek: d, openTime: "10:00", closeTime: "23:00", isClosed: false,
 }));
 
 const toMin = (hm: string) => {
@@ -29,7 +29,7 @@ export function hoursFor(hours: DayHours[], dayOfWeek: number): DayHours {
 
 /**
  * Kun uchun bron boshlanish vaqtlari: ochilishdan boshlab har soatda, oxirgisi —
- * yopilishdan SLOT_MINUTES oldin (11:00–23:00 -> 11:00 ... 21:00). Yopiq kun — bo'sh ro'yxat.
+ * yopilishdan SLOT_MINUTES oldin (10:00–23:00 -> 10:00 ... 21:00). Yopiq kun — bo'sh ro'yxat.
  * Yarim tundan keyin yopilsa (masalan 02:00), bron faqat shu kun ichida (23:00 gacha) boshlanadi.
  */
 export function slotsForDay(h: DayHours | undefined): string[] {
@@ -50,7 +50,7 @@ export function sameEveryDay(hours: DayHours[]): DayHours | null {
 }
 
 /**
- * Qisqa ish vaqti: hamma kun bir xil bo'lsa — "11:00–23:00" (every: true), aks holda shu kunniki;
+ * Qisqa ish vaqti: hamma kun bir xil bo'lsa — "10:00–23:00" (every: true), aks holda shu kunniki;
  * yopiq kun — value: null. Hero va kartalardagi bir qatorli yozuv uchun.
  */
 export function hoursSummary(hours: DayHours[], dayOfWeek: number): { value: string | null; every: boolean } {

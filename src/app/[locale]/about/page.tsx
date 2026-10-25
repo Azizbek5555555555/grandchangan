@@ -13,12 +13,28 @@ import RevealGroup from "@/components/motion/RevealGroup";
 import Parallax from "@/components/motion/Parallax";
 import CountUp from "@/components/site/home/CountUp";
 import { GlyphPanel } from "@/components/site/home/Decor";
-import SafeImg from "@/components/site/home/SafeImg";
 import CtaBand from "@/components/site/pages/CtaBand";
+import Photo from "@/components/site/photos/Photo";
+import { pic } from "@/components/site/photos/pics";
+import { photoText } from "@/components/site/photos/text";
 import { Birds, Mountains, Pavilion, SealStamp, VerticalTitle } from "@/components/site/pages/InkDecor";
 
 export const dynamic = "force-dynamic";
-const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
+
+/**
+ * Sahifa rasmlari (restoranning haqiqiy rasmlari): hero — katta VIP zal (oy darvoza ichida qandil va
+ * dumaloq stol), hikoya — «長安大飯店» yozuvli kirish darvozasi (nom tarixi), joylar — har biri o'z
+ * xonasi bilan, oxirgi CTA — oy derazali kabinka.
+ */
+const HERO = pic("vipGrand", "50% 50%");
+const STORY = pic("extDoorTall", "50% 4%");
+const SPACE_PICS = {
+  vip: pic("vipLounge", "40% 55%"),
+  hall: pic("hallUmbrellas", "52% 62%"),
+  booth: pic("boothWindow", "50% 62%"),
+  private: pic("privateRoom", "62% 70%"),
+};
+const CTA = pic("boothRoundWindow", "72% 50%");
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -29,12 +45,11 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
     getTranslations({ locale, namespace: "About2" }),
     getTranslations({ locale, namespace: "Pages2" }),
   ]);
-  const [setting, gallery] = await Promise.all([
+  const [setting, pt] = await Promise.all([
     prisma.siteSetting.findUnique({ where: { key: "general" } }),
-    prisma.galleryImage.findMany({ where: { isActive: true }, take: 4, orderBy: { sortOrder: "asc" } }),
+    photoText(locale),
   ]);
   const g = (setting?.value as Record<string, unknown>) || {};
-  const imgs = gallery.map((x) => usable(x.url)).filter(Boolean) as string[];
   const address = t(g.address, locale);
 
   // Joylar — zal xaritasidan (to'qima raqam yo'q)
@@ -49,10 +64,10 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const booth = sum("booth");
   const priv = sum("private");
   const spaces = [
-    { n: vip.rooms, title: a("vip"), text: a("vipX") },
-    { n: hall.tables, title: a("hall"), text: a("hallX", { seats: hall.seats }) },
-    { n: booth.rooms, title: a("booth"), text: a("boothX") },
-    { n: priv.rooms, title: a("privateRoom"), text: a("privateX", { seats: priv.seats }) },
+    { n: vip.rooms, title: a("vip"), text: a("vipX"), img: SPACE_PICS.vip, cn: "贵宾" },
+    { n: hall.tables, title: a("hall"), text: a("hallX", { seats: hall.seats }), img: SPACE_PICS.hall, cn: "大厅" },
+    { n: booth.rooms, title: a("booth"), text: a("boothX"), img: SPACE_PICS.booth, cn: "卡座" },
+    { n: priv.rooms, title: a("privateRoom"), text: a("privateX", { seats: priv.seats }), img: SPACE_PICS.private, cn: "雅间" },
   ];
   const road = [
     { cn: "一", title: a("road1t"), text: a("road1x") },
@@ -63,7 +78,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   return (
     <>
       <SiteHeader />
-      <AboutHero title={tc("about")} sub={st("aboutSub")} eyebrow={p2("heroAboutEyebrow")} image={imgs[0] ?? null} />
+      <AboutHero title={tc("about")} sub={st("aboutSub")} eyebrow={p2("heroAboutEyebrow")} image={HERO} imageAlt={pt.alt(HERO)} />
 
       <main id="main" className="overflow-x-clip bg-paper">
         {/* ===== 1. Hikoya — tush rasmi uslubida ===== */}
@@ -95,8 +110,18 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               )}
             </div>
             <Reveal y={40} className="relative">
-              <div className="ink-mask relative aspect-[4/5] w-full overflow-hidden">
-                <SafeImg src={imgs[0] ?? null} className="h-full w-full" imgClassName="h-full w-full object-cover" fallback={<GlyphPanel char="宴" tone="fire" size="text-[11rem]" />} />
+              <div className="ink-mask relative aspect-[4/5] w-full overflow-hidden bg-sand">
+                <Parallax speed={5} className="absolute inset-x-0 -inset-y-[6%]">
+                  <Photo
+                    pic={STORY}
+                    alt={pt.alt(STORY)}
+                    sizes="(min-width: 1024px) 34vw, 92vw"
+                    className="h-full w-full"
+                    fallback={<GlyphPanel char="宴" tone="fire" size="text-[11rem]" />}
+                  />
+                </Parallax>
+                {/* yozuvli peshtoq — ostida nozik qog'oz rangli tuman (tush rasmi ruhi) */}
+                <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-paper/70 to-transparent" />
               </div>
               <div className="absolute -bottom-6 -left-6 flex items-center gap-3 rounded-2xl bg-card px-5 py-4 shadow-xl shadow-content/10">
                 <SealStamp text="长安" className="size-11 text-sm" />
@@ -127,10 +152,26 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
             </div>
             <RevealGroup className="mt-14 grid gap-px overflow-hidden rounded-3xl bg-brand-gold/20 sm:grid-cols-2 lg:grid-cols-4" stagger={0.1} y={30}>
               {spaces.map((s, i) => (
-                <div key={i} className="bg-night-2 p-8 transition hover:bg-night-3">
-                  <p className="font-display text-6xl text-brand-gold-light">{String(s.n).padStart(2, "0")}</p>
-                  <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-brand-cream/70">{s.text}</p>
+                <div key={i} className="group flex flex-col bg-night-2 transition hover:bg-night-3">
+                  {/* Joyning o'z rasmi — pastki qismi karta rangiga erib o'tadi */}
+                  <div className="relative aspect-[4/3] overflow-hidden">
+                    <Photo
+                      pic={s.img}
+                      alt={pt.alt(s.img)}
+                      sizes="(min-width: 1024px) 300px, (min-width: 640px) 50vw, 100vw"
+                      className="h-full w-full bg-night-3"
+                      imgClassName="transition duration-[1400ms] ease-out-expo group-hover:scale-105"
+                      fallback={<GlyphPanel char={s.cn.slice(-1)} tone="night" size="text-7xl" />}
+                    />
+                    <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-night-2 via-night-2/10 to-transparent transition group-hover:from-night-3" />
+                    <span aria-hidden="true" className="absolute inset-3 border border-brand-gold/25" />
+                    <span aria-hidden="true" lang="zh" className="font-cn absolute right-5 top-5 text-xl leading-[1.1] text-brand-cream/90 [writing-mode:vertical-rl]">{s.cn}</span>
+                  </div>
+                  <div className="relative -mt-10 px-8 pb-8">
+                    <p className="font-display text-6xl text-brand-gold-light">{String(s.n).padStart(2, "0")}</p>
+                    <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-brand-cream/70">{s.text}</p>
+                  </div>
                 </div>
               ))}
             </RevealGroup>
@@ -161,13 +202,14 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
       </main>
 
       <CtaBand
-        cnText="欢迎"
+        cnText="订座"
         eyebrow={a("ctaEyebrow")}
-        title={st("aboutCta")}
-        sub={st("aboutCtaSub")}
+        title={st("reserveTitle")}
+        sub={st("reserveSub")}
         primary={{ href: "/reservation", label: tc("reservation") }}
         secondary={{ href: "/menu", label: tc("menu") }}
-        image={imgs[1] ?? null}
+        image={CTA}
+        imageAlt={pt.alt(CTA)}
         waveFrom="sand"
         className="-mt-px"
       />

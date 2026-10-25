@@ -6,6 +6,7 @@ import SiteFooter from "@/components/site/Footer";
 import ReserveHero from "@/components/site/heroes/ReserveHero";
 import { dayOfWeekOf, hoursSummary } from "@/lib/hours";
 import { restaurantDay } from "@/lib/time";
+import { phoneOf } from "@/lib/contact";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +60,7 @@ export default async function ReservationPage({
   ]);
   // Telefon — Header bilan bir xil manba (Xona 1/2 va onlayn bron qilib bo'lmaydigan stollar uchun)
   const general = (generalSetting?.value as Record<string, unknown>) || {};
-  const phone = Array.isArray(general.phones) && general.phones[0] ? String(general.phones[0]) : "+998 90 503 15 68";
+  const phone = phoneOf(general);
 
   const hs = hoursSummary(hours, dayOfWeekOf(restaurantDay()));
   const hoursText = `${hs.every ? st("fOpen") : h2("today")} · ${hs.value ?? st("closed")}`;

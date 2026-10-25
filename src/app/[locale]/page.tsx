@@ -24,18 +24,33 @@ import { ROOMS, floorTotals } from "@/lib/floorplan/layout";
 import { dayOfWeekOf, hoursFor, sameEveryDay } from "@/lib/hours";
 import { RESTAURANT_TZ, restaurantDay } from "@/lib/time";
 import { ArrowRight } from "lucide-react";
+import { phoneOf } from "@/lib/contact";
+import type { PhotoName } from "@/lib/photos";
+import { pic, picGlyph, urlPic, type Pic } from "@/components/site/photos/pics";
+import { photoText } from "@/components/site/photos/text";
 
 export const dynamic = "force-dynamic";
 
 const HAN = /\p{Script=Han}/u;
 
+/** Bosh sahifa galereya lentasi — restoranning eng chiroyli joylari (har biri o'z izohi bilan) */
+const HOME_GALLERY: PhotoName[] = [
+  "hallBarView", "vipGrand", "boothWindow", "hallLongTable2", "bar", "privateRoom", "hallPartitions", "decorShelf",
+];
+/** Sharhlar sahnasi fonlari (mijoz/taom rasmi bo'lmaganda) — boshqa bo'limlarda takrorlanmaydigan interyerlar */
+const STAGE: Pic[] = [
+  pic("vipGrand2", "60% 45%"), pic("hallLongTable", "40% 55%"), pic("boothWindow2", "50% 55%"), pic("vipChandelier", "55% 55%"),
+  pic("hallRedChairs", "55% 50%"), pic("hallWide", "50% 55%"), pic("vipTable", "50% 55%"),
+];
+
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [h2, st, th] = await Promise.all([
+  const [h2, st, th, pt] = await Promise.all([
     getTranslations({ locale, namespace: "Home2" }),
     getTranslations({ locale, namespace: "Site" }),
     getTranslations({ locale, namespace: "Home" }),
+    photoText(locale),
   ]);
 
   const [heroBanners, featuredRaw, latestRaw, catsRaw, reviewsRaw, reviewAgg, gallery, workingHours, generalSetting, menuCount] = await Promise.all([
@@ -70,7 +85,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   ]);
 
   const general = (generalSetting?.value as Record<string, unknown>) || {};
-  const phone = Array.isArray(general.phones) && general.phones[0] ? String(general.phones[0]) : "+998 90 503 15 68";
+  const phone = phoneOf(general);
   const today = restaurantDay();
   // Restoran vaqti (server hisoblaydi — xarita bo'limi SSR va hydration'da bir xil boshlanadi)
   const nowHM = new Intl.DateTimeFormat("en-GB", { timeZone: RESTAURANT_TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
@@ -86,7 +101,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const accentLine = heroTitle ? lines.length - 1 : Math.min(2, Math.max(0, (parseInt(h2("heroAccent"), 10) || 2) - 1));
   const heroSub = hero?.subtitle ? t(hero.subtitle, locale) : h2("heroSub");
 
-  // Raqamlar — zal xaritasidan (21 stol, 128 o'rin, 5 VIP xona)
+  // Raqamlar — zal xaritasidan (22 stol, 199 o'rin, 5 VIP xona)
   const totals = floorTotals();
   const vipRooms = ROOMS.filter((r) => r.kind === "vip").length;
   const every = sameEveryDay(workingHours);
@@ -120,23 +135,31 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     dishes: c.items.map((d) => toDish(d, locale)),
   }));
 
-  // ---------- Rasmlar va sharhlar ----------
-  const g = gallery.map((x) => usable(x.url)).filter(Boolean) as string[];
-  // Galereya lentasi: rasm + izoh (sahifa tilida)
-  const galleryItems = gallery
-    .map((x) => ({ src: usable(x.url), caption: x.caption ? t(x.caption, locale).trim() : "" }))
-    .filter((x): x is { src: string; caption: string } => !!x.src);
-  const reserveImg = g[3] ?? g[0] ?? null;
-  // Sharh sahnasi foni: mijoz rasmi → taom rasmi → galereya/taom rasmlari navbat bilan
-  const stagePool = [...g, ...signature.map((d) => d.img).filter((x): x is string => !!x)];
-  const reviews = reviewsRaw.map((r, i) => ({
-    id: r.id,
-    author: r.authorName,
-    rating: r.rating,
-    comment: r.comment ?? "",
-    img: usable(r.images[0]) ?? usable(r.menuItem?.imageUrl) ?? stagePool[i % Math.max(1, stagePool.length)] ?? null,
-    dish: r.menuItem ? t(r.menuItem.name, locale) : null,
-  }));
+  // ---------- Rasmlar (restoranning haqiqiy rasmlari — src/lib/photos.ts) va sharhlar ----------
+  // Galereya lentasi: avval haqiqiy rasmlar (izohi bilan), bazadagilar — ulardan keyin (lenta 8 tagacha)
+  const galleryItems = [
+    ...HOME_GALLERY.map((n) => {
+      const p = pic(n);
+      return { pic: p, caption: pt.caption(p), glyph: picGlyph(p), alt: pt.alt(p) };
+    }),
+    ...gallery.flatMap((x) => {
+      const p = urlPic(usable(x.url));
+      return p ? [{ pic: p, caption: x.caption ? t(x.caption, locale).trim() : "" }] : [];
+    }),
+  ];
+  // Sharh sahnasi foni: mijoz rasmi → sharh qilingan taom rasmi → interyer rasmlari navbat bilan
+  const reviews = reviewsRaw.map((r, i) => {
+    const img = usable(r.images[0]) ?? usable(r.menuItem?.imageUrl) ?? null;
+    return {
+      id: r.id,
+      author: r.authorName,
+      rating: r.rating,
+      comment: r.comment ?? "",
+      img,
+      pic: urlPic(img) ?? STAGE[i % STAGE.length],
+      dish: r.menuItem ? t(r.menuItem.name, locale) : null,
+    };
+  });
   const reviewTotal = reviewAgg._count || 0;
   const avgRating = reviewTotal > 0 ? Number(reviewAgg._avg.rating ?? 0) : null;
 
@@ -182,7 +205,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         )}
 
         {/* 3. BIZ HAQIMIZDA */}
-        <About locale={locale} images={g} stats={{ tables: totals.tables, seats: totals.seats, vip: vipRooms }} />
+        <About locale={locale} stats={{ tables: totals.tables, seats: totals.seats, vip: vipRooms }} />
 
         {/* 4. OSHPAZ TANLOVI */}
         {showcase.length > 0 ? <Showcase locale={locale} dishes={showcase} /> : <div className="h-16 bg-sand" />}
@@ -218,21 +241,23 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <PanelShowcase
           heading={<SectionHead tone="dark" font="serif" cn="特色" eyebrow={h2("panelEyebrow")} title={h2("panelTitle")} accent={h2("panelAccent")} />}
           panels={[
-            { title: h2("panel1t"), sub: h2("panel1s"), href: "/gallery", img: g[0] ?? null },
-            { title: h2("panel2t"), sub: h2("panel2s"), href: "/menu", img: signature.find((d) => d.img)?.img ?? g[1] ?? null },
-            { title: h2("panel3t"), sub: h2("panel3s"), href: "/about", img: g[2] ?? null },
-            { title: h2("panel4t"), sub: h2("panel4s"), href: "/reservation", img: g[3] ?? null },
+            // Muhit — soyabonli asosiy zal; taomlar — taom rasmi, bo'lmasa taomli VIP dasturxon (tepadan);
+            // oshxona — tayyor dasturxon; VIP xonalar — qandilli VIP zal
+            { title: h2("panel1t"), sub: h2("panel1s"), href: "/gallery", img: pic("hallUmbrellas", "50% 62%") },
+            { title: h2("panel2t"), sub: h2("panel2s"), href: "/menu", img: urlPic(signature.find((d) => d.img)?.img) ?? pic("vipTableTop", "45% 42%") },
+            { title: h2("panel3t"), sub: h2("panel3s"), href: "/about", img: pic("hallRoundTable2", "50% 70%") },
+            { title: h2("panel4t"), sub: h2("panel4s"), href: "/reservation", img: pic("vipLounge", "40% 52%") },
           ]}
         />
 
         {/* 8. STOL BAND QILING */}
-        <ReserveBlock locale={locale} image={reserveImg} hours={`${hoursLabel} · ${hoursValue}`} />
+        <ReserveBlock locale={locale} image={pic("boothTall", "50% 58%")} hours={`${hoursLabel} · ${hoursValue}`} />
 
         {/* 9. GALEREYA */}
-        {g.length >= 3 && <GallerySection locale={locale} items={galleryItems} />}
+        <GallerySection locale={locale} items={galleryItems} />
 
         {/* 10. SHARHLAR */}
-        <Reviews locale={locale} reviews={reviews} avg={avgRating} total={reviewTotal} backdrop={g[0] ?? null} prevClass={g.length >= 3 ? "text-sand" : "text-paper"} />
+        <Reviews locale={locale} reviews={reviews} avg={avgRating} total={reviewTotal} backdrop={STAGE[0]} prevClass="text-sand" />
       </main>
 
       <SiteFooter locale={locale} />

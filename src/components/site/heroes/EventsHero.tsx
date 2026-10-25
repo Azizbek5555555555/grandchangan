@@ -1,22 +1,32 @@
 import LanternsDrop from "@/components/site/home/LanternsDrop";
+import { srcSetOf, type Pic } from "@/components/site/photos/pics";
 import { cn } from "@/lib/utils";
 import { ENTER, HeroTitle } from "./parts";
 
 /**
  * TADBIRLAR hero'si — "bazm zali": to'q vino fon, tepadan tushib chayqaladigan 2D fonarlar, markazda
- * oltin halqali 囍 (qo'sh baxt) medalyoni, uning ostida sarlavha va izoh; fon rasmi bo'lsa — xira qatlam
- * ostida. Pastki chetda oltin chiziq; keyingi bo'lim (qorong'i) shu rangdan to'lqin bilan boshlanadi.
+ * oltin halqali 囍 (qo'sh baxt) medalyoni, uning ostida sarlavha va izoh; fon — restoranning bazm zali
+ * (vino qatlami ostida, sekin Ken Burns). Keyingi bo'lim (qorong'i) shu rangdan to'lqin bilan boshlanadi.
  */
 export default function EventsHero({
   title, sub, kinds, bgImage,
-}: { title: string; sub: string; kinds: string[]; bgImage: string | null }) {
+}: { title: string; sub: string; kinds: string[]; bgImage: Pic | null }) {
   return (
     <section className="relative isolate overflow-hidden bg-wine pb-20 pt-40 text-center text-brand-cream sm:pb-24 sm:pt-44">
       {bgImage && (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={bgImage} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover opacity-30 mix-blend-luminosity" />
-          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-wine/70 via-wine/85 to-wine" />
+          <img
+            src={bgImage.md ?? bgImage.src}
+            srcSet={srcSetOf(bgImage)}
+            sizes="100vw"
+            alt=""
+            fetchPriority="high"
+            decoding="async"
+            style={{ objectPosition: bgImage.pos }}
+            className="animate-kenburns absolute inset-0 -z-20 h-full w-full object-cover opacity-40 mix-blend-luminosity"
+          />
+          <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-b from-wine/60 via-wine/80 to-wine" />
         </>
       )}
       <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 -z-10 text-wine-deep/80" />

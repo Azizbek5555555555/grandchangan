@@ -1,9 +1,9 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
-import { ChevronDown, ChevronRight, ClipboardCheck } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, CircleCheck, ClipboardCheck, X } from "lucide-react";
 import { Button } from "@/components/ui/primitives";
 import {
   cancelInventoryCount,
@@ -23,8 +23,22 @@ import {
 import { Delta, ErrorText, fmtNum, parseIntInput, useInvAction } from "./shared";
 
 /**
- * Inventarizatsiya (sanash): ochiq bo'lsa — sanash jadvali, aks holda boshlash tugmasi
- * va oldingi inventarizatsiyalar ro'yxati.
+ * Tugatilgan sanoq natijasi (server javobidan) — sahifada kartochka bo'lib qoladi.
+ * firstItems/firstPieces — soni birinchi marta kiritilgan buyumlar: server ularni "ortiqcha"ga
+ * qo'shadi, lekin egasi uchun bu ortiqcha emas, boshlang'ich son — alohida ko'rsatiladi.
+ */
+type CountResult = {
+  adjusted: number;
+  shortagePieces: number;
+  shortageSum: number;
+  surplusPieces: number;
+  firstItems: number;
+  firstPieces: number;
+};
+
+/**
+ * Sanoq (inventarizatsiya): ochiq bo'lmasa — 3 qadamli tushuntirish va boshlash tugmasi,
+ * ochiq bo'lsa — sanash ro'yxati (farq darhol rangli ko'rinadi). Pastda — oldingi sanoqlar.
  */
 export default function CountTab({
   data,
@@ -35,39 +49,62 @@ export default function CountTab({
 }) {
   const t = useTranslations("Inventory");
   const { pending, error, run } = useInvAction();
-  // Yakunlash xatosi: sahifa yangilanganda inventarizatsiya yopilgan bo'lsa ham xabar ko'rinib qolsin
+  // Yakunlash xatosi: sahifa yangilanganda sanoq yopilgan bo'lsa ham xabar ko'rinib qolsin
   const [draftError, setDraftError] = useState<string | null>(null);
+  const [result, setResult] = useState<CountResult | null>(null);
+  const unset = useMemo(() => new Set(data.unsetIds), [data.unsetIds]);
 
   return (
     <div className="space-y-6">
+      {result && <ResultCard result={result} onClose={() => setResult(null)} />}
+
       {data.draft ? (
-        // key: yangi inventarizatsiya boshlansa kiritilgan qiymatlar tozalanadi
-        <DraftCount key={data.draft.id} draft={data.draft} onNotice={onNotice} onError={setDraftError} />
+        // key: yangi sanoq boshlansa kiritilgan qiymatlar tozalanadi
+        <DraftCount
+          key={data.draft.id}
+          draft={data.draft}
+          unset={unset}
+          onNotice={onNotice}
+          onError={setDraftError}
+          onCompleted={setResult}
+        />
       ) : (
-        <div className="rounded-2xl border border-line bg-card p-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="max-w-2xl">
-              <h2 className="mb-1 font-semibold text-content">{t("countIntroTitle")}</h2>
-              <p className="text-sm text-muted">{t("countIntro")}</p>
-            </div>
-            <Button
-              className="shrink-0"
-              disabled={pending || data.items.length === 0}
-              onClick={() => {
-                setDraftError(null);
-                run(() => startInventoryCount());
-              }}
-            >
-              <ClipboardCheck size={16} /> {pending ? t("saving") : t("countStart")}
-            </Button>
-          </div>
+        <section className="rounded-2xl border border-line bg-card p-4 sm:p-6">
+          <h2 className="mb-4 text-lg font-bold text-content">{t("cnt.howTitle")}</h2>
+          <ol className="mb-5 grid grid-cols-1 gap-3 md:grid-cols-3">
+            {([1, 2, 3] as const).map((n) => (
+              <li key={n} className="flex gap-3 rounded-xl border border-line p-4">
+                <span
+                  aria-hidden
+                  className="flex size-7 shrink-0 items-center justify-center rounded-full bg-surface-2 text-sm font-bold text-content"
+                >
+                  {n}
+                </span>
+                <span>
+                  <span className="block font-semibold text-content">{t(`cnt.step${n}Title`)}</span>
+                  <span className="mt-0.5 block text-sm text-muted">{t(`cnt.step${n}Text`)}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+          <Button
+            className="min-h-11 w-full sm:w-auto"
+            disabled={pending || data.items.length === 0}
+            onClick={() => {
+              setDraftError(null);
+              setResult(null);
+              run(() => startInventoryCount());
+            }}
+          >
+            <ClipboardCheck size={16} /> {pending ? t("saving") : t("countStart")}
+          </Button>
           {data.items.length === 0 && <p className="mt-3 text-sm text-muted">{t("errNoItems")}</p>}
           {(error || draftError) && (
             <div className="mt-3">
               <ErrorText>{error ?? draftError}</ErrorText>
             </div>
           )}
-        </div>
+        </section>
       )}
 
       <PastCounts counts={data.counts} />
@@ -75,15 +112,61 @@ export default function CountTab({
   );
 }
 
-/** Ochiq inventarizatsiya: sanalgan sonlarni kiritish, jonli farq, saqlash / yakunlash / bekor qilish */
+/** Tugatish natijasi: nechta buyum yangilandi, kam/ortiqcha chiqqani */
+function ResultCard({ result: r, onClose }: { result: CountResult; onClose: () => void }) {
+  const t = useTranslations("Inventory");
+  const surplus = Math.max(0, r.surplusPieces - r.firstPieces);
+  const none = r.shortagePieces === 0 && surplus === 0 && r.firstItems === 0;
+  return (
+    <section role="status" className="rounded-2xl border border-line bg-card p-4 sm:p-5">
+      <div className="flex items-start justify-between gap-3">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-content">
+          <CircleCheck size={20} className="shrink-0 text-success" />
+          {t("cnt.resultTitle")}
+        </h2>
+        <button type="button" onClick={onClose} aria-label={t("close")} className="-m-2 p-2 text-muted hover:text-content">
+          <X size={16} />
+        </button>
+      </div>
+      <p className="mt-2 text-sm text-content">{t("cnt.resultUpdated", { count: r.adjusted })}</p>
+      {none ? (
+        <p className="mt-1 text-sm text-content">{t("countNoDiff")}</p>
+      ) : (
+        <ul className="mt-2 space-y-1 text-sm">
+          {r.shortagePieces > 0 && (
+            <li className="font-semibold text-danger">
+              {r.shortageSum > 0
+                ? t("cnt.resultShort", { pieces: fmtNum(r.shortagePieces), sum: formatMoney(r.shortageSum) })
+                : t("cnt.resultShortPcs", { pieces: fmtNum(r.shortagePieces) })}
+            </li>
+          )}
+          {surplus > 0 && <li className="text-content">{t("cnt.resultMore", { pieces: fmtNum(surplus) })}</li>}
+          {r.firstItems > 0 && (
+            <li className="text-content">{t("cnt.resultFirst", { count: r.firstItems, pieces: fmtNum(r.firstPieces) })}</li>
+          )}
+        </ul>
+      )}
+      <p className="mt-3 text-xs text-muted">{t("cnt.resultWhere")}</p>
+    </section>
+  );
+}
+
+const LINE_GRID =
+  "grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-3 md:grid-cols-[minmax(0,1fr)_6rem_7.5rem_11rem]";
+
+/** Ochiq sanoq: sanalgan sonlarni kiritish, jonli farq, saqlash / tugatish / bekor qilish */
 function DraftCount({
   draft,
+  unset,
   onNotice,
   onError,
+  onCompleted,
 }: {
   draft: InventoryDraftCount;
+  unset: Set<string>;
   onNotice: (message: string) => void;
   onError: (message: string | null) => void;
+  onCompleted: (r: CountResult) => void;
 }) {
   const t = useTranslations("Inventory");
   const { pending, error, setError, run } = useInvAction();
@@ -100,15 +183,21 @@ function DraftCount({
     const parsed = trimmed === "" ? null : parseIntInput(trimmed, 0, L.maxQty);
     const invalid = trimmed !== "" && parsed === null;
     const d = countLineDiff(l.expected, invalid ? null : parsed, l.unitPrice);
-    return { line: l, raw, parsed, invalid, ...d };
+    // Soni hali umuman kiritilmagan buyum: musbat farq — ortiqcha emas, boshlang'ich son
+    const first = l.expected === 0 && unset.has(l.itemId);
+    return { line: l, raw, parsed, invalid, first, ...d };
   });
 
   const invalidCount = rows.filter((r) => r.invalid).length;
   const countedCount = rows.filter((r) => !r.invalid && r.parsed !== null).length;
+  const matchCount = rows.filter((r) => r.diff === 0).length;
   const dirty = rows.some((r) => !r.invalid && r.parsed !== r.line.counted) || invalidCount > 0;
   const shortage = rows.reduce((s, r) => s + r.shortage, 0);
   const shortageSum = rows.reduce((s, r) => s + r.shortageSum, 0);
-  const surplus = rows.reduce((s, r) => s + r.surplus, 0);
+  const surplus = rows.reduce((s, r) => s + (r.first ? 0 : r.surplus), 0);
+  const firstRows = rows.filter((r) => r.first && r.surplus > 0);
+  const firstPieces = firstRows.reduce((s, r) => s + r.surplus, 0);
+  const percent = rows.length ? Math.round((countedCount / rows.length) * 100) : 0;
 
   // Saqlanmagan o'zgarish bilan sahifadan chiqishda ogohlantirish
   useEffect(() => {
@@ -163,15 +252,17 @@ function DraftCount({
         }
         return r;
       },
-      (r) =>
-        onNotice(
-          t("countCompleted", {
-            adjusted: r.adjusted,
-            pieces: fmtNum(r.shortagePieces),
-            sum: formatMoney(r.shortageSum),
-            surplus: fmtNum(r.surplusPieces),
-          })
-        )
+      (r) => {
+        onCompleted({
+          adjusted: r.adjusted,
+          shortagePieces: r.shortagePieces,
+          shortageSum: r.shortageSum,
+          surplusPieces: r.surplusPieces,
+          firstItems: firstRows.length,
+          firstPieces,
+        });
+        // Natija — kartochkada (umumiy qisqa xabar takror bo'lmasin)
+      }
     );
   }
 
@@ -188,118 +279,158 @@ function DraftCount({
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-line bg-card p-5">
+      <section className="rounded-2xl border border-line bg-card p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="font-semibold text-content">{t("countDraftTitle")}</h2>
+            <h2 className="text-lg font-bold text-content">{t("countDraftTitle")}</h2>
             <p className="text-sm text-muted">
               {t("countDraftMeta", { date: formatRestaurant(draft.createdAt), by: draft.createdByName ?? "—" })}
             </p>
           </div>
-          <div className="text-right text-sm">
-            <p className="text-content">{t("countProgress", { counted: countedCount, total: rows.length })}</p>
-            {shortage > 0 && (
-              <p className="font-semibold text-danger">
-                {t("countShortageTotal", { pieces: fmtNum(shortage), sum: formatMoney(shortageSum) })}
-              </p>
-            )}
-            {surplus > 0 && <p className="text-muted">{t("countSurplusTotal", { pieces: fmtNum(surplus) })}</p>}
-          </div>
+          <p className="text-sm font-semibold tabular-nums text-content">
+            {t("countProgress", { counted: countedCount, total: rows.length })}
+          </p>
         </div>
-        <p className="mt-3 text-xs text-muted">{t("countExpectedHint")}</p>
-      </div>
+        <div
+          className="mt-3 h-2 overflow-hidden rounded-full bg-surface-2"
+          role="progressbar"
+          aria-valuemin={0}
+          aria-valuemax={rows.length}
+          aria-valuenow={countedCount}
+          aria-label={t("countProgress", { counted: countedCount, total: rows.length })}
+        >
+          <div className="h-full rounded-full bg-brand-red transition-all" style={{ width: `${percent}%` }} />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm">
+          <span className="inline-flex items-center gap-1 text-content">
+            <Check size={14} className="text-success" /> {t("cnt.sumMatch", { count: matchCount })}
+          </span>
+          <span className={cn(shortage > 0 ? "font-semibold text-danger" : "text-muted")}>
+            {shortageSum > 0
+              ? t("cnt.sumShort", { pieces: fmtNum(shortage), sum: formatMoney(shortageSum) })
+              : t("cnt.sumShortPcs", { pieces: fmtNum(shortage) })}
+          </span>
+          <span className={cn(surplus > 0 ? "text-content" : "text-muted")}>{t("cnt.sumMore", { pieces: fmtNum(surplus) })}</span>
+          {firstRows.length > 0 && (
+            <span className="text-content">{t("cnt.sumFirst", { count: firstRows.length })}</span>
+          )}
+        </div>
+        <p className="mt-3 rounded-lg bg-surface-2 px-3 py-2 text-xs text-content">{t("countExpectedHint")}</p>
+      </section>
 
-      <div className="overflow-x-auto rounded-xl border border-line bg-card">
-        <table className="w-full text-sm">
-          <thead className="border-b border-line bg-surface-2 text-left text-muted">
-            <tr>
-              <th className="px-4 py-3">{t("colItem")}</th>
-              <th className="px-4 py-3 text-right">{t("colExpected")}</th>
-              <th className="px-4 py-3">{t("colCounted")}</th>
-              <th className="px-4 py-3 text-right">{t("colDiff")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => {
-              const header = r.line.category !== lastCategory;
-              lastCategory = r.line.category;
-              return (
-                <Fragment key={r.line.itemId}>
-                  {header && (
-                    <tr className="border-b border-line bg-surface-2/60">
-                      <td colSpan={4} className="px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-muted">
-                        {t(`category.${r.line.category}`)}
-                      </td>
-                    </tr>
-                  )}
-                  <tr className="border-b border-line last:border-0">
-                    <td className="px-4 py-2 font-medium text-content">{r.line.name}</td>
-                    <td className="px-4 py-2 text-right tabular-nums text-muted">{fmtNum(r.line.expected)}</td>
-                    <td className="px-4 py-2">
-                      <input
-                        type="number"
-                        inputMode="numeric"
-                        min={0}
-                        max={L.maxQty}
-                        step={1}
-                        value={r.raw}
-                        placeholder="—"
-                        aria-label={t("countInputLabel", { name: r.line.name })}
-                        aria-invalid={r.invalid || undefined}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setEdits((prev) => ({ ...prev, [r.line.itemId]: v }));
-                        }}
-                        className={cn(
-                          "w-24 rounded-lg border bg-card px-2 py-1 text-right text-sm tabular-nums text-content outline-none focus:border-brand-red",
-                          r.invalid ? "border-danger" : "border-line"
-                        )}
-                      />
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-right">
-                      {r.diff === null ? (
-                        <span className="text-muted">—</span>
-                      ) : (
-                        <>
-                          <Delta value={r.diff} />
-                          {r.shortageSum > 0 && (
-                            <span className="ml-1 text-xs text-danger">({formatMoney(r.shortageSum)})</span>
-                          )}
-                        </>
-                      )}
-                    </td>
-                  </tr>
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
+      <div className="overflow-hidden rounded-2xl border border-line bg-card">
+        <div className={cn(LINE_GRID, "hidden border-b border-line bg-surface-2 py-2 text-xs text-muted md:grid")}>
+          <span>{t("colItem")}</span>
+          <span className="text-right">{t("colExpected")}</span>
+          <span className="text-right">{t("colCounted")}</span>
+          <span className="text-right">{t("colDiff")}</span>
+        </div>
+        {rows.map((r) => {
+          const header = r.line.category !== lastCategory;
+          lastCategory = r.line.category;
+          const first = r.first;
+          return (
+            <Fragment key={r.line.itemId}>
+              {header && (
+                <p className="border-b border-line bg-surface-2/60 px-4 py-1.5 text-xs font-medium uppercase tracking-wide text-muted">
+                  {t(`category.${r.line.category}`)}
+                </p>
+              )}
+              <div
+                className={cn(
+                  LINE_GRID,
+                  "border-b border-line last:border-0",
+                  r.diff !== null && r.diff < 0 && "bg-danger/5",
+                  r.diff !== null && r.diff > 0 && !first && "bg-brand-gold/10"
+                )}
+              >
+                <label htmlFor={`inv-count-${r.line.itemId}`} className="col-span-2 font-medium text-content md:col-span-1">
+                  {r.line.name}
+                </label>
+                <p className="text-sm tabular-nums text-muted md:text-right">
+                  <span className="mr-1 text-xs md:hidden">{t("colExpected")}:</span>
+                  {fmtNum(r.line.expected)}
+                </p>
+                <div className="row-span-2 justify-self-end md:row-span-1">
+                  <input
+                    id={`inv-count-${r.line.itemId}`}
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={L.maxQty}
+                    step={1}
+                    value={r.raw}
+                    placeholder="—"
+                    aria-label={t("countInputLabel", { name: r.line.name })}
+                    aria-invalid={r.invalid || undefined}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setEdits((prev) => ({ ...prev, [r.line.itemId]: v }));
+                    }}
+                    className={cn(
+                      "h-11 w-28 rounded-lg border bg-card px-3 text-right text-base tabular-nums text-content outline-none focus:border-brand-red",
+                      r.invalid ? "border-danger" : "border-line"
+                    )}
+                  />
+                </div>
+                <div className="text-sm md:text-right">
+                  <DiffText diff={r.diff} sum={r.shortageSum} first={first} />
+                </div>
+              </div>
+            </Fragment>
+          );
+        })}
       </div>
 
       <ErrorText>{error}</ErrorText>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        {/* Bo'sh qator = "o'zgarmaydi" (yakunlashda tegilmaydi), shuning uchun "kutilgan bilan to'ldirish" yo'q */}
-        <div className="flex flex-wrap items-center gap-2">
-          {dirty && <span className="text-xs text-muted">{t("countUnsaved")}</span>}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="ghost" onClick={cancel} disabled={pending}>
-            {t("countCancel")}
-          </Button>
-          <Button variant="outline" onClick={save} disabled={pending || !dirty}>
-            {t("save")}
-          </Button>
-          <Button onClick={complete} disabled={pending || countedCount === 0}>
-            <ClipboardCheck size={16} /> {pending ? t("saving") : t("countComplete")}
-          </Button>
+      <div>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-xs text-muted">{dirty ? t("countUnsaved") : t("countCompleteHint")}</span>
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
+            <Button variant="ghost" className="order-last col-span-2 min-h-11 sm:order-none" onClick={cancel} disabled={pending}>
+              {t("countCancel")}
+            </Button>
+            <Button variant="outline" className="min-h-11 bg-card" onClick={save} disabled={pending || !dirty}>
+              {t("save")}
+            </Button>
+            <Button className="min-h-11" onClick={complete} disabled={pending || countedCount === 0}>
+              <ClipboardCheck size={16} className="hidden sm:block" /> {pending ? t("saving") : t("countComplete")}
+            </Button>
+          </div>
         </div>
       </div>
-      <p className="text-xs text-muted">{t("countCompleteHint")}</p>
     </div>
   );
 }
 
-/** Oldingi (yakunlangan) inventarizatsiyalar: kamomad va farqi bor qatorlar */
+/** Farq so'z bilan: "to'g'ri" / "3 ta kam" / "2 ta ortiq" / birinchi sanoqda — "boshlang'ich son" */
+function DiffText({ diff, sum, first }: { diff: number | null; sum: number; first: boolean }) {
+  const t = useTranslations("Inventory");
+  if (diff === null) return <span className="text-xs text-muted">{t("cnt.notCounted")}</span>;
+  if (diff === 0)
+    return (
+      <span className="inline-flex items-center gap-1 text-content">
+        <Check size={14} className="text-success" /> {t("cnt.diffOk")}
+      </span>
+    );
+  if (diff < 0)
+    return (
+      <span className="font-semibold text-danger">
+        {t("cnt.diffShort", { n: fmtNum(-diff) })}
+        {sum > 0 && <span className="block text-xs font-normal">{formatMoney(sum)}</span>}
+      </span>
+    );
+  return (
+    <span className="text-content">
+      <Delta value={diff} /> <span className="text-xs">{first ? t("cnt.diffFirst") : t("cnt.diffMore")}</span>
+    </span>
+  );
+}
+
+const PAST_GRID =
+  "grid grid-cols-[1.25rem_minmax(0,1fr)_auto] items-center gap-x-3 px-4 md:grid-cols-[1.25rem_minmax(0,1fr)_minmax(0,10rem)_6rem_minmax(0,12rem)_6rem]";
+
+/** Oldingi (tugatilgan) sanoqlar: kam/ortiqcha chiqqani va farqi bor buyumlar */
 function PastCounts({ counts }: { counts: InventoryCountSummary[] }) {
   const t = useTranslations("Inventory");
   const [open, setOpen] = useState<string | null>(null);
@@ -307,110 +438,86 @@ function PastCounts({ counts }: { counts: InventoryCountSummary[] }) {
   return (
     <section>
       <h2 className="mb-3 font-semibold text-content">{t("countPast")}</h2>
-      <div className="overflow-x-auto rounded-xl border border-line bg-card">
-        <table className="w-full text-sm">
-          <thead className="border-b border-line bg-surface-2 text-left text-muted">
-            <tr>
-              <th className="w-8 px-2 py-3" />
-              <th className="px-4 py-3">{t("colDate")}</th>
-              <th className="px-4 py-3">{t("colCountBy")}</th>
-              <th className="px-4 py-3 text-right">{t("colCounted")}</th>
-              <th className="px-4 py-3 text-right">{t("colShortPieces")}</th>
-              <th className="px-4 py-3 text-right">{t("colShortSum")}</th>
-              <th className="px-4 py-3 text-right">{t("colSurplus")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {counts.map((c) => {
-              const isOpen = open === c.id;
-              return (
-                <Fragment key={c.id}>
-                  <tr
-                    className="cursor-pointer border-b border-line hover:bg-surface-2"
-                    onClick={() => setOpen(isOpen ? null : c.id)}
-                    aria-expanded={isOpen}
-                  >
-                    <td className="px-2 py-3 text-muted">{isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-content">
-                      {formatRestaurant(c.completedAt ?? c.createdAt)}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-muted">{c.createdByName ?? "—"}</td>
-                    <td className="px-4 py-3 text-right tabular-nums text-muted">
-                      {c.countedCount} / {c.lineCount}
-                    </td>
-                    <td
-                      className={cn(
-                        "px-4 py-3 text-right tabular-nums",
-                        c.shortagePieces > 0 ? "font-semibold text-danger" : "text-muted"
-                      )}
-                    >
-                      {fmtNum(c.shortagePieces)}
-                    </td>
-                    <td
-                      className={cn(
-                        "whitespace-nowrap px-4 py-3 text-right tabular-nums",
-                        c.shortageSum > 0 ? "text-danger" : "text-muted"
-                      )}
-                    >
-                      {formatMoney(c.shortageSum)}
-                    </td>
-                    <td className="px-4 py-3 text-right tabular-nums text-muted">
-                      {c.surplusPieces > 0 ? `+${fmtNum(c.surplusPieces)}` : "0"}
-                    </td>
-                  </tr>
-                  {isOpen && (
-                    <tr className="border-b border-line bg-surface-2/40">
-                      <td colSpan={7} className="px-4 py-3">
-                        {c.lines.length === 0 ? (
-                          <p className="text-sm text-muted">{t("countNoDiff")}</p>
-                        ) : (
-                          <table className="w-full text-sm">
-                            <thead className="text-left text-xs text-muted">
-                              <tr>
-                                <th className="py-1 pr-4">{t("colItem")}</th>
-                                <th className="py-1 pr-4 text-right">{t("colExpected")}</th>
-                                <th className="py-1 pr-4 text-right">{t("colCounted")}</th>
-                                <th className="py-1 pr-4 text-right">{t("colDiff")}</th>
-                                <th className="py-1 text-right">{t("colAmount")}</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {c.lines.map((l) => (
-                                <tr key={l.itemId} className="border-t border-line">
-                                  <td className="py-1.5 pr-4 text-content">{l.name}</td>
-                                  <td className="py-1.5 pr-4 text-right tabular-nums text-muted">{fmtNum(l.expected)}</td>
-                                  <td className="py-1.5 pr-4 text-right tabular-nums text-content">{fmtNum(l.counted)}</td>
-                                  <td className="py-1.5 pr-4 text-right">
-                                    <Delta value={l.diff} />
-                                  </td>
-                                  <td className="whitespace-nowrap py-1.5 text-right tabular-nums">
-                                    {l.amount > 0 ? (
-                                      <span className="text-danger">{formatMoney(l.amount)}</span>
-                                    ) : (
-                                      <span className="text-muted">—</span>
-                                    )}
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        )}
-                        {c.note && <p className="mt-2 text-xs text-muted">{c.note}</p>}
-                      </td>
-                    </tr>
+      <div className="overflow-hidden rounded-2xl border border-line bg-card">
+        <div className={cn(PAST_GRID, "hidden border-b border-line bg-surface-2 py-2 text-xs text-muted md:grid")}>
+          <span />
+          <span>{t("colDate")}</span>
+          <span>{t("colCountBy")}</span>
+          <span className="text-right">{t("colCounted")}</span>
+          <span className="text-right">{t("cnt.colShort")}</span>
+          <span className="text-right">{t("colSurplus")}</span>
+        </div>
+        {counts.map((c) => {
+          const isOpen = open === c.id;
+          // "Hisobda 0" bo'lgan buyumlarda topilgani — odatda birinchi sanoqdagi boshlang'ich son
+          const first = c.lines.reduce((s, l) => s + (l.expected === 0 && l.diff > 0 ? l.diff : 0), 0);
+          const surplus = Math.max(0, c.surplusPieces - first);
+          return (
+            <Fragment key={c.id}>
+              <button
+                type="button"
+                onClick={() => setOpen(isOpen ? null : c.id)}
+                aria-expanded={isOpen}
+                className={cn(PAST_GRID, "min-h-14 w-full border-b border-line py-3 text-left text-sm hover:bg-surface-2")}
+              >
+                <span className="text-muted">{isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}</span>
+                <span className="min-w-0">
+                  <span className="block text-content">{formatRestaurant(c.completedAt ?? c.createdAt)}</span>
+                  <span className="block text-xs text-muted md:hidden">
+                    {c.createdByName ?? "—"} · {t("countProgress", { counted: c.countedCount, total: c.lineCount })}
+                  </span>
+                </span>
+                <span className="hidden truncate text-muted md:block">{c.createdByName ?? "—"}</span>
+                <span className="hidden text-right tabular-nums text-muted md:block">
+                  {c.countedCount} / {c.lineCount}
+                </span>
+                <span className={cn("text-right tabular-nums", c.shortagePieces > 0 ? "font-semibold text-danger" : "text-muted")}>
+                  {c.shortagePieces > 0 ? (
+                    <>
+                      {t("cnt.pieces", { n: fmtNum(c.shortagePieces) })}
+                      <span className="block text-xs font-normal">{formatMoney(c.shortageSum)}</span>
+                    </>
+                  ) : (
+                    "0"
                   )}
-                </Fragment>
-              );
-            })}
-            {counts.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-muted">
-                  {t("countPastEmpty")}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  {surplus > 0 && (
+                    <span className="block text-xs font-normal text-content md:hidden">
+                      {t("cnt.sumMore", { pieces: fmtNum(surplus) })}
+                    </span>
+                  )}
+                </span>
+                <span className="hidden text-right tabular-nums text-muted md:block">
+                  {surplus > 0 ? `+${fmtNum(surplus)}` : "0"}
+                  {first > 0 && <span className="block text-xs">{t("cnt.pastFirst", { pieces: fmtNum(first) })}</span>}
+                </span>
+              </button>
+              {isOpen && (
+                <div className="border-b border-line bg-surface-2/40 px-4 py-3">
+                  {c.lines.length === 0 ? (
+                    <p className="text-sm text-muted">{t("countNoDiff")}</p>
+                  ) : (
+                    <ul className="divide-y divide-line text-sm">
+                      {c.lines.map((l) => (
+                        <li key={l.itemId} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5 py-2">
+                          <span className="min-w-0 font-medium text-content">{l.name}</span>
+                          <span className="flex flex-wrap items-baseline gap-x-4 tabular-nums">
+                            <span className="text-xs text-muted">
+                              {t("colExpected")} {fmtNum(l.expected)} → {t("colCounted")} {fmtNum(l.counted)}
+                            </span>
+                            <Delta value={l.diff} />
+                            {l.amount > 0 && <span className="text-danger">{formatMoney(l.amount)}</span>}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {c.note && <p className="mt-2 text-xs text-muted">{c.note}</p>}
+                </div>
+              )}
+            </Fragment>
+          );
+        })}
+        {counts.length === 0 && <p className="px-4 py-8 text-center text-sm text-muted">{t("countPastEmpty")}</p>}
       </div>
     </section>
   );

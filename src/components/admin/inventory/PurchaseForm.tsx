@@ -6,40 +6,52 @@ import { Button, Modal, TextArea, TextField } from "@/components/ui/primitives";
 import { recordPurchase } from "@/lib/inventory/actions";
 import { formatMoney } from "@/lib/utils";
 import { INVENTORY_LIMITS as L, type InventoryItemRow } from "@/lib/inventory/types";
-import { ErrorText, Hint, fmtNum, parseIntInput, parsePriceInput, useInvAction } from "./shared";
+import { ErrorText, Hint, ItemSelect, fmtNum, parseIntInput, parsePriceInput, useInvAction } from "./shared";
 
-/** Kirim (sotib olindi / qo'shildi): son oshadi, narx kiritilsa buyum narxi ham yangilanadi */
+/**
+ * Kirim (sotib olindi / qo'shildi): son oshadi, narx kiritilsa buyum narxi ham yangilanadi.
+ * item berilsa — o'sha buyum uchun; aks holda buyum oynaning o'zida tanlanadi (items).
+ */
 export default function PurchaseForm({
   item,
+  items,
   onClose,
   onDone,
 }: {
-  item: InventoryItemRow;
+  item?: InventoryItemRow;
+  items?: InventoryItemRow[];
   onClose: () => void;
   onDone: (message: string) => void;
 }) {
   const t = useTranslations("Inventory");
+  const [itemId, setItemId] = useState(item?.id ?? "");
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
   const [note, setNote] = useState("");
   const { pending, error, setError, run } = useInvAction();
+  const selected = item ?? items?.find((i) => i.id === itemId);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!selected) return setError(t("errPickItem"));
     const qty = parseIntInput(quantity, 1, L.maxMove);
     if (qty === null) return setError(t("errQuantity"));
     const unitPrice = parsePriceInput(price);
     if (unitPrice === undefined) return setError(t("errPrice"));
+    const { id, name } = selected;
     run(
-      () => recordPurchase({ itemId: item.id, quantity: qty, unitPrice, note: note.trim() || undefined }),
-      (r) => onDone(t("purchaseDone", { name: item.name, qty: fmtNum(r.quantity) }))
+      () => recordPurchase({ itemId: id, quantity: qty, unitPrice, note: note.trim() || undefined }),
+      (r) => onDone(t("purchaseDone", { name, qty: fmtNum(r.quantity) }))
     );
   }
 
   return (
-    <Modal open onClose={onClose} title={t("purchaseTitle", { name: item.name })}>
+    <Modal open onClose={onClose} title={item ? t("purchaseTitle", { name: item.name }) : t("ov.purchaseTitleAny")}>
       <form onSubmit={submit} className="space-y-4 text-content">
-        <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm">{t("currentStock", { qty: fmtNum(item.quantity) })}</p>
+        {!item && items && <ItemSelect items={items} value={itemId} onChange={setItemId} autoFocus />}
+        {selected && (
+          <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm">{t("currentStock", { qty: fmtNum(selected.quantity) })}</p>
+        )}
         <TextField
           label={t("fQty")}
           type="number"
@@ -49,7 +61,7 @@ export default function PurchaseForm({
           step={1}
           value={quantity}
           onChange={(e) => setQuantity(e.target.value)}
-          autoFocus
+          autoFocus={!!item}
           required
         />
         <div>
@@ -57,12 +69,12 @@ export default function PurchaseForm({
             label={t("fPurchasePrice")}
             inputMode="decimal"
             value={price}
-            placeholder={item.unitPrice != null ? String(item.unitPrice) : "0"}
+            placeholder={selected?.unitPrice != null ? String(selected.unitPrice) : "0"}
             onChange={(e) => setPrice(e.target.value)}
           />
           <Hint>
             {t("fPurchasePriceHint")}
-            {item.unitPrice != null && ` ${t("currentPrice", { price: formatMoney(item.unitPrice) })}`}
+            {selected?.unitPrice != null && ` ${t("currentPrice", { price: formatMoney(selected.unitPrice) })}`}
           </Hint>
         </div>
         <TextArea

@@ -4,7 +4,15 @@ import { useCallback, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/primitives";
-import { INVENTORY_LIMITS, type InvResult, type InventoryMovementRow, type StockStatus } from "@/lib/inventory/types";
+import {
+  INVENTORY_CATEGORIES,
+  INVENTORY_LIMITS,
+  type InvResult,
+  type InventoryCategory,
+  type InventoryItemRow,
+  type InventoryMovementRow,
+  type ItemViewStatus,
+} from "@/lib/inventory/types";
 
 /**
  * Inventar UI uchun umumiy yordamchilar: server action chaqirish, forma maydonlari,
@@ -79,12 +87,44 @@ export function Delta({ value, className }: { value: number; className?: string 
   );
 }
 
-const STATUS_COLOR: Record<StockStatus, string> = { OK: "green", LOW: "gold", SHORT: "red" };
+const STATUS_COLOR: Record<ItemViewStatus, string> = { OK: "green", LOW: "gold", SHORT: "red", UNSET: "gray" };
 
-/** Qoldiq holati: OK — yashil, LOW — oltin, SHORT — qizil */
-export function StatusBadge({ status }: { status: StockStatus }) {
+/** Qoldiq holati: OK — yashil, LOW — oltin, SHORT — qizil, UNSET (soni kiritilmagan) — kulrang */
+export function StatusBadge({ status }: { status: ItemViewStatus }) {
   const t = useTranslations("Inventory");
   return <Badge color={STATUS_COLOR[status]}>{t(`status.${status}`)}</Badge>;
+}
+
+/** Ko'rsatish holati: soni hali kiritilmagan buyum "yetishmaydi" emas, "kiritilmagan" */
+export function viewStatus(item: Pick<InventoryItemRow, "id" | "status">, unset: Set<string>): ItemViewStatus {
+  return unset.has(item.id) ? "UNSET" : item.status;
+}
+
+/** Stolga qo'yilish qoidasi oddiy so'z bilan: "har o'ringa 1 + har stolga 2" yoki "stolga qo'yilmaydi" */
+export function useNormText() {
+  const t = useTranslations("Inventory");
+  return (i: Pick<InventoryItemRow, "perSeat" | "perTable">): string => {
+    const parts: string[] = [];
+    if (i.perSeat > 0) parts.push(t("normSeat", { n: i.perSeat }));
+    if (i.perTable > 0) parts.push(t("normTable", { n: i.perTable }));
+    return parts.length ? parts.join(" + ") : t("noNorm");
+  };
+}
+
+/** Har bir bo'lim tepasidagi bir qatorli "bu yerda nima qilinadi" izohi */
+export function TabIntro({
+  icon: Icon,
+  children,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  children: React.ReactNode;
+}) {
+  return (
+    <p className="mb-5 flex items-start gap-2 text-sm text-muted">
+      <Icon size={16} className="mt-0.5 shrink-0 text-brand-gold" />
+      <span>{children}</span>
+    </p>
+  );
 }
 
 /** Select maydoni (primitives'dagi TextField uslubida) */
@@ -107,6 +147,39 @@ export function SelectField({
         {children}
       </select>
     </label>
+  );
+}
+
+/** Buyumni tanlash (guruhlar bo'yicha): kirim va yo'qotish oynalarida */
+export function ItemSelect({
+  items,
+  value,
+  onChange,
+  autoFocus,
+}: {
+  items: { id: string; name: string; category: InventoryCategory }[];
+  value: string;
+  onChange: (id: string) => void;
+  autoFocus?: boolean;
+}) {
+  const t = useTranslations("Inventory");
+  return (
+    <SelectField label={t("fItem")} value={value} onChange={(e) => onChange(e.target.value)} autoFocus={autoFocus} required>
+      <option value="">{t("fItemPh")}</option>
+      {INVENTORY_CATEGORIES.map((c) => {
+        const group = items.filter((i) => i.category === c);
+        if (!group.length) return null;
+        return (
+          <optgroup key={c} label={t(`category.${c}`)}>
+            {group.map((i) => (
+              <option key={i.id} value={i.id}>
+                {i.name}
+              </option>
+            ))}
+          </optgroup>
+        );
+      })}
+    </SelectField>
   );
 }
 
@@ -140,12 +213,12 @@ export function SummaryCard({
   alert?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-line bg-card p-5 shadow-sm">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <span className="text-sm text-muted">{label}</span>
+    <div className="min-w-0 rounded-2xl border border-line bg-card p-3 shadow-sm sm:p-5">
+      <div className="mb-2 flex items-start justify-between gap-2 sm:mb-3">
+        <span className="text-xs text-muted sm:text-sm">{label}</span>
         <Icon size={20} className="shrink-0 text-brand-red" />
       </div>
-      <p className={cn("text-2xl font-bold", alert ? "text-danger" : "text-content")}>{value}</p>
+      <p className={cn("break-words text-lg font-bold sm:text-2xl", alert ? "text-danger" : "text-content")}>{value}</p>
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
     </div>
   );
@@ -167,8 +240,8 @@ export function Chip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "rounded-full px-3 py-1 text-xs transition",
-        active ? "bg-brand-red text-brand-cream" : "bg-surface-2 text-content hover:bg-line"
+        "min-h-9 rounded-full border px-3 py-1.5 text-xs transition",
+        active ? "border-brand-red bg-brand-red text-brand-cream" : "border-line bg-card text-content hover:bg-surface-2"
       )}
     >
       {children}

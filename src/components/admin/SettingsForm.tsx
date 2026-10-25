@@ -17,7 +17,7 @@ export default function SettingsForm({ general, hours }: { general: General; hou
   );
   const [h, setH] = useState<Hour[]>(() => {
     const map = new Map(hours.map((x) => [x.dayOfWeek, x]));
-    return Array.from({ length: 7 }).map((_, i) => map.get(i) || { dayOfWeek: i, openTime: "11:00", closeTime: "23:00", isClosed: false });
+    return Array.from({ length: 7 }).map((_, i) => map.get(i) || { dayOfWeek: i, openTime: "10:00", closeTime: "23:00", isClosed: false });
   });
   const [saved, setSaved] = useState(false);
 
@@ -45,7 +45,7 @@ export default function SettingsForm({ general, hours }: { general: General; hou
             <label className="flex items-center gap-1"><input type="checkbox" checked={day.isClosed} onChange={(e) => { const n = [...h]; n[idx] = { ...day, isClosed: e.target.checked }; setH(n); }} /> Yopiq</label>
             {!day.isClosed && (
               <>
-                <input type="time" value={day.openTime || "11:00"} onChange={(e) => { const n = [...h]; n[idx] = { ...day, openTime: e.target.value }; setH(n); }} className="rounded border border-line px-2 py-1" />
+                <input type="time" value={day.openTime || "10:00"} onChange={(e) => { const n = [...h]; n[idx] = { ...day, openTime: e.target.value }; setH(n); }} className="rounded border border-line px-2 py-1" />
                 <span>—</span>
                 <input type="time" value={day.closeTime || "23:00"} onChange={(e) => { const n = [...h]; n[idx] = { ...day, closeTime: e.target.value }; setH(n); }} className="rounded border border-line px-2 py-1" />
               </>

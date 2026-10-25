@@ -64,6 +64,7 @@ export default function HomeFloorSection({
 }) {
   const tb = useTranslations("Booking");
   const ts = useTranslations("Site");
+  const tch = useTranslations("Chrome");
   const locale = useLocale();
 
   const [clock, setClock] = useState<Clock>({ today, nowHM });
@@ -204,7 +205,7 @@ export default function HomeFloorSection({
     <section
       ref={sectionRef}
       id="floor-map"
-      className="relative overflow-hidden bg-paper pb-28 pt-14 sm:pb-36 sm:pt-16 lg:pb-40"
+      className="relative overflow-clip bg-paper pb-28 pt-14 sm:pb-36 sm:pt-16 lg:pb-40"
     >
       {/* Fon: xira ieroglif va panjara naqshi */}
       <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute -right-4 top-6 select-none text-[9rem] leading-none text-fire/[0.06] sm:text-[13rem]">席位</span>
@@ -220,8 +221,12 @@ export default function HomeFloorSection({
             <FloorStats />
           </Reveal>
         </div>
+      </div>
 
-        <Reveal y={40} delay={0.1} className="-mx-2 mt-10 sm:mx-0 sm:mt-14">
+      {/* Xarita bo'limni to'ldiradi: sarlavhadan kengroq. md+ da o'ng chetdagi ScrollRail'ga tegmasligi uchun
+          chekinish (px-16 / 2xl:px-20) */}
+      <div className="relative mx-auto max-w-[1560px] px-1.5 sm:px-6 md:px-16 2xl:px-20">
+        <Reveal y={40} delay={0.1} className="mt-10 sm:mt-14">
           <LacquerFrame>
           {/* Boshqaruv: sana, vaqt, kishi soni */}
           <div className="grid grid-cols-1 gap-4 rounded-2xl border border-brand-gold/20 bg-night-2/80 p-4 shadow-xl shadow-night/40 backdrop-blur-sm sm:grid-cols-2 sm:p-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)] lg:gap-6">
@@ -317,6 +322,17 @@ export default function HomeFloorSection({
             selectedTableId={selectedId}
             onSelectTable={(t) => setSelectedId(t.id)}
             phone={phone}
+            dockAction={(t) => (
+              <Link
+                href={{ pathname: "/reservation", query: { date, time, guests: String(guests), table: t.id } }}
+                className={cn(btnClass("fire", "md"), "group h-11 px-4 ring-1 ring-brand-gold/50")}
+              >
+                {/* Tor dokda qisqa yozuv ("Bron"), keng ekranda to'liq ("Bron qilish") */}
+                <span className="xl:hidden">{tch("ctaShort")}</span>
+                <span className="hidden xl:inline">{ts("reserveBtn")}</span>
+                <ArrowRight size={15} className="transition group-hover:translate-x-1" />
+              </Link>
+            )}
             action={(t) => loading ? null : (
               <>
                 <p className="mb-3 text-xs tracking-wide text-brand-cream/70">

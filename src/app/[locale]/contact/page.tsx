@@ -10,17 +10,28 @@ import { restaurantDay } from "@/lib/time";
 import Reveal from "@/components/motion/Reveal";
 import SectionHead from "@/components/site/kit/SectionHead";
 import { CloudLine } from "@/components/site/pages/Ornament";
+import { phoneOf } from "@/lib/contact";
+import Photo from "@/components/site/photos/Photo";
+import { pic, picGlyph } from "@/components/site/photos/pics";
+import { photoText } from "@/components/site/photos/text";
 
 export const dynamic = "force-dynamic";
+
+/** "Bizni qanday topasiz": 1) ko'chadan — katta yozuvli fasad, 2) kirish — qizil fonarli xitoycha darvoza */
+const WAY = [
+  { img: pic("extFacade", "45% 50%"), ratio: "aspect-[4/3]" },
+  { img: pic("extGate", "50% 50%"), ratio: "aspect-[16/9]" },
+];
 
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const st = await getTranslations({ locale, namespace: "Site" });
   const tc = await getTranslations({ locale, namespace: "Common" });
-  const [p2, h2] = await Promise.all([
+  const [p2, h2, pt] = await Promise.all([
     getTranslations({ locale, namespace: "Pages2" }),
     getTranslations({ locale, namespace: "Home2" }),
+    photoText(locale),
   ]);
 
   const [setting, hours] = await Promise.all([
@@ -28,7 +39,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     prisma.workingHour.findMany({ orderBy: { dayOfWeek: "asc" } }),
   ]);
   const g = (setting?.value as Record<string, unknown>) || {};
-  const phone = Array.isArray(g.phones) && g.phones[0] ? String(g.phones[0]) : "+998 90 503 15 68";
+  const phone = phoneOf(g);
   const email = (g.email as string) || "info@grandchangan.uz";
   const address = t(g.address, locale) || "Ibn Xoldun 10B, Samarqand, Samarqand viloyati";
   const mapQuery = (g.mapQuery as string) || "Grand Changan Restaurant, Ibn Xoldun 10B, Samarqand";
@@ -93,6 +104,44 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
             </a>
           </Reveal>
         </div>
+
+        {/* ---------- Bizni qanday topasiz: fasad → kirish darvozasi (haqiqiy rasmlar) ---------- */}
+        <Reveal y={30} className="mt-14 sm:mt-16">
+          {p2.has("findTitle") && (
+            <h2 className="mb-6 flex items-center gap-3 font-display text-2xl text-content sm:text-3xl">
+              <span lang="zh" aria-hidden="true" className="font-cn text-fire-ink">路</span>
+              {p2("findTitle")}
+              <span aria-hidden="true" className="ml-2 hidden h-px flex-1 bg-line sm:block" />
+            </h2>
+          )}
+          <div className="grid gap-4 md:grid-cols-[4fr_5.333fr]">
+            {WAY.map(({ img, ratio }, i) => (
+              <figure key={img.src} className={`group relative overflow-hidden rounded-3xl border-4 border-card bg-sand shadow-xl shadow-content/10 ${ratio}`}>
+                <Photo
+                  pic={img}
+                  alt={pt.alt(img)}
+                  sizes="(min-width: 768px) 560px, 100vw"
+                  className="absolute inset-0"
+                  imgClassName="transition duration-[1400ms] ease-out-expo group-hover:scale-105"
+                />
+                <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-night/75 via-transparent to-transparent" />
+                <figcaption className="absolute inset-x-4 bottom-4 flex items-center gap-3 sm:inset-x-5 sm:bottom-5">
+                  <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-full border border-brand-gold/60 bg-night/60 font-display text-sm text-brand-gold-light backdrop-blur-sm">
+                    0{i + 1}
+                  </span>
+                  <span className="min-w-0 font-display text-lg leading-tight text-brand-cream sm:text-xl">{pt.caption(img)}</span>
+                  <span aria-hidden="true" lang="zh" className="font-cn ml-auto shrink-0 text-2xl leading-none text-brand-gold-light">{picGlyph(img)}</span>
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+          {p2.has("findHint") && (
+            <p className="mt-6 flex max-w-3xl items-start gap-3 text-base leading-relaxed text-muted sm:text-lg">
+              <MapPin size={20} aria-hidden="true" className="mt-1 shrink-0 text-fire-ink" />
+              {p2("findHint")}
+            </p>
+          )}
+        </Reveal>
       </div>
       </main>
       <SiteFooter locale={locale} />

@@ -92,6 +92,6 @@ yoki reduced-motion bo'lsa — statik zaxira. Tashqi CDN'dan model/HDR yuklanmay
   `<scratchpad>/i18n/<agent>.json` ga yozadi:
   `{ "uz": { "Namespace": { "key": "..." } }, "ru": {…}, "en": {…}, "zh": {…} }` — lead birlashtiradi.
 - Mavjud kalitlarni o'zgartirmang/o'chirmang (admin ham ishlatadi). Yangi namespace: `Home2`, `Chrome`, `Pages2`.
-- Ma'lumot to'qima: manzil/telefon/ish vaqti — bazadan (siteSetting, workingHour). Raqamlar: 21 stol, 128 o'rin,
-  5 VIP xona (6–8 kishilik), asosiy zal 9 stol (62 o'rin), 6 kabinka (4 kishilik), alohida xona (6 kishilik) —
+- Ma'lumot to'qima: manzil/telefon/ish vaqti — bazadan (siteSetting, workingHour). Raqamlar (xaritadan): 22 stol, 199 o'rin,
+  5 VIP xona (10–13 kishilik), katta zal 11 stol (106 o'rin), 5 kabinka (6 kishilik), alohida stol (6 kishilik) —
   `floorTotals()`/`ROOMS` dan hisoblang. "GrandChangan" nomi qadimiy Chang'an (Ipak yo'lining boshi) dan.

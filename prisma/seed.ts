@@ -28,7 +28,7 @@ async function main() {
   const settings: Record<string, unknown> = {
     general: {
       name: "GrandChangan",
-      phones: ["+998 66 000 00 00"],
+      phones: ["+998 77 507 06 43"],
       address: { uz: "Samarqand", ru: "Самарканд", en: "Samarkand", zh: "撒马尔罕" },
       email: "info@grandchangan.uz",
     },
@@ -45,12 +45,12 @@ async function main() {
   }
   console.log("✔ Site settings");
 
-  // ---------- 3. Working hours (har kuni 11:00 - 23:00) ----------
+  // ---------- 3. Working hours (har kuni 10:00 - 23:00) ----------
   for (let d = 0; d < 7; d++) {
     await prisma.workingHour.upsert({
       where: { dayOfWeek: d },
       update: {},
-      create: { dayOfWeek: d, openTime: "11:00", closeTime: "23:00", isClosed: false },
+      create: { dayOfWeek: d, openTime: "10:00", closeTime: "23:00", isClosed: false },
     });
   }
   console.log("✔ Working hours");

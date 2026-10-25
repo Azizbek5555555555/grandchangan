@@ -6,7 +6,8 @@ import SectionHead from "@/components/site/kit/SectionHead";
 import DishFallback from "@/components/site/kit/DishFallback";
 import Reveal from "@/components/motion/Reveal";
 import Parallax from "@/components/motion/Parallax";
-import SafeImg from "./SafeImg";
+import Photo from "@/components/site/photos/Photo";
+import type { Pic } from "@/components/site/photos/pics";
 import { CloudLine } from "./Ornament";
 
 type Btn = { href: string; label: string };
@@ -17,7 +18,7 @@ type Btn = { href: string; label: string };
  * Tepasida krem bo'limdan to'lqin bilan o'tadi.
  */
 export default function CtaBand({
-  cnText = "订座", eyebrow, title, accent, sub, primary, secondary, image, waveFrom = "paper", className,
+  cnText = "订座", eyebrow, title, accent, sub, primary, secondary, image, imageAlt = "", waveFrom = "paper", className,
 }: {
   cnText?: string;
   eyebrow?: string;
@@ -26,7 +27,9 @@ export default function CtaBand({
   sub?: string;
   primary: Btn;
   secondary?: Btn;
-  image?: string | null;
+  /** Interyer rasmi (blob ramkada); undefined — rasm ustuni yo'q */
+  image?: Pic | null;
+  imageAlt?: string;
   /** Yuqoridagi bo'lim rangi (to'lqin uchun) */
   waveFrom?: "paper" | "sand";
   className?: string;
@@ -63,9 +66,12 @@ export default function CtaBand({
           <Reveal y={30} className="relative mx-auto w-full max-w-md">
             <span className="rounded-blob-2 animate-bob absolute -bottom-5 -left-5 h-24 w-24 bg-saffron sm:h-28 sm:w-28" aria-hidden="true" />
             <div className="rounded-blob relative aspect-square overflow-hidden bg-night-3 ring-1 ring-brand-gold/30">
-              <SafeImg
-                src={image}
-                className="h-full w-full object-cover transition duration-[1.2s] hover:scale-105"
+              <Photo
+                pic={image}
+                alt={imageAlt}
+                sizes="(min-width: 640px) 448px, 90vw"
+                className="h-full w-full"
+                imgClassName="transition duration-[1.2s] hover:scale-105"
                 fallback={<DishFallback char="宴" className="bg-night-3" />}
               />
             </div>

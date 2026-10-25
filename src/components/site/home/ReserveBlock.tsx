@@ -6,18 +6,20 @@ import ButtonLink from "@/components/site/kit/ButtonLink";
 import Reveal from "@/components/motion/Reveal";
 import TextReveal from "@/components/motion/TextReveal";
 import Parallax from "@/components/motion/Parallax";
-import SafeImg from "./SafeImg";
+import Photo from "@/components/site/photos/Photo";
+import type { Pic } from "@/components/site/photos/pics";
 import { GlyphPanel } from "./Decor";
 
 /**
- * 8-bo'lim: "STOL BAND QILING" (namuna 2 — "Receive a table"): katta qorong'i karta, interyer rasmi,
- * qizil blob bezaklar va yon tomonda suzib yuruvchi 3D fonarlar.
+ * 8-bo'lim: "STOL BAND QILING" (namuna 2 — "Receive a table"): katta qorong'i karta, interyer rasmi
+ * (deraza yonidagi tayyor dasturxon — "stolingiz kutyapti"), qizil blob bezaklar va 3D fonarlar.
  */
-export default async function ReserveBlock({ locale, image, hours }: { locale: string; image: string | null; hours: string }) {
+export default async function ReserveBlock({ locale, image, hours }: { locale: string; image: Pic | null; hours: string }) {
   const st = await getTranslations({ locale, namespace: "Site" });
+  const ph = await getTranslations({ locale, namespace: "Photos" });
 
   return (
-    <section className="relative bg-paper pb-24 pt-8 sm:pb-32">
+    <section data-home="reserve" className="relative bg-paper pb-24 pt-8 sm:pb-32">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <Reveal y={60}>
           <div className="relative isolate overflow-hidden rounded-[32px] bg-night-2 text-brand-cream shadow-2xl shadow-content/20 sm:rounded-[44px] lg:grid lg:min-h-[560px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
@@ -29,12 +31,17 @@ export default async function ReserveBlock({ locale, image, hours }: { locale: s
             <div className="relative p-4 sm:p-6 lg:p-8 lg:pr-0">
               <div className="relative h-72 overflow-hidden rounded-[24px] sm:h-96 lg:h-full lg:rounded-t-[999px] lg:rounded-b-[28px]">
                 <Parallax speed={8} className="absolute -inset-y-[12%] inset-x-0">
-                  <SafeImg
-                    src={image}
-                    className="h-full w-full"
+                  <Photo
+                    pic={image}
+                    alt={image?.kind ? ph(image.kind) : ""}
+                    sizes="(min-width: 1024px) 560px, 100vw"
+                    className="h-full w-full bg-night-3"
                     fallback={<GlyphPanel char="订座" vertical tone="night" size="text-[clamp(4rem,18vw,9rem)]" />}
                   />
                 </Parallax>
+                {/* yorug' deraza qorong'i karta ichida keskin chiqmasin — nozik vinyetka va oltin ichki chiziq */}
+                <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-night-2/50 via-transparent to-night-2/20" />
+                <span aria-hidden="true" className="pointer-events-none absolute inset-2.5 rounded-[18px] border border-brand-gold/35 lg:rounded-t-[999px] lg:rounded-b-[22px]" />
               </div>
             </div>
 

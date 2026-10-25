@@ -326,7 +326,7 @@ function MapButton({ label, onClick, children }: { label: string; onClick: () =>
       onClick={onClick}
       title={label}
       aria-label={label}
-      className="flex h-8 w-8 items-center justify-center transition hover:bg-brand-cream/10 sm:h-10 sm:w-10"
+      className="flex h-11 w-11 items-center justify-center transition hover:bg-brand-cream/10"
     >
       {children}
     </button>

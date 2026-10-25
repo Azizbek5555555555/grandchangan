@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Pause, Play, Star } from "lucide-react";
 import { Birds, Mountains, Pavilion } from "@/components/site/pages/InkDecor";
 import Wave from "@/components/site/kit/Wave";
+import { srcSetOf, type Pic } from "@/components/site/photos/pics";
 import { cn } from "@/lib/utils";
 
 export type StageSlide = {
@@ -11,8 +12,8 @@ export type StageSlide = {
   author: string;
   rating: number;
   comment: string;
-  /** Fon rasmi (mijoz rasmi / taom / galereya) — bo'lmasa tush manzarasi */
-  img: string | null;
+  /** Fon rasmi (mijoz rasmi / taom / restoran interyeri) — bo'lmasa tush manzarasi */
+  img: Pic | null;
   /** Sharh bog'langan taom nomi */
   dish: string | null;
 };
@@ -75,6 +76,8 @@ export default function ReviewsStage({
   const [stopped, setStopped] = useState(false);
   const [visible, setVisible] = useState(false);
   const [reduced, setReduced] = useState(false);
+  /** Yuklanmagan fon rasmlari — o'rniga tush manzarasi */
+  const [broken, setBroken] = useState<Record<string, true>>({});
   const ref = useRef<HTMLElement | null>(null);
   const n = slides.length;
 
@@ -103,6 +106,7 @@ export default function ReviewsStage({
   return (
     <section
       ref={ref}
+      data-home="reviews"
       aria-roledescription="carousel"
       aria-label={labels.region}
       onMouseEnter={() => setPaused(true)}
@@ -130,9 +134,19 @@ export default function ReviewsStage({
                 i === active ? "scale-[1.12] duration-[9000ms]" : "scale-100 duration-[1400ms]"
               )}
             >
-              {sl.img ? (
+              {sl.img && !broken[sl.id] ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={sl.img} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                <img
+                  src={sl.img.md ?? sl.img.src}
+                  srcSet={srcSetOf(sl.img)}
+                  sizes="100vw"
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  style={{ objectPosition: sl.img.pos ?? "50% 50%" }}
+                  onError={() => setBroken((b) => ({ ...b, [sl.id]: true }))}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <InkScene variant={i} />
               )}

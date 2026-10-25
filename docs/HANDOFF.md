@@ -130,6 +130,16 @@ Namuna rasmlar repo ichida: **`docs/references/`** (README.md da har birining iz
 - `parallel-agents` skill `.claude/skills/` ga o'rnatildi (agent teams o'chiq — subagentlar ishlatiladi).
 - Aziz eslatmasi: `docs/references/` — sayt QANDAY ko'rinishi haqida namunalar, saytga qo'yiladigan rasm EMAS.
 
+### Aziz 3-xabari (2026-10-25) — bajarildi
+- Haqiqiy rasmlar: `public/photos/*.webp` (44 ta, har biri + `-md`), yagona manba `src/lib/photos.ts`;
+  joylash yordamchilari `src/components/site/photos/*`. Tashqi 4 ta rasm Real-ESRGAN x4 (ncnn, CPU) bilan
+  kattalashtirilgan (skript: scratchpad'da edi — kerak bo'lsa github.com/xinntao/Real-ESRGAN ncnn modeli).
+- Bosh sahifa hero — tashqi rasmlar slayd-shousi (`home/Hero.tsx`, `home/hero/*`), 3D kosa hero'da yo'q.
+- O'rinlar (layout.ts): VIP 12/12/13/10/10, zal 8×10 + Z-9 (14) + Z-10/Z-11 (6), kabinalar 5×6 — 22 stol, 199 o'rin.
+  **Prod'da admin → Zallar va stollar → "Xaritadan stollarni yaratish" bir marta bosilishi kerak.**
+- Telefon +998 77 507 06 43 (`src/lib/contact.ts` zaxira), ish vaqti 10:00–23:00 — prod'da admin → Sozlamalar.
+- Xarita bo'limni to'ldiradi + xona rasmlari; admin inventar soddalashtirildi ("Holat" yorlig'i, yo'riqnoma).
+
 ### Ma'lum muammolar / eslatmalar
 - Aziz saytni `/en` da Chrome avto-tarjimasi bilan ko'rgan — "21" "двадцать один" ga, "GrandChangan" "Отель ..." ga tarjima bo'lgan.
   Ruscha uchun `/ru` ochish kerak, Chrome tarjimasini o'chirish. Raqam/brendga `translate="no"` qo'yish foydali.
