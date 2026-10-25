@@ -101,15 +101,22 @@ Namuna rasmlar repo ichida: **`docs/references/`** (README.md da har birining iz
    Ularning o'rniga footer tepasidagi "Dasturxonimizga marhamat" bo'limidagi kabi **xitoy fonarlari**, lekin 3D emas — **2D**
    (SVG/CSS), bo'limga scroll qilib kelganda chiroyli ochilish animatsiyasi bilan (ScrollTrigger). Kollaj **rasmlarini kattaroq**
    qil — sahifaning ko'p joyini egallasa ham chiroyli.
-3. **"Har tarelkada — bir hikoya" (Oshpaz tanlovi, `home/Showcase.tsx`)** — juda oddiy. Premium detallar qo'sh yoki
+3. ✅ BAJARILDI (6d40323, `home/ShowcaseArt.tsx`) — **"Har tarelkada — bir hikoya" (Oshpaz tanlovi, `home/Showcase.tsx`)** — juda oddiy. Premium detallar qo'sh yoki
    mavjudini premium ko'rinishga keltir (oddiy "yosh bola sayti"dek turmasin).
-4. **"Bir kosada — butun hikoya" (`home/ExplodeSection.tsx`)** — yaxshi chiqqan, lekin bo'sh joy ko'p. Premium detallar bilan to'ldir.
-5. **Sharhlar (`home/Reviews.tsx`)** — almashtir: premium, birinchi qarashda odamga hikoya aytadigan; **background rasmlar**dan foydalan.
-6. **Barcha sahifalarning hero'lari** (`PageHero.tsx` — hamma ichki sahifa bir xil boshlanyapti) — har biri **noodatiy va bir-biriga
+4. ✅ BAJARILDI (155a044, `home/ExplodeHud.tsx`) — **"Bir kosada — butun hikoya" (`home/ExplodeSection.tsx`)** — yaxshi chiqqan, lekin bo'sh joy ko'p. Premium detallar bilan to'ldir.
+5. ✅ BAJARILDI (ab8f1ec, `home/ReviewsStage.tsx`; fon: mijoz rasmi → sharh taomi → galereya) — **Sharhlar (`home/Reviews.tsx`)** — almashtir: premium, birinchi qarashda odamga hikoya aytadigan; **background rasmlar**dan foydalan.
+6. ✅ BAJARILDI (7b07eab, `src/components/site/heroes/*`; PageHero faqat blog maqolasida) — **Barcha sahifalarning hero'lari** (`PageHero.tsx` — hamma ichki sahifa bir xil boshlanyapti) — har biri **noodatiy va bir-biriga
    o'xshamaydigan** bo'lsin (menyu, bron, galereya, tadbirlar, blog, biz haqimizda, aloqa — har biriga o'z kompozitsiyasi).
 7. ✅ BAJARILDI (`src/components/site/chrome/ScrollRail.tsx`, SmoothScroll ichida; `window.__lenis`) — **Maxsus scroll ko'rsatkich** — o'ng tomonda doim turadigan, saytga moslab qilingan scroll: tepaga/pastga tugmalari,
    sahifadagi bo'limlar (nuqtalar/raqamlar), hozir qaysi bo'limdaligini ko'rsatadi, bosganda o'sha bo'limga o'tadi.
    Oddiy brauzer scroll'i emas. (Lenis bilan ishlashi kerak: `lenis.scrollTo`.)
+
+### Sessiya eslatmasi (2026-10-25, 2-sessiya)
+- `claude/pensive-gauss-fqg6hx` PR #31 bilan merge bo'lgan; 3–6-ishlar sessiya belgilagan
+  `claude/sen-grandchangan-project-ib5c95` branchida (main'ning oxirgi holatidan) qilindi — PR shu branchdan ochiladi.
+- Konteyner tarmog'i unsplash/pexels/wikimedia va prod saytni bloklaydi — stock rasm olinmadi; fonlar bazadagi
+  rasmlardan (galereya, taom, mijoz sharhi rasmi), bo'lmasa protsedural SVG (tush manzarasi, chinni tarelka).
+- Krem hero'li sahifalarda (bron, blog, biz haqimizda) header doim to'q (`chrome/nav.ts` HERO_ROUTES).
 
 ### Ma'lum muammolar / eslatmalar
 - Aziz saytni `/en` da Chrome avto-tarjimasi bilan ko'rgan — "21" "двадцать один" ga, "GrandChangan" "Отель ..." ga tarjima bo'lgan.
