@@ -48,3 +48,14 @@ export function sameEveryDay(hours: DayHours[]): DayHours | null {
   const first = all[0];
   return all.every((h) => !h.isClosed && h.openTime === first.openTime && h.closeTime === first.closeTime) ? first : null;
 }
+
+/**
+ * Qisqa ish vaqti: hamma kun bir xil bo'lsa — "11:00–23:00" (every: true), aks holda shu kunniki;
+ * yopiq kun — value: null. Hero va kartalardagi bir qatorli yozuv uchun.
+ */
+export function hoursSummary(hours: DayHours[], dayOfWeek: number): { value: string | null; every: boolean } {
+  const every = sameEveryDay(hours);
+  if (every) return { value: `${every.openTime}–${every.closeTime}`, every: true };
+  const h = hoursFor(hours, dayOfWeek);
+  return { value: h.isClosed ? null : `${h.openTime}–${h.closeTime}`, every: false };
+}

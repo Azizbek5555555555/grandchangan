@@ -26,9 +26,9 @@ export const HOME_ITEM: NavItem = { href: "/", ns: "Common", key: "home", cn: "é
 
 /**
  * Tepasida qizil/tungi hero bor sahifalar â€” header u yerda shaffof boshlanadi.
- * Qolganlarida (blog maqolasi, kabinet va h.k.) krem fon tepada, shuning uchun header doim to'q.
+ * Qolganlarida (krem hero'li bron/blog/biz haqimizda, blog maqolasi, kabinet va h.k.) header doim to'q.
  */
-const HERO_ROUTES = new Set(["/", "/menu", "/reservation", "/gallery", "/events", "/blog", "/about", "/contact"]);
+const HERO_ROUTES = new Set(["/", "/menu", "/gallery", "/events", "/contact"]);
 
 export function hasDarkHero(pathname: string) {
   const p = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;

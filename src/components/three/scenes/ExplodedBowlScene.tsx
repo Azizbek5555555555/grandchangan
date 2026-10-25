@@ -21,6 +21,10 @@ import { P } from "../palette";
    scroll'idan (sticky bo'lim), topilmasa konteyner ko'rinishidan */
 
 const GAP = 0.78;
+/** Qatlam nomlarining chiqish jadvali (progress bo'yicha) — ExplodeHud bilan bir xil */
+const LABEL_START = 0.2;
+const LABEL_STEP = 0.11;
+const LABEL_FADE = 0.15;
 const TARGET: [number, number, number] = [0, 2.35, 0];
 const VIEW_DIR: [number, number, number] = [0, 0.42, 1];
 
@@ -105,7 +109,8 @@ function ExplodedContent({ reduced, mobile, trackRef, labels }: Pick<ExplodedSce
     labelEls.current.forEach((el, i) => {
       if (!el) return;
       const li = layers.length - 1 - i; // label i → qatlam (yuqoridan)
-      const a = clamp01((p - 0.25 - li * 0.05) / 0.3);
+      // nomlar pastdan yuqoriga navbat bilan chiqadi (ExplodeHud ham shu jadval bo'yicha yuradi)
+      const a = clamp01((p - LABEL_START - li * LABEL_STEP) / LABEL_FADE);
       el.style.opacity = String(a);
       el.style.transform = `translate(-100%, -50%) translateX(${(1 - a) * -14}px)`;
     });

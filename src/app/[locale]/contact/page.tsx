@@ -4,7 +4,9 @@ import { t } from "@/lib/utils";
 import { Phone, Mail, MapPin, ExternalLink } from "lucide-react";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
-import PageHero from "@/components/site/PageHero";
+import ContactHero from "@/components/site/heroes/ContactHero";
+import { dayOfWeekOf, hoursSummary } from "@/lib/hours";
+import { restaurantDay } from "@/lib/time";
 import Reveal from "@/components/motion/Reveal";
 import SectionHead from "@/components/site/kit/SectionHead";
 import { CloudLine } from "@/components/site/pages/Ornament";
@@ -16,6 +18,10 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   setRequestLocale(locale);
   const st = await getTranslations({ locale, namespace: "Site" });
   const tc = await getTranslations({ locale, namespace: "Common" });
+  const [p2, h2] = await Promise.all([
+    getTranslations({ locale, namespace: "Pages2" }),
+    getTranslations({ locale, namespace: "Home2" }),
+  ]);
 
   const [setting, hours] = await Promise.all([
     prisma.siteSetting.findUnique({ where: { key: "general" } }),
@@ -33,7 +39,17 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
   return (
     <>
       <SiteHeader />
-      <PageHero title={tc("contact")} subtitle={st("contactSub")} cn="联系" />
+      <ContactHero
+        title={tc("contact")}
+        sub={st("contactSub")}
+        phone={phone}
+        address={address}
+        hours={(() => {
+          const hs = hoursSummary(hours, dayOfWeekOf(restaurantDay()));
+          return `${hs.every ? st("fOpen") : h2("today")} · ${hs.value ?? st("closed")}`;
+        })()}
+        labels={{ phone: st("cPhone"), address: st("cAddress"), hours: st("cHours"), place: `${tc("brand")} · ${p2("heroCity")}` }}
+      />
       <main className="bg-paper">
       <div className="mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8">
         <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

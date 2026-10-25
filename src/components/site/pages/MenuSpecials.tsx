@@ -42,8 +42,9 @@ export async function ChefSignature({ items, locale }: { items: SpecialItem[]; l
   const st = await getTranslations({ locale, namespace: "Site" });
 
   return (
-    <section className="relative isolate overflow-hidden bg-night pb-32 pt-24 text-brand-cream sm:pb-40">
-      <Wave top className="text-paper" variant="b" />
+    <section className="relative isolate overflow-hidden bg-night pb-32 pt-16 text-brand-cream sm:pb-40">
+      {/* Menyu hero'si ham qorong'i — orada faqat nozik oltin chiziq */}
+      <span aria-hidden="true" className="hairline-gold absolute inset-x-[8%] top-0" />
       <span aria-hidden="true" className="lattice-bg absolute inset-0 -z-10 text-brand-gold/[0.04]" />
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHead align="center" tone="dark" font="serif" cn="招牌菜" eyebrow={m("sigEyebrow")} title={m("sigTitle")} accent={m("sigAccent")} />

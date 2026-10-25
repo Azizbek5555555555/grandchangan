@@ -5,7 +5,7 @@ import { t } from "@/lib/utils";
 import { ROOMS, floorTotals, roomSeats } from "@/lib/floorplan/layout";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
-import PageHero from "@/components/site/PageHero";
+import AboutHero from "@/components/site/heroes/AboutHero";
 import SectionHead from "@/components/site/kit/SectionHead";
 import Wave from "@/components/site/kit/Wave";
 import Reveal from "@/components/motion/Reveal";
@@ -23,10 +23,11 @@ const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.start
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const [st, tc, a] = await Promise.all([
+  const [st, tc, a, p2] = await Promise.all([
     getTranslations({ locale, namespace: "Site" }),
     getTranslations({ locale, namespace: "Common" }),
     getTranslations({ locale, namespace: "About2" }),
+    getTranslations({ locale, namespace: "Pages2" }),
   ]);
   const [setting, gallery] = await Promise.all([
     prisma.siteSetting.findUnique({ where: { key: "general" } }),
@@ -62,7 +63,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   return (
     <>
       <SiteHeader />
-      <PageHero title={tc("about")} subtitle={st("aboutSub")} cn="长安" tone="night" />
+      <AboutHero title={tc("about")} sub={st("aboutSub")} eyebrow={p2("heroAboutEyebrow")} image={imgs[0] ?? null} />
 
       <main className="overflow-x-clip bg-paper">
         {/* ===== 1. Hikoya — tush rasmi uslubida ===== */}

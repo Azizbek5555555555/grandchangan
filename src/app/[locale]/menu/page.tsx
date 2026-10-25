@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import MenuBrowser from "@/components/site/MenuBrowser";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
-import PageHero from "@/components/site/PageHero";
+import MenuHero from "@/components/site/heroes/MenuHero";
 import { ChefSignature, TeaRitual, type SpecialItem } from "@/components/site/pages/MenuSpecials";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +13,10 @@ export default async function MenuPage({ params }: { params: Promise<{ locale: s
   setRequestLocale(locale);
   const st = await getTranslations({ locale, namespace: "Site" });
   const tc = await getTranslations({ locale, namespace: "Common" });
+  const [p2, th] = await Promise.all([
+    getTranslations({ locale, namespace: "Pages2" }),
+    getTranslations({ locale, namespace: "Home" }),
+  ]);
   const [categories, items] = await Promise.all([
     prisma.menuCategory.findMany({ where: { isActive: true }, orderBy: { sortOrder: "asc" } }),
     prisma.menuItem.findMany({ where: { isAvailable: true }, orderBy: { sortOrder: "asc" } }),
@@ -36,10 +40,23 @@ export default async function MenuPage({ params }: { params: Promise<{ locale: s
   return (
     <>
       <SiteHeader />
-      <PageHero title={tc("menu")} subtitle={st("menuSub")} cn="菜单" />
+      <MenuHero
+        title={tc("menu")}
+        eyebrow={p2("heroMenuEyebrow")}
+        sub={st("menuSub")}
+        stats={[
+          { value: plainItems.length, label: p2("heroDishes") },
+          { value: categories.filter((c) => plainItems.some((i: { categoryId: string }) => i.categoryId === c.id)).length, label: p2("heroCats") },
+        ].filter((s) => s.value > 0)}
+        bookLabel={th("book_table")}
+        browseLabel={th("view_menu")}
+        waveClass={signature.length ? undefined : "text-paper"}
+      />
       <ChefSignature items={signature} locale={locale} />
       <main className="bg-paper">
-        <MenuBrowser categories={plainCats} items={plainItems} locale={locale} showFeatured={signature.length === 0} />
+        <div id="menu-browser" className="scroll-mt-20">
+          <MenuBrowser categories={plainCats} items={plainItems} locale={locale} showFeatured={signature.length === 0} />
+        </div>
         <TeaRitual items={tea} locale={locale} anchorId={teaCats[0]?.id ?? null} />
       </main>
       <SiteFooter locale={locale} />

@@ -3,7 +3,9 @@ import { prisma } from "@/lib/prisma";
 import ReservationFlow, { type ReservationInitial } from "@/components/site/ReservationFlow";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
-import PageHero from "@/components/site/PageHero";
+import ReserveHero from "@/components/site/heroes/ReserveHero";
+import { dayOfWeekOf, hoursSummary } from "@/lib/hours";
+import { restaurantDay } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
 
@@ -43,6 +45,10 @@ export default async function ReservationPage({
   setRequestLocale(locale);
   const st = await getTranslations({ locale, namespace: "Site" });
   const tc = await getTranslations({ locale, namespace: "Common" });
+  const [p2, h2] = await Promise.all([
+    getTranslations({ locale, namespace: "Pages2" }),
+    getTranslations({ locale, namespace: "Home2" }),
+  ]);
   const initial = parseInitial(await searchParams);
 
   const [categories, items, hours, generalSetting] = await Promise.all([
@@ -55,6 +61,9 @@ export default async function ReservationPage({
   const general = (generalSetting?.value as Record<string, unknown>) || {};
   const phone = Array.isArray(general.phones) && general.phones[0] ? String(general.phones[0]) : "+998 90 503 15 68";
 
+  const hs = hoursSummary(hours, dayOfWeekOf(restaurantDay()));
+  const hoursText = `${hs.every ? st("fOpen") : h2("today")} · ${hs.value ?? st("closed")}`;
+
   const menu = {
     categories: JSON.parse(JSON.stringify(categories)),
     items: items.map((i) => ({
@@ -66,7 +75,14 @@ export default async function ReservationPage({
   return (
     <>
       <SiteHeader />
-      <PageHero title={tc("reservation")} subtitle={st("reservationSub")} cn="订座" />
+      <ReserveHero
+        title={tc("reservation")}
+        sub={st("reserveSub")}
+        ticketLabel={p2("heroTicket")}
+        steps={[`${st("rDate")} · ${st("rTime")}`, st("rTable"), p2("infoTitle")]}
+        hours={hoursText}
+        phone={phone}
+      />
       <main className="bg-paper">
         <ReservationFlow key={JSON.stringify(initial ?? {})} locale={locale} menu={menu} hours={hours} phone={phone} initial={initial} />
       </main>
