@@ -678,7 +678,7 @@
     "panel3t": "Oshxonamiz",
     "panel3s": "Olov, vok va mahorat",
     "panel4t": "VIP xonalar",
-    "panel4s": "6–8 kishilik yopiq xonalar",
+    "panel4s": "10–13 kishilik yopiq xonalar",
     "showCourse": "{n}-taom",
     "specWeight": "Og'irligi",
     "specTime": "Tayyorlanishi",
@@ -771,11 +771,11 @@
     "tables": "stol",
     "seats": "o'rin",
     "vip": "VIP xona",
-    "vipX": "6–8 kishilik yopiq xonalar — oilaviy davra va uchrashuvlar uchun.",
+    "vipX": "10–13 kishilik yopiq xonalar — oilaviy davra, bazm va uchrashuvlar uchun.",
     "hall": "Asosiy zal stollari",
     "hallX": "Asosiy zalda {seats} o'rin: dumaloq stollar va katta davra uchun uzun stol.",
     "booth": "Kabinka",
-    "boothX": "4 kishilik shinam kabinkalar.",
+    "boothX": "6 kishilik shinam kabinkalar.",
     "privateRoom": "Alohida xona",
     "privateX": "{seats} kishilik, tinch suhbat uchun.",
     "ctaEyebrow": "Bugun tashrif buyuring"
@@ -821,5 +821,16 @@
     "browseAccent": "dasturxonda",
     "motto": "Har bir taom — o'z ta'mi",
     "mottoSub": "Sichuan va Kanton an'analari — Samarqand dasturxonida."
+  },
+  "Photos": {
+    "exterior": "GrandChangan restorani — tashqi ko'rinish, Samarqand",
+    "hall": "GrandChangan asosiy zali",
+    "vip": "GrandChangan VIP xonasi",
+    "booth": "Deraza yonidagi kabinka",
+    "private": "Alohida stol xonasi",
+    "bar": "Bar peshtaxtasi",
+    "stage": "Tadbirlar uchun sahna va katta ekran",
+    "decor": "Xitoycha interyer detallari",
+    "tableware": "Restoran idishlari"
   }
 }

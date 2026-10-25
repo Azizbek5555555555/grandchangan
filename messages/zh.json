@@ -678,7 +678,7 @@
     "panel3t": "我们的厨房",
     "panel3s": "火候、炒锅与手艺",
     "panel4t": "VIP包间",
-    "panel4s": "6–8人私人包间",
+    "panel4s": "10–13人私人包间",
     "showCourse": "第{n}道",
     "specWeight": "分量",
     "specTime": "烹制时间",
@@ -771,11 +771,11 @@
     "tables": "张桌",
     "seats": "个座位",
     "vip": "VIP包间",
-    "vipX": "6–8人私人包间，适合家庭聚会与会谈。",
+    "vipX": "10–13人私人包间，适合家庭聚会、宴请与会谈。",
     "hall": "大厅餐桌",
     "hallX": "大厅共{seats}个座位：圆桌与适合大型聚会的长桌。",
     "booth": "卡座",
-    "boothX": "温馨的4人卡座。",
+    "boothX": "温馨的6人卡座。",
     "privateRoom": "独立包间",
     "privateX": "可容纳{seats}人，适合安静交谈。",
     "ctaEyebrow": "今日光临"
@@ -821,5 +821,16 @@
     "browseAccent": "席上",
     "motto": "一品一味，各有其韵",
     "mottoSub": "川粤传统，呈于撒马尔罕的餐桌。"
+  },
+  "Photos": {
+    "exterior": "长安大饭店外景，撒马尔罕",
+    "hall": "长安大饭店大厅",
+    "vip": "长安大饭店贵宾包间",
+    "booth": "靠窗卡座",
+    "private": "独立餐桌包间",
+    "bar": "吧台",
+    "stage": "活动舞台与大屏幕",
+    "decor": "中式室内细节",
+    "tableware": "餐具"
   }
 }

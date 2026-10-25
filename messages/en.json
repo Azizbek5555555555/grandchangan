@@ -678,7 +678,7 @@
     "panel3t": "Our kitchen",
     "panel3s": "Fire, wok and craft",
     "panel4t": "VIP rooms",
-    "panel4s": "Private rooms for 6–8 guests",
+    "panel4s": "Private rooms for 10–13 guests",
     "showCourse": "Course {n}",
     "specWeight": "Weight",
     "specTime": "Cooking time",
@@ -771,11 +771,11 @@
     "tables": "tables",
     "seats": "seats",
     "vip": "VIP rooms",
-    "vipX": "Private rooms for 6–8 guests — for family and meetings.",
+    "vipX": "Private rooms for 10–13 guests — for family, celebrations and meetings.",
     "hall": "Main hall tables",
     "hallX": "{seats} seats in the main hall: round tables and a long table for big groups.",
     "booth": "Booths",
-    "boothX": "Cosy booths for 4 guests.",
+    "boothX": "Cosy booths for 6 guests.",
     "privateRoom": "Private room",
     "privateX": "For {seats} guests, for a quiet conversation.",
     "ctaEyebrow": "Visit us today"
@@ -821,5 +821,16 @@
     "browseAccent": "on the table",
     "motto": "Every dish, its own flavour",
     "mottoSub": "Sichuan and Cantonese traditions, served at a Samarkand table."
+  },
+  "Photos": {
+    "exterior": "GrandChangan restaurant exterior, Samarkand",
+    "hall": "GrandChangan main hall",
+    "vip": "GrandChangan VIP room",
+    "booth": "Window booth",
+    "private": "Private dining table",
+    "bar": "Bar counter",
+    "stage": "Stage and big screen for events",
+    "decor": "Chinese interior details",
+    "tableware": "Restaurant tableware"
   }
 }
