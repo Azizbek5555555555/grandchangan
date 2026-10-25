@@ -680,7 +680,11 @@
     "showCourse": "Course {n}",
     "specWeight": "Weight",
     "specTime": "Cooking time",
-    "specSpice": "Spice level"
+    "specSpice": "Spice level",
+    "explodeFact1": "6 layers in one bowl",
+    "explodeFact2": "Noodles pulled by hand",
+    "explodeFact3": "Halal meat only",
+    "explodeFig": "Beef lagman"
   },
   "Pages2": {
     "otherDishes": "Other dishes",

@@ -680,7 +680,11 @@
     "showCourse": "{n}-taom",
     "specWeight": "Og'irligi",
     "specTime": "Tayyorlanishi",
-    "specSpice": "Achchiqligi"
+    "specSpice": "Achchiqligi",
+    "explodeFact1": "6 qatlam — bir kosada",
+    "explodeFact2": "Lag'mon qo'lda cho'ziladi",
+    "explodeFact3": "Faqat halal go'sht",
+    "explodeFig": "Mol go'shtli lag'mon"
   },
   "Pages2": {
     "otherDishes": "Boshqa taomlar",

@@ -680,7 +680,11 @@
     "showCourse": "Блюдо {n}",
     "specWeight": "Вес",
     "specTime": "Время приготовления",
-    "specSpice": "Острота"
+    "specSpice": "Острота",
+    "explodeFact1": "6 слоёв в одной пиале",
+    "explodeFact2": "Лапша тянется вручную",
+    "explodeFact3": "Только халяльное мясо",
+    "explodeFig": "Лагман с говядиной"
   },
   "Pages2": {
     "otherDishes": "Другие блюда",

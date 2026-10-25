@@ -680,7 +680,11 @@
     "showCourse": "第{n}道",
     "specWeight": "分量",
     "specTime": "烹制时间",
-    "specSpice": "辣度"
+    "specSpice": "辣度",
+    "explodeFact1": "一碗六层",
+    "explodeFact2": "面条手工拉制",
+    "explodeFact3": "只用清真肉",
+    "explodeFig": "牛肉拉面"
   },
   "Pages2": {
     "otherDishes": "其他菜品",
