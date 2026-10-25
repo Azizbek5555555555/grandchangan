@@ -19,9 +19,9 @@ Bularga **Xitoy taomlarining 3D modellari** (three.js) va boy animatsiyalar qo's
 
 | Token klass | Qiymat | Qayerda |
 |---|---|---|
-| `bg-fire` / `text-fire` | #c8161d | hero foni, asosiy tugma, krem fondagi aksent |
-| `fire-deep` | #9e0f14 | qizil ustidagi to'qroq shakllar, hover |
-| `wine` / `wine-deep` | #5e0a0d / #430709 | to'q-qizil to'lqinli bo'limlar |
+| `bg-fire` / `text-fire` | #9f0f17 (to'q imperator qizili) | hero foni, asosiy tugma, krem fondagi aksent |
+| `fire-deep` | #740a10 | qizil ustidagi to'qroq shakllar, hover |
+| `wine` / `wine-deep` | #4a080b / #320508 | to'q-qizil to'lqinli bo'limlar |
 | `saffron` / `saffron-deep` | #f4a62a / #d98a12 | qizil/qorong'i fondagi CTA va aksent |
 | `night` / `night-2` / `night-3` | #0e0a09 / #17110f / #241b18 | "tungi saroy" bloklari (namuna 2), footer |
 | `paper` / `sand` | tema bo'yicha (yorug': #fbf1e1 / #f3e2c7) | krem bo'limlar — qorong'i temada o'zi qorayadi |
