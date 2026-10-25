@@ -190,7 +190,16 @@ export type InventoryOverview = {
   staff: InventoryStaffOption[];
   /** "Tayyor ro'yxat" faqat bazada umuman buyum bo'lmasa (arxivdagilar ham) qo'shiladi */
   canAddStarter: boolean;
+  /**
+   * Soni hali umuman kiritilmagan buyumlar: 0 dona va hech qanday harakat ham, yakunlangan
+   * sanoqda sanalgan qatori ham yo'q (masalan, tayyor ro'yxatdan qo'shilgani). UI ularni
+   * "yetishmaydi" emas, "kiritilmagan" deb ko'rsatadi.
+   */
+  unsetIds: string[];
 };
+
+/** Faqat ko'rsatish uchun holat: StockStatus + "soni hali kiritilmagan" */
+export type ItemViewStatus = StockStatus | "UNSET";
 
 /** Yo'qotish formasi uchun buyumlar ro'yxati */
 export type InventoryItemOption = { id: string; name: string; category: InventoryCategory; quantity: number };

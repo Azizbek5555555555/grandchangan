@@ -6,16 +6,17 @@ import { Button, Modal, TextArea, TextField } from "@/components/ui/primitives";
 import { reportLoss } from "@/lib/inventory/actions";
 import { formatMoney } from "@/lib/utils";
 import {
-  INVENTORY_CATEGORIES,
   INVENTORY_LIMITS as L,
   LOSS_REASONS,
   type InventoryItemOption,
   type InventoryLossReason,
   type InventoryStaffOption,
 } from "@/lib/inventory/types";
-import { ErrorText, Hint, SelectField, fmtNum, parseIntInput, useInvAction } from "./shared";
+import { ErrorText, Hint, ItemSelect, SelectField, fmtNum, parseIntInput, useInvAction } from "./shared";
 
 type FixedItem = { id: string; name: string; quantity: number; unitPrice: number | null };
+/** Tanlanadigan buyum: narx bo'lsa taxminiy zarar ham ko'rsatiladi (boshqaruv oynasida) */
+type PickItem = InventoryItemOption & { unitPrice?: number | null };
 export type LossDone = { name: string; qty: number; left: number };
 
 /**
@@ -30,7 +31,7 @@ export function LossFormBody({
   onDone,
   onCancel,
 }: {
-  items?: InventoryItemOption[];
+  items?: PickItem[];
   fixedItem?: FixedItem;
   staff?: InventoryStaffOption[];
   onDone: (r: LossDone) => void;
@@ -46,7 +47,7 @@ export function LossFormBody({
 
   const picked = items?.find((i) => i.id === itemId);
   const selected: Omit<FixedItem, "id"> | undefined =
-    fixedItem ?? (picked ? { name: picked.name, quantity: picked.quantity, unitPrice: null } : undefined);
+    fixedItem ?? (picked ? { name: picked.name, quantity: picked.quantity, unitPrice: picked.unitPrice ?? null } : undefined);
   const qty = parseIntInput(quantity, 1, L.maxMove);
   const estimate = selected?.unitPrice != null && qty !== null ? qty * selected.unitPrice : 0;
 
@@ -73,22 +74,13 @@ export function LossFormBody({
       {fixedItem ? (
         <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm">{t("currentStock", { qty: fmtNum(fixedItem.quantity) })}</p>
       ) : (
-        <SelectField label={t("fItem")} value={itemId} onChange={(e) => setItemId(e.target.value)} required>
-          <option value="">{t("fItemPh")}</option>
-          {INVENTORY_CATEGORIES.map((c) => {
-            const group = (items ?? []).filter((i) => i.category === c);
-            if (!group.length) return null;
-            return (
-              <optgroup key={c} label={t(`category.${c}`)}>
-                {group.map((i) => (
-                  <option key={i.id} value={i.id}>
-                    {i.name}
-                  </option>
-                ))}
-              </optgroup>
-            );
-          })}
-        </SelectField>
+        <>
+          <ItemSelect items={items ?? []} value={itemId} onChange={setItemId} />
+          {/* Hisobdagi son — faqat boshqaruv oynasida (xodim ko'rinishi o'zgarmaydi) */}
+          {selected && staff && (
+            <p className="rounded-lg bg-surface-2 px-3 py-2 text-sm">{t("currentStock", { qty: fmtNum(selected.quantity) })}</p>
+          )}
+        </>
       )}
 
       <div className="grid grid-cols-2 gap-3">
@@ -152,23 +144,29 @@ export function LossFormBody({
   );
 }
 
-/** Boshqaruv uchun oyna: qoldiq jadvalidagi qatordan ochiladi */
+/**
+ * Boshqaruv uchun oyna: ombor jadvalidagi qatordan (item) yoki "Holat"dagi umumiy tugmadan
+ * (items — buyum oynaning o'zida tanlanadi) ochiladi
+ */
 export default function LossModal({
   item,
+  items,
   staff,
   onClose,
   onDone,
 }: {
-  item: FixedItem;
+  item?: FixedItem;
+  items?: PickItem[];
   staff: InventoryStaffOption[];
   onClose: () => void;
   onDone: (message: string) => void;
 }) {
   const t = useTranslations("Inventory");
   return (
-    <Modal open onClose={onClose} title={t("lossTitle", { name: item.name })}>
+    <Modal open onClose={onClose} title={item ? t("lossTitle", { name: item.name }) : t("ov.lossTitleAny")}>
       <LossFormBody
         fixedItem={item}
+        items={item ? undefined : items}
         staff={staff}
         onCancel={onClose}
         onDone={(r) => onDone(t("lossDone", { name: r.name, qty: fmtNum(r.qty), left: fmtNum(r.left) }))}

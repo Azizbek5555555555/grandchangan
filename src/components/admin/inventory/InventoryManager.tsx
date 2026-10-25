@@ -1,28 +1,50 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { CircleCheck, X } from "lucide-react";
+import {
+  Boxes,
+  CircleCheck,
+  ClipboardCheck,
+  Gauge,
+  History,
+  Map as MapIcon,
+  UtensilsCrossed,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { InventoryOverview } from "@/lib/inventory/types";
+import OverviewTab from "./OverviewTab";
 import StockTab from "./StockTab";
 import TablesTab from "./TablesTab";
 import HistoryTab from "./HistoryTab";
 import CountTab from "./CountTab";
 import MapTab from "./MapTab";
+import { TabIntro, viewStatus } from "./shared";
 
-type Tab = "map" | "stock" | "tables" | "history" | "count";
-const TABS: Tab[] = ["map", "stock", "tables", "history", "count"];
+export type InvTab = "overview" | "stock" | "tables" | "count" | "history" | "map";
+
+/** Bo'limlar tartibi: avval oddiy "Holat", eng kam ishlatiladigani (xarita) — oxirida */
+const TABS: { key: InvTab; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+  { key: "overview", icon: Gauge },
+  { key: "stock", icon: Boxes },
+  { key: "tables", icon: UtensilsCrossed },
+  { key: "count", icon: ClipboardCheck },
+  { key: "history", icon: History },
+  { key: "map", icon: MapIcon },
+];
+const TAB_KEYS = TABS.map((x) => x.key);
 
 /**
- * Inventar (boshqaruv: MANAGER/ADMIN/SUPERADMIN): Xarita · Qoldiq · Stollar · Tarix · Inventarizatsiya.
- * Bo'limlar yashiriladi, lekin o'chirilmaydi — inventarizatsiyada kiritilgan saqlanmagan sonlar
+ * Inventar (boshqaruv: MANAGER/ADMIN/SUPERADMIN): Holat · Ombor · Stollar · Sanoq · Tarix · Xarita.
+ * Bo'limlar yashiriladi, lekin o'chirilmaydi — sanoqda kiritilgan saqlanmagan sonlar
  * boshqa bo'limga o'tib qaytganda yo'qolmasligi uchun.
  */
 export default function InventoryManager({ data, initialTab }: { data: InventoryOverview; initialTab?: string }) {
   const t = useTranslations("Inventory");
-  const [tab, setTab] = useState<Tab>(TABS.includes(initialTab as Tab) ? (initialTab as Tab) : "map");
+  const [tab, setTab] = useState<InvTab>(TAB_KEYS.includes(initialTab as InvTab) ? (initialTab as InvTab) : "overview");
   const [notice, setNotice] = useState<string | null>(null);
+  const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!notice) return;
@@ -30,18 +52,38 @@ export default function InventoryManager({ data, initialTab }: { data: Inventory
     return () => window.clearTimeout(id);
   }, [notice]);
 
-  const badge: Partial<Record<Tab, string>> = {
-    stock: data.lowCount > 0 ? String(data.lowCount) : undefined,
+  // "Holat" yorlig'idagi son: yetishmaydigan yoki kam qolgan (soni kiritilganlar orasida)
+  const problems = useMemo(() => {
+    const unset = new Set(data.unsetIds);
+    return data.items.filter((i) => {
+      const s = viewStatus(i, unset);
+      return s === "SHORT" || s === "LOW";
+    }).length;
+  }, [data.items, data.unsetIds]);
+
+  const badge: Partial<Record<InvTab, string>> = {
+    overview: problems > 0 ? String(problems) : undefined,
     count: data.draft ? t("tabDraftBadge") : undefined,
   };
 
-  return (
-    <div className="p-6">
-      <h1 className="mb-2 text-2xl font-bold">{t("title")}</h1>
-      <p className="mb-6 max-w-3xl text-sm text-muted">{t("subtitle")}</p>
+  /** Boshqa bo'limga o'tish (yo'riqnoma tugmalari): sahifa tepasiga qaytadi */
+  function goTo(next: InvTab) {
+    setTab(next);
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
-      <div role="tablist" aria-label={t("title")} className="mb-6 flex gap-1 overflow-x-auto border-b border-line">
-        {TABS.map((k) => (
+  return (
+    <div ref={topRef} className="scroll-mt-4 p-4 sm:p-6">
+      <h1 className="mb-1 text-2xl font-bold">{t("title")}</h1>
+      <p className="mb-5 max-w-3xl text-sm text-muted">{t("subtitle")}</p>
+
+      {/* Telefonda 3×2 tugmalar, kattaroq ekranda — odatdagi yorliqlar qatori */}
+      <div
+        role="tablist"
+        aria-label={t("title")}
+        className="mb-5 grid grid-cols-3 gap-1.5 sm:flex sm:gap-1 sm:overflow-x-auto sm:border-b sm:border-line"
+      >
+        {TABS.map(({ key: k, icon: Icon }) => (
           <button
             key={k}
             type="button"
@@ -51,10 +93,14 @@ export default function InventoryManager({ data, initialTab }: { data: Inventory
             aria-controls={`inv-panel-${k}`}
             onClick={() => setTab(k)}
             className={cn(
-              "-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition",
-              tab === k ? "border-danger text-danger" : "border-transparent text-muted hover:text-content"
+              "flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border px-2 py-2 text-sm font-medium transition",
+              "sm:-mb-px sm:rounded-none sm:border-0 sm:border-b-2 sm:px-4",
+              tab === k
+                ? "border-danger bg-card text-danger sm:bg-transparent"
+                : "border-line bg-card text-muted hover:text-content sm:border-transparent sm:bg-transparent"
             )}
           >
+            <Icon size={15} className="hidden shrink-0 sm:block" />
             {t(`tabs.${k}`)}
             {badge[k] && (
               <span className="rounded-full bg-brand-red px-1.5 py-0.5 text-[10px] leading-none text-brand-cream">
@@ -77,7 +123,7 @@ export default function InventoryManager({ data, initialTab }: { data: Inventory
           <button
             type="button"
             onClick={() => setNotice(null)}
-            className="text-muted hover:text-content"
+            className="-m-2 p-2 text-muted hover:text-content"
             aria-label={t("close")}
           >
             <X size={14} />
@@ -85,21 +131,17 @@ export default function InventoryManager({ data, initialTab }: { data: Inventory
         </div>
       )}
 
-      <div role="tabpanel" id="inv-panel-map" aria-labelledby="inv-tab-map" hidden={tab !== "map"}>
-        <MapTab data={data} />
-      </div>
-      <div role="tabpanel" id="inv-panel-stock" aria-labelledby="inv-tab-stock" hidden={tab !== "stock"}>
-        <StockTab data={data} onNotice={setNotice} />
-      </div>
-      <div role="tabpanel" id="inv-panel-tables" aria-labelledby="inv-tab-tables" hidden={tab !== "tables"}>
-        <TablesTab data={data} />
-      </div>
-      <div role="tabpanel" id="inv-panel-history" aria-labelledby="inv-tab-history" hidden={tab !== "history"}>
-        <HistoryTab movements={data.movements} />
-      </div>
-      <div role="tabpanel" id="inv-panel-count" aria-labelledby="inv-tab-count" hidden={tab !== "count"}>
-        <CountTab data={data} onNotice={setNotice} />
-      </div>
+      {TABS.map(({ key: k, icon }) => (
+        <div key={k} role="tabpanel" id={`inv-panel-${k}`} aria-labelledby={`inv-tab-${k}`} hidden={tab !== k}>
+          <TabIntro icon={icon}>{t(`intro.${k}`)}</TabIntro>
+          {k === "overview" && <OverviewTab data={data} onNotice={setNotice} goTo={goTo} />}
+          {k === "stock" && <StockTab data={data} onNotice={setNotice} />}
+          {k === "tables" && <TablesTab data={data} goTo={goTo} />}
+          {k === "count" && <CountTab data={data} onNotice={setNotice} />}
+          {k === "history" && <HistoryTab movements={data.movements} />}
+          {k === "map" && <MapTab data={data} />}
+        </div>
+      ))}
     </div>
   );
 }

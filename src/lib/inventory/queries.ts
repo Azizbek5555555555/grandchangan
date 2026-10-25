@@ -134,7 +134,17 @@ function compareItems(a: ItemSortable, b: ItemSortable): number {
  * locale — zona nomlarini tarjima qilish uchun.
  */
 export async function getInventoryOverview(locale: string): Promise<InventoryOverview> {
-  const [{ items, zoneInputs, allTables }, loss, movements, draftRow, completed, staffRows, anyItem] = await Promise.all([
+  const [
+    { items, zoneInputs, allTables },
+    loss,
+    movements,
+    draftRow,
+    completed,
+    staffRows,
+    anyItem,
+    movedItems,
+    countedItems,
+  ] = await Promise.all([
     loadStock(locale),
     loadMonthLoss(),
     prisma.inventoryMovement.findMany({
@@ -170,9 +180,16 @@ export async function getInventoryOverview(locale: string): Promise<InventoryOve
       select: { id: true, name: true, phone: true, role: true },
     }),
     prisma.inventoryItem.findFirst({ select: { id: true } }),
+    // 0 donali buyumlardan soni kamida bir marta kiritilganlari: harakati bor yoki yakunlangan sanoqda sanalgan
+    prisma.inventoryMovement.groupBy({ by: ["itemId"], where: { item: { quantity: 0 } } }),
+    prisma.inventoryCountLine.groupBy({
+      by: ["itemId"],
+      where: { counted: { not: null }, count: { status: "COMPLETED" }, item: { quantity: 0 } },
+    }),
   ]);
 
   const { tableCount, seatCount } = seatTotals(allTables);
+  const knownIds = new Set([...movedItems, ...countedItems].map((r) => r.itemId));
 
   // Ochiq inventarizatsiya: "kutilgan" — buyumning hozirgi soni (yakunlashda aynan shu ishlatiladi)
   const draft: InventoryDraftCount | null = draftRow
@@ -251,6 +268,7 @@ export async function getInventoryOverview(locale: string): Promise<InventoryOve
     counts,
     staff,
     canAddStarter: !anyItem,
+    unsetIds: items.filter((i) => i.quantity === 0 && !knownIds.has(i.id)).map((i) => i.id),
   };
 }
 

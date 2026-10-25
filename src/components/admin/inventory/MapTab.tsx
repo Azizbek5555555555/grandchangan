@@ -8,6 +8,7 @@ import FloorMap, { useRoomName, type FloorSelectPoint } from "@/components/floor
 import { ROOMS, floorTotals, isDining, roomSeats, type FloorRoom } from "@/lib/floorplan/layout";
 import { tableQty } from "@/lib/inventory/calc";
 import type { InventoryItemRow, InventoryOverview } from "@/lib/inventory/types";
+import { viewStatus } from "./shared";
 
 type Line = { item: InventoryItemRow; qty: number };
 
@@ -38,6 +39,7 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
   // Bazadagi faol stollar xarita bilan mos bo'lmasa (sinxronlanmagan) — eslatma ko'rsatiladi
   const dbDiffers = data.totals.tableCount !== totals.tables || data.totals.seatCount !== totals.seats;
   const hasNorms = data.items.some((i) => i.perSeat > 0 || i.perTable > 0);
+  const unset = useMemo(() => new Set(data.unsetIds), [data.unsetIds]);
   const allSeats = useMemo(() => ROOMS.filter(isDining).flatMap((r) => r.tables.map((tb) => tb.seats)), []);
 
   // Esc — oynani yopish
@@ -145,7 +147,7 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
           <>
             <p className="mb-1 font-semibold text-content">{t("map.allTitle")}</p>
             <p className="mb-3 text-xs text-muted">{t("map.selectHint")}</p>
-            {hasNorms ? <LineList lines={allLines} /> : <p className="text-sm text-muted">{t("map.noNorms")}</p>}
+            {hasNorms ? <LineList lines={allLines} unset={unset} /> : <p className="text-sm text-muted">{t("map.noNorms")}</p>}
           </>
         ) : (
           <>
@@ -168,7 +170,7 @@ export default function MapTab({ data }: { data: InventoryOverview }) {
             </div>
             <RoomStats room={selected} />
             <div className="mt-3">
-              <RoomBody room={selected} lines={roomLines} items={data.items} hasNorms={hasNorms} />
+              <RoomBody room={selected} lines={roomLines} items={data.items} hasNorms={hasNorms} unset={unset} />
             </div>
           </>
         )}
@@ -184,7 +186,19 @@ function RoomStats({ room }: { room: FloorRoom }) {
   return <p className="text-xs text-muted">{t("map.tablesSeats", { tables: s.tables, seats: s.seats })}</p>;
 }
 
-function RoomBody({ room, lines, items, hasNorms }: { room: FloorRoom; lines: Line[]; items: InventoryItemRow[]; hasNorms: boolean }) {
+function RoomBody({
+  room,
+  lines,
+  items,
+  hasNorms,
+  unset,
+}: {
+  room: FloorRoom;
+  lines: Line[];
+  items: InventoryItemRow[];
+  hasNorms: boolean;
+  unset: Set<string>;
+}) {
   const t = useTranslations("Inventory");
   if (room.kind === "kitchen") {
     const kitchen = items.filter((i) => i.category === "KITCHEN");
@@ -218,7 +232,7 @@ function RoomBody({ room, lines, items, hasNorms }: { room: FloorRoom; lines: Li
   return (
     <>
       <p className="mb-2 text-sm font-medium text-content">{t("map.roomItems")}</p>
-      <LineList lines={lines} />
+      <LineList lines={lines} unset={unset} />
       {room.tables.length > 1 && (
         <div className="mt-4 border-t border-line pt-3">
           <p className="mb-2 text-sm font-medium text-content">{t("map.perTable")}</p>
@@ -236,26 +250,30 @@ function RoomBody({ room, lines, items, hasNorms }: { room: FloorRoom; lines: Li
   );
 }
 
-function LineList({ lines }: { lines: Line[] }) {
+/** Buyumlar ro'yxati; soni kiritilmagan buyum "yetishmaydi" deb belgilanmaydi */
+function LineList({ lines, unset }: { lines: Line[]; unset: Set<string> }) {
   const t = useTranslations("Inventory");
   return (
     <ul className="space-y-1 text-sm">
-      {lines.map(({ item, qty }) => (
-        <li key={item.id} className="flex items-center justify-between gap-2">
-          <span className="min-w-0 truncate text-content">{item.name}</span>
-          <span className="flex shrink-0 items-center gap-2">
-            {item.status !== "OK" && (
-              <span
-                title={t(`status.${item.status}`)}
-                className={cn("text-[10px] font-medium uppercase", item.status === "SHORT" ? "text-danger" : "text-brand-gold")}
-              >
-                {t(`status.${item.status}`)}
-              </span>
-            )}
-            <span className="font-semibold tabular-nums text-content">×{qty}</span>
-          </span>
-        </li>
-      ))}
+      {lines.map(({ item, qty }) => {
+        const status = viewStatus(item, unset);
+        return (
+          <li key={item.id} className="flex items-center justify-between gap-2">
+            <span className="min-w-0 truncate text-content">{item.name}</span>
+            <span className="flex shrink-0 items-center gap-2">
+              {status !== "OK" && (
+                <span
+                  title={t(`status.${status}`)}
+                  className={cn("text-[10px] font-medium uppercase", status === "SHORT" ? "text-danger" : "text-muted")}
+                >
+                  {t(`status.${status}`)}
+                </span>
+              )}
+              <span className="font-semibold tabular-nums text-content">×{qty}</span>
+            </span>
+          </li>
+        );
+      })}
     </ul>
   );
 }
