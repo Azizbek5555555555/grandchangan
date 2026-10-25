@@ -684,7 +684,15 @@
     "explodeFact1": "6 qatlam — bir kosada",
     "explodeFact2": "Lag'mon qo'lda cho'ziladi",
     "explodeFact3": "Faqat halal go'sht",
-    "explodeFig": "Mol go'shtli lag'mon"
+    "explodeFig": "Mol go'shtli lag'mon",
+    "rvPrev": "Oldingi sharh",
+    "rvNext": "Keyingi sharh",
+    "rvGoTo": "{n}-sharhga o'tish",
+    "rvTasted": "Tatib ko'rdi:",
+    "rvAvg": "Mehmonlar bahosi",
+    "rvWriteTitle": "Sizning hikoyangiz ham",
+    "rvWriteAccent": "shu yerda bo'lsin",
+    "rvWriteSub": "Tashrifingiz qanday o'tdi? Bir necha so'z yozing — sharhingiz moderatsiyadan so'ng shu sahnada chiqadi."
   },
   "Pages2": {
     "otherDishes": "Boshqa taomlar",

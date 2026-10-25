@@ -37,4 +37,13 @@ export type HomeCategory = {
   dishes: HomeDish[];
 };
 
-export type HomeReview = { id: string; author: string; rating: number; comment: string };
+export type HomeReview = {
+  id: string;
+  author: string;
+  rating: number;
+  comment: string;
+  /** Sahna foni: mijoz rasmi → sharh qilingan taom rasmi → galereya rasmi */
+  img: string | null;
+  /** Sharh bog'langan taom nomi (sahifa tilida) */
+  dish: string | null;
+};

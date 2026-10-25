@@ -54,7 +54,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         items: { where: { isAvailable: true }, take: 6, orderBy: [{ isFeatured: "desc" }, { sortOrder: "asc" }], select: DISH_SELECT },
       },
     }),
-    prisma.review.findMany({ where: { status: "APPROVED" }, take: 7, orderBy: { createdAt: "desc" } }),
+    prisma.review.findMany({
+      where: { status: "APPROVED" },
+      take: 7,
+      orderBy: { createdAt: "desc" },
+      select: { id: true, authorName: true, rating: true, comment: true, images: true, menuItem: { select: { name: true, imageUrl: true } } },
+    }),
     prisma.review.aggregate({ _avg: { rating: true }, _count: true, where: { status: "APPROVED" } }),
     prisma.galleryImage.findMany({ where: { isActive: true }, take: 8, orderBy: { sortOrder: "asc" } }),
     // Ish vaqti (hero, bron bloki va xarita bo'limi) va telefon (Header bilan bir xil manba)
@@ -116,7 +121,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   // ---------- Rasmlar va sharhlar ----------
   const g = gallery.map((x) => usable(x.url)).filter(Boolean) as string[];
   const reserveImg = g[3] ?? g[0] ?? null;
-  const reviews = reviewsRaw.map((r) => ({ id: r.id, author: r.authorName, rating: r.rating, comment: r.comment ?? "" }));
+  // Sharh sahnasi foni: mijoz rasmi → taom rasmi → galereya/taom rasmlari navbat bilan
+  const stagePool = [...g, ...signature.map((d) => d.img).filter((x): x is string => !!x)];
+  const reviews = reviewsRaw.map((r, i) => ({
+    id: r.id,
+    author: r.authorName,
+    rating: r.rating,
+    comment: r.comment ?? "",
+    img: usable(r.images[0]) ?? usable(r.menuItem?.imageUrl) ?? stagePool[i % Math.max(1, stagePool.length)] ?? null,
+    dish: r.menuItem ? t(r.menuItem.name, locale) : null,
+  }));
   const reviewTotal = reviewAgg._count || 0;
   const avgRating = reviewTotal > 0 ? Number(reviewAgg._avg.rating ?? 0) : null;
 
@@ -212,7 +226,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         {g.length >= 3 && <GallerySection locale={locale} images={g} />}
 
         {/* 10. SHARHLAR */}
-        <Reviews locale={locale} reviews={reviews} avg={avgRating} total={reviewTotal} />
+        <Reviews locale={locale} reviews={reviews} avg={avgRating} total={reviewTotal} backdrop={g[0] ?? null} prevClass={g.length >= 3 ? "text-sand" : "text-paper"} />
       </main>
 
       <SiteFooter locale={locale} />

@@ -684,7 +684,15 @@
     "explodeFact1": "6 layers in one bowl",
     "explodeFact2": "Noodles pulled by hand",
     "explodeFact3": "Halal meat only",
-    "explodeFig": "Beef lagman"
+    "explodeFig": "Beef lagman",
+    "rvPrev": "Previous review",
+    "rvNext": "Next review",
+    "rvGoTo": "Go to review {n}",
+    "rvTasted": "Tasted:",
+    "rvAvg": "Guest rating",
+    "rvWriteTitle": "Your story belongs",
+    "rvWriteAccent": "here too",
+    "rvWriteSub": "How was your visit? Leave a few words — after moderation your review will appear here."
   },
   "Pages2": {
     "otherDishes": "Other dishes",
