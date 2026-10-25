@@ -92,7 +92,7 @@ export default function SignatureGrid({ dishes, menuCount }: { dishes: HomeDish[
             {footer()}
           </>
         ) : (
-          <Columns dishes={dishes} menuCell={menuCell} prev={t("sigPrev")} next={t("sigNext")} footer={footer} />
+          <Columns dishes={dishes} menuCell={menuCell} prev={t("sigPrev")} next={t("sigNext")} label={`${st("dishesTitle1")} ${st("dishesTitle2")}`} footer={footer} />
         )}
 
       </div>
@@ -168,12 +168,14 @@ function FeatureStage({ dish, index }: { dish: HomeDish; index: number }) {
 /* ---------------- Ustunlar (3+ taom) ---------------- */
 
 function Columns({
-  dishes, menuCell, prev, next, footer,
+  dishes, menuCell, prev, next, label, footer,
 }: {
   dishes: HomeDish[];
   menuCell: React.ReactNode;
   prev: string;
   next: string;
+  /** Karusel nomi (ekran o'quvchi uchun) */
+  label: string;
   footer: (controls?: React.ReactNode) => React.ReactNode;
 }) {
   const track = useRef<HTMLDivElement | null>(null);
@@ -205,6 +207,9 @@ function Columns({
       <div
         ref={track}
         onScroll={measure}
+        role="region"
+        aria-roledescription="carousel"
+        aria-label={label}
         className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {dishes.map((d, i) => (
@@ -223,9 +228,10 @@ function Columns({
                 key={dir}
                 type="button"
                 aria-label={label}
-                disabled={off}
-                onClick={() => go(dir)}
-                className="flex size-12 items-center justify-center rounded-full border border-brand-gold/50 text-brand-gold-light transition duration-300 hover:bg-brand-gold hover:text-brand-ink disabled:pointer-events-none disabled:opacity-30"
+                // disabled emas: chetga yetganda klaviatura fokusi <body> ga tushib ketmasin
+                aria-disabled={off}
+                onClick={() => { if (!off) go(dir); }}
+                className="flex size-12 items-center justify-center rounded-full border border-brand-gold/50 text-brand-gold-light transition duration-300 hover:bg-brand-gold hover:text-brand-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-saffron aria-disabled:cursor-default aria-disabled:opacity-30 aria-disabled:hover:bg-transparent aria-disabled:hover:text-brand-gold-light"
               >
                 <Icon size={18} />
               </button>
@@ -282,7 +288,7 @@ function MenuCell({ count, title, sub }: { count: number; title: string; sub: st
     <Link
       href="/menu"
       data-cell
-      className="group relative flex h-full min-h-[340px] flex-col items-center justify-center gap-6 lg:min-h-[420px] overflow-hidden px-6 py-12 text-center focus-visible:outline-none"
+      className="group relative flex h-full min-h-[340px] flex-col items-center justify-center gap-6 lg:min-h-[420px] overflow-hidden px-6 py-12 text-center focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-saffron"
     >
       <span aria-hidden="true" className="absolute inset-0 -z-10 bg-wine/40 opacity-0 transition duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" />
       {/* oy-darvoza ichida vertikal 菜单 */}

@@ -57,7 +57,7 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
       <SiteHeader />
       <EventsHero title={te("heroTitle")} sub={te("heroSub")} kinds={KINDS.map((k) => te(`${k.key}t`))} bgImage={imgs[0] ?? null} />
 
-      <main className="overflow-x-clip">
+      <main id="main" className="overflow-x-clip">
         {/* ===== Tadbir turlari — qorong'i, vertikal yorliqli (namuna: 湯包家) ===== */}
         <section className="relative isolate overflow-hidden bg-night pb-32 pt-20 text-brand-cream sm:pb-40">
           <Wave top className="text-wine" variant="b" />

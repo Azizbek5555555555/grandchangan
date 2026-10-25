@@ -264,7 +264,7 @@ export default function MenuBrowser({
                   aria-label={P("clearSearch")}
                   className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-brand-cream/70 transition hover:bg-night-3 hover:text-brand-cream"
                 >
-                  <X size={16} />
+                  <X size={16} aria-hidden="true" />
                 </button>
               )}
             </label>
@@ -292,7 +292,7 @@ export default function MenuBrowser({
 
           {/* Telefon/planshet: yopishqoq gorizontal kategoriyalar */}
           {groups.length > 1 && (
-            <div className="sticky top-16 z-30 border-b border-brand-gold/15 bg-night/95 backdrop-blur lg:hidden">
+            <div className="sticky top-[68px] z-30 border-b border-brand-gold/15 bg-night/95 backdrop-blur lg:hidden">
               <div ref={chipsRef} className="flex gap-2 overflow-x-auto px-3 py-2.5 [scrollbar-width:none] sm:px-4">
                 {groups.map((g) => {
                   const on = current === g.id;

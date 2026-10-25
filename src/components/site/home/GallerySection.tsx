@@ -41,7 +41,7 @@ export default async function GallerySection({ locale, items }: { locale: string
         </div>
 
         <div className="mt-12 sm:mt-14">
-          <GalleryStrip items={list} openLabel={t("galOpen")} />
+          <GalleryStrip items={list} openLabel={t("galOpen")} pauseLabel={t("rvPause")} playLabel={t("rvPlay")} />
         </div>
       </div>
     </section>

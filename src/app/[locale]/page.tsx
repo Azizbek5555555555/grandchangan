@@ -144,7 +144,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <>
       <SiteHeader />
 
-      <main>
+      <main id="main">
         {/* 1. HERO */}
         <Hero
           tag={st("heroTag")}

@@ -54,7 +54,7 @@ export default async function MenuPage({ params }: { params: Promise<{ locale: s
       />
       {/* Fon ketma-ketligi: hero (tun) → oshpaz tanlovi (krem) → menyu (tun, oltin ramka) → choy (krem) → footer (tun).
           Oshpaz tanlovi bo'lmasa hero va menyu orasida faqat oltin chiziq qoladi. */}
-      <main>
+      <main id="main">
         <ChefSignature items={signature} locale={locale} />
         <div id="menu-browser" className="scroll-mt-20">
           <MenuBrowser

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Pause, Play } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -25,26 +25,39 @@ const two = (n: number) => String(n).padStart(2, "0");
  *   ko'rinishda bo'lganda sekin avtomatik almashadi).
  * - Telefon/planshet: aniq 2 ustunli setka — birinchi rasm keng, toq qolgan oxirgisi ham keng.
  */
-export default function GalleryStrip({ items, openLabel }: { items: GalleryItem[]; openLabel: string }) {
+export default function GalleryStrip({
+  items, openLabel, pauseLabel, playLabel,
+}: { items: GalleryItem[]; openLabel: string; pauseLabel: string; playLabel: string }) {
   const root = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(0);
   const [hold, setHold] = useState(false);
   const [inView, setInView] = useState(false);
+  /** Foydalanuvchi pauza tugmasini bosgan (WCAG 2.2.2) */
+  const [stopped, setStopped] = useState(false);
+  const [motionOk, setMotionOk] = useState(false);
   const n = items.length;
 
-  // Ko'rinishdagina avtomatik almashish (reduced-motion'da yo'q)
+  // Ko'rinishdagina avtomatik almashish: faqat kompyuter lentasida (telefonda setka), reduced-motion'da yo'q
   useEffect(() => {
     const el = root.current;
     if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), { threshold: 0.35 });
+    setMotionOk(true);
+    const desk = window.matchMedia("(min-width: 1024px)");
+    let visible = false;
+    const sync = () => setInView(visible && desk.matches);
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; sync(); }, { threshold: 0.35 });
     io.observe(el);
-    return () => io.disconnect();
+    desk.addEventListener?.("change", sync);
+    return () => {
+      io.disconnect();
+      desk.removeEventListener?.("change", sync);
+    };
   }, []);
   useEffect(() => {
-    if (!inView || hold || n < 2) return;
+    if (!inView || hold || stopped || n < 2) return;
     const id = window.setInterval(() => setActive((a) => (a + 1) % n), 4200);
     return () => window.clearInterval(id);
-  }, [inView, hold, n]);
+  }, [inView, hold, stopped, n]);
 
   useGSAP(
     () => {
@@ -66,7 +79,8 @@ export default function GalleryStrip({ items, openLabel }: { items: GalleryItem[
   const label = (i: number) => (items[i].caption ? `${openLabel}: ${items[i].caption}` : `${openLabel} — ${two(i + 1)}`);
 
   return (
-    <div ref={root} onMouseLeave={() => setHold(false)}>
+    // Sichqoncha chiqib ketsa ham klaviatura fokusi lenta ichida bo'lsa — faol panel joyida qoladi
+    <div ref={root} onMouseLeave={() => setHold(!!root.current?.contains(document.activeElement))}>
       {/* ---------- Kompyuter: vertikal panellar lentasi ---------- */}
       <div className="hidden h-[540px] gap-3 lg:flex xl:h-[580px]">
         {items.map((it, i) => {
@@ -79,7 +93,7 @@ export default function GalleryStrip({ items, openLabel }: { items: GalleryItem[
               aria-label={label(i)}
               onMouseEnter={() => { setActive(i); setHold(true); }}
               onFocus={() => { setActive(i); setHold(true); }}
-              onBlur={() => setHold(false)}
+              onBlur={(e) => setHold(!!root.current?.contains(e.relatedTarget as Node | null))}
               className={cn(
                 "group relative min-w-0 basis-0 overflow-hidden rounded-[22px] bg-night shadow-xl shadow-content/10 transition-[flex-grow] duration-700 ease-out-expo focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fire",
                 on ? "grow-[5]" : "grow"
@@ -125,6 +139,21 @@ export default function GalleryStrip({ items, openLabel }: { items: GalleryItem[
           );
         })}
       </div>
+
+      {/* Avto-almashishni to'xtatish/davom ettirish */}
+      {motionOk && n > 1 && (
+        <div className="mt-4 hidden justify-end lg:flex">
+          <button
+            type="button"
+            onClick={() => setStopped((v) => !v)}
+            aria-label={stopped ? playLabel : pauseLabel}
+            aria-pressed={stopped}
+            className="flex size-11 items-center justify-center rounded-full border border-content/25 text-content transition hover:border-fire-ink hover:text-fire-ink focus-visible:outline-2 focus-visible:outline-fire"
+          >
+            {stopped ? <Play size={16} aria-hidden="true" /> : <Pause size={16} aria-hidden="true" />}
+          </button>
+        </div>
+      )}
 
       {/* ---------- Telefon/planshet: aniq setka ---------- */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:hidden">

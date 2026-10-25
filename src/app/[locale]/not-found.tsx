@@ -16,7 +16,7 @@ export default async function NotFound() {
   const T = await getTranslations("Chrome");
 
   return (
-    <main className="relative isolate flex min-h-svh flex-col overflow-hidden bg-fire text-brand-cream">
+    <main id="main" className="relative isolate flex min-h-svh flex-col overflow-hidden bg-fire text-brand-cream">
       <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 -z-10 text-fire-deep/45" />
       <Blob variant="a" className="absolute -right-40 -top-40 -z-10 w-[30rem] text-fire-deep/70 sm:w-[44rem]" />
       <Blob variant="c" className="absolute -bottom-48 -left-32 -z-10 w-[26rem] text-wine/40 sm:w-[36rem]" />

@@ -208,7 +208,10 @@ export default function HomeFloorSection({
     >
       {/* Fon: xira ieroglif va panjara naqshi */}
       <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute -right-4 top-6 select-none text-[9rem] leading-none text-fire/[0.06] sm:text-[13rem]">席位</span>
-      <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-x-0 bottom-0 h-2/3 text-fire/[0.035] [mask-image:linear-gradient(to_bottom,transparent,black_40%)]" />
+      {/* Gradient niqob o'ramda — .lattice-bg ning o'z mask'i uni bekor qilmasin */}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 [mask-image:linear-gradient(to_bottom,transparent,black_40%)]">
+        <span className="lattice-bg absolute inset-0 text-fire/[0.035]" />
+      </span>
 
       <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between lg:gap-12">

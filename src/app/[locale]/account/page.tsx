@@ -28,7 +28,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
   return (
     <>
       <SiteHeader />
-      <main className="relative isolate min-h-[70vh] overflow-hidden bg-paper">
+      <main id="main" className="relative isolate min-h-[70vh] overflow-hidden bg-paper">
       <span aria-hidden="true" lang="zh" className="font-cn pointer-events-none absolute -right-6 top-24 -z-10 select-none text-[12rem] leading-none text-fire/[0.06]">贵宾</span>
       <div className="mx-auto max-w-3xl px-5 pb-24 pt-32 sm:px-8">
         <div className="mb-8 flex items-center justify-between">

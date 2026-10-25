@@ -124,8 +124,10 @@ export default async function About({
                     {i > 0 && (
                       <span aria-hidden="true" className="absolute inset-y-1 left-0 w-px bg-gradient-to-b from-transparent via-brand-gold/45 to-transparent" />
                     )}
-                    <span aria-hidden="true" lang="zh" className="font-cn text-lg leading-none text-saffron/80">{s.cn}</span>
-                    <dt className="sr-only">{s.l}</dt>
+                    <dt>
+                      <span aria-hidden="true" lang="zh" className="font-cn block text-lg leading-none text-saffron/80">{s.cn}</span>
+                      <span className="sr-only">{s.l}</span>
+                    </dt>
                     <dd className="mt-2 font-display text-[2.6rem] leading-none text-brand-gold-light sm:text-5xl"><CountUp to={s.v} /></dd>
                     <dd aria-hidden="true" className="mt-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-cream/70">{s.l}</dd>
                   </div>

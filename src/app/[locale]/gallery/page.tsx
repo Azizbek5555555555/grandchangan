@@ -28,7 +28,7 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
     <>
       <SiteHeader />
       <GalleryHero title={tc("gallery")} sub={st("gallerySub")} urls={urls} />
-      <main className="relative isolate overflow-x-clip bg-paper pb-28 pt-10">
+      <main id="main" className="relative isolate overflow-x-clip bg-paper pb-28 pt-10">
         <Birds className="absolute right-[10%] top-6 -z-10 w-44 text-content/20" />
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <div className="mb-12">

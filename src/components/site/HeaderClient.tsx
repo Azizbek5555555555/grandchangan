@@ -198,7 +198,7 @@ export default function HeaderClient({ contact, solid = false }: { contact: Head
         >
           <div className="flex min-w-0 items-center justify-between gap-2">
             <div className="flex shrink-0 items-center gap-2">
-              <LocaleSwitcher />
+              <LocaleSwitcher align="left" />
               <ThemeToggle />
             </div>
             <ul className="flex min-w-0 items-center justify-end">{NAV_LEFT.map(navLink)}</ul>
