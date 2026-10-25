@@ -4,10 +4,11 @@ import { useState } from "react";
 import { ArrowUpRight, ChefHat, Crown, Lamp, UtensilsCrossed } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
+import Photo from "@/components/site/photos/Photo";
+import type { Pic } from "@/components/site/photos/pics";
 import { GlyphPanel } from "./Decor";
-import SafeImg from "./SafeImg";
 
-export type Panel = { title: string; sub: string; href: "/gallery" | "/menu" | "/about" | "/reservation"; img: string | null };
+export type Panel = { title: string; sub: string; href: "/gallery" | "/menu" | "/about" | "/reservation"; img: Pic | null };
 
 const ICONS = [Lamp, UtensilsCrossed, ChefHat, Crown];
 const CHARS = ["境", "菜", "厨", "贵"];
@@ -19,10 +20,11 @@ const TONES = ["night", "wine", "night", "wine"] as const;
  * Telefonda — gorizontal suriladigan kartalar.
  */
 export default function PanelShowcase({ heading, panels }: { heading: React.ReactNode; panels: Panel[] }) {
-  const [active, setActive] = useState(1);
+  // Birinchi ko'rinishda — "Muhit" (restoran zali); taom rasmi bazada sifatsiz bo'lishi mumkin
+  const [active, setActive] = useState(0);
 
   return (
-    <section className="relative bg-night text-brand-cream">
+    <section data-home="panels" className="relative bg-night text-brand-cream">
       {/* ---------- Kompyuter: 4 ustun ---------- */}
       <div className="relative hidden h-[82svh] min-h-[560px] overflow-hidden md:block">
         {panels.map((p, i) => (
@@ -31,7 +33,7 @@ export default function PanelShowcase({ heading, panels }: { heading: React.Reac
             aria-hidden="true"
             className={cn("absolute inset-0 transition-[opacity,transform] duration-700 ease-out", active === i ? "scale-100 opacity-100" : "scale-105 opacity-0")}
           >
-            <SafeImg src={p.img} className="h-full w-full" imgClassName="h-full w-full object-cover" fallback={<GlyphPanel char={CHARS[i]} tone={TONES[i]} size="text-[18rem]" />} />
+            <Photo pic={p.img} sizes="100vw" className="h-full w-full bg-night-2" fallback={<GlyphPanel char={CHARS[i]} tone={TONES[i]} size="text-[18rem]" />} />
           </div>
         ))}
         <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-night via-night/45 to-night/60" />
@@ -86,7 +88,7 @@ export default function PanelShowcase({ heading, panels }: { heading: React.Reac
             const Icon = ICONS[i];
             return (
               <Link key={i} href={p.href} className="relative h-80 w-[76vw] max-w-[300px] shrink-0 snap-start overflow-hidden rounded-3xl">
-                <SafeImg src={p.img} className="absolute inset-0" imgClassName="h-full w-full object-cover" fallback={<GlyphPanel char={CHARS[i]} tone={TONES[i]} size="text-[9rem]" />} />
+                <Photo pic={p.img} sizes="300px" className="absolute inset-0 bg-night-2" fallback={<GlyphPanel char={CHARS[i]} tone={TONES[i]} size="text-[9rem]" />} />
                 <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-night via-night/30 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6">
                   <div className="flex items-center justify-between">

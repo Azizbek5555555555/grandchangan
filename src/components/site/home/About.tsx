@@ -8,7 +8,8 @@ import Reveal from "@/components/motion/Reveal";
 import RevealGroup from "@/components/motion/RevealGroup";
 import { cn } from "@/lib/utils";
 import CountUp from "./CountUp";
-import SafeImg from "./SafeImg";
+import Photo from "@/components/site/photos/Photo";
+import { pic } from "@/components/site/photos/pics";
 import { GlyphPanel, Seal } from "./Decor";
 import LanternsDrop from "./LanternsDrop";
 import { GoldCorners, IconBowl, IconLeaf, IconTeapot, IconWok, PoemScroll } from "./AboutArt";
@@ -17,17 +18,24 @@ import { GoldCorners, IconBowl, IconLeaf, IconTeapot, IconWok, PoemScroll } from
  * 3-bo'lim: BIZ HAQIMIZDA (namuna 2 — qorong'i "saroy"): osma fonarlar, oltin ramkali foto-kollaj
  * (arkali baland rasm + kvadrat + doira) va osma she'r o'ramasi, nafis serif sarlavha, nom tarixi,
  * oltin chiziqli raqamlar va pastda ingichka ikonli qadriyatlar lentasi (namuna 04).
+ * Kollaj — restoranning uch xil joyi: arka — katta VIP zal (vertikal rasm, qandil arka gumbazida),
+ * kvadrat — oy derazali kabinka, doira — asosiy zaldagi dumaloq stol.
  */
+const COLLAGE = {
+  arch: pic("vipGrandTall", "84% 50%"),
+  square: pic("boothRoundWindow", "80% 50%"),
+  circle: pic("hallRoundTable", "50% 55%"),
+};
+
 export default async function About({
-  locale, images, stats,
+  locale, stats,
 }: {
   locale: string;
-  images: string[];
   stats: { tables: number; seats: number; vip: number };
 }) {
   const st = await getTranslations({ locale, namespace: "Site" });
   const t = await getTranslations({ locale, namespace: "Home2" });
-  const [a, b, c] = [images[0] ?? null, images[1] ?? null, images[2] ?? null];
+  const ph = await getTranslations({ locale, namespace: "Photos" });
   const values = [
     { Icon: IconLeaf, title: t("valFresh"), sub: t("valFreshS") },
     { Icon: IconBowl, title: t("valRecipe"), sub: t("valRecipeS") },
@@ -59,17 +67,23 @@ export default async function About({
             {/* oltin ramka — arka tashqarisida ingichka ikkinchi chiziq */}
             <span aria-hidden="true" className="absolute -inset-3 rounded-b-[36px] rounded-t-full border border-brand-gold/45" />
             <span aria-hidden="true" className="absolute -top-3 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-brand-gold" />
-            <SafeImg
-              src={a}
-              className="h-full w-full rounded-b-[28px] rounded-t-full border border-brand-gold/30 shadow-2xl shadow-night"
+            <Photo
+              pic={COLLAGE.arch}
+              alt={ph("vip")}
+              sizes="(min-width: 1024px) 380px, 54vw"
+              className="h-full w-full rounded-b-[28px] rounded-t-full border border-brand-gold/30 bg-night-3 shadow-2xl shadow-night"
               fallback={<GlyphPanel char="长安" vertical tone="night" size="text-[5rem] sm:text-[6.5rem]" />}
             />
+            {/* arka ichidagi nozik vinyetka — oq devor qorong'i bo'limda "yonib" ketmasin */}
+            <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-b-[28px] rounded-t-full bg-gradient-to-t from-night/45 via-transparent to-night/15" />
           </Parallax>
           <Parallax speed={-10} className="absolute right-[2%] top-[7%] aspect-square w-[37%]">
             <GoldCorners />
-            <SafeImg
-              src={b}
-              className="h-full w-full rounded-[22px] shadow-2xl shadow-night"
+            <Photo
+              pic={COLLAGE.square}
+              alt={ph("booth")}
+              sizes="(min-width: 1024px) 260px, 37vw"
+              className="h-full w-full rounded-[22px] bg-night-3 shadow-2xl shadow-night"
               fallback={<GlyphPanel char="茶" tone="fire" size="text-[3.5rem] sm:text-[5rem]" />}
             />
           </Parallax>
@@ -79,9 +93,11 @@ export default async function About({
               <circle cx="100" cy="100" r="98" fill="none" stroke="currentColor" strokeWidth="0.8" strokeDasharray="0.5 4.5" strokeLinecap="round" />
               <circle cx="100" cy="2" r="2.4" fill="currentColor" />
             </svg>
-            <SafeImg
-              src={c}
-              className="h-full w-full rounded-full ring-8 ring-night shadow-2xl shadow-night"
+            <Photo
+              pic={COLLAGE.circle}
+              alt={ph("hall")}
+              sizes="(min-width: 1024px) 320px, 45vw"
+              className="h-full w-full rounded-full bg-night-3 ring-8 ring-night shadow-2xl shadow-night"
               fallback={<GlyphPanel char="福" tone="saffron" size="text-[4rem] sm:text-[5.5rem]" />}
             />
           </Parallax>

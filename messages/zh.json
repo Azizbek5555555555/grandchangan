@@ -861,7 +861,9 @@
     "floorUpTo": "最多 {n} 人",
     "floorFreeOf": "空闲 {free}/{total}",
     "floorCall": "更喜欢电话预订？我们为您挑选最好的座位，或为您的庆典安排整间包房。",
-    "floorPhotoN": "照片 {n}"
+    "floorPhotoN": "照片 {n}",
+    "findTitle": "如何找到我们",
+    "findHint": "在街上就能看到醒目的「GRAND CHANG'AN」招牌，入口处挂着红灯笼的中式牌楼迎接您——拾级而上，即可入店。"
   },
   "About2": {
     "storyEyebrow": "我们的故事",
@@ -915,7 +917,28 @@
     "accent": "氛围",
     "prev": "上一张",
     "next": "下一张",
-    "open": "查看图片"
+    "open": "查看图片",
+    "capHall": "大厅",
+    "capUmbrellas": "油纸伞大厅",
+    "capLattice": "木格屏风",
+    "capLongTable": "长条宴席桌",
+    "capRoundTable": "圆桌",
+    "capVipGrand": "豪华贵宾厅",
+    "capVipTable": "贵宾宴席",
+    "capVip": "贵宾包间",
+    "capVipDoor": "包间入口",
+    "capMoonWindow": "月窗卡座",
+    "capBooth": "靠窗卡座",
+    "capPrivate": "独立包间",
+    "capBar": "吧台",
+    "capStage": "舞台与大屏幕",
+    "capDecor": "室内陈设",
+    "capShelf": "博古架",
+    "capCorridor": "木格长廊",
+    "capFacade": "饭店外观",
+    "capGate": "入口牌楼",
+    "capTableware": "餐具",
+    "fDetails": "细节"
   },
   "Menu2": {
     "sigEyebrow": "主厨推荐",

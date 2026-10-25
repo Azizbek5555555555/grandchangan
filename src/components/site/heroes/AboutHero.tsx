@@ -1,7 +1,8 @@
 import Parallax from "@/components/motion/Parallax";
 import FretBand from "@/components/site/kit/FretBand";
 import Wave from "@/components/site/kit/Wave";
-import SafeImg from "@/components/site/home/SafeImg";
+import Photo from "@/components/site/photos/Photo";
+import type { Pic } from "@/components/site/photos/pics";
 import { Birds, Mountains, SealStamp } from "@/components/site/pages/InkDecor";
 import { cn } from "@/lib/utils";
 import { ENTER, HeroTitle } from "./parts";
@@ -19,12 +20,13 @@ function GateScene() {
 
 /**
  * BIZ HAQIMIZDA hero'si — "oy darvoza" (月亮门): qum rangli panjarali devor, uning o'rtasida dumaloq
- * darvoza (vino hoshiya + oltin halqa), ichida restoran rasmi yoki tush manzarasi. Chapda vertikal
- * xitoycha yozuv va muhr, nafis serif sarlavha. Darvoza scroll'da sekin siljiydi (parallaks).
+ * darvoza (vino hoshiya + oltin halqa), ichida restoran rasmi (Ken Burns — sekin yaqinlashadi) yoki
+ * tush manzarasi. Chapda vertikal xitoycha yozuv va muhr, nafis serif sarlavha. Darvoza scroll'da sekin
+ * siljiydi (parallaks). Rasm birinchi ekranda — darhol yuklanadi (priority).
  */
 export default function AboutHero({
-  title, sub, eyebrow, image,
-}: { title: string; sub: string; eyebrow: string; image: string | null }) {
+  title, sub, eyebrow, image, imageAlt = "",
+}: { title: string; sub: string; eyebrow: string; image: Pic | null; imageAlt?: string }) {
   return (
     <section className="relative isolate overflow-hidden bg-sand pb-28 pt-28 sm:pb-32 sm:pt-32">
       <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 -z-10 text-fire/[0.07]" />
@@ -49,7 +51,15 @@ export default function AboutHero({
             <span aria-hidden="true" className="absolute inset-3 rounded-t-[2.4rem] border border-brand-gold/40" />
             <div className="relative flex h-full items-center justify-center">
               <div className="relative aspect-square w-[86%] rounded-full bg-brand-gold/70 p-[2.5%] shadow-2xl shadow-night/60">
-                <SafeImg src={image} className="h-full w-full rounded-full" fallback={<GateScene />} eager />
+                <Photo
+                  pic={image}
+                  alt={imageAlt}
+                  priority
+                  sizes="(min-width: 1024px) 420px, 80vw"
+                  className="h-full w-full rounded-full bg-night-3"
+                  imgClassName="animate-kenburns"
+                  fallback={<GateScene />}
+                />
                 <span aria-hidden="true" className="pointer-events-none absolute inset-[2.5%] rounded-full shadow-[inset_0_0_40px_10px] shadow-night/40" />
               </div>
             </div>

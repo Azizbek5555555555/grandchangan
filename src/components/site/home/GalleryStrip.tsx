@@ -7,12 +7,14 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
-import SafeImg from "./SafeImg";
+import Photo from "@/components/site/photos/Photo";
+import type { Pic } from "@/components/site/photos/pics";
 import { GlyphPanel } from "./Decor";
 
 if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
-export type GalleryItem = { src: string; caption: string };
+/** pic — haqiqiy rasm (yoki bazadagi), caption — izoh, glyph — mazmuniga mos bezak ieroglifi, alt — rasm tavsifi */
+export type GalleryItem = { pic: Pic; caption: string; glyph?: string; alt?: string };
 
 const CHARS = ["宴", "茶", "福", "龙", "灯", "春", "月", "安"];
 const TONES = ["night", "wine", "night", "fire", "night", "wine", "night", "fire"] as const;
@@ -87,7 +89,7 @@ export default function GalleryStrip({
           const on = active === i;
           return (
             <Link
-              key={it.src + i}
+              key={it.pic.src + i}
               href="/gallery"
               data-cell
               aria-label={label(i)}
@@ -99,7 +101,7 @@ export default function GalleryStrip({
                 on ? "grow-[5]" : "grow"
               )}
             >
-              <Frame item={it} i={i} sizes="text-7xl" />
+              <Frame item={it} i={i} glyph="text-7xl" sizes="(min-width: 1280px) 560px, 46vw" />
               <span aria-hidden="true" className={cn("absolute inset-0 bg-gradient-to-t from-night/85 via-night/20 to-night/30 transition duration-700", on ? "opacity-100" : "opacity-90")} />
               {/* oltin ichki ramka (faol panel) */}
               <span aria-hidden="true" className={cn("absolute inset-3 rounded-[16px] border border-brand-gold/55 transition duration-700", on ? "scale-100 opacity-100" : "scale-[1.03] opacity-0")} />
@@ -109,7 +111,7 @@ export default function GalleryStrip({
                 aria-hidden="true"
                 className={cn("absolute inset-x-0 bottom-8 flex flex-col items-center gap-3 transition duration-500", on ? "translate-y-4 opacity-0" : "opacity-100")}
               >
-                <span lang="zh" className="font-cn text-3xl leading-none text-brand-gold-light">{CHARS[i % CHARS.length]}</span>
+                <span lang="zh" className="font-cn text-3xl leading-none text-brand-gold-light">{charOf(it, i)}</span>
                 <span className="h-10 w-px bg-brand-gold/50" />
                 <span className="text-xs font-semibold tracking-[0.2em] text-brand-cream/80">{two(i + 1)}</span>
               </span>
@@ -133,7 +135,7 @@ export default function GalleryStrip({
                 </span>
               </span>
               <span aria-hidden="true" lang="zh" className={cn("font-cn absolute right-7 top-7 text-2xl leading-[1.1] text-brand-cream/85 [writing-mode:vertical-rl] transition duration-700", on ? "opacity-100" : "opacity-0")}>
-                {CHARS[i % CHARS.length]}
+                {charOf(it, i)}
               </span>
             </Link>
           );
@@ -161,7 +163,7 @@ export default function GalleryStrip({
           const wide = i === 0 || (i === n - 1 && (n - 1) % 2 === 1);
           return (
             <Link
-              key={it.src + i}
+              key={it.pic.src + i}
               href="/gallery"
               data-cell
               aria-label={label(i)}
@@ -170,7 +172,7 @@ export default function GalleryStrip({
                 wide ? "col-span-2 aspect-[16/10]" : "aspect-[4/5]"
               )}
             >
-              <Frame item={it} i={i} sizes="text-[5rem]" />
+              <Frame item={it} i={i} glyph="text-[5rem]" sizes={wide ? "(min-width: 640px) 90vw, 100vw" : "(min-width: 640px) 45vw, 50vw"} />
               <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-night/75 via-transparent to-transparent" />
               <span aria-hidden="true" className="absolute inset-2 rounded-[13px] border border-brand-gold/35" />
               <span aria-hidden="true" className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3">
@@ -178,7 +180,7 @@ export default function GalleryStrip({
                   <span className="block text-[11px] font-semibold tracking-[0.22em] text-saffron">{two(i + 1)} / {two(n)}</span>
                   {it.caption && <span className={cn("mt-1 block truncate font-display text-brand-cream", wide ? "text-xl" : "text-base")}>{it.caption}</span>}
                 </span>
-                <span lang="zh" className="font-cn shrink-0 text-xl leading-none text-brand-gold-light">{CHARS[i % CHARS.length]}</span>
+                <span lang="zh" className="font-cn shrink-0 text-xl leading-none text-brand-gold-light">{charOf(it, i)}</span>
               </span>
             </Link>
           );
@@ -188,17 +190,20 @@ export default function GalleryStrip({
   );
 }
 
+const charOf = (it: GalleryItem, i: number) => it.glyph || CHARS[i % CHARS.length];
+
 /** Rasm (parallaks uchun biroz kattaroq, ramka ichida) + yuklanmasa ieroglif paneli */
-function Frame({ item, i, sizes }: { item: GalleryItem; i: number; sizes: string }) {
+function Frame({ item, i, glyph, sizes }: { item: GalleryItem; i: number; glyph: string; sizes: string }) {
   return (
-    <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
+    <div className="absolute inset-0 overflow-hidden">
       <div data-img className="absolute inset-x-0 -inset-y-[8%]">
-        <SafeImg
-          src={item.src}
-          alt=""
-          className="h-full w-full"
+        <Photo
+          pic={item.pic}
+          alt={item.alt ?? ""}
+          sizes={sizes}
+          className="h-full w-full bg-night-3"
           imgClassName="transition duration-[1400ms] ease-out-expo group-hover:scale-105"
-          fallback={<GlyphPanel char={CHARS[i % CHARS.length]} tone={TONES[i % TONES.length]} size={sizes} />}
+          fallback={<GlyphPanel char={charOf(item, i)} tone={TONES[i % TONES.length]} size={glyph} />}
         />
       </div>
     </div>

@@ -1,5 +1,6 @@
 import Wave from "@/components/site/kit/Wave";
 import { GlyphPanel } from "@/components/site/home/Decor";
+import { srcSetOf, type Pic } from "@/components/site/photos/pics";
 import { cn } from "@/lib/utils";
 import { ENTER, HeroTitle } from "./parts";
 
@@ -13,10 +14,10 @@ const TILES = [
 ] as const;
 
 /** Bir qator "kinolenta": kadrlar ikki marta takrorlanadi (uzluksiz aylanish uchun) */
-function Strip({ urls, reverse, offset = 0 }: { urls: string[]; reverse?: boolean; offset?: number }) {
-  type Frame = { u: string | null; tile: (typeof TILES)[number] };
-  const base: Frame[] = urls.length
-    ? urls.map((u, i) => ({ u, tile: TILES[i % TILES.length] }))
+function Strip({ pics, reverse, offset = 0 }: { pics: Pic[]; reverse?: boolean; offset?: number }) {
+  type Frame = { u: Pic | null; tile: (typeof TILES)[number] };
+  const base: Frame[] = pics.length
+    ? pics.map((u, i) => ({ u, tile: TILES[i % TILES.length] }))
     : TILES.map((_, i) => ({ u: null, tile: TILES[(i + offset) % TILES.length] }));
   // keng ekranni to'ldirish uchun kamida 8 kadr
   let row = base;
@@ -29,7 +30,15 @@ function Strip({ urls, reverse, offset = 0 }: { urls: string[]; reverse?: boolea
             <div key={`${k}-${i}`} className="relative h-36 w-52 shrink-0 overflow-hidden rounded-[18px] border border-brand-gold/25 bg-night-3 sm:h-48 sm:w-72">
               {f.u ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={f.u} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                <img
+                  src={f.u.md ?? f.u.src}
+                  srcSet={srcSetOf(f.u)}
+                  sizes="(min-width: 640px) 288px, 208px"
+                  alt=""
+                  decoding="async"
+                  style={{ objectPosition: f.u.pos }}
+                  className="h-full w-full object-cover"
+                />
               ) : (
                 <GlyphPanel char={f.tile.char} tone={f.tile.tone} size="text-6xl" />
               )}
@@ -44,10 +53,12 @@ function Strip({ urls, reverse, offset = 0 }: { urls: string[]; reverse?: boolea
 /**
  * GALEREYA hero'si — "kinolenta": qorong'i fonda markazda sarlavha, ostida ikki qator qiya lenta
  * qarama-qarshi tomonga oqadi (galereya rasmlari; rasm bo'lmasa — ieroglif panellari). Qatorlar
- * chetlarda xira tortadi, tepa-pastida huiwen naqsh lentasi.
+ * chetlarda xira tortadi, tepa-pastida huiwen naqsh lentasi. Kadrlar — restoranning haqiqiy rasmlari
+ * (gorizontallari, md o'lchamda), birinchi ekranda bo'lgani uchun lazy emas.
  */
-export default function GalleryHero({ title, sub, urls }: { title: string; sub: string; urls: string[] }) {
-  const pics = urls.slice(0, 10);
+export default function GalleryHero({ title, sub, pics: all }: { title: string; sub: string; pics: Pic[] }) {
+  // Kadr 3:2 — faqat gorizontal rasmlar (vertikallari kesilib ketmasin)
+  const pics = all.filter((p) => !p.w || !p.h || p.w > p.h).slice(0, 12);
   return (
     <section className="relative isolate overflow-hidden bg-night pb-28 pt-28 text-brand-cream sm:pb-36 sm:pt-32">
       <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 -z-10 text-brand-gold/[0.03]" />
@@ -66,8 +77,8 @@ export default function GalleryHero({ title, sub, urls }: { title: string; sub: 
       {/* Qiya kinolenta */}
       <div aria-hidden="true" className={cn(ENTER, "relative -mx-[6vw] mt-14 -rotate-3 space-y-4 delay-300 sm:mt-16 sm:space-y-5 [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)]")}>
         <div className="fret-band h-3 text-brand-gold/20" />
-        <Strip urls={pics.filter((_, i) => i % 2 === 0)} />
-        <Strip urls={pics.length > 1 ? pics.filter((_, i) => i % 2 === 1) : pics} reverse offset={3} />
+        <Strip pics={pics.filter((_, i) => i % 2 === 0)} />
+        <Strip pics={pics.length > 1 ? pics.filter((_, i) => i % 2 === 1) : pics} reverse offset={3} />
         <div className="fret-band h-3 text-brand-gold/20" />
       </div>
 

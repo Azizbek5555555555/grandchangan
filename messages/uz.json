@@ -861,7 +861,9 @@
     "floorUpTo": "{n} kishigacha",
     "floorFreeOf": "{total} tadan {free} tasi bo'sh",
     "floorCall": "Telefon orqali bron qilish qulayroqmi? Eng yaxshi stolni — yoki bayramingiz uchun butun xonani tanlab beramiz.",
-    "floorPhotoN": "{n}-rasm"
+    "floorPhotoN": "{n}-rasm",
+    "findTitle": "Bizni qanday topasiz",
+    "findHint": "Ko'chadan katta «GRAND CHANG'AN» yozuvini ko'rasiz, kirishda esa qizil fonarli xitoycha darvoza kutib oladi — zinapoyadan ko'tarilib, to'g'ri ichkariga."
   },
   "About2": {
     "storyEyebrow": "Bizning hikoya",
@@ -915,7 +917,28 @@
     "accent": "muhit",
     "prev": "Oldingi",
     "next": "Keyingi",
-    "open": "Rasmni ochish"
+    "open": "Rasmni ochish",
+    "capHall": "Asosiy zal",
+    "capUmbrellas": "Soyabonli zal",
+    "capLattice": "Panjarali to'siqlar",
+    "capLongTable": "Katta davra stoli",
+    "capRoundTable": "Dumaloq stol",
+    "capVipGrand": "Katta VIP zal",
+    "capVipTable": "VIP dasturxon",
+    "capVip": "VIP xona",
+    "capVipDoor": "VIP xonaga kirish",
+    "capMoonWindow": "Oy derazali kabinka",
+    "capBooth": "Deraza yonidagi kabinka",
+    "capPrivate": "Alohida xona",
+    "capBar": "Bar",
+    "capStage": "Sahna va katta ekran",
+    "capDecor": "Interyer detallari",
+    "capShelf": "Kolleksiya javoni",
+    "capCorridor": "Panjarali yo'lak",
+    "capFacade": "Restoran binosi",
+    "capGate": "Kirish darvozasi",
+    "capTableware": "Idishlar",
+    "fDetails": "Detallar"
   },
   "Menu2": {
     "sigEyebrow": "Oshpaz tanlovi",

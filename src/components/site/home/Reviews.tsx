@@ -3,24 +3,27 @@ import ReviewForm from "@/components/site/ReviewForm";
 import Reveal from "@/components/motion/Reveal";
 import Wave from "@/components/site/kit/Wave";
 import { Birds, Mountains, SealStamp } from "@/components/site/pages/InkDecor";
+import type { Pic } from "@/components/site/photos/pics";
 import ReviewsStage, { type StageSlide } from "./ReviewsStage";
 import type { HomeReview } from "./types";
 
 /**
  * 10-bo'lim: SHARHLAR — faqat tasdiqlangan (APPROVED) haqiqiy sharhlar.
  * 1) "Kino sahnasi" (ReviewsStage): har sharh o'z fon rasmi bilan — mijoz rasmi, sharh qilingan taom
- *    yoki galereya; rasm bo'lmasa tush uslubidagi manzara. Sharh bo'lmasa — bitta taklif sahnasi.
+ *    yoki restoran interyeri (navbat bilan); rasm yuklanmasa tush uslubidagi manzara. Sharh bo'lmasa —
+ *    bitta taklif sahnasi (interyer foni bilan).
  * 2) Krem lenta: "sizning hikoyangiz" matni + sharh qoldirish formasi.
  */
 export default async function Reviews({
   locale, reviews, avg, total, backdrop, prevClass = "text-sand",
 }: {
   locale: string;
-  reviews: HomeReview[];
+  /** pic — sahna foni (page.tsx tayyorlaydi: mijoz rasmi → taom rasmi → interyer) */
+  reviews: (HomeReview & { pic: Pic | null })[];
   avg: number | null;
   total: number;
   /** Sharh bo'lmaganda taklif sahnasining fon rasmi */
-  backdrop: string | null;
+  backdrop: Pic | null;
   /** Oldingi bo'lim rangi (tepadagi to'lqin uchun) */
   prevClass?: string;
 }) {
@@ -28,7 +31,7 @@ export default async function Reviews({
   const t = await getTranslations({ locale, namespace: "Home2" });
 
   const slides: StageSlide[] = reviews.length
-    ? reviews.map((r) => ({ id: r.id, author: r.author, rating: r.rating, comment: r.comment, img: r.img, dish: r.dish }))
+    ? reviews.map((r) => ({ id: r.id, author: r.author, rating: r.rating, comment: r.comment, img: r.pic, dish: r.dish }))
     : // Taklif slaydi: yulduz va muallifsiz (restoran o'zi haqida "sharh" yozgandek ko'rinmasin)
       [{ id: "invite", author: "", rating: 0, comment: t("reviewsFirst"), img: backdrop, dish: null }];
 

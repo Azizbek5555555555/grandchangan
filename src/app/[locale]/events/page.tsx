@@ -11,21 +11,25 @@ import Wave from "@/components/site/kit/Wave";
 import Reveal from "@/components/motion/Reveal";
 import Parallax from "@/components/motion/Parallax";
 import { PlateFallback } from "@/components/site/home/Decor";
-import SafeImg from "@/components/site/home/SafeImg";
+import Photo from "@/components/site/photos/Photo";
+import { pic } from "@/components/site/photos/pics";
+import { photoText } from "@/components/site/photos/text";
 import { CloudLine } from "@/components/site/pages/Ornament";
 import { cn } from "@/lib/utils";
 import { phoneOf } from "@/lib/contact";
 
 export const dynamic = "force-dynamic";
-const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
-
-// Har tadbir turi: xitoycha vertikal yorliq va mos joy (zal xaritasidan)
+// Har tadbir turi: xitoycha vertikal yorliq, mos joy (zal xaritasidan) va shu joyning haqiqiy rasmi
+// (doira ramkaga — markazi stol ustida): tug'ilgan kun — VIP dasturxon (tepadan), korporativ — asosiy
+// zaldagi uzun stol, yubiley — alohida xona, to'y va bazmlar — qandilli katta VIP zal ("VIP zallar").
 const KINDS = [
-  { key: "k1", tag: "寿宴", char: "寿", place: "vip" },
-  { key: "k2", tag: "商务宴", char: "商", place: "hall" },
-  { key: "k3", tag: "周年庆", char: "庆", place: "private" },
-  { key: "k4", tag: "喜宴", char: "囍", place: "all" },
+  { key: "k1", tag: "寿宴", char: "寿", place: "vip", img: pic("vipTableTop", "42% 50%") },
+  { key: "k2", tag: "商务宴", char: "商", place: "hall", img: pic("hallLongTable", "36% 50%") },
+  { key: "k3", tag: "周年庆", char: "庆", place: "private", img: pic("privateRoom", "58% 50%") },
+  { key: "k4", tag: "喜宴", char: "囍", place: "all", img: pic("vipGrand", "50% 50%") },
 ] as const;
+/** Hero foni — katta VIP zal (qandil va bezatilgan dumaloq stol) */
+const HERO_BG = pic("vipGrand2", "60% 45%");
 
 export default async function EventsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -34,11 +38,10 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
     getTranslations({ locale, namespace: "Events" }),
     getTranslations({ locale, namespace: "Events2" }),
   ]);
-  const [gallery, setting] = await Promise.all([
-    prisma.galleryImage.findMany({ where: { isActive: true }, take: 5, orderBy: { sortOrder: "asc" } }),
+  const [setting, pt] = await Promise.all([
     prisma.siteSetting.findUnique({ where: { key: "general" } }),
+    photoText(locale),
   ]);
-  const imgs = gallery.map((x) => usable(x.url)).filter(Boolean) as string[];
   const g = (setting?.value as Record<string, unknown>) || {};
   const phone = phoneOf(g);
 
@@ -56,7 +59,7 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
   return (
     <>
       <SiteHeader />
-      <EventsHero title={te("heroTitle")} sub={te("heroSub")} kinds={KINDS.map((k) => te(`${k.key}t`))} bgImage={imgs[0] ?? null} />
+      <EventsHero title={te("heroTitle")} sub={te("heroSub")} kinds={KINDS.map((k) => te(`${k.key}t`))} bgImage={HERO_BG} />
 
       <main id="main" className="overflow-x-clip">
         {/* ===== Tadbir turlari — qorong'i, vertikal yorliqli (namuna: 湯包家) ===== */}
@@ -74,7 +77,16 @@ export default async function EventsPage({ params }: { params: Promise<{ locale:
                       <span aria-hidden="true" className="absolute inset-[-8%] rounded-full bg-fire-deep/20 blur-3xl" />
                       <Parallax speed={flip ? -6 : 6}>
                         <div className="relative aspect-square overflow-hidden rounded-full border-[10px] border-night-3 shadow-2xl shadow-night">
-                          <SafeImg src={imgs[i + 1] ?? null} className="h-full w-full" imgClassName="h-full w-full object-cover" fallback={<PlateFallback char={k.char} glyph="text-8xl" />} />
+                          <Photo
+                            pic={k.img}
+                            alt={pt.alt(k.img)}
+                            sizes="(min-width: 768px) 416px, 90vw"
+                            className="h-full w-full rounded-full bg-night-3"
+                            imgClassName="transition duration-[1400ms] ease-out-expo hover:scale-105"
+                            fallback={<PlateFallback char={k.char} glyph="text-8xl" />}
+                          />
+                          {/* oltin ichki halqa — "chinni tarelka" hoshiyasi */}
+                          <span aria-hidden="true" className="pointer-events-none absolute inset-2 rounded-full border border-brand-gold/40 shadow-[inset_0_0_50px_8px] shadow-night/50" />
                         </div>
                       </Parallax>
                       <span

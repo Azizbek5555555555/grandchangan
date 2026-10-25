@@ -861,7 +861,9 @@
     "floorUpTo": "up to {n} guests",
     "floorFreeOf": "{free} of {total} free",
     "floorCall": "Prefer to book by phone? We'll find you the best table — or a whole room for your celebration.",
-    "floorPhotoN": "Photo {n}"
+    "floorPhotoN": "Photo {n}",
+    "findTitle": "How to find us",
+    "findHint": "From the street you'll see the large “GRAND CHANG'AN” sign, and at the entrance a Chinese gate with red lanterns welcomes you — take the steps up and come right in."
   },
   "About2": {
     "storyEyebrow": "Our story",
@@ -915,7 +917,28 @@
     "accent": "atmosphere",
     "prev": "Previous",
     "next": "Next",
-    "open": "Open photo"
+    "open": "Open photo",
+    "capHall": "Main hall",
+    "capUmbrellas": "Hall of paper umbrellas",
+    "capLattice": "Lattice screens",
+    "capLongTable": "Long banquet table",
+    "capRoundTable": "Round table",
+    "capVipGrand": "Grand VIP room",
+    "capVipTable": "VIP table setting",
+    "capVip": "VIP room",
+    "capVipDoor": "VIP room entrance",
+    "capMoonWindow": "Moon-window booth",
+    "capBooth": "Window booth",
+    "capPrivate": "Private room",
+    "capBar": "Bar",
+    "capStage": "Stage and big screen",
+    "capDecor": "Interior details",
+    "capShelf": "Curio shelf",
+    "capCorridor": "Lattice corridor",
+    "capFacade": "The restaurant building",
+    "capGate": "Entrance gate",
+    "capTableware": "Tableware",
+    "fDetails": "Details"
   },
   "Menu2": {
     "sigEyebrow": "Chef's choice",
