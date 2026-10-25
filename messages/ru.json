@@ -808,7 +808,19 @@
     "valWok": "Огонь вока",
     "valWokS": "Мгновенно на сильном огне — настоящий «дух вока».",
     "valCare": "С заботой",
-    "valCareS": "Каждая тарелка — с вниманием и гостеприимством."
+    "valCareS": "Каждая тарелка — с вниманием и гостеприимством.",
+    "heroShowLabel": "Ресторан снаружи — фотографии",
+    "heroShowRole": "карусель",
+    "heroSlideRole": "слайд",
+    "heroSlideGate": "Входные ворота",
+    "heroSlideFacade": "Фасад",
+    "heroSlideStreet": "Вид с улицы",
+    "heroSlideDoor": "Ворота",
+    "heroPrev": "Предыдущее фото",
+    "heroNext": "Следующее фото",
+    "heroPause": "Остановить слайд-шоу",
+    "heroPlay": "Продолжить слайд-шоу",
+    "heroScroll": "Вниз"
   },
   "Pages2": {
     "otherDishes": "Другие блюда",

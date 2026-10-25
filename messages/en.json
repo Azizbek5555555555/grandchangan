@@ -808,7 +808,19 @@
     "valWok": "Wok fire",
     "valWokS": "Flash-cooked over high flame — true wok hei.",
     "valCare": "Made with care",
-    "valCareS": "Every plate served with attention and warmth."
+    "valCareS": "Every plate served with attention and warmth.",
+    "heroShowLabel": "The restaurant from outside — photos",
+    "heroShowRole": "carousel",
+    "heroSlideRole": "slide",
+    "heroSlideGate": "Entrance gate",
+    "heroSlideFacade": "Facade",
+    "heroSlideStreet": "Street view",
+    "heroSlideDoor": "The gate",
+    "heroPrev": "Previous photo",
+    "heroNext": "Next photo",
+    "heroPause": "Pause slideshow",
+    "heroPlay": "Play slideshow",
+    "heroScroll": "Scroll"
   },
   "Pages2": {
     "otherDishes": "Other dishes",

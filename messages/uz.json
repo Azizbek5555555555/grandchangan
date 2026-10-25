@@ -808,7 +808,19 @@
     "valWok": "Vok olovi",
     "valWokS": "Kuchli olovda bir zumda — haqiqiy «vok nafasi».",
     "valCare": "Mehr bilan",
-    "valCareS": "Har bir tarelka e'tibor va mehmondo'stlik bilan."
+    "valCareS": "Har bir tarelka e'tibor va mehmondo'stlik bilan.",
+    "heroShowLabel": "Restoran tashqaridan — fotosuratlar",
+    "heroShowRole": "karusel",
+    "heroSlideRole": "slayd",
+    "heroSlideGate": "Kirish darvozasi",
+    "heroSlideFacade": "Fasad",
+    "heroSlideStreet": "Ko'chadan ko'rinish",
+    "heroSlideDoor": "Darvoza",
+    "heroPrev": "Oldingi rasm",
+    "heroNext": "Keyingi rasm",
+    "heroPause": "Slayd-shouni to'xtatish",
+    "heroPlay": "Slayd-shouni davom ettirish",
+    "heroScroll": "Pastga"
   },
   "Pages2": {
     "otherDishes": "Boshqa taomlar",

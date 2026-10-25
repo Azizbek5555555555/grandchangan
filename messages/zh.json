@@ -808,7 +808,19 @@
     "valWok": "猛火锅气",
     "valWokS": "猛火快炒，锅气十足。",
     "valCare": "用心款待",
-    "valCareS": "每一道菜都饱含心意与热情。"
+    "valCareS": "每一道菜都饱含心意与热情。",
+    "heroShowLabel": "餐厅外景照片",
+    "heroShowRole": "轮播",
+    "heroSlideRole": "幻灯片",
+    "heroSlideGate": "牌楼入口",
+    "heroSlideFacade": "外观",
+    "heroSlideStreet": "街景",
+    "heroSlideDoor": "大门",
+    "heroPrev": "上一张",
+    "heroNext": "下一张",
+    "heroPause": "暂停轮播",
+    "heroPlay": "继续轮播",
+    "heroScroll": "向下"
   },
   "Pages2": {
     "otherDishes": "其他菜品",
