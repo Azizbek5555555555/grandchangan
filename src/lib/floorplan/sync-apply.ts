@@ -43,7 +43,7 @@ export class FutureBookingsError extends Error {
 }
 
 export type FloorSyncStatus = {
-  /** Xaritadagi band qilinadigan stollar soni (21) */
+  /** Xaritadagi band qilinadigan stollar soni (22) */
   mapTables: number;
   /** To'g'ri bog'langan kodlar: faol zaldagi faol stol, kerakli zalda, o'rinlar soni mos */
   linked: number;

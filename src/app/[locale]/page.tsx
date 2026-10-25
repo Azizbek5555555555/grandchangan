@@ -101,7 +101,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const accentLine = heroTitle ? lines.length - 1 : Math.min(2, Math.max(0, (parseInt(h2("heroAccent"), 10) || 2) - 1));
   const heroSub = hero?.subtitle ? t(hero.subtitle, locale) : h2("heroSub");
 
-  // Raqamlar — zal xaritasidan (21 stol, 128 o'rin, 5 VIP xona)
+  // Raqamlar — zal xaritasidan (22 stol, 199 o'rin, 5 VIP xona)
   const totals = floorTotals();
   const vipRooms = ROOMS.filter((r) => r.kind === "vip").length;
   const every = sameEveryDay(workingHours);

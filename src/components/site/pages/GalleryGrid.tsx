@@ -33,6 +33,7 @@ export default function GalleryGrid({ items, labels }: { items: GridItem[]; labe
     [items, broken, filter]
   );
   const n = list.length;
+  const dialog = useRef<HTMLDivElement | null>(null);
 
   const close = useCallback(() => {
     setOpen(null);
@@ -47,6 +48,16 @@ export default function GalleryGrid({ items, labels }: { items: GridItem[]; labe
       if (e.key === "Escape") close();
       else if (e.key === "ArrowRight") step(1);
       else if (e.key === "ArrowLeft") step(-1);
+      else if (e.key === "Tab") {
+        // Fokus tuzog'i: Tab/Shift+Tab faqat lightbox tugmalari orasida aylanadi
+        const box = dialog.current;
+        const els = box ? Array.from(box.querySelectorAll<HTMLElement>("button")) : [];
+        if (!els.length) return;
+        const i = els.indexOf(document.activeElement as HTMLElement);
+        const next = e.shiftKey ? (i <= 0 ? els.length - 1 : i - 1) : (i === -1 || i === els.length - 1 ? 0 : i + 1);
+        e.preventDefault();
+        els[next].focus();
+      }
     };
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
@@ -61,6 +72,9 @@ export default function GalleryGrid({ items, labels }: { items: GridItem[]; labe
     if (open === null || n < 2) return;
     [list[(open + 1) % n], list[(open - 1 + n) % n]].forEach((it) => {
       const im = new Image();
+      // Lightbox rasmi bilan bir xil tanlov (telefonda md)
+      const set = srcSetOf(it.pic);
+      if (set) { im.sizes = "100vw"; im.srcset = set; }
       im.src = it.pic.src;
     });
   }, [open, list, n]);
@@ -126,7 +140,7 @@ export default function GalleryGrid({ items, labels }: { items: GridItem[]; labe
                 style={{ objectPosition: it.pic.pos }}
                 className="absolute inset-0 h-full w-full object-cover transition duration-700 ease-out-expo group-hover:scale-105"
               />
-              <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-night/80 via-night/5 to-transparent opacity-70 transition duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" />
+              <span aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-night/95 via-night/10 to-transparent opacity-90 transition duration-500 group-hover:opacity-100 group-focus-visible:opacity-100" />
               <span aria-hidden="true" className="absolute inset-2 scale-[1.02] rounded-[12px] border border-brand-gold/50 opacity-0 transition duration-500 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100" />
               {it.caption && (
                 <span aria-hidden="true" className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-2 text-left sm:inset-x-4 sm:bottom-4">
@@ -142,6 +156,7 @@ export default function GalleryGrid({ items, labels }: { items: GridItem[]; labe
       {/* Portal: Reveal transform'i ichida fixed ekranni to'liq qoplamasdi; data-lenis-prevent — fon scroll qilmasin */}
       {cur && open !== null && createPortal(
         <div
+          ref={dialog}
           role="dialog"
           aria-modal="true"
           aria-label={cur.caption || labels.open}
@@ -161,6 +176,8 @@ export default function GalleryGrid({ items, labels }: { items: GridItem[]; labe
             <img
               key={cur.pic.src}
               src={cur.pic.src}
+              srcSet={srcSetOf(cur.pic)}
+              sizes="100vw"
               alt={cur.alt}
               width={cur.pic.w}
               height={cur.pic.h}

@@ -35,6 +35,7 @@ function Strip({ pics, reverse, offset = 0 }: { pics: Pic[]; reverse?: boolean; 
                   srcSet={srcSetOf(f.u)}
                   sizes="(min-width: 640px) 288px, 208px"
                   alt=""
+                  loading={k === 0 && i < 2 ? undefined : "lazy"}
                   decoding="async"
                   style={{ objectPosition: f.u.pos }}
                   className="h-full w-full object-cover"

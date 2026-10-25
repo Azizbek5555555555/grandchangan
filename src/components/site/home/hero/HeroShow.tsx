@@ -589,7 +589,7 @@ function SlideImg({ i, alt, first, className }: { i: number; alt: string; first:
       data-main
       src={p.md}
       srcSet={srcSetOf(p)}
-      sizes={s.tall ? "(min-width: 1024px) 420px, 100vw" : "100vw"}
+      sizes={s.tall ? "(min-width: 1024px) 420px, 100vw" : "(max-width: 1023px) 250vw, 100vw"}
       width={p.w}
       height={p.h}
       alt={alt}

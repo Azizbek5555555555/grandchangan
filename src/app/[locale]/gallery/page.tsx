@@ -53,7 +53,12 @@ export default async function GalleryPage({ params }: { params: Promise<{ locale
 
   // Avval restoranning haqiqiy rasmlari (saralangan), keyin admin yuklagan rasmlar — ular yo'qolmaydi
   const items: GridItem[] = [
-    ...interleave(GALLERY_PICS).map((p) => ({ pic: p, caption: pt.caption(p), alt: pt.alt(p), glyph: picGlyph(p), group: p.kind ? GROUP[p.kind] : undefined })),
+    ...interleave(GALLERY_PICS).map((p) => {
+      // alt — aniq izoh + umumiy tur ("Deraza yonidagi kabinka — GrandChangan"), bir xil alt'lar takrorlanmasin
+      const caption = pt.caption(p);
+      const alt = pt.alt(p);
+      return { pic: p, caption, alt: caption && caption !== alt ? `${caption} — ${alt}` : alt, glyph: picGlyph(p), group: p.kind ? GROUP[p.kind] : undefined };
+    }),
     ...images.flatMap((x) => {
       const p = urlPic(usable(x.url));
       if (!p || GALLERY_PICS.some((r) => r.src === p.src)) return [];
