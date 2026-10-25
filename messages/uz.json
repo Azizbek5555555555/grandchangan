@@ -848,7 +848,8 @@
     "floorTablesCount": "{count} ta stol",
     "floorUpTo": "{n} kishigacha",
     "floorFreeOf": "{total} tadan {free} tasi bo'sh",
-    "floorCall": "Telefon orqali bron qilish qulayroqmi? Eng yaxshi stolni — yoki bayramingiz uchun butun xonani tanlab beramiz."
+    "floorCall": "Telefon orqali bron qilish qulayroqmi? Eng yaxshi stolni — yoki bayramingiz uchun butun xonani tanlab beramiz.",
+    "floorPhotoN": "{n}-rasm"
   },
   "About2": {
     "storyEyebrow": "Bizning hikoya",

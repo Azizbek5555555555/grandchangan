@@ -7,6 +7,7 @@ const CORNER = "absolute size-5 text-brand-gold/75 sm:size-7";
  * "Lak quti" — qorong'i quti, ichida ingichka oltin ramka va to'rt burchakda huiwen naqshi,
  * fonda juda nozik deraza panjarasi. Faqat ko'rinish: ichidagi kontentga tegmaydi.
  * Yorug' temada krem bo'lim ustida qora quti, qorong'i temada oltin ramka uni ajratib turadi.
+ * overflow-clip (hidden emas) — ichidagi sticky dok ishlashi uchun.
  */
 export default function LacquerFrame({
   children,
@@ -20,7 +21,7 @@ export default function LacquerFrame({
   return (
     <div
       className={cn(
-        "relative isolate overflow-hidden rounded-[22px] bg-night text-brand-cream shadow-2xl shadow-night/25 ring-1 ring-brand-gold/25 sm:rounded-[30px]",
+        "relative isolate overflow-clip rounded-[22px] bg-night text-brand-cream shadow-2xl shadow-night/25 ring-1 ring-brand-gold/25 sm:rounded-[30px]",
         className
       )}
     >
@@ -39,7 +40,8 @@ export default function LacquerFrame({
       <FretCorner className={cn(CORNER, "bottom-2.5 right-2.5 rotate-180 sm:bottom-3.5 sm:right-3.5")} />
       <FretCorner className={cn(CORNER, "bottom-2.5 left-2.5 -rotate-90 sm:bottom-3.5 sm:left-3.5")} />
 
-      <div className={cn("relative px-3.5 pb-9 pt-9 sm:p-11 lg:p-12", innerClassName)}>{children}</div>
+      {/* Yon chekinish kichik (xarita kengroq), yuqori/pastki — burchak naqshlaridan katta */}
+      <div className={cn("relative px-2 pb-9 pt-9 sm:px-5 sm:pb-11 sm:pt-11 lg:px-6", innerClassName)}>{children}</div>
     </div>
   );
 }

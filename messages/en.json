@@ -848,7 +848,8 @@
     "floorTablesCount": "{count, plural, one {# table} other {# tables}}",
     "floorUpTo": "up to {n} guests",
     "floorFreeOf": "{free} of {total} free",
-    "floorCall": "Prefer to book by phone? We'll find you the best table — or a whole room for your celebration."
+    "floorCall": "Prefer to book by phone? We'll find you the best table — or a whole room for your celebration.",
+    "floorPhotoN": "Photo {n}"
   },
   "About2": {
     "storyEyebrow": "Our story",

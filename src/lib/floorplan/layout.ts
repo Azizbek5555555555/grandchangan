@@ -76,10 +76,10 @@ const rect = (id: string, code: string, cx: number, cy: number, w: number, h: nu
   ({ id, code, shape: "rect", cx, cy, w, h, chairs, seats: chairs.top + chairs.right + chairs.bottom + chairs.left });
 
 // Katta zal: 2 qator × 4 ta dumaloq stol (10 kishilik) + uzun stol (14 kishilik) + o'ng devor yonida 2 ta 6 kishilik stol
-const HALL_COLS = [585, 702, 819, 936];
+const HALL_COLS = [578, 698, 818, 938];
 const HALL_ROWS = [445, 585];
 const hallTables: FloorTable[] = [
-  ...HALL_ROWS.flatMap((cy, r) => HALL_COLS.map((cx, c) => round(`hall-${r * 4 + c + 1}`, `Z-${r * 4 + c + 1}`, cx, cy, 40, 10))),
+  ...HALL_ROWS.flatMap((cy, r) => HALL_COLS.map((cx, c) => round(`hall-${r * 4 + c + 1}`, `Z-${r * 4 + c + 1}`, cx, cy, 38, 10))),
   rect("hall-long", "Z-9", 1058, 517, 48, 205, { top: 1, right: 6, bottom: 1, left: 6 }),
   rect("hall-side-1", "Z-10", 1172, 439, 44, 72, { top: 1, right: 2, bottom: 1, left: 2 }),
   rect("hall-side-2", "Z-11", 1172, 584, 44, 72, { top: 1, right: 2, bottom: 1, left: 2 }),
@@ -119,9 +119,9 @@ export const ROOMS: FloorRoom[] = [
 
   // ---- Chap ustun: 2 ta VIP (to'rtburchak stol) + bar ----
   { id: "vip-4", kind: "vip", num: 4, rect: { x: 160, y: 345, w: 172, h: 180 }, label: { x: 247, y: 440 },
-    tables: [rect("vip-4-t", "VIP-4", 247, 440, 64, 118, { top: 1, right: 4, bottom: 1, left: 4 })], bookable: true },
+    tables: [rect("vip-4-t", "VIP-4", 247, 440, 80, 112, { top: 1, right: 4, bottom: 1, left: 4 })], bookable: true },
   { id: "vip-5", kind: "vip", num: 5, rect: { x: 160, y: 542, w: 172, h: 182 }, label: { x: 247, y: 636 },
-    tables: [rect("vip-5-t", "VIP-5", 247, 636, 64, 118, { top: 1, right: 4, bottom: 1, left: 4 })], bookable: true },
+    tables: [rect("vip-5-t", "VIP-5", 247, 636, 80, 112, { top: 1, right: 4, bottom: 1, left: 4 })], bookable: true },
   { id: "bar", kind: "bar", rect: { x: 160, y: 745, w: 280, h: 170 }, label: { x: 297, y: 832 },
     tables: [{ id: "bar-t", shape: "bar", cx: 297, cy: 824, w: 210, h: 46, seats: 5 }], bookable: false,
     decor: [

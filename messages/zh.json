@@ -848,7 +848,8 @@
     "floorTablesCount": "{count} 张桌",
     "floorUpTo": "最多 {n} 人",
     "floorFreeOf": "空闲 {free}/{total}",
-    "floorCall": "更喜欢电话预订？我们为您挑选最好的座位，或为您的庆典安排整间包房。"
+    "floorCall": "更喜欢电话预订？我们为您挑选最好的座位，或为您的庆典安排整间包房。",
+    "floorPhotoN": "照片 {n}"
   },
   "About2": {
     "storyEyebrow": "我们的故事",

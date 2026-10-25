@@ -8,6 +8,9 @@ import { MAP_ZONES, ROOMS, bookableTables, type FloorRoom, type FloorTable } fro
 import type { getAvailability } from "@/lib/reservation/actions";
 import { cn, formatMoney, t as tl } from "@/lib/utils";
 import HallOverview, { CallCard } from "./floor/HallOverview";
+import RoomGallery from "./floor/RoomGallery";
+import SelectionDock from "./floor/SelectionDock";
+import { ROOM_GLYPH, roomPhotos } from "./floor/roomPhotos";
 
 /**
  * Mijozlar uchun xarita + bo'sh/band stollar (bosh sahifa va bron sahifasining 4-qadami).
@@ -16,7 +19,12 @@ import HallOverview, { CallCard } from "./floor/HallOverview";
  * admin xaritadan stollarni yaratmaguncha ham bron ishlayveradi.
  * Faqat ko'rinish: ma'lumotni (zones) va tanlovni chaqiruvchi boshqaradi.
  *
- * Telefonda xarita kichik (stol ~20px) — shuning uchun xarita ostida "Ro'yxatdan tanlash" bloki:
+ * Joylashuv: xarita butun kenglikda (katta), ostida belgilar va panel — tanlangan xonaning haqiqiy
+ * rasmi, stollar, bron tugmasi. Stol tanlanmaganda panelda zallar ro'yxati (rasmlari bilan).
+ * dockAction berilsa — tanlangan stol uchun tezkor "dok": katta ekranda xarita burchagida, telefonda
+ * ekran pastida (paneldagi tugma ko'rinib turganda yashiriladi).
+ *
+ * Telefonda xarita kichik (stol ~30px) — shuning uchun xarita ostida "Ro'yxatdan tanlash" bloki:
  * har bir stol katta (≥44px) tugma, xonalar bo'yicha guruhlangan (quickPick, standart — yoqilgan).
  */
 
@@ -40,6 +48,7 @@ export default function FloorAvailabilityMap({
   loading = false,
   phone,
   action,
+  dockAction,
   quickPick = true,
 }: {
   /** getAvailability natijasi; null — hali yuklanmagan (stollar oddiy ko'rinishda) */
@@ -54,6 +63,8 @@ export default function FloorAvailabilityMap({
   phone?: string;
   /** Tanlangan (bo'sh) stol uchun kartadagi tugma(lar), masalan "Shu stolni band qilish" */
   action?: (table: AvailTable, info: TablePick) => React.ReactNode;
+  /** Dok uchun ixcham tugma (masalan "Bron qilish"); berilmasa — dok ko'rsatilmaydi */
+  dockAction?: (table: AvailTable, info: TablePick) => React.ReactNode;
   /** Telefon/planshetda xarita ostidagi katta tugmali stollar ro'yxati (lg dan kichik ekranlarda) */
   quickPick?: boolean;
 }) {
@@ -94,6 +105,21 @@ export default function FloorAvailabilityMap({
 
   // Kartada nima ko'rsatiladi: foydalanuvchi bosgan xona (va stol). null — tanlovdan kelib chiqadi
   const [focus, setFocus] = useState<{ roomId: string; tableId?: string } | null>(null);
+
+  // Dok: foydalanuvchi yopgan stol (boshqa stol tanlansa — yana chiqadi)
+  const [dockClosedFor, setDockClosedFor] = useState<string | null>(null);
+  // Panel tugmasi ekranda ko'rinib turganda dok yashiriladi (bir xil tugma ikki joyda turmasin)
+  const [inlineSeen, setInlineSeen] = useState(false);
+  const inlineRef = useCallback((el: HTMLDivElement | null) => {
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    // Bir chaqiruvda bir nechta yozuv kelishi mumkin — oxirgisi joriy holat
+    const io = new IntersectionObserver((list) => setInlineSeen(list[list.length - 1].isIntersecting), { threshold: 0.5 });
+    io.observe(el);
+    return () => {
+      io.disconnect();
+      setInlineSeen(false);
+    };
+  }, []);
 
   const db = useMemo(() => {
     const byCode = new Map<string, Entry>();
@@ -286,9 +312,9 @@ export default function FloorAvailabilityMap({
   };
 
   // Telefon/planshet: katta tugmali stollar ro'yxati (xaritadagi kichik stollarni bosish qiyin).
-  // Xarita bilan panel orasida turadi — ro'yxatdan tanlagach "band qilish" tugmasi darhol ostida.
+  // Xarita bilan panel orasida turadi; tanlangach bron tugmasi ekran pastidagi dokda (dockAction) yoki panelda.
   const quickList = quickPick && loaded && quick.length > 0 && (
-    <div className={cn("rounded-2xl border p-4 lg:hidden", dark ? "border-brand-cream/10 bg-night-2/60" : "border-line bg-card")}>
+    <div className={cn("mt-4 rounded-2xl border p-4 lg:hidden", dark ? "border-brand-cream/10 bg-night-2/60" : "border-line bg-card")}>
       <p className={cn("text-[11px] font-semibold uppercase tracking-[0.22em]", C.eyebrow)}>{tp("quickPick")}</p>
       <p className={cn("mt-1 text-xs", C.muted)}>{tp("quickPickHint")}</p>
       <div className="mt-3 space-y-4">
@@ -326,101 +352,149 @@ export default function FloorAvailabilityMap({
     </div>
   );
 
+  // ---- Panel: tanlangan stol uchun bron bloki (chaqiruvchining tugmasi) ----
+  // action null qaytarsa (masalan, yuklanayotganda) — bo'sh quti chizilmaydi
+  const actionNode = selectedFree && action ? action(selectedFree.table, pickInfo) : null;
+  const actionBlock = selectedFree && (actionNode || !showingSelected) ? (
+    <div ref={actionNode ? inlineRef : undefined} className={cn("rounded-xl border p-4", dark ? "border-brand-gold/25 bg-night-3/50" : "border-line bg-sand/50")}>
+      {!showingSelected && (
+        <p className={cn("flex items-center gap-2 text-sm", actionNode && "mb-3")}>
+          <span className={cn("h-2 w-2 shrink-0 rounded-full", DOT.selected)} />
+          {tb("selectedLine", { code: selectedFree.table.number })} · {tb("seats", { count: selectedFree.table.seats })}
+        </p>
+      )}
+      {actionNode}
+    </div>
+  ) : null;
+  const callCard = phone ? <CallCard phone={phone} dark={dark} /> : null;
+
+  // ---- Dok: tanlangan bo'sh stol + ixcham bron tugmasi ----
+  const dockEntry = dockAction && selectedFree && !loading ? selectedFree : undefined;
+  const dockRoom = dockEntry ? pickInfo.room : null;
+  const dockProps = dockEntry ? {
+    eyebrow: dockRoom ? roomName(dockRoom) : tl(dockEntry.zone.name, locale),
+    code: dockEntry.table.number,
+    seats: tb("seats", { count: dockEntry.table.seats }),
+    photo: dockRoom ? roomPhotos(dockRoom, pickInfo.mapTable)[0] ?? null : null,
+    glyph: dockRoom ? ROOM_GLYPH[dockRoom.kind] : "席",
+    action: dockAction?.(dockEntry.table, pickInfo),
+    label: tb("selectedLine", { code: dockEntry.table.number }),
+  } : null;
+
   return (
     <div className={cn("min-w-0", className)}>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-6">
-        <div className="relative min-w-0">
-          {/* Xarita atrofidagi oltin ramka (FloorMap'ning o'zi o'zgarmaydi — faqat tashqi ko'rinishi) */}
-          <div className={cn("relative rounded-[18px] p-1 sm:p-1.5", dark ? "bg-gradient-to-br from-brand-gold/45 via-brand-gold/10 to-brand-gold/35" : "bg-gradient-to-br from-brand-gold/60 via-line to-brand-gold/50")}>
-            <FloorMap
-              className="aspect-[1450/880] w-full rounded-[14px] border-brand-gold/20"
-              selectedId={focusRoom?.id ?? null}
-              onSelect={pickRoom}
-              onSelectTable={pickTable}
-              tableState={tableState}
-              tableLabel={tableLabel}
-              dimRoom={dimRoom}
-              hint={tb("mapHint")}
-              pageScroll
-            />
-            {loading && (
-              <div className="pointer-events-none absolute left-3 top-3 inline-flex items-center gap-2 rounded-full border border-brand-gold/30 bg-night/90 px-3 py-1.5 text-xs text-brand-cream shadow-lg sm:left-4 sm:top-4">
-                <Loader2 size={14} className="animate-spin text-brand-gold-light" /> {tb("loading")}
-              </div>
-            )}
-          </div>
-          {/* Telefonda FloorMap o'z maslahatini yashiradi — qisqa maslahat shu yerda */}
-          <p className={cn("mt-2 flex items-center gap-1.5 text-xs sm:hidden", C.muted)}>
-            <Hand size={13} aria-hidden="true" /> {tp("mapTouchHint")}
-          </p>
-          {/* Belgilar (xaritadagi ko'rinish bilan bir xil) */}
-          <div className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl px-4 py-3 text-xs", C.legend)}>
-            <Legend swatch="border-brand-gold bg-brand-gold/15" label={ts("rFree")} />
-            <Legend swatch="border-brand-red bg-brand-red/40" label={ts("rBusy")} />
-            <Legend swatch="border-brand-gold bg-transparent opacity-60" label={ts("rSmall")} />
-            <Legend swatch="border-brand-gold-light bg-brand-gold" label={ts("rSelected")} />
-            {loaded && (
-              <span
-                className={cn(
-                  "ml-auto inline-flex items-center gap-2 rounded-full border px-3 py-1 font-semibold",
-                  dark ? "border-brand-gold/40 bg-brand-gold/10 text-brand-gold-light" : "border-brand-gold/60 bg-card text-content"
-                )}
-              >
-                <span aria-hidden="true" className="relative flex h-2 w-2">
-                  {db.free > 0 && <span className="absolute inline-flex h-full w-full rounded-full bg-brand-gold opacity-60 motion-safe:animate-ping" />}
-                  <span className={cn("relative inline-flex h-2 w-2 rounded-full", db.free > 0 ? "bg-brand-gold" : "bg-brand-red")} />
-                </span>
-                {tb("freeCount", { count: db.free })}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {quickList}
-
-        <aside className={cn("relative flex min-w-0 flex-col overflow-hidden rounded-[1.25rem] border p-5 sm:p-6", C.card)}>
-          {/* Panel bezagi: yuqori oltin chiziq va xira ieroglif */}
-          <span aria-hidden="true" className="hairline-gold pointer-events-none absolute inset-x-6 top-0" />
-          <span
-            aria-hidden="true"
-            lang="zh"
-            className={cn("font-cn pointer-events-none absolute -bottom-6 -right-2 select-none text-[7rem] leading-none", dark ? "text-brand-gold/[0.06]" : "text-fire/[0.05]")}
-          >
-            席
-          </span>
-          <div aria-live="polite" className="relative">
-            {focusRoom ? (
-              roomInfo(focusRoom)
-            ) : selected ? (
-              tableDetails(selected.table.number, selected.table.seats, selected, tl(selected.zone.name, locale))
-            ) : (
-              <div>
-                <p className={cn("text-[11px] uppercase tracking-[0.25em]", C.eyebrow)}>{ts("rTable")}</p>
-                <h3 className="mt-1 font-display text-2xl sm:text-3xl">{tb("introTitle")}</h3>
-                <p className={cn("mt-2 text-sm leading-relaxed", C.muted)}>{tb("introText")}</p>
-                <HallOverview loaded={loaded} isFree={isFreeMap} dark={dark} />
-              </div>
-            )}
-
-            {selectedFree && (action || !showingSelected) && (
-              <div className={cn("mt-5 border-t pt-4", C.divider)}>
-                {!showingSelected && (
-                  <p className="mb-3 flex items-center gap-2 text-sm">
-                    <span className={cn("h-2 w-2 rounded-full", DOT.selected)} />
-                    {tb("selectedLine", { code: selectedFree.table.number })} · {tb("seats", { count: selectedFree.table.seats })}
-                  </p>
-                )}
-                {action?.(selectedFree.table, pickInfo)}
-              </div>
-            )}
-          </div>
-          {phone && (
-            <div className="relative mt-auto pt-5">
-              <CallCard phone={phone} dark={dark} />
+      {/* ---- Xarita (butun kenglikda) ---- */}
+      <div className="relative min-w-0">
+        {/* Xarita atrofidagi oltin ramka (FloorMap'ning o'zi o'zgarmaydi — faqat tashqi ko'rinishi) */}
+        <div className={cn("relative rounded-[18px] p-[3px] sm:p-1", dark ? "bg-gradient-to-br from-brand-gold/50 via-brand-gold/10 to-brand-gold/40" : "bg-gradient-to-br from-brand-gold/60 via-line to-brand-gold/50")}>
+          <FloorMap
+            className="aspect-[1450/880] w-full rounded-[15px] border-brand-gold/20"
+            selectedId={focusRoom?.id ?? null}
+            onSelect={pickRoom}
+            onSelectTable={pickTable}
+            tableState={tableState}
+            tableLabel={tableLabel}
+            dimRoom={dimRoom}
+            hint={tb("mapHint")}
+            pageScroll
+          />
+          {loading && (
+            <div className="pointer-events-none absolute left-2 top-2 inline-flex items-center gap-2 rounded-full border border-brand-gold/30 bg-night/90 p-1.5 text-xs text-brand-cream shadow-lg sm:left-4 sm:top-4 sm:px-3">
+              {/* Telefonda faqat belgi — kichik xaritaning ko'p qismini yopmasin */}
+              <Loader2 size={14} className="animate-spin text-brand-gold-light" /> <span className="sr-only sm:not-sr-only">{tb("loading")}</span>
             </div>
           )}
-        </aside>
+          {/* Katta ekran: dok xaritaning pastki-chap qismida — bar, qabulxona va kirish (band qilinmaydigan joy) ustida */}
+          {dockProps && (
+            <div className="absolute bottom-3 left-3 z-10 hidden w-[min(46%,36rem)] lg:block">
+              <SelectionDock
+                variant="overlay"
+                show={dockClosedFor !== dockProps.code && !inlineSeen}
+                onClose={() => setDockClosedFor(dockProps.code)}
+                closeLabel={ts("close")}
+                {...dockProps}
+              />
+            </div>
+          )}
+        </div>
+        {/* Telefonda FloorMap o'z maslahatini yashiradi — qisqa maslahat shu yerda */}
+        <p className={cn("mt-2 flex items-center gap-1.5 text-xs sm:hidden", C.muted)}>
+          <Hand size={13} aria-hidden="true" /> {tp("mapTouchHint")}
+        </p>
+        {/* Belgilar (xaritadagi ko'rinish bilan bir xil) */}
+        <div className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-2xl px-4 py-3 text-xs", C.legend)}>
+          <Legend swatch="border-brand-gold bg-brand-gold/15" label={ts("rFree")} />
+          <Legend swatch="border-brand-red bg-brand-red/40" label={ts("rBusy")} />
+          <Legend swatch="border-brand-gold bg-transparent opacity-60" label={ts("rSmall")} />
+          <Legend swatch="border-brand-gold-light bg-brand-gold" label={ts("rSelected")} />
+          {loaded && (
+            <span
+              className={cn(
+                "ml-auto inline-flex items-center gap-2 rounded-full border px-3 py-1 font-semibold",
+                dark ? "border-brand-gold/40 bg-brand-gold/10 text-brand-gold-light" : "border-brand-gold/60 bg-card text-content"
+              )}
+            >
+              <span aria-hidden="true" className="relative flex h-2 w-2">
+                {db.free > 0 && <span className="absolute inline-flex h-full w-full rounded-full bg-brand-gold opacity-60 motion-safe:animate-ping" />}
+                <span className={cn("relative inline-flex h-2 w-2 rounded-full", db.free > 0 ? "bg-brand-gold" : "bg-brand-red")} />
+              </span>
+              {tb("freeCount", { count: db.free })}
+            </span>
+          )}
+        </div>
       </div>
+
+      {quickList}
+
+      {/* ---- Panel: xona rasmi, stollar va bron (xarita ostida, butun kenglikda) ---- */}
+      <section aria-live="polite" className={cn("relative mt-4 overflow-hidden rounded-[1.25rem] border p-4 sm:p-6 lg:mt-5 lg:p-7", C.card)}>
+        {/* Panel bezagi: yuqori oltin chiziq va xira ieroglif */}
+        <span aria-hidden="true" className="hairline-gold pointer-events-none absolute inset-x-6 top-0" />
+        <span
+          aria-hidden="true"
+          lang="zh"
+          className={cn("font-cn pointer-events-none absolute -bottom-6 -right-2 select-none text-[7rem] leading-none", dark ? "text-brand-gold/[0.06]" : "text-fire/[0.05]")}
+        >
+          席
+        </span>
+
+        {focusRoom ? (
+          // Katta ekranda: chapda katta rasm (panelning "yuzi"), o'ngda ma'lumot, bron va telefon
+          <div className="relative grid gap-5 lg:grid-cols-2 lg:gap-8 xl:gap-10">
+            <RoomGallery
+              key={`${focusRoom.id}:${focusTable?.id ?? ""}`}
+              photos={roomPhotos(focusRoom, focusTable)}
+              glyph={ROOM_GLYPH[focusRoom.kind]}
+              label={tf(`kinds.${focusRoom.kind}`)}
+            />
+            <div className="flex min-w-0 flex-col gap-5">
+              <div className="min-w-0">{roomInfo(focusRoom)}</div>
+              {actionBlock}
+              {callCard && <div className="lg:mt-auto">{callCard}</div>}
+            </div>
+          </div>
+        ) : selected ? (
+          <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)] lg:gap-8">
+            {tableDetails(selected.table.number, selected.table.seats, selected, tl(selected.zone.name, locale))}
+            {(actionBlock || callCard) && (
+              <div className="flex min-w-0 flex-col gap-4">
+                {actionBlock}
+                {callCard}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="relative grid gap-5 lg:grid-cols-[minmax(0,17rem)_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-5">
+            <div className="min-w-0 lg:col-start-1 lg:row-start-1">
+              <p className={cn("text-[11px] uppercase tracking-[0.25em]", C.eyebrow)}>{ts("rTable")}</p>
+              <h3 className="mt-1 font-display text-2xl sm:text-3xl">{tb("introTitle")}</h3>
+              <p className={cn("mt-2 text-sm leading-relaxed", C.muted)}>{tb("introText")}</p>
+            </div>
+            <HallOverview loaded={loaded} isFree={isFreeMap} dark={dark} className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1" />
+            {callCard && <div className="min-w-0 lg:col-start-1 lg:row-start-2 lg:self-end">{callCard}</div>}
+          </div>
+        )}
+      </section>
 
       {/* Xaritaga hali bog'lanmagan baza stollari — bron baribir ishlaydi */}
       {loaded && db.unmatched.length > 0 && (
@@ -462,6 +536,16 @@ export default function FloorAvailabilityMap({
         <div className={cn("mt-5 rounded-2xl border p-4 text-sm", C.card)}>
           <p className={C.muted}>{tb("noTables")}</p>
           {phoneLink}
+        </div>
+      )}
+
+      {/* Telefon/planshet: ekran pastiga yopishgan dok (bo'lim ichida). Balandligi 0 — oxirida joy egallamaydi.
+          Telefonda "tepaga" tugmasidan (ScrollRail) yuqorida turadi. */}
+      {dockProps && (
+        <div className="sticky bottom-[calc(4.75rem+env(safe-area-inset-bottom))] z-30 h-0 md:bottom-4 lg:hidden">
+          <div className="absolute inset-x-0 bottom-0">
+            <SelectionDock variant="bar" show={!inlineSeen} {...dockProps} />
+          </div>
         </div>
       )}
     </div>
