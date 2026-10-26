@@ -26,6 +26,18 @@ export function formatMoney(value: number | string, currency = "so'm"): string {
   return (rounded < 0 ? "-" : "") + grouped + " " + currency;
 }
 
+/** Valyuta yozuvi tilga qarab (formatMoney ikkinchi parametri uchun) */
+const CURRENCY: Record<string, string> = { uz: "so'm", ru: "сум", en: "UZS", zh: "苏姆" };
+export function currencyOf(locale: string): string {
+  return CURRENCY[locale] ?? CURRENCY.uz;
+}
+
+/** Narx belgilanganmi: 0 yoki bo'sh — admin narxni yozmagan, saytda narx ko'rsatilmaydi */
+export function hasPrice(value: number | string | null | undefined): boolean {
+  const n = Number(value ?? 0);
+  return Number.isFinite(n) && n > 0;
+}
+
 /** Kod generatsiya: GC-000123 */
 export function genCode(prefix: string, n: number): string {
   return `${prefix}-${String(n).padStart(6, "0")}`;

@@ -244,7 +244,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             // Muhit — soyabonli asosiy zal; taomlar — taom rasmi, bo'lmasa taomli VIP dasturxon (tepadan);
             // oshxona — tayyor dasturxon; VIP xonalar — qandilli VIP zal
             { title: h2("panel1t"), sub: h2("panel1s"), href: "/gallery", img: pic("hallUmbrellas", "50% 62%") },
-            { title: h2("panel2t"), sub: h2("panel2s"), href: "/menu", img: urlPic(signature.find((d) => d.img)?.img) ?? pic("vipTableTop", "45% 42%") },
+            { title: h2("panel2t"), sub: h2("panel2s"), href: "/menu", img: pic("vipTableTop", "45% 42%") },
             { title: h2("panel3t"), sub: h2("panel3s"), href: "/about", img: pic("hallRoundTable2", "50% 70%") },
             { title: h2("panel4t"), sub: h2("panel4s"), href: "/reservation", img: pic("vipLounge", "40% 52%") },
           ]}

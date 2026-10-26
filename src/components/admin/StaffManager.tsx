@@ -1,58 +1,113 @@
 "use client";
-import { useState } from "react";
-import { Plus, Pencil, Ban, Check, UserMinus } from "lucide-react";
-import { Button, Modal, Badge, TextField } from "@/components/ui/primitives";
+import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
+import { Plus, Pencil, Ban, Check, UserMinus, ShieldCheck } from "lucide-react";
 import { saveStaff, setStaffBlocked, removeStaff } from "@/lib/staff/actions";
-import { ROLE_LABELS, ROLE_RANK, STAFF_ROLE_LIST } from "@/lib/auth/permissions";
+import { ROLE_RANK, STAFF_ROLE_LIST } from "@/lib/auth/permissions";
+import { cn } from "@/lib/utils";
+import PageHeader from "@/components/admin/ui/PageHeader";
+import Dialog from "@/components/admin/ui/Dialog";
+import { Field, Notice } from "@/components/admin/ui/Field";
+import Pill, { type PillTone } from "@/components/admin/ui/Pill";
+import { ui } from "@/components/admin/ui/styles";
 import type { UserRole } from "@prisma/client";
 
 type Staff = { id: string; name: string | null; email: string | null; phone: string; role: UserRole; isBlocked: boolean };
-const ROLE_COLOR: Record<string, string> = { SUPERADMIN: "red", ADMIN: "gold", MANAGER: "blue", WAITER: "green", KITCHEN: "gray" };
-const ROLE_HINT: Partial<Record<UserRole, string>> = {
-  WAITER: "bronlar va buyurtmalar",
-  KITCHEN: "faqat buyurtmalar (holatini o'zgartirish)",
-  MANAGER: "barcha bo'limlar, xodimlardan tashqari",
-  ADMIN: "barcha bo'limlar + xodimlar",
-};
+const ROLE_TONE: Record<string, PillTone> = { SUPERADMIN: "fire", ADMIN: "gold", MANAGER: "saffron", WAITER: "jade", KITCHEN: "neutral" };
+/** Rol izohi bor rollar (AdminUi.staff.roleHint.<ROLE>) */
+const HINTED: UserRole[] = ["WAITER", "KITCHEN", "MANAGER", "ADMIN"];
 
 export default function StaffManager({ staff, myId, myRole }: { staff: Staff[]; myId: string; myRole: UserRole }) {
+  const ta = useTranslations("Admin");
+  const tsf = useTranslations("AdminUi.staff");
+  const tr = useTranslations("AdminUi.roles");
+  const tc = useTranslations("AdminUi.common");
   const [modal, setModal] = useState<Staff | null>(null);
+  const [pending, startTransition] = useTransition();
   const canManage = (s: Staff) => s.id !== myId && ROLE_RANK[s.role] < ROLE_RANK[myRole];
-  const act = async (fn: () => Promise<{ ok: boolean; error?: string }>) => { const r = await fn(); if (!r.ok) alert(r.error); };
+  const act = (fn: () => Promise<{ ok: boolean; error?: string }>) =>
+    startTransition(async () => { const r = await fn(); if (!r.ok) alert(r.error); });
 
   return (
-    <div className="p-6">
-      <div className="mb-2 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Xodimlar</h1>
-        <Button onClick={() => setModal({ id: "", name: "", email: "", phone: "", role: "WAITER", isBlocked: false })}>
-          <Plus size={16} /> Xodim qo&apos;shish
-        </Button>
+    <div className={ui.page}>
+      <PageHeader
+        section="staff"
+        title={ta("staff")}
+        description={tsf("subtitle")}
+        actions={
+          <button type="button" className={ui.btnPrimary} onClick={() => setModal({ id: "", name: "", email: "", phone: "", role: "WAITER", isBlocked: false })}>
+            <Plus size={16} aria-hidden /> {tsf("add")}
+          </button>
+        }
+      />
+
+      {/* Rollar bo'yicha qisqa ma'lumot */}
+      <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {HINTED.map((r) => (
+          <div key={r} className={cn(ui.card, "p-4")}>
+            <Pill tone={ROLE_TONE[r]}>{tr(r)}</Pill>
+            <p className="mt-2 text-xs leading-relaxed text-muted">{tsf(`roleHint.${r}`)}</p>
+          </div>
+        ))}
       </div>
-      <p className="mb-6 text-sm text-muted">
-        Xodim admin panelga email va parol bilan kiradi va faqat o&apos;z roliga tegishli bo&apos;limlarni ko&apos;radi.
-      </p>
-      <div className="overflow-x-auto rounded-xl border border-line bg-card">
-        <table className="w-full text-sm">
-          <thead className="border-b border-line bg-surface-2 text-left text-muted">
-            <tr><th className="px-4 py-3">Ism</th><th className="px-4 py-3">Email</th><th className="px-4 py-3">Telefon</th><th className="px-4 py-3">Rol</th><th className="px-4 py-3">Holat</th><th className="px-4 py-3" /></tr>
+
+      <div className={ui.tableWrap}>
+        <table className={cn(ui.table, "min-w-[46rem]")}>
+          <thead className={ui.thead}>
+            <tr>
+              <th className={ui.th}>{tc("name")}</th>
+              <th className={ui.th}>{tc("email")}</th>
+              <th className={ui.th}>{tc("phone")}</th>
+              <th className={ui.th}>{tsf("colRole")}</th>
+              <th className={ui.th}>{tc("status")}</th>
+              <th className={cn(ui.th, "text-right")}>{tc("actions")}</th>
+            </tr>
           </thead>
-          <tbody>
+          <tbody className={ui.tbody}>
             {staff.map((s) => (
-              <tr key={s.id} className="border-b border-line">
-                <td className="px-4 py-3 font-medium">{s.name || "—"}{s.id === myId && <span className="ml-2 text-xs text-muted">(siz)</span>}</td>
-                <td className="px-4 py-3">{s.email || "—"}</td>
-                <td className="px-4 py-3">{s.phone}</td>
-                <td className="px-4 py-3"><Badge color={ROLE_COLOR[s.role]}>{ROLE_LABELS[s.role]}</Badge></td>
-                <td className="px-4 py-3"><Badge color={s.isBlocked ? "red" : "green"}>{s.isBlocked ? "Bloklangan" : "Faol"}</Badge></td>
-                <td className="px-4 py-3">
-                  {canManage(s) && (
-                    <div className="flex justify-end gap-1">
-                      <button title="Tahrirlash" onClick={() => setModal(s)} className="rounded p-1.5 hover:bg-surface-2"><Pencil size={15} /></button>
-                      <button title={s.isBlocked ? "Ochish" : "Bloklash"} onClick={() => act(() => setStaffBlocked(s.id, !s.isBlocked))} className={`rounded p-1.5 hover:bg-surface-2 ${s.isBlocked ? "text-green-600" : "text-orange-500"}`}>
-                        {s.isBlocked ? <Check size={15} /> : <Ban size={15} />}
+              <tr key={s.id} className={ui.tr}>
+                <td className={cn(ui.td, "font-medium")}>
+                  <span className="flex items-center gap-2.5">
+                    <span aria-hidden="true" className="inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-brand-gold/30 bg-brand-gold/10 font-display text-sm text-content">
+                      {((s.name || s.email || "?").trim()[0] || "?").toUpperCase()}
+                    </span>
+                    <span>
+                      {s.name || "—"}
+                      {s.id === myId && <span className="ml-2 text-xs font-normal text-muted">{tsf("you")}</span>}
+                    </span>
+                  </span>
+                </td>
+                <td className={cn(ui.td, "text-muted")}>{s.email || "—"}</td>
+                <td className={cn(ui.td, "whitespace-nowrap text-muted")}>{s.phone}</td>
+                <td className={ui.td}><Pill tone={ROLE_TONE[s.role]}>{tr(s.role)}</Pill></td>
+                <td className={ui.td}><Pill tone={s.isBlocked ? "fire" : "success"}>{s.isBlocked ? tc("blocked") : tc("active")}</Pill></td>
+                <td className={ui.td}>
+                  {canManage(s) ? (
+                    <div className="flex justify-end gap-0.5">
+                      <button type="button" title={tc("edit")} aria-label={tc("edit")} onClick={() => setModal(s)} className={ui.iconBtn}><Pencil size={15} aria-hidden /></button>
+                      <button
+                        type="button"
+                        disabled={pending}
+                        title={s.isBlocked ? tc("unblock") : tc("block")}
+                        aria-label={s.isBlocked ? tc("unblock") : tc("block")}
+                        onClick={() => act(() => setStaffBlocked(s.id, !s.isBlocked))}
+                        className={cn(ui.iconBtn, s.isBlocked ? "hover:text-success" : "hover:text-fire-ink")}
+                      >
+                        {s.isBlocked ? <Check size={15} aria-hidden /> : <Ban size={15} aria-hidden />}
                       </button>
-                      <button title="Xodimlikdan chiqarish" onClick={() => confirm(`${s.name || s.email} xodimlikdan chiqarilsinmi? Admin panelga kira olmaydi.`) && act(() => removeStaff(s.id))} className="rounded p-1.5 text-red-500 hover:bg-surface-2"><UserMinus size={15} /></button>
+                      <button
+                        type="button"
+                        disabled={pending}
+                        title={tsf("remove")}
+                        aria-label={tsf("remove")}
+                        onClick={() => confirm(tsf("removeConfirm", { name: s.name || s.email || "" })) && act(() => removeStaff(s.id))}
+                        className={ui.iconBtnDanger}
+                      >
+                        <UserMinus size={15} aria-hidden />
+                      </button>
                     </div>
+                  ) : (
+                    <span className="flex justify-end text-muted" title={tsf("protected")}><ShieldCheck size={16} aria-label={tsf("protected")} /></span>
                   )}
                 </td>
               </tr>
@@ -66,6 +121,9 @@ export default function StaffManager({ staff, myId, myRole }: { staff: Staff[]; 
 }
 
 function StaffModal({ data, myRole, onClose }: { data: Staff; myRole: UserRole; onClose: () => void }) {
+  const tsf = useTranslations("AdminUi.staff");
+  const tr = useTranslations("AdminUi.roles");
+  const tc = useTranslations("AdminUi.common");
   const isNew = !data.id;
   const [name, setName] = useState(data.name || "");
   const [email, setEmail] = useState(data.email || "");
@@ -76,38 +134,49 @@ function StaffModal({ data, myRole, onClose }: { data: Staff; myRole: UserRole; 
   const [saving, setSaving] = useState(false);
   const roles = STAFF_ROLE_LIST.filter((r) => ROLE_RANK[r] < ROLE_RANK[myRole]);
 
+  async function save() {
+    setSaving(true); setError(null);
+    try {
+      const r = await saveStaff({ id: data.id || undefined, name, email, phone, role, password });
+      if (r.ok) onClose(); else setError(r.error || tc("error"));
+    } catch {
+      setError(tc("error"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
-    <Modal open onClose={onClose} title={isNew ? "Yangi xodim" : "Xodimni tahrirlash"}>
+    <Dialog
+      onClose={onClose}
+      title={isNew ? tsf("newTitle") : tsf("editTitle")}
+      footer={
+        <>
+          <button type="button" onClick={onClose} className={ui.btnSecondary}>{tc("cancel")}</button>
+          <button type="button" disabled={saving} onClick={save} className={ui.btnPrimary}>{saving ? tc("saving") : tc("save")}</button>
+        </>
+      }
+    >
       <div className="space-y-4">
-        <TextField label="Ism" value={name} onChange={(e) => setName(e.target.value)} />
-        <TextField label="Email (login)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <TextField label="Telefon" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" />
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-content">Rol</span>
-          <select value={role} onChange={(e) => setRole(e.target.value as UserRole)} className="w-full rounded-lg border border-line px-3 py-2 text-sm">
-            {roles.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}{ROLE_HINT[r] ? ` — ${ROLE_HINT[r]}` : ""}</option>)}
+        <Field label={tc("name")}>
+          <input value={name} onChange={(e) => setName(e.target.value)} className={ui.input} />
+        </Field>
+        <Field label={tsf("emailLogin")}>
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={ui.input} autoComplete="off" />
+        </Field>
+        <Field label={tc("phone")}>
+          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+998 90 123 45 67" className={ui.input} inputMode="tel" />
+        </Field>
+        <Field label={tsf("colRole")} hint={HINTED.includes(role) ? tsf(`roleHint.${role}`) : undefined}>
+          <select value={role} onChange={(e) => setRole(e.target.value as UserRole)} className={ui.input}>
+            {roles.map((r) => <option key={r} value={r}>{tr(r)}</option>)}
           </select>
-        </label>
-        <TextField
-          label={isNew ? "Parol (kamida 8 belgi)" : "Yangi parol (o'zgartirmasangiz bo'sh qoldiring)"}
-          type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password"
-        />
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>Bekor</Button>
-          <Button
-            disabled={saving}
-            onClick={async () => {
-              setSaving(true); setError(null);
-              const r = await saveStaff({ id: data.id || undefined, name, email, phone, role, password });
-              setSaving(false);
-              if (r.ok) onClose(); else setError(r.error || "Xatolik");
-            }}
-          >
-            Saqlash
-          </Button>
-        </div>
+        </Field>
+        <Field label={isNew ? tsf("password") : tsf("newPassword")} hint={isNew ? tsf("passwordHint") : tsf("newPasswordHint")}>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" className={ui.input} />
+        </Field>
+        {error && <Notice ok={false}>{error}</Notice>}
       </div>
-    </Modal>
+    </Dialog>
   );
 }

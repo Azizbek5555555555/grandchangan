@@ -6,7 +6,7 @@ import Parallax from "@/components/motion/Parallax";
 import Reveal from "@/components/motion/Reveal";
 import RevealGroup from "@/components/motion/RevealGroup";
 import { Birds, Mountains } from "@/components/site/pages/InkDecor";
-import { cn, formatMoney } from "@/lib/utils";
+import { cn, currencyOf, formatMoney, hasPrice } from "@/lib/utils";
 import SafeImg from "./SafeImg";
 import { Sprig } from "./Decor";
 import ShowcaseArt, { PorcelainPlate } from "./ShowcaseArt";
@@ -167,8 +167,8 @@ export default async function Showcase({ locale, dishes }: { locale: string; dis
 
                     <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
                       <span className="inline-flex flex-wrap items-baseline gap-x-3">
-                        <span translate="no" className="font-display text-4xl text-fire-ink sm:text-5xl">{formatMoney(d.price)}</span>
-                        {d.oldPrice != null && <s className="text-lg text-muted">{formatMoney(d.oldPrice)}</s>}
+                        {hasPrice(d.price) && <span translate="no" className="font-display text-4xl text-fire-ink sm:text-5xl">{formatMoney(d.price, currencyOf(locale))}</span>}
+                        {hasPrice(d.price) && d.oldPrice != null && <s className="text-lg text-muted">{formatMoney(d.oldPrice, currencyOf(locale))}</s>}
                       </span>
                       <ButtonLink href="/reservation" variant="fire" className="group">
                         {t("preorder")}

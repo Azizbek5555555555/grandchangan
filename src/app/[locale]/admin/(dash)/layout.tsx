@@ -19,9 +19,11 @@ export default async function AdminDashLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-surface-2 text-content">
+    // Sahifa foni — iliq qog'oz (paper); kontent kartalari bg-card. Sahifalar o'z konteynerini
+    // (ui.page) o'zi beradi, shuning uchun main'da padding yo'q.
+    <div className="flex min-h-dvh bg-paper text-content">
       <AdminSidebar userName={user.name || user.email || "Admin"} role={user.role} />
-      <main className="flex-1 overflow-x-hidden">{children}</main>
+      <main id="admin-main" className="min-w-0 flex-1 overflow-x-hidden">{children}</main>
     </div>
   );
 }

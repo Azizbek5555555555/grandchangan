@@ -8,7 +8,7 @@ import { createSession, destroySession } from "./session";
 import { sendSms } from "../sms/eskiz";
 import { normalizePhone } from "../utils";
 import { STAFF_ROLES, ensureRoles } from "./guard";
-import { rateLimit, clearLimit, clientIp, MINUTE, HOUR, TOO_MANY } from "../security/rate-limit";
+import { rateLimit, clearLimit, clientIp, MINUTE, HOUR } from "../security/rate-limit";
 import type { UserRole } from "@prisma/client";
 
 type Result = { ok: boolean; error?: string };
@@ -69,20 +69,23 @@ export async function adminLoginAction(
   password: string
 ): Promise<Result> {
   const email = (emailRaw || "").trim().toLowerCase();
+  // Xato matnlari joriy tilda (so'rov manzilidagi locale bo'yicha)
+  const e = await getTranslations("Errors");
+  const ea = await getTranslations("AdminUi.errors");
   // Parolni terib topishga qarshi: email uchun 15 daqiqada 5, IP uchun 20 urinish
   if (!rateLimit(`login:${email}`, 5, 15 * MINUTE) || !rateLimit(`login-ip:${await clientIp()}`, 20, 15 * MINUTE)) {
-    return { ok: false, error: TOO_MANY };
+    return { ok: false, error: e("tooMany") };
   }
   const user = email ? await prisma.user.findUnique({ where: { email } }) : null;
   const match = await bcrypt.compare(password || "", user?.passwordHash || DUMMY_HASH);
   if (!user || !user.passwordHash || !match) {
-    return { ok: false, error: "Login yoki parol noto'g'ri" };
+    return { ok: false, error: ea("loginInvalid") };
   }
   clearLimit(`login:${email}`);
   if (!STAFF_ROLES.includes(user.role as UserRole)) {
-    return { ok: false, error: "Ruxsat yo'q" };
+    return { ok: false, error: ea("forbidden") };
   }
-  if (user.isBlocked) return { ok: false, error: "Hisob bloklangan" };
+  if (user.isBlocked) return { ok: false, error: ea("accountBlocked") };
 
   await createSession({ userId: user.id, role: user.role, phone: user.phone });
   return { ok: true };
@@ -91,11 +94,13 @@ export async function adminLoginAction(
 /** Xodim: o'z parolini o'zgartirish (joriy parol talab qilinadi) */
 export async function changeOwnPasswordAction(current: string, next: string): Promise<Result> {
   const me = await ensureRoles(STAFF_ROLES);
-  if (!rateLimit(`pwd:${me.id}`, 5, 15 * MINUTE)) return { ok: false, error: TOO_MANY };
+  const e = await getTranslations("Errors");
+  const ea = await getTranslations("AdminUi.errors");
+  if (!rateLimit(`pwd:${me.id}`, 5, 15 * MINUTE)) return { ok: false, error: e("tooMany") };
   if (!me.passwordHash || !(await bcrypt.compare(current || "", me.passwordHash))) {
-    return { ok: false, error: "Joriy parol noto'g'ri" };
+    return { ok: false, error: ea("currentPasswordWrong") };
   }
-  if ((next || "").length < 8) return { ok: false, error: "Yangi parol kamida 8 belgi bo'lsin" };
+  if ((next || "").length < 8) return { ok: false, error: ea("passwordTooShort") };
   await prisma.user.update({ where: { id: me.id }, data: { passwordHash: await bcrypt.hash(next, 10) } });
   clearLimit(`pwd:${me.id}`);
   return { ok: true };

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
+import { useLocale, useTranslations } from "next-intl";
+import { cn, currencyOf, formatMoney } from "@/lib/utils";
 import { Badge } from "@/components/ui/primitives";
 import {
   INVENTORY_CATEGORIES,
@@ -64,6 +64,12 @@ export function parsePriceInput(value: string): number | null | undefined {
   if (!/^\d+(\.\d{1,2})?$/.test(s)) return undefined;
   const n = Number(s);
   return n <= INVENTORY_LIMITS.maxPrice ? n : undefined;
+}
+
+/** Pul summasi joriy til valyutasi bilan: "12 000 so'm" / "12 000 сум" / "12 000 UZS" / "12 000 苏姆" */
+export function useMoney() {
+  const locale = useLocale();
+  return useCallback((v: number | string) => formatMoney(v, currencyOf(locale)), [locale]);
 }
 
 /** Sonni bo'shliq bilan guruhlab chiqarish: 12 500 (server va klientda bir xil) */

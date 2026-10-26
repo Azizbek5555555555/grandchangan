@@ -73,9 +73,15 @@ export default function InventoryManager({ data, initialTab }: { data: Inventory
   }
 
   return (
-    <div ref={topRef} className="scroll-mt-4 p-4 sm:p-6">
-      <h1 className="mb-1 text-2xl font-bold">{t("title")}</h1>
-      <p className="mb-5 max-w-3xl text-sm text-muted">{t("subtitle")}</p>
+    <div ref={topRef} className="scroll-mt-4 p-4 sm:p-6 lg:p-8">
+      <header className="mb-5">
+        <p className="mb-1 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-fire-ink">
+          <span lang="zh" aria-hidden="true" className="font-cn text-base normal-case tracking-normal">库存</span>
+          {t("eyebrow")}
+        </p>
+        <h1 className="font-display text-3xl text-content sm:text-4xl">{t("title")}</h1>
+        <p className="mt-1 max-w-3xl text-sm text-muted">{t("subtitle")}</p>
+      </header>
 
       {/* Telefonda 3×2 tugmalar, kattaroq ekranda — odatdagi yorliqlar qatori */}
       <div

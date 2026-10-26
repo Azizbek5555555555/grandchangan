@@ -3,10 +3,9 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/components/ui/primitives";
-import { formatMoney } from "@/lib/utils";
 import { formatRestaurant } from "@/lib/time";
 import { MOVEMENT_TYPES, type InventoryMovementRow, type InventoryMovementType } from "@/lib/inventory/types";
-import { Chip, Delta, fmtNum, useMovementNote } from "./shared";
+import { Chip, Delta, fmtNum, useMovementNote, useMoney } from "./shared";
 
 const TYPE_COLOR: Record<InventoryMovementType, string> = {
   PURCHASE: "green",
@@ -18,6 +17,7 @@ const TYPE_COLOR: Record<InventoryMovementType, string> = {
 /** Tarix: oxirgi 100 ta harakat (kirim, yo'qotish, sanoq farqi, qo'lda tuzatish) */
 export default function HistoryTab({ movements }: { movements: InventoryMovementRow[] }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const [type, setType] = useState<"all" | InventoryMovementType>("all");
   const shown = type === "all" ? movements : movements.filter((m) => m.type === type);
   const lossTotal = shown.reduce((s, m) => s + m.lossAmount, 0);
@@ -37,7 +37,7 @@ export default function HistoryTab({ movements }: { movements: InventoryMovement
       <MovementsTable movements={shown} />
       {lossTotal > 0 && (
         <p className="mt-3 text-right text-sm text-muted">
-          {t("historyLossTotal")} <span className="font-semibold text-danger">{formatMoney(lossTotal)}</span>
+          {t("historyLossTotal")} <span className="font-semibold text-danger">{money(lossTotal)}</span>
         </p>
       )}
     </div>
@@ -75,6 +75,7 @@ function useReasonText() {
 
 function MovementCards({ movements, compact }: { movements: InventoryMovementRow[]; compact?: boolean }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const noteOf = useMovementNote();
   const reasonOf = useReasonText();
   if (movements.length === 0)
@@ -108,7 +109,7 @@ function MovementCards({ movements, compact }: { movements: InventoryMovementRow
                 {m.lossAmount > 0 && (
                   <>
                     {" · "}
-                    <span className="text-danger">{formatMoney(m.lossAmount)}</span>
+                    <span className="text-danger">{money(m.lossAmount)}</span>
                   </>
                 )}
               </p>
@@ -122,6 +123,7 @@ function MovementCards({ movements, compact }: { movements: InventoryMovementRow
 
 function MovementsGrid({ movements, compact }: { movements: InventoryMovementRow[]; compact?: boolean }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const noteOf = useMovementNote();
   const reasonOf = useReasonText();
 
@@ -166,7 +168,7 @@ function MovementsGrid({ movements, compact }: { movements: InventoryMovementRow
                 {!compact && (
                   <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums">
                     {m.lossAmount > 0 ? (
-                      <span className="text-danger">{formatMoney(m.lossAmount)}</span>
+                      <span className="text-danger">{money(m.lossAmount)}</span>
                     ) : (
                       <span className="text-muted">—</span>
                     )}

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { CheckCircle2, Loader2, MapIcon, RefreshCw, TriangleAlert } from "lucide-react";
-import { Button } from "@/components/ui/primitives";
 import { cn } from "@/lib/utils";
 import { syncTablesFromMap } from "@/lib/floorplan/actions";
-import { formatRestaurant } from "@/lib/time";
+import { ui } from "@/components/admin/ui/styles";
+import { fmtDate } from "@/components/admin/ui/format";
 import type { FloorSyncStatus, FutureBooking } from "@/lib/floorplan/sync-apply";
 
 type Outcome = { ok: boolean; text: string };
@@ -19,6 +19,7 @@ type Outcome = { ok: boolean; text: string };
  */
 export default function FloorSyncCard({ status, canSync }: { status: FloorSyncStatus; canSync: boolean }) {
   const t = useTranslations("FloorSync");
+  const locale = useLocale();
   const [pending, startTransition] = useTransition();
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   // Sinxronlash kelgusi bronlar sababli to'xtatilsa — ro'yxat va "baribir" tugmasi
@@ -58,14 +59,16 @@ export default function FloorSyncCard({ status, canSync }: { status: FloorSyncSt
     <section
       aria-labelledby="floor-sync-title"
       className={cn(
-        "rounded-2xl border p-4 sm:p-5",
-        attention ? "border-brand-gold bg-brand-gold/10" : "border-line bg-card"
+        "rounded-2xl border p-4 shadow-sm shadow-night/5 sm:p-5",
+        attention ? "border-brand-gold/60 bg-brand-gold/10" : "border-line bg-card"
       )}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div className="min-w-0 flex-1">
-          <h2 id="floor-sync-title" className="flex items-center gap-2 font-semibold text-content">
-            <MapIcon size={18} className="shrink-0 text-brand-gold" aria-hidden />
+          <h2 id="floor-sync-title" className="flex items-center gap-2.5 font-display text-lg leading-snug text-content">
+            <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand-gold/15 text-brand-gold">
+              <MapIcon size={17} aria-hidden />
+            </span>
             {t("title")}
           </h2>
           <p className="mt-1 text-sm text-content">
@@ -89,45 +92,44 @@ export default function FloorSyncCard({ status, canSync }: { status: FloorSyncSt
           )}
           {!canSync && attention && <p className="mt-1 text-xs text-muted">{t("adminOnly")}</p>}
           {future.length > 0 && (
-            <div className="mt-3 rounded-xl border border-danger/40 bg-card p-3">
-              <p className="flex items-start gap-1.5 text-sm font-medium text-danger">
+            <div className="mt-3 rounded-xl border border-fire/30 bg-card p-3">
+              <p className="flex items-start gap-1.5 text-sm font-medium text-fire-ink">
                 <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />
                 <span>{t("futureTitle", { count: future.length })}</span>
               </p>
               <ul className="mt-2 space-y-1 text-xs text-content">
                 {future.map((b) => (
                   <li key={b.code} className="break-words">
-                    <span className="font-mono">{b.code}</span> · {formatRestaurant(b.startTime)} · {b.table} · {b.guestName}
+                    <span className="font-mono">{b.code}</span> · {fmtDate(b.startTime, locale)} · {b.table} · {b.guestName}
                   </li>
                 ))}
               </ul>
               <p className="mt-2 text-xs text-muted">{t("futureHint")}</p>
               {canSync && blocked && (
-                <Button type="button" variant="outline" onClick={() => run(true)} disabled={pending} className="mt-3">
+                <button type="button" onClick={() => run(true)} disabled={pending} className={cn(ui.btnSecondary, "mt-3")}>
                   {t("forceButton")}
-                </Button>
+                </button>
               )}
             </div>
           )}
         </div>
 
         {canSync && (
-          <Button
+          <button
             type="button"
             onClick={() => run(false)}
             disabled={pending}
             aria-busy={pending}
-            variant={attention ? "primary" : "outline"}
-            className="w-full shrink-0 sm:w-auto"
+            className={cn(attention ? ui.btnPrimary : ui.btnSecondary, "w-full shrink-0 sm:w-auto")}
           >
             {pending ? <Loader2 size={16} className="animate-spin" aria-hidden /> : <RefreshCw size={16} aria-hidden />}
             {pending ? t("pending") : t("button")}
-          </Button>
+          </button>
         )}
       </div>
 
       {outcome && (
-        <p role="status" className={cn("mt-3 text-sm", outcome.ok ? "text-content" : "text-danger")}>
+        <p role="status" className={cn("mt-3 rounded-xl px-3 py-2 text-sm", outcome.ok ? "bg-success-soft text-success" : "bg-fire/10 text-fire-ink")}>
           {outcome.text}
         </p>
       )}

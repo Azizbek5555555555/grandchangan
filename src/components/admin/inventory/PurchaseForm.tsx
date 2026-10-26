@@ -4,9 +4,8 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Modal, TextArea, TextField } from "@/components/ui/primitives";
 import { recordPurchase } from "@/lib/inventory/actions";
-import { formatMoney } from "@/lib/utils";
 import { INVENTORY_LIMITS as L, type InventoryItemRow } from "@/lib/inventory/types";
-import { ErrorText, Hint, ItemSelect, fmtNum, parseIntInput, parsePriceInput, useInvAction } from "./shared";
+import { ErrorText, Hint, ItemSelect, fmtNum, parseIntInput, parsePriceInput, useInvAction, useMoney } from "./shared";
 
 /**
  * Kirim (sotib olindi / qo'shildi): son oshadi, narx kiritilsa buyum narxi ham yangilanadi.
@@ -24,6 +23,7 @@ export default function PurchaseForm({
   onDone: (message: string) => void;
 }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const [itemId, setItemId] = useState(item?.id ?? "");
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
@@ -74,7 +74,7 @@ export default function PurchaseForm({
           />
           <Hint>
             {t("fPurchasePriceHint")}
-            {selected?.unitPrice != null && ` ${t("currentPrice", { price: formatMoney(selected.unitPrice) })}`}
+            {selected?.unitPrice != null && ` ${t("currentPrice", { price: money(selected.unitPrice) })}`}
           </Hint>
         </div>
         <TextArea
