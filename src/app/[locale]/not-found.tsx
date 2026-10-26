@@ -3,7 +3,8 @@ import { Link } from "@/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
 import ButtonLink, { btnClass } from "@/components/site/kit/ButtonLink";
 import FretBand from "@/components/site/kit/FretBand";
-import SiteHeader from "@/components/site/Header";
+import HeaderClient from "@/components/site/HeaderClient";
+import { DEFAULT_PHONE } from "@/lib/contact";
 import { PHOTOS } from "@/lib/photos";
 
 const BG = PHOTOS.extGate;
@@ -12,6 +13,10 @@ const BG = PHOTOS.extGate;
  * 404 — sayt uslubidagi sahifa: header, fonda restoranning kirish darvozasi (qorong'i qatlam ostida),
  * ulkan oltin "404" (o'rtadagi 0 — likopcha ichida 迷), "迷路" (yo'ldan adashish) bezagi,
  * bosh sahifaga va menyuga tugmalar. Noma'lum manzillar [...rest] orqali shu yerga keladi.
+ *
+ * MUHIM: bu sahifa bazaga murojaat qilmasin. Next uni [locale] ostidagi har bir statik sahifa bilan
+ * build paytida render qiladi, Railway build'ida esa baza yopiq — shuning uchun SiteHeader (prisma) emas,
+ * HeaderClient zaxira aloqa ma'lumotlari bilan.
  */
 export default async function NotFound() {
   const tc = await getTranslations("Common");
@@ -20,7 +25,7 @@ export default async function NotFound() {
 
   return (
     <>
-      <SiteHeader />
+      <HeaderClient contact={{ phone: DEFAULT_PHONE, address: "Ibn Xoldun 10B, Samarqand" }} />
       <main id="main" className="relative isolate flex min-h-svh flex-col overflow-hidden bg-night text-brand-cream">
         {/* Fon: kirish darvozasi rasmi, qorong'i qatlamlar */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
