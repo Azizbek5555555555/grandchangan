@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import type { UserRole } from "@prisma/client";
 import { prisma } from "../prisma";
+import { getTranslations } from "next-intl/server";
 import { ensureAdmin } from "../auth/guard";
 
 // Rol darajasi: faqat o'zidan past darajadagi foydalanuvchini bloklash mumkin
@@ -11,11 +12,12 @@ const RANK: Record<UserRole, number> = {
 
 export async function toggleBlock(id: string, isBlocked: boolean) {
   const me = await ensureAdmin();
-  if (id === me.id) return { ok: false, error: "O'zingizni bloklay olmaysiz" };
+  const ea = await getTranslations("AdminUi.errors");
+  if (id === me.id) return { ok: false, error: ea("cannotBlockSelf") };
   const target = await prisma.user.findUnique({ where: { id }, select: { role: true } });
-  if (!target) return { ok: false, error: "Foydalanuvchi topilmadi" };
+  if (!target) return { ok: false, error: ea("userNotFound") };
   if (RANK[target.role] >= RANK[me.role]) {
-    return { ok: false, error: "Bu foydalanuvchini bloklashga ruxsatingiz yo'q" };
+    return { ok: false, error: ea("noPermissionBlockUser") };
   }
   await prisma.user.update({ where: { id }, data: { isBlocked } });
   revalidatePath("/[locale]/admin/customers", "page");

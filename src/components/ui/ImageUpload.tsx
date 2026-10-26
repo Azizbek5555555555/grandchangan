@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { ImagePlus, Loader2, X } from "lucide-react";
 
+/** Rasm yuklash (/api/upload). Matnlar — AdminUi.upload (4 tilda) */
 export function ImageUpload({
   value,
   onChange,
@@ -10,6 +12,7 @@ export function ImageUpload({
   value?: string | null;
   onChange: (url: string | null) => void;
 }) {
+  const t = useTranslations("AdminUi.upload");
   const [loading, setLoading] = useState(false);
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -25,12 +28,12 @@ export function ImageUpload({
         const data = await res.json();
         onChange(data.url);
       } else {
-        let msg = "Yuklashda xatolik";
+        let msg = t("failed");
         try { const d = await res.json(); if (d?.error) msg = d.error; } catch {}
         alert(msg);
       }
     } catch {
-      alert("Internet aloqasi yo'q yoki server javob bermadi");
+      alert(t("offline"));
     } finally {
       setLoading(false);
     }
@@ -41,20 +44,22 @@ export function ImageUpload({
       {value ? (
         <div className="relative inline-block">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="" className="h-28 w-28 rounded-lg object-cover" />
+          <img src={value} alt="" className="h-28 w-28 rounded-xl border border-line object-cover" />
           <button
             type="button"
             onClick={() => onChange(null)}
-            className="absolute -right-2 -top-2 rounded-full bg-red-600 p-1 text-white"
+            aria-label={t("remove")}
+            title={t("remove")}
+            className="absolute -right-2 -top-2 inline-flex size-8 items-center justify-center rounded-full bg-fire text-brand-cream shadow-md transition hover:bg-fire-deep"
           >
-            <X size={14} />
+            <X size={14} aria-hidden />
           </button>
         </div>
       ) : (
-        <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-line text-muted hover:border-brand-red">
-          <Upload size={20} />
-          <span className="text-xs">{loading ? "..." : "Rasm"}</span>
-          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" className="hidden" onChange={onFile} />
+        <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-line bg-surface text-muted transition hover:border-brand-gold hover:text-content">
+          {loading ? <Loader2 size={20} className="animate-spin" aria-hidden /> : <ImagePlus size={20} aria-hidden />}
+          <span className="px-2 text-center text-xs">{loading ? t("uploading") : t("choose")}</span>
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" className="sr-only" onChange={onFile} />
         </label>
       )}
     </div>

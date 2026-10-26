@@ -1,10 +1,15 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Plus, Save, Trash2 } from "lucide-react";
-import { Button, Modal } from "@/components/ui/primitives";
-import { t } from "@/lib/utils";
+import { useTranslations } from "next-intl";
+import { Plus, Save, Trash2, Users, Move, Crown } from "lucide-react";
+import { t, cn } from "@/lib/utils";
 import { saveZone, saveTable, deleteTable, saveLayout } from "@/lib/reservation/actions";
+import PageHeader from "@/components/admin/ui/PageHeader";
+import Dialog from "@/components/admin/ui/Dialog";
+import { Field, Notice } from "@/components/admin/ui/Field";
+import EmptyState from "@/components/admin/ui/EmptyState";
+import { ui } from "@/components/admin/ui/styles";
 
 type Table = {
   id: string; number: string; seats: number; isVip: boolean;
@@ -12,7 +17,11 @@ type Table = {
 };
 type Zone = { id: string; name: unknown; mapWidth: number; mapHeight: number; tables: Table[] };
 
-export default function FloorPlanEditor({ zones, locale }: { zones: Zone[]; locale: string }) {
+const SHAPES = ["ROUND", "SQUARE", "RECT", "BOOTH"] as const;
+
+export default function FloorPlanEditor({ zones, locale, syncCard }: { zones: Zone[]; locale: string; syncCard?: React.ReactNode }) {
+  const ta = useTranslations("Admin");
+  const tt = useTranslations("AdminUi.tables");
   const [activeZone, setActiveZone] = useState<string>(zones[0]?.id ?? "");
   const [positions, setPositions] = useState<Record<string, Table>>(() => {
     const m: Record<string, Table> = {};
@@ -22,6 +31,7 @@ export default function FloorPlanEditor({ zones, locale }: { zones: Zone[]; loca
   const [tableModal, setTableModal] = useState<Table | null>(null);
   const [tableNew, setTableNew] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
   const dragRef = useRef<{ id: string; dx: number; dy: number } | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -50,74 +60,122 @@ export default function FloorPlanEditor({ zones, locale }: { zones: Zone[]; loca
     const list = zoneTables.map((tb) => ({
       id: tb.id, posX: tb.posX, posY: tb.posY, width: tb.width, height: tb.height,
     }));
-    await saveLayout(list);
-    setDirty(false);
+    setSaving(true);
+    try {
+      await saveLayout(list);
+      setDirty(false);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Zallar va stollar</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={async () => {
-            const name = prompt("Yangi zal nomi (UZ):");
-            if (name) { const r = await saveZone({ name: { uz: name } }); if (r.ok) location.reload(); }
-          }}>
-            <Plus size={16} /> Zal
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => { setTableNew(true); setTableModal(emptyTable()); }}
-            disabled={!activeZone}
-          >
-            <Plus size={16} /> Stol
-          </Button>
-          <Button onClick={persist} disabled={!dirty}>
-            <Save size={16} /> Joylashuvni saqlash
-          </Button>
-        </div>
-      </div>
-
-      <div className="mb-4 flex gap-2">
-        {zones.map((z) => (
-          <button
-            key={z.id}
-            onClick={() => setActiveZone(z.id)}
-            className={`rounded-full px-4 py-1.5 text-sm ${activeZone === z.id ? "bg-brand-red text-white" : "bg-surface-2"}`}
-          >
-            {t(z.name, locale)}
-          </button>
-        ))}
-      </div>
-
-      {zone && (
-        <div
-          ref={canvasRef}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          className="relative rounded-xl border border-line bg-[linear-gradient(90deg,rgba(0,0,0,0.04)_1px,transparent_1px),linear-gradient(rgba(0,0,0,0.04)_1px,transparent_1px)] bg-[size:40px_40px]"
-          style={{ width: "100%", maxWidth: zone.mapWidth, height: zone.mapHeight }}
-        >
-          {zoneTables.map((tb) => (
-            <div
-              key={tb.id}
-              onPointerDown={(e) => onPointerDown(e, tb)}
-              onDoubleClick={() => { setTableNew(false); setTableModal(tb); }}
-              className={`absolute flex cursor-move select-none flex-col items-center justify-center text-xs font-medium text-white shadow ${
-                tb.isVip ? "bg-brand-gold text-content" : "bg-brand-red"
-              } ${tb.shape === "SQUARE" || tb.shape === "RECT" ? "rounded-lg" : "rounded-full"}`}
-              style={{ left: tb.posX, top: tb.posY, width: tb.width, height: tb.height }}
+    <div className={ui.page}>
+      <PageHeader
+        section="tables"
+        title={ta("tables")}
+        description={tt("subtitle")}
+        actions={
+          <>
+            <button
+              type="button"
+              className={ui.btnSecondary}
+              onClick={async () => {
+                const name = prompt(tt("zonePrompt"));
+                if (name) { const r = await saveZone({ name: { uz: name } }); if (r.ok) location.reload(); }
+              }}
             >
-              <span>{tb.number}</span>
-              <span className="opacity-80">{tb.seats}👤</span>
-            </div>
-          ))}
-        </div>
-      )}
+              <Plus size={16} aria-hidden /> {tt("addZone")}
+            </button>
+            <button
+              type="button"
+              className={ui.btnSecondary}
+              onClick={() => { setTableNew(true); setTableModal(emptyTable()); }}
+              disabled={!activeZone}
+            >
+              <Plus size={16} aria-hidden /> {tt("addTable")}
+            </button>
+            <button type="button" className={ui.btnPrimary} onClick={persist} disabled={!dirty || saving}>
+              <Save size={16} aria-hidden /> {tt("saveLayout")}
+            </button>
+          </>
+        }
+      />
 
-      <p className="mt-3 text-sm text-muted">
-        Stolni suring — joyini o'zgartiring. Ikki marta bosing — tahrirlash.
-      </p>
+      {syncCard && <div className="mb-6">{syncCard}</div>}
+
+      {zones.length === 0 ? (
+        <div className={ui.card}><EmptyState icon={Move} title={tt("noZones")} /></div>
+      ) : (
+        <>
+          <div role="tablist" aria-label={tt("zones")} className="-mx-4 mb-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+            <div className="flex w-max gap-2 sm:w-auto sm:flex-wrap">
+              {zones.map((z) => {
+                const active = activeZone === z.id;
+                return (
+                  <button
+                    key={z.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setActiveZone(z.id)}
+                    className={cn(
+                      "inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-sm transition sm:min-h-9",
+                      active ? "border-fire bg-fire text-brand-cream" : "border-line bg-card text-muted hover:border-brand-gold/50 hover:text-content"
+                    )}
+                  >
+                    {t(z.name, locale) || "—"}
+                    <span className={cn("rounded-full px-1.5 text-[11px] font-semibold tabular-nums", active ? "bg-brand-cream/20" : "bg-surface-2")}>{z.tables.length}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {zone && (
+            // Xarita faqat o'z ichida suriladi (telefonda sahifa kengaymaydi)
+            <div className="overflow-auto rounded-2xl border border-line bg-card shadow-sm shadow-night/5">
+              <div
+                ref={canvasRef}
+                onPointerMove={onPointerMove}
+                onPointerUp={onPointerUp}
+                className="relative bg-surface bg-[linear-gradient(90deg,var(--line)_1px,transparent_1px),linear-gradient(var(--line)_1px,transparent_1px)] bg-[size:40px_40px]"
+                style={{ width: zone.mapWidth, height: zone.mapHeight, minWidth: "100%" }}
+              >
+                {zoneTables.map((tb) => (
+                  <div
+                    key={tb.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={tt("tableAria", { n: tb.number, seats: tb.seats })}
+                    onPointerDown={(e) => onPointerDown(e, tb)}
+                    onDoubleClick={() => { setTableNew(false); setTableModal(tb); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") { setTableNew(false); setTableModal(tb); } }}
+                    className={cn(
+                      "absolute flex cursor-move touch-none select-none flex-col items-center justify-center gap-0.5 border text-xs font-semibold shadow-md shadow-night/20 transition-shadow hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold",
+                      tb.isVip ? "border-brand-gold-light bg-brand-gold text-brand-ink" : "border-fire-deep bg-fire text-brand-cream",
+                      tb.shape === "SQUARE" || tb.shape === "RECT" || tb.shape === "BOOTH" ? "rounded-xl" : "rounded-full"
+                    )}
+                    style={{ left: tb.posX, top: tb.posY, width: tb.width, height: tb.height }}
+                  >
+                    {tb.isVip && <Crown size={11} aria-hidden className="opacity-80" />}
+                    <span className="text-sm leading-none">{tb.number}</span>
+                    <span className="inline-flex items-center gap-0.5 text-[11px] font-medium opacity-80">
+                      <Users size={10} aria-hidden /> {tb.seats}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <p className="mt-3 flex items-center gap-2 text-sm text-muted">
+            <Move size={15} aria-hidden className="shrink-0" />
+            {tt("hint")}
+            {dirty && <span className="ml-auto shrink-0 rounded-full bg-brand-gold/15 px-2.5 py-0.5 text-xs font-medium text-content">{tt("unsaved")}</span>}
+          </p>
+        </>
+      )}
 
       {tableModal && (
         <TableModal
@@ -136,50 +194,74 @@ function emptyTable(): Table {
 }
 
 function TableModal({ isNew, data, zoneId, onClose }: { isNew: boolean; data: Table; zoneId: string; onClose: () => void }) {
+  const tt = useTranslations("AdminUi.tables");
+  const tc = useTranslations("AdminUi.common");
   const [number, setNumber] = useState(data.number);
   const [seats, setSeats] = useState(String(data.seats));
   const [isVip, setIsVip] = useState(data.isVip);
   const [shape, setShape] = useState(data.shape);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    setSaving(true);
+    setError(null);
+    try {
+      const r = await saveTable({
+        id: data.id || undefined, zoneId, number, seats: Number(seats) || 1,
+        shape: shape as never, isVip, posX: data.posX, posY: data.posY, width: data.width, height: data.height,
+      });
+      if (r && "ok" in r && !r.ok) { setError(("error" in r && r.error) || tc("error")); return; }
+      location.reload();
+    } catch {
+      setError(tc("error"));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
-    <Modal open onClose={onClose} title={isNew ? "Yangi stol" : `Stol ${data.number}`}>
-      <div className="space-y-4">
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium">Raqam / nomi</span>
-          <input value={number} onChange={(e) => setNumber(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium">O'rin soni</span>
-          <input type="number" value={seats} onChange={(e) => setSeats(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm" />
-        </label>
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium">Shakl</span>
-          <select value={shape} onChange={(e) => setShape(e.target.value)} className="w-full rounded-lg border border-line px-3 py-2 text-sm">
-            <option value="ROUND">Dumaloq</option>
-            <option value="SQUARE">Kvadrat</option>
-            <option value="RECT">To'rtburchak</option>
-            <option value="BOOTH">Kabinka</option>
-          </select>
-        </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={isVip} onChange={(e) => setIsVip(e.target.checked)} /> VIP stol
-        </label>
-        <div className="flex justify-between">
+    <Dialog
+      onClose={onClose}
+      title={isNew ? tt("newTable") : tt("tableTitle", { n: data.number })}
+      footer={
+        <>
           {!isNew && (
-            <Button variant="danger" onClick={async () => { if (confirm("O'chirilsinmi?")) { await deleteTable(data.id); location.reload(); } }}>
-              <Trash2 size={14} /> O'chirish
-            </Button>
+            <button
+              type="button"
+              className={cn(ui.btnDanger, "mr-auto")}
+              onClick={async () => { if (confirm(tc("deleteConfirm"))) { await deleteTable(data.id); location.reload(); } }}
+            >
+              <Trash2 size={15} aria-hidden /> {tc("delete")}
+            </button>
           )}
-          <Button className="ml-auto" onClick={async () => {
-            await saveTable({
-              id: data.id || undefined, zoneId, number, seats: Number(seats) || 1,
-              shape: shape as never, isVip, posX: data.posX, posY: data.posY, width: data.width, height: data.height,
-            });
-            location.reload();
-          }}>
-            Saqlash
-          </Button>
+          <button type="button" onClick={onClose} className={ui.btnSecondary}>{tc("cancel")}</button>
+          <button type="button" className={ui.btnPrimary} disabled={saving || !number.trim()} onClick={save}>
+            {saving ? tc("saving") : tc("save")}
+          </button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={tt("number")}>
+            <input value={number} onChange={(e) => setNumber(e.target.value)} className={ui.input} />
+          </Field>
+          <Field label={tt("seats")}>
+            <input type="number" min={1} value={seats} onChange={(e) => setSeats(e.target.value)} className={ui.input} />
+          </Field>
         </div>
+        <Field label={tt("shape")}>
+          <select value={shape} onChange={(e) => setShape(e.target.value)} className={ui.input}>
+            {SHAPES.map((s) => <option key={s} value={s}>{tt(`shapes.${s}`)}</option>)}
+          </select>
+        </Field>
+        <label className="flex min-h-11 items-center gap-3 rounded-xl border border-line px-3 text-sm">
+          <input type="checkbox" checked={isVip} onChange={(e) => setIsVip(e.target.checked)} className={ui.checkbox} />
+          <Crown size={15} aria-hidden className="text-brand-gold" /> {tt("vip")}
+        </label>
+        {error && <Notice ok={false}>{error}</Notice>}
       </div>
-    </Modal>
+    </Dialog>
   );
 }

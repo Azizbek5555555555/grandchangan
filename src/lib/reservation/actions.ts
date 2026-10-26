@@ -66,7 +66,7 @@ export async function saveTable(input: {
     });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      return { ok: false, error: "Bu zalda shu raqamli stol allaqachon bor" };
+      return { ok: false, error: (await getTranslations("AdminUi.errors"))("tableNumberTaken") };
     }
     throw e;
   }
@@ -237,10 +237,11 @@ export async function deleteReservation(id: string): Promise<{ ok: boolean; erro
       preOrder: { select: { id: true, payment: { select: { status: true } } } },
     },
   });
-  if (!r) return { ok: false, error: "Bron topilmadi" };
+  const ea = await getTranslations("AdminUi.errors");
+  if (!r) return { ok: false, error: ea("reservationNotFound") };
   // To'lov tarixi buxgalteriya uchun kerak — to'langan bron o'chirilmaydi
   if (r.payment?.status === "PAID" || r.preOrder?.payment?.status === "PAID") {
-    return { ok: false, error: "To'langan bronni o'chirib bo'lmaydi — holatini CANCELLED qiling" };
+    return { ok: false, error: ea("paidCannotDelete") };
   }
   const orderId = r.preOrder?.id;
   await prisma.$transaction([

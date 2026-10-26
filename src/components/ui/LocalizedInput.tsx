@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 const LOCALES = [
@@ -12,6 +13,7 @@ const LOCALES = [
 
 export type LocalizedValue = Partial<Record<"uz" | "ru" | "en" | "zh", string>>;
 
+/** 4 tilli matn maydoni: til tugmalari + bitta input/textarea. Bo'sh tillar nuqta bilan belgilanadi */
 export function LocalizedInput({
   label,
   value,
@@ -23,39 +25,56 @@ export function LocalizedInput({
   onChange: (v: LocalizedValue) => void;
   textarea?: boolean;
 }) {
+  const t = useTranslations("AdminUi.localized");
   const [active, setActive] = useState<string>("uz");
+  const id = useId();
+  const fieldCls =
+    "w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-sm text-content outline-none transition focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20";
   return (
     <div>
-      <div className="mb-1 flex items-center justify-between">
-        <span className="text-sm font-medium text-content">{label}</span>
-        <div className="flex gap-1">
-          {LOCALES.map((l) => (
-            <button
-              key={l.code}
-              type="button"
-              onClick={() => setActive(l.code)}
-              className={cn(
-                "rounded px-2 py-0.5 text-xs",
-                active === l.code ? "bg-brand-red text-white" : "bg-surface-2 text-muted"
-              )}
-            >
-              {l.label}
-            </button>
-          ))}
+      <div className="mb-1.5 flex items-center justify-between gap-3">
+        <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wider text-muted">
+          {label}
+        </label>
+        <div role="group" aria-label={t("switch")} className="flex gap-1 rounded-lg bg-surface-2 p-0.5">
+          {LOCALES.map((l) => {
+            const filled = !!value[l.code]?.trim();
+            const name = t(`lang_${l.code}`);
+            return (
+              <button
+                key={l.code}
+                type="button"
+                onClick={() => setActive(l.code)}
+                aria-pressed={active === l.code}
+                title={filled ? name : `${name} — ${t("empty")}`}
+                className={cn(
+                  "relative min-h-8 min-w-9 rounded-md px-2 text-xs font-semibold transition",
+                  active === l.code ? "bg-fire text-brand-cream shadow-sm" : "text-muted hover:text-content"
+                )}
+              >
+                {l.label}
+                {!filled && <span aria-hidden="true" className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-brand-gold" />}
+              </button>
+            );
+          })}
         </div>
       </div>
       {textarea ? (
         <textarea
+          id={id}
+          lang={active}
           value={value[active as keyof LocalizedValue] || ""}
           onChange={(e) => onChange({ ...value, [active]: e.target.value })}
           rows={3}
-          className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand-red"
+          className={fieldCls}
         />
       ) : (
         <input
+          id={id}
+          lang={active}
           value={value[active as keyof LocalizedValue] || ""}
           onChange={(e) => onChange({ ...value, [active]: e.target.value })}
-          className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand-red"
+          className={fieldCls}
         />
       )}
     </div>

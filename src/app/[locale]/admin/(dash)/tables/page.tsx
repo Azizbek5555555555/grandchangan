@@ -32,12 +32,12 @@ export default async function AdminTablesPage({ params }: { params: Promise<{ lo
   const canSync = me.role === "ADMIN" || me.role === "SUPERADMIN";
 
   return (
-    <>
-      <div className="px-6 pt-6">
-        <FloorSyncCard status={status} canSync={canSync} />
-      </div>
-      <FloorPlanEditor key={editorKey} zones={plain} locale={locale} />
-    </>
+    <FloorPlanEditor
+      key={editorKey}
+      zones={plain}
+      locale={locale}
+      syncCard={<FloorSyncCard status={status} canSync={canSync} />}
+    />
   );
 }
 

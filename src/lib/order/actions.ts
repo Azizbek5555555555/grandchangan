@@ -18,7 +18,7 @@ export async function createOrder(input: {
   items: { menuItemId: string; quantity: number; note?: string }[];
 }) {
   await ensureRoles([...MANAGEMENT, "WAITER"]);
-  if (!input.items?.length) return { ok: false, error: "Taomlar tanlanmagan" };
+  if (!input.items?.length) return { ok: false, error: (await getTranslations("Errors"))("noItems") };
 
   const ids = input.items.map((i) => i.menuItemId);
   const menuItems = await prisma.menuItem.findMany({ where: { id: { in: ids } } });
