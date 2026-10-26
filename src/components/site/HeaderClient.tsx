@@ -120,7 +120,7 @@ export default function HeaderClient({ contact, solid = false }: { contact: Head
       <a
         href="#main"
         onClick={skipToMain}
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:inline-flex focus:h-11 focus:items-center focus:rounded-[3px] focus:bg-brand-cream focus:px-5 focus:text-sm focus:font-semibold focus:text-brand-ink focus:outline-none focus:ring-2 focus:ring-fire"
+        className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-[80] focus-visible:inline-flex focus-visible:h-11 focus-visible:items-center focus-visible:rounded-[3px] focus-visible:bg-brand-cream focus-visible:px-5 focus-visible:text-sm focus-visible:font-semibold focus-visible:text-brand-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fire"
       >
         {T("skip")}
       </a>
