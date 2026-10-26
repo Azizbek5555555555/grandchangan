@@ -12,7 +12,7 @@ import {
   startInventoryCount,
 } from "@/lib/inventory/actions";
 import { countLineDiff } from "@/lib/inventory/calc";
-import { cn, formatMoney } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { formatRestaurant } from "@/lib/time";
 import {
   INVENTORY_LIMITS as L,
@@ -20,7 +20,7 @@ import {
   type InventoryDraftCount,
   type InventoryOverview,
 } from "@/lib/inventory/types";
-import { Delta, ErrorText, fmtNum, parseIntInput, useInvAction } from "./shared";
+import { Delta, ErrorText, fmtNum, parseIntInput, useInvAction, useMoney } from "./shared";
 
 /**
  * Tugatilgan sanoq natijasi (server javobidan) — sahifada kartochka bo'lib qoladi.
@@ -115,6 +115,7 @@ export default function CountTab({
 /** Tugatish natijasi: nechta buyum yangilandi, kam/ortiqcha chiqqani */
 function ResultCard({ result: r, onClose }: { result: CountResult; onClose: () => void }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const surplus = Math.max(0, r.surplusPieces - r.firstPieces);
   const none = r.shortagePieces === 0 && surplus === 0 && r.firstItems === 0;
   return (
@@ -136,7 +137,7 @@ function ResultCard({ result: r, onClose }: { result: CountResult; onClose: () =
           {r.shortagePieces > 0 && (
             <li className="font-semibold text-danger">
               {r.shortageSum > 0
-                ? t("cnt.resultShort", { pieces: fmtNum(r.shortagePieces), sum: formatMoney(r.shortageSum) })
+                ? t("cnt.resultShort", { pieces: fmtNum(r.shortagePieces), sum: money(r.shortageSum) })
                 : t("cnt.resultShortPcs", { pieces: fmtNum(r.shortagePieces) })}
             </li>
           )}
@@ -169,6 +170,7 @@ function DraftCount({
   onCompleted: (r: CountResult) => void;
 }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const { pending, error, setError, run } = useInvAction();
   const router = useRouter();
   // Faqat foydalanuvchi o'zgartirgan qiymatlar; qolganlari serverdagi "counted"dan olinadi
@@ -307,7 +309,7 @@ function DraftCount({
           </span>
           <span className={cn(shortage > 0 ? "font-semibold text-danger" : "text-muted")}>
             {shortageSum > 0
-              ? t("cnt.sumShort", { pieces: fmtNum(shortage), sum: formatMoney(shortageSum) })
+              ? t("cnt.sumShort", { pieces: fmtNum(shortage), sum: money(shortageSum) })
               : t("cnt.sumShortPcs", { pieces: fmtNum(shortage) })}
           </span>
           <span className={cn(surplus > 0 ? "text-content" : "text-muted")}>{t("cnt.sumMore", { pieces: fmtNum(surplus) })}</span>
@@ -406,6 +408,7 @@ function DraftCount({
 /** Farq so'z bilan: "to'g'ri" / "3 ta kam" / "2 ta ortiq" / birinchi sanoqda — "boshlang'ich son" */
 function DiffText({ diff, sum, first }: { diff: number | null; sum: number; first: boolean }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   if (diff === null) return <span className="text-xs text-muted">{t("cnt.notCounted")}</span>;
   if (diff === 0)
     return (
@@ -417,7 +420,7 @@ function DiffText({ diff, sum, first }: { diff: number | null; sum: number; firs
     return (
       <span className="font-semibold text-danger">
         {t("cnt.diffShort", { n: fmtNum(-diff) })}
-        {sum > 0 && <span className="block text-xs font-normal">{formatMoney(sum)}</span>}
+        {sum > 0 && <span className="block text-xs font-normal">{money(sum)}</span>}
       </span>
     );
   return (
@@ -433,6 +436,7 @@ const PAST_GRID =
 /** Oldingi (tugatilgan) sanoqlar: kam/ortiqcha chiqqani va farqi bor buyumlar */
 function PastCounts({ counts }: { counts: InventoryCountSummary[] }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const [open, setOpen] = useState<string | null>(null);
 
   return (
@@ -475,7 +479,7 @@ function PastCounts({ counts }: { counts: InventoryCountSummary[] }) {
                   {c.shortagePieces > 0 ? (
                     <>
                       {t("cnt.pieces", { n: fmtNum(c.shortagePieces) })}
-                      <span className="block text-xs font-normal">{formatMoney(c.shortageSum)}</span>
+                      <span className="block text-xs font-normal">{money(c.shortageSum)}</span>
                     </>
                   ) : (
                     "0"
@@ -505,7 +509,7 @@ function PastCounts({ counts }: { counts: InventoryCountSummary[] }) {
                               {t("colExpected")} {fmtNum(l.expected)} → {t("colCounted")} {fmtNum(l.counted)}
                             </span>
                             <Delta value={l.diff} />
-                            {l.amount > 0 && <span className="text-danger">{formatMoney(l.amount)}</span>}
+                            {l.amount > 0 && <span className="text-danger">{money(l.amount)}</span>}
                           </span>
                         </li>
                       ))}

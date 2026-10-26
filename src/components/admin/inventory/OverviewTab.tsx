@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/primitives";
 import { addStarterInventory, startInventoryCount } from "@/lib/inventory/actions";
-import { cn, formatMoney } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { formatRestaurant } from "@/lib/time";
 import {
   INVENTORY_CATEGORIES,
@@ -25,7 +25,7 @@ import type { InvTab } from "./InventoryManager";
 import ItemForm from "./ItemForm";
 import PurchaseForm from "./PurchaseForm";
 import LossModal from "./LossForm";
-import { Chip, ErrorText, StatusBadge, SummaryCard, fmtNum, useInvAction, useNormText, viewStatus } from "./shared";
+import { Chip, ErrorText, StatusBadge, SummaryCard, fmtNum, useInvAction, useNormText, viewStatus, useMoney } from "./shared";
 
 type Row = { item: InventoryItemRow; status: ItemViewStatus };
 type Filter = "all" | "problems" | "unset";
@@ -46,6 +46,7 @@ export default function OverviewTab({
   goTo: (tab: InvTab) => void;
 }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const [filter, setFilter] = useState<Filter>("all");
   const [modal, setModal] = useState<ModalState>(null);
 
@@ -112,7 +113,7 @@ export default function OverviewTab({
                 data.counts[0]
                   ? t("countShortageTotal", {
                       pieces: fmtNum(data.counts[0].shortagePieces),
-                      sum: formatMoney(data.counts[0].shortageSum),
+                      sum: money(data.counts[0].shortageSum),
                     })
                   : t("cardLastCountNever")
               }
@@ -120,7 +121,7 @@ export default function OverviewTab({
             />
             <SummaryCard
               label={t("cardMonthLoss")}
-              value={formatMoney(data.monthLoss)}
+              value={money(data.monthLoss)}
               hint={t("cardMonthLossHint", { pieces: fmtNum(data.monthLossPieces) })}
               icon={TrendingDown}
             />

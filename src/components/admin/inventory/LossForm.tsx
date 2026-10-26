@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button, Modal, TextArea, TextField } from "@/components/ui/primitives";
 import { reportLoss } from "@/lib/inventory/actions";
-import { formatMoney } from "@/lib/utils";
 import {
   INVENTORY_LIMITS as L,
   LOSS_REASONS,
@@ -12,7 +11,7 @@ import {
   type InventoryLossReason,
   type InventoryStaffOption,
 } from "@/lib/inventory/types";
-import { ErrorText, Hint, ItemSelect, SelectField, fmtNum, parseIntInput, useInvAction } from "./shared";
+import { ErrorText, Hint, ItemSelect, SelectField, fmtNum, parseIntInput, useInvAction, useMoney } from "./shared";
 
 type FixedItem = { id: string; name: string; quantity: number; unitPrice: number | null };
 /** Tanlanadigan buyum: narx bo'lsa taxminiy zarar ham ko'rsatiladi (boshqaruv oynasida) */
@@ -38,6 +37,7 @@ export function LossFormBody({
   onCancel?: () => void;
 }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const [itemId, setItemId] = useState(fixedItem?.id ?? "");
   const [quantity, setQuantity] = useState("1");
   const [reason, setReason] = useState<InventoryLossReason>("BROKEN");
@@ -128,7 +128,7 @@ export function LossFormBody({
         onChange={(e) => setNote(e.target.value)}
       />
 
-      {estimate > 0 && <p className="text-sm text-muted">{t("lossEstimate", { sum: formatMoney(estimate) })}</p>}
+      {estimate > 0 && <p className="text-sm text-muted">{t("lossEstimate", { sum: money(estimate) })}</p>}
       <ErrorText>{error}</ErrorText>
       <div className="flex justify-end gap-2">
         {onCancel && (

@@ -64,6 +64,22 @@ export function tableSet(items: NormItem[], seats: number): TableSetLine[] {
   return out;
 }
 
+/**
+ * Berilgan stollar (har birining o'rinlar soni) uchun normaga ko'ra kerakli buyumlar — buyum
+ * obyekti bilan birga (holatini ko'rsatish uchun). Bitta stol uchun: normLines(items, [seats]).
+ * Ko'pi tepada, teng bo'lsa — nomi bo'yicha.
+ */
+export function normLines<T extends Pick<NormItem, "name" | "perSeat" | "perTable">>(
+  items: T[],
+  seatsList: number[]
+): { item: T; qty: number }[] {
+  return items
+    .filter((i) => i.perSeat > 0 || i.perTable > 0)
+    .map((item) => ({ item, qty: seatsList.reduce((s, seats) => s + tableQty(item, seats), 0) }))
+    .filter((l) => l.qty > 0)
+    .sort((a, b) => b.qty - a.qty || a.item.name.localeCompare(b.item.name));
+}
+
 /** Stollar guruhi bo'yicha jami to'plam (zona yoki butun restoran) */
 export function setTotals(items: NormItem[], tables: SeatTable[]): TableSetLine[] {
   const out: TableSetLine[] = [];

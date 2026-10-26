@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Boxes, Package, Pencil, Plus, Minus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/primitives";
 import { addStarterInventory, deleteInventoryItem } from "@/lib/inventory/actions";
-import { cn, formatMoney } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   INVENTORY_CATEGORIES,
   type InventoryCategory,
@@ -15,7 +15,7 @@ import {
 import ItemForm from "./ItemForm";
 import PurchaseForm from "./PurchaseForm";
 import LossModal from "./LossForm";
-import { Chip, ErrorText, StatusBadge, fmtNum, useInvAction, useNormText, viewStatus } from "./shared";
+import { Chip, ErrorText, StatusBadge, fmtNum, useInvAction, useNormText, viewStatus, useMoney } from "./shared";
 
 type Filter = "all" | "problems" | "unset" | InventoryCategory;
 type ModalState =
@@ -202,6 +202,7 @@ function StockRow({
   onDelete: () => void;
 }) {
   const t = useTranslations("Inventory");
+  const money = useMoney();
   const normText = useNormText();
   const hasNorm = i.perSeat > 0 || i.perTable > 0;
 
@@ -212,7 +213,7 @@ function StockRow({
         <p className="text-xs text-muted">
           {normText(i)}
           {i.minReserve > 0 && ` · ${t("ov.minHint", { n: fmtNum(i.minReserve) })}`}
-          {i.unitPrice != null && ` · ${formatMoney(i.unitPrice)}`}
+          {i.unitPrice != null && ` · ${money(i.unitPrice)}`}
         </p>
       </div>
       {/* Telefonda o'ng tepada, kompyuterda "Holat" ustunida */}
