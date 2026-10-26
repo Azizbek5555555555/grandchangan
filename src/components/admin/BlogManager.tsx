@@ -1,9 +1,9 @@
 "use client";
 import { useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Plus, Pencil, Trash2, Globe, EyeOff, Newspaper, ImageOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Globe, EyeOff, Newspaper, ImageOff, Sparkles, X } from "lucide-react";
 import { LocalizedInput, type LocalizedValue } from "@/components/ui/LocalizedInput";
-import { savePost, togglePublish, deletePost } from "@/lib/blog/actions";
+import { savePost, togglePublish, deletePost, importRestaurantPosts } from "@/lib/blog/actions";
 import { t as tl, cn } from "@/lib/utils";
 import PageHeader from "@/components/admin/ui/PageHeader";
 import Dialog from "@/components/admin/ui/Dialog";
@@ -12,9 +12,9 @@ import Pill, { STATUS_TONE } from "@/components/admin/ui/Pill";
 import EmptyState from "@/components/admin/ui/EmptyState";
 import { ui } from "@/components/admin/ui/styles";
 
-type Post = { id: string; title: LocalizedValue; excerpt?: LocalizedValue | null; content: LocalizedValue; coverImage?: string | null; status: string };
+type Post = { id: string; slug?: string; title: LocalizedValue; excerpt?: LocalizedValue | null; content: LocalizedValue; coverImage?: string | null; status: string };
 
-export default function BlogManager({ posts }: { posts: Post[] }) {
+export default function BlogManager({ posts, sampleSlugs }: { posts: Post[]; sampleSlugs: string[] }) {
   const ta = useTranslations("Admin");
   const tb = useTranslations("AdminUi.blog");
   const ts = useTranslations("AdminUi.postStatus");
@@ -24,6 +24,19 @@ export default function BlogManager({ posts }: { posts: Post[] }) {
   const [isNew, setIsNew] = useState(false);
   const [pending, startTransition] = useTransition();
 
+  const [done, setDone] = useState<string | null>(null);
+
+  // Test postlar o'rniga restoran haqidagi 3 ta post (uchalasi bor bo'lsa tugma ko'rinmaydi)
+  const others = posts.filter((p) => !sampleSlugs.includes(p.slug ?? "")).length;
+  const canImport = posts.filter((p) => sampleSlugs.includes(p.slug ?? "")).length < sampleSlugs.length;
+  const importPosts = () => {
+    if (!window.confirm(tb("sampleConfirm", { n: others }))) return;
+    startTransition(async () => {
+      const r = await importRestaurantPosts();
+      setDone(tb("sampleDone", { removed: r.removed, created: r.created }));
+    });
+  };
+
   const openNew = () => { setIsNew(true); setModal({ id: "", title: {}, excerpt: {}, content: {}, coverImage: null, status: "DRAFT" }); };
 
   return (
@@ -32,8 +45,23 @@ export default function BlogManager({ posts }: { posts: Post[] }) {
         section="blog"
         title={ta("blog")}
         description={tb("subtitle")}
-        actions={<button type="button" onClick={openNew} className={ui.btnPrimary}><Plus size={16} aria-hidden /> {tb("new")}</button>}
+        actions={
+          <>
+            {canImport && (
+              <button type="button" onClick={importPosts} disabled={pending} className={ui.btnSecondary}>
+                <Sparkles size={16} aria-hidden /> {tb("sampleImport")}
+              </button>
+            )}
+            <button type="button" onClick={openNew} className={ui.btnPrimary}><Plus size={16} aria-hidden /> {tb("new")}</button>
+          </>
+        }
       />
+      {done && (
+        <p role="status" className="flex items-start justify-between gap-3 rounded-xl border border-line bg-card px-4 py-3 text-sm text-content shadow-sm">
+          <span className="flex items-start gap-2"><Sparkles size={16} aria-hidden className="mt-0.5 shrink-0 text-brand-gold" />{done}</span>
+          <button type="button" onClick={() => setDone(null)} aria-label={tc("close")} className="-m-2 p-2 text-muted hover:text-content"><X size={16} aria-hidden /></button>
+        </p>
+      )}
       {posts.length === 0 ? (
         <div className={ui.card}><EmptyState icon={Newspaper} title={tb("empty")} /></div>
       ) : (

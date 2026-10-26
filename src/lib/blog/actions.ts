@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
 import { slugify } from "../slug";
+import { SAMPLE_POSTS } from "./sample-posts";
 import type { PostStatus } from "@prisma/client";
 
 type Localized = Record<string, string>;
@@ -42,4 +43,33 @@ export async function deletePost(id: string) {
   revalidatePath("/[locale]/admin/blog", "page");
   revalidatePath("/[locale]/blog", "page");
   return { ok: true };
+}
+
+/**
+ * Test postlar o'rniga restoran haqidagi 3 ta postni qo'yish (sample-posts.ts): boshqa postlar o'chiriladi,
+ * restoran postlari e'lon qilingan holda yaratiladi. Uchala post allaqachon bo'lsa — hech narsa qilmaydi
+ * (keyin yozilgan haqiqiy postlar tasodifan o'chib ketmasin; admin'da tugma ham ko'rinmaydi).
+ */
+export async function importRestaurantPosts(): Promise<{ ok: true; removed: number; created: number }> {
+  await ensureAdmin();
+  const slugs = SAMPLE_POSTS.map((p) => p.slug);
+  const existing = new Set((await prisma.blogPost.findMany({ where: { slug: { in: slugs } }, select: { slug: true } })).map((x) => x.slug));
+  if (existing.size === slugs.length) return { ok: true, removed: 0, created: 0 };
+  const { count: removed } = await prisma.blogPost.deleteMany({ where: { slug: { notIn: slugs } } });
+  let created = 0;
+  const now = Date.now();
+  for (const [i, p] of SAMPLE_POSTS.entries()) {
+    if (existing.has(p.slug)) continue;
+    await prisma.blogPost.create({
+      data: {
+        slug: p.slug, title: p.title, excerpt: p.excerpt, content: p.content, coverImage: p.cover, tags: p.tags,
+        status: "PUBLISHED", publishedAt: new Date(now - i * 60_000), // ro'yxatda shu tartibda chiqsin
+      },
+    });
+    created++;
+  }
+  revalidatePath("/[locale]/admin/blog", "page");
+  revalidatePath("/[locale]/blog", "page");
+  revalidatePath("/[locale]/blog/[slug]", "page");
+  return { ok: true, removed, created };
 }
