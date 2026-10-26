@@ -1056,8 +1056,8 @@
       "PRICE_INVALID": "Narxni raqam bilan to'g'ri yozing (masalan: 45000)."
     },
     "sampleImport": "Namuna taomlar (15)",
-    "sampleConfirm": "Clopos menyusidan tanlangan 15 ta taom menyuga qo'shilsinmi? Mavjud taomlar o'zgarmaydi, takror bosilsa dublikat yaratilmaydi.",
-    "sampleDone": "Qo'shildi: {created} ta taom. Avvaldan bor edi: {skipped} ta. Rasmlarni har bir taomni tahrirlab yuklang."
+    "sampleConfirm": "Clopos menyusidagi 15 ta taom (rasmlari bilan, narxsiz) menyuga qo'shilsinmi? Oldingi namuna taomlar shularga almashtiriladi, siz qo'shgan taomlar o'zgarmaydi.",
+    "sampleDone": "Tayyor: {created} ta taom qo'shildi yoki yangilandi, {skipped} tasi avvaldan bor edi. Narx kerak bo'lsa, taomni tahrirlab qo'ying."
   },
   "AdminUi": {
     "common": {

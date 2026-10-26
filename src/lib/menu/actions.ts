@@ -5,7 +5,7 @@ import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
 import { slugify } from "../slug";
 import type { SpicyLevel } from "@prisma/client";
-import { SAMPLE_CATEGORIES, SAMPLE_DISHES } from "./sample-dishes";
+import { LEGACY_SAMPLE_CATEGORY, LEGACY_SAMPLE_SLUGS, SAMPLE_CATEGORIES, SAMPLE_DISHES, sampleImage } from "./sample-dishes";
 
 type Localized = Record<string, string>;
 
@@ -168,7 +168,8 @@ async function uniqueSlug(model: "menuCategory" | "menuItem", base: string): Pro
 /**
  * Clopos eksportidan tanlangan 15 ta namuna taomni qo'shish (sample-dishes.ts). Idempotent: kategoriya slug yoki
  * o'zbekcha nomi bo'yicha topiladi (yo'q bo'lsa yaratiladi), taom slug bo'yicha — bor taom qayta yaratilmaydi va
- * o'zgartirilmaydi (admin tahrirlari saqlanadi).
+ * o'zgartirilmaydi (admin tahrirlari saqlanadi). Oldingi namuna ro'yxatidan qolgan taomlar (LEGACY_SAMPLE_SLUGS)
+ * yangi taomlarga aylantiriladi, bo'sh qolgan "signature" kategoriyasi o'chiriladi. Narx qo'yilmaydi.
  */
 export async function importSampleDishes(): Promise<{ ok: true; created: number; skipped: number }> {
   await ensureAdmin();
@@ -184,37 +185,41 @@ export async function importSampleDishes(): Promise<{ ok: true; created: number;
       catId[c.slug] = found.id;
       continue;
     }
-    // Firma taomlari ro'yxat boshida, qolgan yangi kategoriyalar oxirida
     const created = await prisma.menuCategory.create({
-      data: { slug: c.slug, name: c.name, sortOrder: c.slug === "signature" ? -1 : ++order, isActive: true },
+      data: { slug: c.slug, name: c.name, sortOrder: ++order, isActive: true },
     });
     catId[c.slug] = created.id;
   }
 
-  const existing = new Set(
-    (await prisma.menuItem.findMany({ where: { slug: { in: SAMPLE_DISHES.map((d) => d.slug) } }, select: { slug: true } })).map((x) => x.slug)
+  const slugs = [...SAMPLE_DISHES.map((d) => d.slug), ...LEGACY_SAMPLE_SLUGS];
+  const found = new Map(
+    (await prisma.menuItem.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true } })).map((x) => [x.slug, x.id])
   );
   let created = 0;
   for (const [i, d] of SAMPLE_DISHES.entries()) {
-    if (existing.has(d.slug)) continue;
-    await prisma.menuItem.create({
-      data: {
-        slug: d.slug,
-        categoryId: catId[d.cat],
-        name: d.name,
-        description: d.description,
-        price: d.price,
-        spicyLevel: d.spicy,
-        isVegetarian: d.veg ?? false,
-        isHalal: true,
-        isFeatured: d.featured ?? false,
-        isAvailable: true,
-        sortOrder: i,
-      },
-    });
+    // Bor taom (admin tahrirlagan bo'lishi mumkin) o'zgarmaydi
+    if (found.has(d.slug)) continue;
+    const data = {
+      slug: d.slug,
+      categoryId: catId[d.cat],
+      name: d.name,
+      description: d.description,
+      price: 0, // narx yo'q — saytda ko'rinmaydi
+      discountPrice: null,
+      imageUrl: sampleImage(d.slug),
+      spicyLevel: d.spicy,
+      isVegetarian: d.veg ?? false,
+      isHalal: true,
+      isFeatured: d.featured ?? false,
+      isAvailable: true,
+      sortOrder: i,
+    };
+    // Oldingi namuna taomi bo'lsa — shu yozuv yangisiga aylanadi (id saqlanadi)
+    const legacyId = found.get(LEGACY_SAMPLE_SLUGS[i]);
+    if (legacyId) await prisma.menuItem.update({ where: { id: legacyId }, data });
+    else await prisma.menuItem.create({ data });
     created++;
   }
-  revalidateMenu();
-  revalidatePath("/[locale]", "page");
+  await prisma.menuCategory.deleteMany({ where: { slug: LEGACY_SAMPLE_CATEGORY, items: { none: {} } } });
   return { ok: true, created, skipped: SAMPLE_DISHES.length - created };
 }

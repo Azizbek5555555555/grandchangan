@@ -1,9 +1,10 @@
 import type { SpicyLevel } from "@prisma/client";
 
 /**
- * Clopos eksportidan (Aziz, 2026-10-26) tanlangan 15 ta taom — admin → Menyu → "Namuna taomlarni qo'shish"
- * tugmasi bazaga bir marta qo'shadi (slug bo'yicha: bor taom qayta yaratilmaydi). Narxlar — Clopos'dagi narx.
- * Rasm yo'q (admin yuklaydi) — saytda chiroyli tarelka zaxirasi chiqadi.
+ * Clopos menyusidagi 15 ta taom (Aziz, 2026-10-26: Clopos ro'yxatining boshidagi 15 tasi, rasmlari bilan) —
+ * admin → Menyu → "Namuna taomlar (15)" tugmasi bazaga qo'shadi. Narx QO'YILMAYDI (0 = saytda narx ko'rinmaydi;
+ * admin xohlasa keyin o'zi qo'yadi). Rasmlar — Clopos'dagi rasmlar, Real-ESRGAN bilan 4x kattalashtirilgan,
+ * kvadrat qilib kesilgan (burchakdagi Clopos raqami olib tashlangan): public/photos/dishes/<slug>.webp.
  */
 
 type L = { uz: string; ru: string; en: string; zh: string };
@@ -15,172 +16,181 @@ export type SampleDish = {
   cat: string;
   name: L;
   description: L;
-  price: number;
   spicy: SpicyLevel;
   veg?: boolean;
   featured?: boolean;
 };
 
+export const sampleImage = (slug: string) => `/photos/dishes/${slug}.webp`;
+
 /** Seed'dagi kategoriyalar bilan bir xil slug'lar; bazada bo'lmasa yaratiladi */
 export const SAMPLE_CATEGORIES: SampleCategory[] = [
-  { slug: "signature", name: { uz: "Firma taomlari", ru: "Фирменные блюда", en: "Signature dishes", zh: "招牌菜" } },
   { slug: "cold", name: { uz: "Sovuq taomlar", ru: "Холодные блюда", en: "Cold dishes", zh: "凉菜" } },
   { slug: "hot", name: { uz: "Issiq taomlar", ru: "Горячие блюда", en: "Hot dishes", zh: "热菜" } },
-  { slug: "soup", name: { uz: "Sho'rvalar", ru: "Супы", en: "Soups", zh: "汤类" } },
-  { slug: "dimsum", name: { uz: "Dim sum", ru: "Дим сам", en: "Dim sum", zh: "点心" } },
-  { slug: "noodles", name: { uz: "Lag'mon va noodle", ru: "Лапша", en: "Noodles", zh: "面食" } },
-  { slug: "rice", name: { uz: "Guruch taomlari", ru: "Рис", en: "Rice", zh: "米饭" } },
 ];
+
+/**
+ * Oldingi namuna ro'yxatining slug'lari (Clopos'ning boshqa 15 taomi, rasmsiz). Bazada qolgan bo'lsa,
+ * tugma ularni shu tartibda yangi taomlarga aylantiradi (id saqlanadi — bron/buyurtma bog'lanishlari buzilmaydi).
+ */
+export const LEGACY_SAMPLE_SLUGS = [
+  "peking-duck", "gansu-hand-lamb", "squirrel-fish", "xinjiang-noodles", "kung-pao-chicken",
+  "xinjiang-big-plate-chicken", "mapo-tofu", "sweet-sour-chicken", "sichuan-boiled-beef", "tomato-egg",
+  "changan-beef-slices", "yangzhou-fried-rice", "youpo-noodles", "beef-celery-dumplings", "tofu-chicken-soup",
+];
+
+/** Oldingi ro'yxatda yaratilgan, endi bo'sh qolishi mumkin bo'lgan kategoriya — bo'sh bo'lsa o'chiriladi */
+export const LEGACY_SAMPLE_CATEGORY = "signature";
 
 export const SAMPLE_DISHES: SampleDish[] = [
   {
-    slug: "peking-duck", cat: "signature", price: 880000, spicy: "NONE", featured: true,
-    name: { uz: "Pekincha o'rdak (butun)", ru: "Утка по-пекински (целая)", en: "Peking duck (whole)", zh: "北京烤鸭（整只）" },
+    slug: "changan-dadao-beef", cat: "cold", spicy: "NONE", featured: true,
+    name: { uz: "Chang'an \"Dadao\" mol go'shti tilimlari", ru: "«Чанган Дадао» — ломтики говядины", en: "Chang'an \"Dadao\" sliced beef", zh: "长安大刀牛肉片" },
     description: {
-      uz: "Qarsildoq terili, tandirda pishgan o'rdak — yupqa blinchiklar, bodring, ko'k piyoz va shirin sous bilan.",
-      ru: "Утка с хрустящей кожицей — с тонкими блинчиками, огурцом, зелёным луком и сладким соусом.",
-      en: "Roast duck with crisp skin, served with thin pancakes, cucumber, spring onion and sweet bean sauce.",
-      zh: "皮脆肉嫩的烤鸭，配薄饼、黄瓜、葱丝和甜面酱。",
+      uz: "Ziravorlarda sekin dimlangan mol go'shti — katta pichoqda yupqa tilimlanib, sovuq holda tortiladi.",
+      ru: "Говядина, томлённая в пряностях, нарезается большим ножом тонкими ломтиками и подаётся холодной.",
+      en: "Beef braised in aromatic spices, carved into thin slices with a broad cleaver and served cold.",
+      zh: "香料卤制的牛肉，大刀切成薄片，冷盘上桌。",
     },
   },
   {
-    slug: "gansu-hand-lamb", cat: "signature", price: 226000, spicy: "NONE", featured: true,
-    name: { uz: "Gansucha qo'lda yeyiladigan qo'y go'shti", ru: "Баранина по-ганьсуйски «ручной захват»", en: "Gansu hand-held lamb", zh: "甘肃手抓羊肉" },
+    slug: "shanghai-smoked-fish", cat: "cold", spicy: "NONE", featured: true,
+    name: { uz: "Shanxaycha dudlangan baliq", ru: "Шанхайская копчёная рыба", en: "Shanghai smoked fish", zh: "上海熏鱼" },
     description: {
-      uz: "Ziravorlar bilan sekin qaynatilgan yumshoq qo'y go'shti — sarimsoqli sous bilan, qo'lda yeyiladi.",
-      ru: "Нежная баранина, томлённая со специями, подаётся с чесночным соусом — едят руками.",
-      en: "Tender lamb slowly simmered with spices, served with garlic dip — traditionally eaten by hand.",
-      zh: "香料慢炖的嫩羊肉，配蒜泥蘸料，传统手抓食用。",
+      uz: "Qarsildoq qovurilib, shirin soya-ziravorli qaylaga botirilgan baliq bo'laklari — Shanxayning mashhur sovuq taomi.",
+      ru: "Хрустящие кусочки рыбы, пропитанные сладким соево-пряным маринадом, — знаменитая холодная закуска Шанхая.",
+      en: "Crisp-fried fish pieces soaked in a sweet soy and spice glaze — a classic Shanghai cold starter.",
+      zh: "鱼块炸至酥香，浸入甜咸五香汁，经典上海冷菜。",
     },
   },
   {
-    slug: "squirrel-fish", cat: "signature", price: 300000, spicy: "NONE",
-    name: { uz: "Shirin-nordon qaylada \"Olmaxon\" baliq", ru: "Рыба «Белочка» в кисло-сладком соусе", en: "\"Squirrel\" fish in sweet & sour sauce", zh: "糖醋乌兹松鼠鱼" },
+    slug: "sour-spicy-lamb-tripe", cat: "cold", spicy: "MEDIUM",
+    name: { uz: "Nordon-achchiq qaylada qo'y qorni", ru: "Острые рубцы ягнёнка в кисло-пряном соусе", en: "Hot & sour lamb tripe", zh: "酸辣羊肚丝" },
     description: {
-      uz: "Kesilib, qarsildoq qilib qovurilgan karp baliq — yorqin shirin-nordon pomidor qaylasi bilan.",
-      ru: "Надрезанный и обжаренный до хруста карп под ярким кисло-сладким томатным соусом.",
-      en: "Scored carp fried until crisp, glazed with a bright sweet-and-sour tomato sauce.",
-      zh: "鲤鱼切花炸至酥脆，浇上酸甜番茄汁。",
+      uz: "Ingichka to'g'ralgan qo'y qorni — qora sirka, qalampir yog'i, kashnich va qizil qalampir bilan.",
+      ru: "Тонко нарезанные рубцы ягнёнка с чёрным уксусом, перечным маслом, кинзой и красным перцем.",
+      en: "Thinly shredded lamb tripe tossed with black vinegar, chili oil, coriander and red pepper.",
+      zh: "羊肚切丝，拌香醋、红油、香菜与辣椒。",
     },
   },
   {
-    slug: "xinjiang-noodles", cat: "signature", price: 78000, spicy: "MILD",
-    name: { uz: "Shinjoncha go'shtli lag'mon", ru: "Лапша по-синьцзянски с жареным мясом", en: "Xinjiang noodles with stir-fried meat", zh: "新疆过油肉拌面" },
+    slug: "xiyu-pepper-chicken", cat: "cold", spicy: "MEDIUM",
+    name: { uz: "Shinjoncha sichuan qalampirli tovuq", ru: "Курица по-синьцзянски с сычуаньским перцем", en: "Xinjiang-style Sichuan pepper chicken", zh: "西域椒麻鸡" },
     description: {
-      uz: "Qo'lda cho'zilgan lag'mon — qovurilgan go'sht, bulg'or qalampiri va pomidor bilan.",
-      ru: "Тянутая вручную лапша с обжаренным мясом, болгарским перцем и томатами.",
-      en: "Hand-pulled noodles topped with stir-fried meat, bell peppers and tomatoes.",
-      zh: "手工拉面配过油肉、青椒和番茄。",
+      uz: "Qo'lda titilgan yumshoq tovuq — sichuan qalampiri, qizil qalampir va piyoz bilan; tilni yoqimli uvishtiradi.",
+      ru: "Нежная курица, разобранная вручную, с сычуаньским перцем, чили и луком — приятно покалывает язык.",
+      en: "Tender hand-torn chicken with Sichuan peppercorn, chili and onion — pleasantly tingling.",
+      zh: "手撕嫩鸡，配花椒、辣椒与洋葱，麻香爽口。",
     },
   },
   {
-    slug: "kung-pao-chicken", cat: "hot", price: 108000, spicy: "MEDIUM", featured: true,
-    name: { uz: "Gunbao tovuq", ru: "Курица Кунг Пао", en: "Kung Pao chicken", zh: "宫保鸡丁" },
+    slug: "jiangshui-potato-slices", cat: "cold", spicy: "NONE", veg: true,
+    name: { uz: "Achitilgan ko'katli kartoshka tilimlari", ru: "Картофельные ломтики с ферментированными овощами", en: "Potato slices with fermented greens", zh: "浆水菜拌土豆片" },
     description: {
-      uz: "Tovuq bo'laklari yeryong'oq, quritilgan qalampir va shirin-achchiq qayla bilan.",
-      ru: "Кусочки курицы с арахисом, сушёным перцем и кисло-сладким пряным соусом.",
-      en: "Diced chicken with peanuts, dried chilli and a sweet, tangy, gently numbing glaze.",
-      zh: "鸡丁配花生、干辣椒，酸甜微麻。",
+      uz: "Yupqa kartoshka tilimlari Shi'an uslubidagi achitilgan ko'katlar (tszyanshuy) bilan — yengil nordon ta'mli.",
+      ru: "Тонкие ломтики картофеля с квашеной зеленью цзяншуй по-сианьски — с лёгкой кислинкой.",
+      en: "Thin potato slices with Xi'an-style jiangshui fermented greens — light and tangy.",
+      zh: "土豆薄片拌西安浆水菜，酸爽开胃。",
     },
   },
   {
-    slug: "xinjiang-big-plate-chicken", cat: "hot", price: 228000, spicy: "MEDIUM", featured: true,
-    name: { uz: "Shinjoncha katta laganda tovuq", ru: "Курица по-синьцзянски с лапшой", en: "Xinjiang big-plate chicken", zh: "新疆大盘鸡" },
+    slug: "fried-beef-balls", cat: "hot", spicy: "NONE", featured: true,
+    name: { uz: "Qovurilgan mol go'shti sharchalari", ru: "Говяжьи шарики, жаренные во фритюре", en: "Crispy fried beef balls", zh: "煎牛肉丸子" },
     description: {
-      uz: "Kartoshka va qalampir bilan dimlangan tovuq, tagida keng lag'mon — davra uchun katta lagan.",
-      ru: "Тушёная курица с картофелем и перцем на широкой лапше — большое блюдо на компанию.",
-      en: "Chicken braised with potatoes and peppers over wide noodles — a big plate to share.",
-      zh: "鸡块与土豆、青椒同炖，配宽面，适合多人分享。",
+      uz: "Ziravorli mol go'shti qiymasidan sharchalar — tilla rang va qarsildoq bo'lguncha qovuriladi, ichi shirali.",
+      ru: "Шарики из пряного говяжьего фарша, обжаренные до золотистой хрустящей корочки, — сочные внутри.",
+      en: "Spiced minced beef balls fried golden and crisp outside, juicy inside.",
+      zh: "五香牛肉馅团成丸子，炸至外酥里嫩。",
     },
   },
   {
-    slug: "mapo-tofu", cat: "hot", price: 88000, spicy: "HOT",
-    name: { uz: "Mapo tofu", ru: "Тофу «Ма По»", en: "Mapo tofu", zh: "麻婆豆腐" },
+    slug: "changan-garden-salad", cat: "cold", spicy: "NONE", veg: true,
+    name: { uz: "Chang'ancha sabzavot va mevali salat", ru: "Чанганский салат из овощей и фруктов", en: "Chang'an vegetable & fruit salad", zh: "蔬果大拌菜" },
     description: {
-      uz: "Yumshoq tofu achchiq loviya pastasi va sichuan qalampiri qaylasida.",
-      ru: "Нежный тофу в остром соусе из бобовой пасты с сычуаньским перцем.",
-      en: "Silky tofu in a fiery bean-paste sauce with Sichuan peppercorn.",
-      zh: "嫩豆腐配豆瓣酱与花椒，麻辣鲜香。",
+      uz: "Yangi salat barglari, sabzavotlar va mevalar — yengil kunjut-sirkali sous bilan.",
+      ru: "Свежие листья салата, овощи и фрукты с лёгкой кунжутно-уксусной заправкой.",
+      en: "Fresh leaves, vegetables and fruit with a light sesame vinaigrette.",
+      zh: "新鲜生菜、时蔬与水果，配清爽芝麻醋汁。",
     },
   },
   {
-    slug: "sweet-sour-chicken", cat: "hot", price: 126000, spicy: "NONE",
-    name: { uz: "Shirin-nordon qarsildoq tovuq", ru: "Хрустящая курица в кисло-сладком соусе", en: "Crispy sweet & sour chicken", zh: "糖醋里脊" },
+    slug: "passion-fruit-tomatoes", cat: "cold", spicy: "NONE", veg: true, featured: true,
+    name: { uz: "Marakuyyali sovutilgan cherri pomidorlar", ru: "Охлаждённые томаты черри с маракуйей", en: "Chilled cherry tomatoes with passion fruit", zh: "冰镇百香果番茄" },
     description: {
-      uz: "Qarsildoq qovurilgan tovuq filesi yaltiroq shirin-nordon qaylada.",
-      ru: "Хрустящее куриное филе в глянцевом кисло-сладком соусе.",
-      en: "Crispy fried chicken fillet tossed in a glossy sweet-and-sour sauce.",
-      zh: "外酥里嫩的里脊，裹上亮泽的糖醋汁。",
+      uz: "Po'sti archilgan cherri pomidorlar marakuyya sharbatida — muz ustida, sovuq holda tortiladi.",
+      ru: "Очищенные томаты черри, вымоченные в соке маракуйи, подаются на льду.",
+      en: "Peeled cherry tomatoes steeped in passion-fruit syrup, served on ice.",
+      zh: "去皮圣女果浸百香果汁，冰镇上桌。",
     },
   },
   {
-    slug: "sichuan-boiled-beef", cat: "hot", price: 228000, spicy: "EXTRA_HOT",
-    name: { uz: "Sichuancha qaynatilgan achchiq mol go'shti", ru: "Острая отварная говядина по-сычуаньски", en: "Sichuan boiled beef", zh: "水煮牛肉" },
+    slug: "sichuan-pepper-beef-tongue", cat: "cold", spicy: "MILD",
+    name: { uz: "Sichuan qalampirli mol tili", ru: "Говяжий язык с сычуаньским перцем", en: "Beef tongue with Sichuan pepper", zh: "炖牛肉舌" },
     description: {
-      uz: "Yupqa mol go'shti bo'laklari qalampirli achchiq sho'rvada, ustidan qizdirilgan moy quyiladi.",
-      ru: "Тонкие ломтики говядины в остром бульоне с перцем, политые раскалённым маслом.",
-      en: "Tender beef slices poached in a fiery chilli broth and finished with sizzling oil.",
-      zh: "嫩牛肉片浸于麻辣红汤，淋热油激香。",
+      uz: "Ziravorlarda dimlangan mol tili — yupqa tilimlanib, sichuan qalampirli sous bilan tortiladi.",
+      ru: "Тушёный в пряностях говяжий язык, тонко нарезанный, с соусом из сычуаньского перца.",
+      en: "Spice-braised beef tongue, thinly sliced, with a Sichuan pepper dressing.",
+      zh: "香料炖制牛舌，切薄片，淋花椒汁。",
     },
   },
   {
-    slug: "tomato-egg", cat: "hot", price: 68000, spicy: "NONE", veg: true,
-    name: { uz: "Pomidorli tuxum qovurmasi", ru: "Яичница с помидорами", en: "Stir-fried tomato and egg", zh: "西红柿炒鸡蛋" },
+    slug: "eggplant-century-egg", cat: "cold", spicy: "MEDIUM", veg: true,
+    name: { uz: "Ming yillik tuxum va yanchilgan qalampirli baqlajon", ru: "Баклажаны с тысячелетним яйцом и толчёным перцем", en: "Eggplant with century egg & pounded peppers", zh: "擂椒皮蛋茄子" },
     description: {
-      uz: "Xitoyning eng sevimli uy taomi — yumshoq tuxum va shirali pomidor.",
-      ru: "Любимое домашнее блюдо Китая — нежные яйца и сочные томаты.",
-      en: "China's favourite home dish — fluffy eggs with juicy tomatoes.",
-      zh: "中国家常名菜——嫩滑鸡蛋配多汁番茄。",
+      uz: "Olovda pishirilgan baqlajon va qalampir hovonchada yanchiladi va ming yillik tuxum bilan aralashtiriladi.",
+      ru: "Печёные баклажаны и перец, растолчённые в ступке, с тысячелетним яйцом.",
+      en: "Fire-roasted eggplant and peppers pounded in a stone mortar with century egg.",
+      zh: "烧茄子与青椒入石臼擂碎，拌皮蛋。",
     },
   },
   {
-    slug: "changan-beef-slices", cat: "cold", price: 160000, spicy: "MILD",
-    name: { uz: "Chang'ancha \"Dadao\" mol go'shti bo'laklari", ru: "Ломтики говядины «Чанган Дадао»", en: "Chang'an \"Dadao\" beef slices", zh: "长安大刀牛肉片" },
+    slug: "great-harvest-platter", cat: "cold", spicy: "NONE", veg: true,
+    name: { uz: "\"Mo'l hosil\" sabzavot assortisi", ru: "Овощное ассорти «Великое изобилие»", en: "\"Great Harvest\" vegetable platter", zh: "蔬菜大拼盘" },
     description: {
-      uz: "Ziravorlarda pishirilgan mol go'shti, yupqa to'g'ralib, sovuq tortiladi — sarimsoq va chilli moyi bilan.",
-      ru: "Говядина, томлённая в специях, тонко нарезанная и подаваемая холодной — с чесноком и маслом чили.",
-      en: "Spice-braised beef, thinly sliced and served cold with garlic and chilli oil.",
-      zh: "卤制牛肉切薄片冷食，配蒜泥红油。",
+      uz: "Yangi sabzavotlar: bodring, sabzi, turp, cherri, ko'k piyoz, qalampir va tofu — maxsus sous bilan.",
+      ru: "Свежие овощи — огурец, морковь, редис, черри, зелёный лук, перец и тофу — с фирменным соусом.",
+      en: "Fresh crudités — cucumber, carrot, radish, cherry tomatoes, spring onion, peppers and tofu — with house dip.",
+      zh: "黄瓜、胡萝卜、萝卜、圣女果、小葱、青椒与豆腐，配特制蘸酱。",
     },
   },
   {
-    slug: "yangzhou-fried-rice", cat: "rice", price: 98000, spicy: "NONE",
-    name: { uz: "Yanchjoucha qovurilgan guruch", ru: "Янчжоуский жареный рис", en: "Yangzhou fried rice", zh: "扬州蛋炒饭" },
+    slug: "fennel-pancakes", cat: "hot", spicy: "NONE", veg: true,
+    name: { uz: "Fenxel ko'katli yassi non", ru: "Лепёшки с фенхелем", en: "Fennel flatbreads", zh: "茴香煎饼" },
     description: {
-      uz: "Tuxum, qisqichbaqa, sabzavotlar va ko'k no'xat bilan qovurilgan guruch.",
-      ru: "Жареный рис с яйцом, креветками, овощами и зелёным горошком.",
-      en: "Wok-fried rice with egg, shrimp, vegetables and green peas.",
-      zh: "鸡蛋、虾仁、蔬菜和青豆同炒的米饭。",
+      uz: "Yangi fenxel ko'kati qo'shilgan yupqa yassi non — tovada qizartirib pishiriladi.",
+      ru: "Тонкие лепёшки с молодой зеленью фенхеля, обжаренные на сковороде до румяности.",
+      en: "Thin pan-fried flatbreads made with fresh fennel greens.",
+      zh: "鲜茴香入面，煎至两面金黄。",
     },
   },
   {
-    slug: "youpo-noodles", cat: "noodles", price: 68000, spicy: "MEDIUM",
-    name: { uz: "Yupo cho'zma lag'mon", ru: "Юпо чэмянь", en: "Youpo hand-pulled noodles", zh: "油泼扯面" },
+    slug: "crispy-duck-bones", cat: "hot", spicy: "MEDIUM",
+    name: { uz: "Xushbo'y qarsildoq o'rdak suyaklari", ru: "Ароматное рагу из утиных костей", en: "Crispy aromatic duck bones", zh: "香酥鸭骨" },
     description: {
-      uz: "Keng qo'lda cho'zilgan lag'mon — chilli, sarimsoq va qaynoq moy quyib tayyorlanadi, Shensi uslubida.",
-      ru: "Широкая тянутая лапша, политая горячим маслом с чили и чесноком, по-шэньсийски.",
-      en: "Wide hand-pulled noodles dressed with chilli, garlic and sizzling hot oil, Shaanxi style.",
-      zh: "陕西宽扯面，泼上热油、辣椒面和蒜末。",
+      uz: "O'rdak bo'laklari quritilgan qizil qalampir, sarimsoq va kunjut bilan xushbo'y bo'lguncha qovuriladi.",
+      ru: "Кусочки утки, обжаренные с сушёным красным перцем, чесноком и кунжутом.",
+      en: "Duck pieces wok-fried with dried red chili, garlic and sesame until fragrant.",
+      zh: "鸭骨以干辣椒、蒜与芝麻爆炒，酥香入味。",
     },
   },
   {
-    slug: "beef-celery-dumplings", cat: "dimsum", price: 86000, spicy: "NONE",
-    name: { uz: "Mol go'shti va selderey chuchvarasi", ru: "Пельмени с говядиной и сельдереем", en: "Beef and celery dumplings", zh: "牛肉芹菜饺子" },
+    slug: "sichuan-glazed-peanuts", cat: "cold", spicy: "MEDIUM", veg: true,
+    name: { uz: "Sichuan qaylasidagi qarsildoq yeryong'oq", ru: "Арахис в пряной сычуаньской глазури", en: "Crispy peanuts in Sichuan chili glaze", zh: "油炸香酥小花生" },
     description: {
-      uz: "Qo'lda tugilgan chuchvaralar — shirali mol go'shti va yangi selderey bilan.",
-      ru: "Пельмени ручной лепки с сочной говядиной и свежим сельдереем.",
-      en: "Hand-folded dumplings filled with juicy beef and fresh celery.",
-      zh: "手工包制，牛肉多汁，芹菜清香。",
+      uz: "Qarsildoq qovurilgan yeryong'oq — quritilgan qizil qalampir va sichuan qalampiri bilan.",
+      ru: "Хрустящий жареный арахис с сушёным красным перцем и сычуаньским перцем.",
+      en: "Crunchy fried peanuts tossed with dried red chili and Sichuan peppercorn.",
+      zh: "花生炸至酥脆，拌干辣椒与花椒。",
     },
   },
   {
-    slug: "tofu-chicken-soup", cat: "soup", price: 108000, spicy: "NONE",
-    name: { uz: "Tofuli tovuq sho'rva", ru: "Куриный бульон с тофу", en: "Chicken soup with tofu", zh: "豆腐鸡汤" },
+    slug: "uzbek-salad", cat: "cold", spicy: "NONE", veg: true,
+    name: { uz: "O'zbek salati", ru: "Узбекский салат", en: "Uzbek salad", zh: "乌兹别克斯坦沙拉" },
     description: {
-      uz: "Uzoq qaynatilgan tiniq tovuq sho'rvasi — yumshoq tofu va ko'katlar bilan.",
-      ru: "Прозрачный долго томлёный куриный бульон с нежным тофу и зеленью.",
-      en: "Clear, slow-simmered chicken broth with silky tofu and greens.",
-      zh: "慢炖清鸡汤，配嫩豆腐与青菜。",
+      uz: "Pomidor, bodring, piyoz va yangi ko'katlar — sodda va tetiklantiruvchi.",
+      ru: "Помидоры, огурцы, лук и свежая зелень — просто и свежо.",
+      en: "Tomato, cucumber, onion and fresh herbs — simple and refreshing.",
+      zh: "番茄、黄瓜、洋葱与香草，清新爽口。",
     },
   },
 ];

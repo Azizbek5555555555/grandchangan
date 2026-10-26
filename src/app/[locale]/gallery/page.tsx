@@ -15,7 +15,7 @@ import { Birds, Mountains, Pavilion } from "@/components/site/pages/InkDecor";
 import { GlyphPanel } from "@/components/site/home/Decor";
 
 export const dynamic = "force-dynamic";
-const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
+const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("/photos/") || u.startsWith("http")) ? u : null);
 
 /**
  * To'rda vertikal rasmlar (2 qator egallaydi) oxirida to'planib qolmasin — saralangan tartibni saqlagan

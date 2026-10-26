@@ -1,8 +1,8 @@
 import { t, type Localized } from "@/lib/utils";
 import type { HomeDish } from "./types";
 
-/** Faqat haqiqiy rasm manzili (yuklangan fayl yoki tashqi URL) */
-export const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
+/** Faqat haqiqiy rasm manzili (yuklangan fayl, loyihadagi /photos/ yoki tashqi URL) */
+export const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("/photos/") || u.startsWith("http")) ? u : null);
 
 const SPICY: Record<string, number> = { NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 };
 export const SPICY_KEYS = ["", "MILD", "MEDIUM", "HOT", "EXTRA_HOT"] as const;
