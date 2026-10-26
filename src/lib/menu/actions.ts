@@ -5,6 +5,7 @@ import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
 import { slugify } from "../slug";
 import type { SpicyLevel } from "@prisma/client";
+import { SAMPLE_CATEGORIES, SAMPLE_DISHES } from "./sample-dishes";
 
 type Localized = Record<string, string>;
 
@@ -162,4 +163,58 @@ async function uniqueSlug(model: "menuCategory" | "menuItem", base: string): Pro
     if (!exists) return slug;
     slug = `${slugify(base)}-${i++}`;
   }
+}
+
+/**
+ * Clopos eksportidan tanlangan 15 ta namuna taomni qo'shish (sample-dishes.ts). Idempotent: kategoriya slug yoki
+ * o'zbekcha nomi bo'yicha topiladi (yo'q bo'lsa yaratiladi), taom slug bo'yicha — bor taom qayta yaratilmaydi va
+ * o'zgartirilmaydi (admin tahrirlari saqlanadi).
+ */
+export async function importSampleDishes(): Promise<{ ok: true; created: number; skipped: number }> {
+  await ensureAdmin();
+  const all = await prisma.menuCategory.findMany({ select: { id: true, slug: true, name: true, sortOrder: true } });
+  const maxOrder = all.reduce((m, c) => Math.max(m, c.sortOrder), 0);
+  const catId: Record<string, string> = {};
+  let order = maxOrder;
+  for (const c of SAMPLE_CATEGORIES) {
+    const found =
+      all.find((x) => x.slug === c.slug) ??
+      all.find((x) => ((x.name as Localized | null)?.uz ?? "").trim().toLowerCase() === c.name.uz.toLowerCase());
+    if (found) {
+      catId[c.slug] = found.id;
+      continue;
+    }
+    // Firma taomlari ro'yxat boshida, qolgan yangi kategoriyalar oxirida
+    const created = await prisma.menuCategory.create({
+      data: { slug: c.slug, name: c.name, sortOrder: c.slug === "signature" ? -1 : ++order, isActive: true },
+    });
+    catId[c.slug] = created.id;
+  }
+
+  const existing = new Set(
+    (await prisma.menuItem.findMany({ where: { slug: { in: SAMPLE_DISHES.map((d) => d.slug) } }, select: { slug: true } })).map((x) => x.slug)
+  );
+  let created = 0;
+  for (const [i, d] of SAMPLE_DISHES.entries()) {
+    if (existing.has(d.slug)) continue;
+    await prisma.menuItem.create({
+      data: {
+        slug: d.slug,
+        categoryId: catId[d.cat],
+        name: d.name,
+        description: d.description,
+        price: d.price,
+        spicyLevel: d.spicy,
+        isVegetarian: d.veg ?? false,
+        isHalal: true,
+        isFeatured: d.featured ?? false,
+        isAvailable: true,
+        sortOrder: i,
+      },
+    });
+    created++;
+  }
+  revalidateMenu();
+  revalidatePath("/[locale]", "page");
+  return { ok: true, created, skipped: SAMPLE_DISHES.length - created };
 }

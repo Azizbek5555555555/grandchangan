@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Flame, Leaf, Star, Tag, UtensilsCrossed, X, FolderPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, EyeOff, Flame, Leaf, Star, Tag, UtensilsCrossed, X, FolderPlus, Sparkles } from "lucide-react";
 import { Button, Modal } from "@/components/ui/primitives";
 import { LocalizedInput, type LocalizedValue } from "@/components/ui/LocalizedInput";
 import { ImageUpload } from "@/components/ui/ImageUpload";
@@ -13,6 +13,7 @@ import {
   saveItem,
   toggleItemAvailability,
   deleteItem,
+  importSampleDishes,
   type MenuActionError,
 } from "@/lib/menu/actions";
 
@@ -73,6 +74,23 @@ export default function MenuManager({ categories, items }: { categories: Cat[]; 
   const [itemModal, setItemModal] = useState<Item | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [imported, setImported] = useState<string | null>(null);
+
+  // Clopos'dan tanlangan 15 ta namuna taomni qo'shish (takror bosilsa — dublikat yaratilmaydi)
+  async function importSamples() {
+    if (!window.confirm(tr("sampleConfirm"))) return;
+    setBusy("import");
+    setNotice(null);
+    try {
+      const r = await importSampleDishes();
+      setImported(tr("sampleDone", { created: r.created, skipped: r.skipped }));
+    } catch (e) {
+      console.error("[menu]", e);
+      setNotice(errorText());
+    } finally {
+      setBusy(null);
+    }
+  }
 
   // O'chirilgan kategoriya tanlangan bo'lib qolmasin
   const current = categories.find((c) => c.id === activeCat) ?? categories[0];
@@ -111,7 +129,15 @@ export default function MenuManager({ categories, items }: { categories: Cat[]; 
           <h1 className="font-display text-3xl text-content sm:text-4xl">{tr("title")}</h1>
           <p className="mt-1 max-w-2xl text-sm text-muted">{tr("subtitle")}</p>
         </div>
-        <div className="flex shrink-0 gap-2">
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <Button
+            variant="outline"
+            className="min-h-11 flex-1 sm:min-h-10 sm:flex-none"
+            onClick={importSamples}
+            disabled={busy === "import"}
+          >
+            <Sparkles size={16} /> {busy === "import" ? "…" : tr("sampleImport")}
+          </Button>
           <Button
             variant="outline"
             className="min-h-11 flex-1 sm:min-h-10 sm:flex-none"
@@ -128,6 +154,15 @@ export default function MenuManager({ categories, items }: { categories: Cat[]; 
           </Button>
         </div>
       </header>
+
+      {imported && (
+        <p role="status" className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-line bg-card px-4 py-3 text-sm text-content shadow-sm">
+          <span className="flex items-start gap-2"><Sparkles size={16} className="mt-0.5 shrink-0 text-brand-gold" />{imported}</span>
+          <button type="button" onClick={() => setImported(null)} aria-label={tr("close")} className="-m-2 p-2 text-muted hover:text-content">
+            <X size={16} />
+          </button>
+        </p>
+      )}
 
       {noPriceCount > 0 && (
         <p className="mb-4 flex items-start gap-2 rounded-xl border border-line bg-card px-4 py-3 text-sm text-muted shadow-sm">
