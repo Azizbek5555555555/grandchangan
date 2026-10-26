@@ -1054,7 +1054,10 @@
       "ITEM_IN_ORDERS": "Bu taom buyurtmalarda bor — o'chirib bo'lmaydi. Uning o'rniga saytdan yashiring (ko'z belgisi).",
       "PRICE_NEGATIVE": "Narx manfiy bo'lishi mumkin emas.",
       "PRICE_INVALID": "Narxni raqam bilan to'g'ri yozing (masalan: 45000)."
-    }
+    },
+    "sampleImport": "Namuna taomlar (15)",
+    "sampleConfirm": "Clopos menyusidan tanlangan 15 ta taom menyuga qo'shilsinmi? Mavjud taomlar o'zgarmaydi, takror bosilsa dublikat yaratilmaydi.",
+    "sampleDone": "Qo'shildi: {created} ta taom. Avvaldan bor edi: {skipped} ta. Rasmlarni har bir taomni tahrirlab yuklang."
   },
   "AdminUi": {
     "common": {

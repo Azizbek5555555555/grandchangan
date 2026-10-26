@@ -1054,7 +1054,10 @@
       "ITEM_IN_ORDERS": "This dish appears in orders and can't be deleted. Hide it from the site instead (eye icon).",
       "PRICE_NEGATIVE": "The price can't be negative.",
       "PRICE_INVALID": "Enter the price as a number (e.g. 45000)."
-    }
+    },
+    "sampleImport": "Sample dishes (15)",
+    "sampleConfirm": "Add 15 dishes selected from the Clopos menu? Existing dishes stay unchanged; pressing again won't create duplicates.",
+    "sampleDone": "Added {created} dishes. Already present: {skipped}. Upload photos by editing each dish."
   },
   "AdminUi": {
     "common": {
