@@ -6,7 +6,7 @@ import { Hand, Loader2, Phone, Users } from "lucide-react";
 import FloorMap, { useRoomName, type TableVisualState } from "@/components/floorplan/FloorMap";
 import { MAP_ZONES, ROOMS, bookableTables, type FloorRoom, type FloorTable } from "@/lib/floorplan/layout";
 import type { getAvailability } from "@/lib/reservation/actions";
-import { cn, formatMoney, t as tl } from "@/lib/utils";
+import { cn, currencyOf, formatMoney, t as tl } from "@/lib/utils";
 import HallOverview, { CallCard } from "./floor/HallOverview";
 import RoomGallery from "./floor/RoomGallery";
 import SelectionDock from "./floor/SelectionDock";
@@ -238,7 +238,7 @@ export default function FloorAvailabilityMap({
           <Users size={14} /> {tb("seats", { count: seats })}
         </p>
         {entry?.table.minSpend ? (
-          <p className="mt-1 text-sm">{ts("rMinSpend")}: <b>{formatMoney(entry.table.minSpend)}</b></p>
+          <p className="mt-1 text-sm">{ts("rMinSpend")}: <b>{formatMoney(entry.table.minSpend, currencyOf(locale))}</b></p>
         ) : null}
         {v === "busy" && <p className={cn("mt-3 text-sm", C.muted)}>{tb("busyHint")}</p>}
         {v === "small" && <p className={cn("mt-3 text-sm", C.muted)}>{tb("smallHint", { count: seats })}</p>}

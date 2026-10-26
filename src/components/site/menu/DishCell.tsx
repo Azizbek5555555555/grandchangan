@@ -1,8 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Clock, Flame, Leaf, Scale } from "lucide-react";
-import { cn, formatMoney } from "@/lib/utils";
+import { cn, currencyOf, formatMoney, hasPrice } from "@/lib/utils";
 import { SPICY_KEYS } from "@/components/site/home/data";
 import { PlatedDish } from "./Plated";
 
@@ -82,6 +82,7 @@ export default function DishCell({
   eager?: boolean;
 }) {
   const p = useTranslations("Pages2");
+  const cur = currencyOf(useLocale());
   const h = useTranslations("Home2");
   const s = useTranslations("Site");
   const c = TONE[tone];
@@ -158,10 +159,12 @@ export default function DishCell({
           </ul>
 
           <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-5 max-sm:pt-4">
-            <p className="flex flex-wrap items-baseline gap-x-2">
-              <span className={cn("whitespace-nowrap font-display text-2xl tabular-nums max-sm:text-xl", c.price)}>{formatMoney(d.price)}</span>
-              {d.oldPrice != null && <s className={cn("whitespace-nowrap text-sm tabular-nums", c.old)}>{formatMoney(d.oldPrice)}</s>}
-            </p>
+            {hasPrice(d.price) ? (
+              <p className="flex flex-wrap items-baseline gap-x-2">
+                <span className={cn("whitespace-nowrap font-display text-2xl tabular-nums max-sm:text-xl", c.price)}>{formatMoney(d.price, cur)}</span>
+                {d.oldPrice != null && <s className={cn("whitespace-nowrap text-sm tabular-nums", c.old)}>{formatMoney(d.oldPrice, cur)}</s>}
+              </p>
+            ) : <span />}
             {action}
           </div>
         </div>

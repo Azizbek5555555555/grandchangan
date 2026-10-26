@@ -1,7 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { cn, formatMoney, t } from "@/lib/utils";
+import { cn, currencyOf, formatMoney, hasPrice, t } from "@/lib/utils";
 import SectionHead from "@/components/site/kit/SectionHead";
 import Wave from "@/components/site/kit/Wave";
 import Reveal from "@/components/motion/Reveal";
@@ -135,7 +135,7 @@ export async function ChefSignature({ items, locale }: { items: SpecialItem[]; l
                     </>
                   )}
                   <div className="mt-8 flex flex-wrap items-center gap-6 border-t border-line pt-6">
-                    <p className="font-display text-3xl tabular-nums text-fire-ink">{formatMoney(it.discountPrice ?? it.price)}</p>
+                    {hasPrice(it.discountPrice ?? it.price) && <p className="font-display text-3xl tabular-nums text-fire-ink">{formatMoney(it.discountPrice ?? it.price, currencyOf(locale))}</p>}
                     <Link href="/reservation" className="inline-flex min-h-11 items-center gap-2 font-semibold text-fire-ink transition hover:gap-3">
                       {m("order")} <ArrowRight size={18} aria-hidden="true" />
                     </Link>

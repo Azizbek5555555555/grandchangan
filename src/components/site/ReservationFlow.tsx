@@ -8,7 +8,7 @@ import {
   Check, Search, Plus, Minus, UtensilsCrossed, ChevronLeft, ChevronRight, ChevronDown, Loader2,
   Users, CalendarDays, Clock, Armchair, Phone, ArrowRight, ArrowLeft, Sun, Moon,
 } from "lucide-react";
-import { cn, t, formatMoney } from "@/lib/utils";
+import { cn, t, currencyOf, formatMoney, hasPrice } from "@/lib/utils";
 import { getAvailability, createReservation } from "@/lib/reservation/actions";
 import { createPreorderForReservation } from "@/lib/order/actions";
 import { RESTAURANT_TZ, formatDayMonth, formatMonthYear, restaurantDay, weekdayShort } from "@/lib/time";
@@ -301,7 +301,7 @@ export default function ReservationFlow({
       </div>
       <p className="relative text-sm leading-relaxed text-brand-cream/70">{P("holdNote", { hours: SLOT_MINUTES / 60 })}</p>
       {selectedTable?.minSpend && step >= 5 ? (
-        <p className="relative mt-2 text-sm text-saffron">{T("rMinSpend")}: {formatMoney(selectedTable.minSpend)}</p>
+        <p className="relative mt-2 text-sm text-saffron">{T("rMinSpend")}: {formatMoney(selectedTable.minSpend, currencyOf(locale))}</p>
       ) : null}
     </div>
   );
@@ -351,7 +351,7 @@ export default function ReservationFlow({
             {orderTotal !== null && (
               <div className="mx-auto mt-4 max-w-sm rounded-2xl border border-brand-gold/40 bg-night-3 p-4 text-left">
                 <p className="flex items-center gap-2 font-medium"><UtensilsCrossed size={16} className="text-saffron" /> {T("rPreorderDone")}</p>
-                <p className="mt-1 text-sm text-brand-cream/75">{T("rTotal")}: <b className="text-saffron">{formatMoney(orderTotal)}</b></p>
+                {orderTotal > 0 && <p className="mt-1 text-sm text-brand-cream/75">{T("rTotal")}: <b className="text-saffron">{formatMoney(orderTotal, currencyOf(locale))}</b></p>}
                 <p className="mt-1 text-xs text-brand-cream/60">{T("rPayAtRest")}</p>
               </div>
             )}
@@ -593,7 +593,7 @@ export default function ReservationFlow({
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">{T("rTable")} {tableText}</p>
                     <p className="text-muted">{TB("guests", { count: party })} · {dateText} · {time}</p>
-                    {selectedTable.minSpend ? <p className="text-fire-ink">{T("rMinSpend")}: {formatMoney(selectedTable.minSpend)}</p> : null}
+                    {selectedTable.minSpend ? <p className="text-fire-ink">{T("rMinSpend")}: {formatMoney(selectedTable.minSpend, currencyOf(locale))}</p> : null}
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -739,7 +739,7 @@ function PreorderMenu({
               </div>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-display text-lg leading-tight text-content">{t(it.name, locale)}</p>
-                <p className="text-sm font-semibold tabular-nums text-fire-ink">{formatMoney(it.price)}</p>
+                {hasPrice(it.price) && <p className="text-sm font-semibold tabular-nums text-fire-ink">{formatMoney(it.price, currencyOf(locale))}</p>}
               </div>
               {qty === 0 ? (
                 <button type="button" onClick={() => add(it.id)} aria-label={`${P("add")}: ${t(it.name, locale)}`} className="flex h-11 w-11 items-center justify-center rounded-full bg-fire text-brand-cream transition hover:bg-fire-deep active:scale-95"><Plus size={18} /></button>
@@ -760,7 +760,7 @@ function PreorderMenu({
         <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-5 py-3.5 sm:py-4">
           <div>
             <p className="text-xs text-brand-cream/65">{count} {T("poItems")}</p>
-            <p className="font-display text-xl tabular-nums text-saffron">{formatMoney(total)}</p>
+            {total > 0 && <p className="font-display text-xl tabular-nums text-saffron">{formatMoney(total, currencyOf(locale))}</p>}
           </div>
           <button type="button" onClick={() => onConfirm(cart)} disabled={loading || count === 0} className={cn(btnClass("saffron", "md"), "disabled:pointer-events-none disabled:opacity-40")}>
             {loading ? <Loader2 size={18} className="animate-spin" /> : T("poConfirm")}

@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight, Leaf, Search, X } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { cn, t, formatMoney, type Localized } from "@/lib/utils";
+import { cn, t, currencyOf, formatMoney, hasPrice, type Localized } from "@/lib/utils";
 import Reveal from "@/components/motion/Reveal";
 import SectionHead from "@/components/site/kit/SectionHead";
 import Wave from "@/components/site/kit/Wave";
@@ -230,7 +230,7 @@ export default function MenuBrowser({
                     <PlatedDish img={d.img} alt="" glyph={d.glyph} variant="lacquer" glyphClass="text-5xl" />
                     <span className="mt-3 font-display text-lg leading-tight text-brand-cream transition group-hover:text-saffron">{d.name}</span>
                     {d.zh && <span lang="zh" className="font-cn text-base text-brand-gold-light">{d.zh}</span>}
-                    <span className="mt-1 text-sm font-semibold tabular-nums text-saffron">{formatMoney(d.price)}</span>
+                    {hasPrice(d.price) && <span className="mt-1 text-sm font-semibold tabular-nums text-saffron">{formatMoney(d.price, currencyOf(locale))}</span>}
                   </button>
                 );
               })}

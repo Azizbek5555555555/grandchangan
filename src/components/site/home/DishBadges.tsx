@@ -1,8 +1,8 @@
 "use client";
 
 import { Flame, Leaf } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { cn, formatMoney } from "@/lib/utils";
+import { useLocale, useTranslations } from "next-intl";
+import { cn, currencyOf, formatMoney, hasPrice } from "@/lib/utils";
 import { SPICY_KEYS } from "./data";
 
 /** Achchiqlik (olov belgilari) va vegetarian bargi — ekran o'quvchi uchun matn bilan */
@@ -29,12 +29,14 @@ export function SpicyVeg({ spicy, veg, tone = "light", className }: { spicy: num
   );
 }
 
-/** Narx: chegirma bo'lsa eski narx ustidan chiziladi */
+/** Narx: chegirma bo'lsa eski narx ustidan chiziladi; narx belgilanmagan (0) bo'lsa — hech narsa ko'rsatilmaydi */
 export function Price({ price, oldPrice, className, oldClassName }: { price: number; oldPrice: number | null; className?: string; oldClassName?: string }) {
+  const cur = currencyOf(useLocale());
+  if (!hasPrice(price)) return null;
   return (
     <span className="inline-flex flex-wrap items-baseline gap-x-2">
-      <span className={cn("whitespace-nowrap", className)}>{formatMoney(price)}</span>
-      {oldPrice != null && <s className={cn("whitespace-nowrap text-sm", oldClassName)}>{formatMoney(oldPrice)}</s>}
+      <span className={cn("whitespace-nowrap", className)}>{formatMoney(price, cur)}</span>
+      {oldPrice != null && <s className={cn("whitespace-nowrap text-sm", oldClassName)}>{formatMoney(oldPrice, cur)}</s>}
     </span>
   );
 }
