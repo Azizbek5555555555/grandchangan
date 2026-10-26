@@ -29,7 +29,7 @@ export type SpecialItem = {
   categoryId: string;
 };
 
-const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("http")) ? u : null);
+const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("/photos/") || u.startsWith("http")) ? u : null);
 const zh = (v: unknown) => (v && typeof v === "object" ? String((v as Record<string, string>).zh || "") : "");
 const firstHan = (s: string) => Array.from(s).find((c) => /\p{Script=Han}/u.test(c)) ?? "";
 const SPICY: Record<string, number> = { NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 };

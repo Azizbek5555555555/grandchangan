@@ -1056,8 +1056,8 @@
       "PRICE_INVALID": "Enter the price as a number (e.g. 45000)."
     },
     "sampleImport": "Sample dishes (15)",
-    "sampleConfirm": "Add 15 dishes selected from the Clopos menu? Existing dishes stay unchanged; pressing again won't create duplicates.",
-    "sampleDone": "Added {created} dishes. Already present: {skipped}. Upload photos by editing each dish."
+    "sampleConfirm": "Add 15 dishes from the Clopos menu (with photos, no prices)? Previous sample dishes will be replaced; your own dishes stay unchanged.",
+    "sampleDone": "Done: {created} dishes added or updated, {skipped} already existed. Add a price by editing a dish if needed."
   },
   "AdminUi": {
     "common": {

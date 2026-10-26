@@ -1056,8 +1056,8 @@
       "PRICE_INVALID": "请用数字填写价格（例如：45000）。"
     },
     "sampleImport": "示例菜品（15）",
-    "sampleConfirm": "要添加从 Clopos 菜单中选出的 15 道菜吗？现有菜品不变，重复点击不会产生重复。",
-    "sampleDone": "已添加 {created} 道菜，已存在 {skipped} 道。请编辑每道菜上传图片。"
+    "sampleConfirm": "将 Clopos 菜单中的 15 道菜（含图片，不含价格）加入菜单？之前的示例菜品将被替换，您添加的菜品不受影响。",
+    "sampleDone": "完成：新增或更新 {created} 道菜，已存在 {skipped} 道。如需价格，请编辑菜品后填写。"
   },
   "AdminUi": {
     "common": {
