@@ -1270,7 +1270,10 @@
       "title": "Sarlavha",
       "excerpt": "Qisqa tavsif",
       "content": "Matn",
-      "publishNow": "Darhol chop etish"
+      "publishNow": "Darhol chop etish",
+      "sampleImport": "Restoran postlari (3)",
+      "sampleConfirm": "Hozirgi {n} ta post (test postlar) o'chiriladi va o'rniga restoran haqidagi 3 ta post e'lon qilinadi. Davom etilsinmi?",
+      "sampleDone": "Tayyor: {removed} ta test post o'chirildi, {created} ta restoran posti e'lon qilindi."
     },
     "banners": {
       "subtitle": "Bosh sahifa, menyu va aksiya joylaridagi bannerlar.",

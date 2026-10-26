@@ -1270,7 +1270,10 @@
       "title": "标题",
       "excerpt": "摘要",
       "content": "正文",
-      "publishNow": "立即发布"
+      "publishNow": "立即发布",
+      "sampleImport": "餐厅文章（3篇）",
+      "sampleConfirm": "当前的 {n} 篇文章（测试文章）将被删除，并发布 3 篇关于餐厅的文章。是否继续？",
+      "sampleDone": "完成：已删除 {removed} 篇测试文章，已发布 {created} 篇餐厅文章。"
     },
     "banners": {
       "subtitle": "首页、菜单及促销位的横幅。",

@@ -1270,7 +1270,10 @@
       "title": "Title",
       "excerpt": "Excerpt",
       "content": "Content",
-      "publishNow": "Publish immediately"
+      "publishNow": "Publish immediately",
+      "sampleImport": "Restaurant posts (3)",
+      "sampleConfirm": "The current {n} posts (test posts) will be deleted and 3 posts about the restaurant will be published instead. Continue?",
+      "sampleDone": "Done: {removed} test posts deleted, {created} restaurant posts published."
     },
     "banners": {
       "subtitle": "Banners on the home page, menu and promo spots.",
