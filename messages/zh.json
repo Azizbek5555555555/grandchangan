@@ -1055,8 +1055,8 @@
       "PRICE_NEGATIVE": "价格不能为负数。",
       "PRICE_INVALID": "请用数字填写价格（例如：45000）。"
     },
-    "sampleImport": "示例菜品（15）",
-    "sampleConfirm": "将 Clopos 菜单中的 15 道菜（含图片，不含价格）加入菜单？之前的示例菜品将被替换，您添加的菜品不受影响。",
+    "sampleImport": "示例菜品（30）",
+    "sampleConfirm": "将 Clopos 菜单中的 30 道菜（含图片，不含价格）加入菜单？已有菜品不受影响，只添加缺少的菜品。",
     "sampleDone": "完成：新增或更新 {created} 道菜，已存在 {skipped} 道。如需价格，请编辑菜品后填写。"
   },
   "AdminUi": {

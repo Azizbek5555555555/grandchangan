@@ -1055,8 +1055,8 @@
       "PRICE_NEGATIVE": "The price can't be negative.",
       "PRICE_INVALID": "Enter the price as a number (e.g. 45000)."
     },
-    "sampleImport": "Sample dishes (15)",
-    "sampleConfirm": "Add 15 dishes from the Clopos menu (with photos, no prices)? Previous sample dishes will be replaced; your own dishes stay unchanged.",
+    "sampleImport": "Sample dishes (30)",
+    "sampleConfirm": "Add 30 dishes from the Clopos menu (with photos, no prices)? Dishes already on the menu stay unchanged — only missing ones are added.",
     "sampleDone": "Done: {created} dishes added or updated, {skipped} already existed. Add a price by editing a dish if needed."
   },
   "AdminUi": {
