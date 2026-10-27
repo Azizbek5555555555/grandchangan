@@ -1055,8 +1055,8 @@
       "PRICE_NEGATIVE": "Narx manfiy bo'lishi mumkin emas.",
       "PRICE_INVALID": "Narxni raqam bilan to'g'ri yozing (masalan: 45000)."
     },
-    "sampleImport": "Clopos menyusi (129)",
-    "sampleConfirm": "Clopos menyusidagi barcha 129 ta taom va ichimlik (narxsiz) menyuga qo'shilsinmi? Menyuda bor taomlar o'zgarmaydi, faqat yetishmaganlari qo'shiladi.",
+    "sampleImport": "Clopos menyusi (130)",
+    "sampleConfirm": "Clopos menyusidagi barcha 130 ta taom va ichimlik (narxsiz) menyuga qo'shilsinmi? Menyuda bor taomlar o'zgarmaydi, faqat yetishmaganlari qo'shiladi.",
     "sampleDone": "Tayyor: {created} ta taom qo'shildi yoki yangilandi, {skipped} tasi avvaldan bor edi. Narx kerak bo'lsa, taomni tahrirlab qo'ying."
   },
   "AdminUi": {
