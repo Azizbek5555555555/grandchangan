@@ -5,7 +5,7 @@ import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
 import { slugify } from "../slug";
 import type { SpicyLevel } from "@prisma/client";
-import { LEGACY_SAMPLE_CATEGORY, LEGACY_SAMPLE_SLUGS, SAMPLE_CATEGORIES, SAMPLE_DISHES, sampleImage } from "./sample-dishes";
+import { LEGACY_SAMPLE_SLUGS, SAMPLE_CATEGORIES, SAMPLE_DISHES, sampleImage } from "./sample-dishes";
 
 type Localized = Record<string, string>;
 
@@ -169,7 +169,7 @@ async function uniqueSlug(model: "menuCategory" | "menuItem", base: string): Pro
  * Clopos eksportidan tanlangan 15 ta namuna taomni qo'shish (sample-dishes.ts). Idempotent: kategoriya slug yoki
  * o'zbekcha nomi bo'yicha topiladi (yo'q bo'lsa yaratiladi), taom slug bo'yicha — bor taom qayta yaratilmaydi va
  * o'zgartirilmaydi (admin tahrirlari saqlanadi). Oldingi namuna ro'yxatidan qolgan taomlar (LEGACY_SAMPLE_SLUGS)
- * yangi taomlarga aylantiriladi, bo'sh qolgan "signature" kategoriyasi o'chiriladi. Narx qo'yilmaydi.
+ * yangi taomlarga aylantiriladi. Narx qo'yilmaydi.
  */
 export async function importSampleDishes(): Promise<{ ok: true; created: number; skipped: number }> {
   await ensureAdmin();
@@ -186,7 +186,8 @@ export async function importSampleDishes(): Promise<{ ok: true; created: number;
       continue;
     }
     const created = await prisma.menuCategory.create({
-      data: { slug: c.slug, name: c.name, sortOrder: ++order, isActive: true },
+      // Firma taomlari ro'yxat boshida, qolgan yangi kategoriyalar oxirida
+      data: { slug: c.slug, name: c.name, sortOrder: c.slug === "signature" ? -1 : ++order, isActive: true },
     });
     catId[c.slug] = created.id;
   }
@@ -220,6 +221,5 @@ export async function importSampleDishes(): Promise<{ ok: true; created: number;
     else await prisma.menuItem.create({ data });
     created++;
   }
-  await prisma.menuCategory.deleteMany({ where: { slug: LEGACY_SAMPLE_CATEGORY, items: { none: {} } } });
   return { ok: true, created, skipped: SAMPLE_DISHES.length - created };
 }
