@@ -5,7 +5,7 @@ import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
 import { slugify } from "../slug";
 import type { SpicyLevel } from "@prisma/client";
-import { LEGACY_SAMPLE_SLUGS, SAMPLE_CATEGORIES, SAMPLE_DISHES, sampleImage } from "./sample-dishes";
+import { ALL_DISHES, LEGACY_SAMPLE_SLUGS, SAMPLE_CATEGORIES, dishImage } from "./sample-dishes";
 
 type Localized = Record<string, string>;
 
@@ -166,7 +166,7 @@ async function uniqueSlug(model: "menuCategory" | "menuItem", base: string): Pro
 }
 
 /**
- * Clopos eksportidan tanlangan 15 ta namuna taomni qo'shish (sample-dishes.ts). Idempotent: kategoriya slug yoki
+ * Clopos menyusidagi barcha taomlarni qo'shish (sample-dishes.ts + clopos-menu.ts). Idempotent: kategoriya slug yoki
  * o'zbekcha nomi bo'yicha topiladi (yo'q bo'lsa yaratiladi), taom slug bo'yicha — bor taom qayta yaratilmaydi va
  * o'zgartirilmaydi (admin tahrirlari saqlanadi). Oldingi namuna ro'yxatidan qolgan taomlar (LEGACY_SAMPLE_SLUGS)
  * yangi taomlarga aylantiriladi. Narx qo'yilmaydi.
@@ -192,14 +192,19 @@ export async function importSampleDishes(): Promise<{ ok: true; created: number;
     catId[c.slug] = created.id;
   }
 
-  const slugs = [...SAMPLE_DISHES.map((d) => d.slug), ...LEGACY_SAMPLE_SLUGS];
+  const slugs = [...ALL_DISHES.map((d) => d.slug), ...LEGACY_SAMPLE_SLUGS];
   const found = new Map(
-    (await prisma.menuItem.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true } })).map((x) => [x.slug, x.id])
+    (await prisma.menuItem.findMany({ where: { slug: { in: slugs } }, select: { id: true, slug: true, imageUrl: true } })).map((x) => [x.slug, x])
   );
   let created = 0;
-  for (const [i, d] of SAMPLE_DISHES.entries()) {
-    // Bor taom (admin tahrirlagan bo'lishi mumkin) o'zgarmaydi
-    if (found.has(d.slug)) continue;
+  for (const [i, d] of ALL_DISHES.entries()) {
+    const img = dishImage(d.slug);
+    const existing = found.get(d.slug);
+    if (existing) {
+      // Bor taom (admin tahrirlagan bo'lishi mumkin) o'zgarmaydi; faqat rasmi yo'q bo'lsa, tayyor rasm qo'yiladi
+      if (!existing.imageUrl && img) await prisma.menuItem.update({ where: { id: existing.id }, data: { imageUrl: img } });
+      continue;
+    }
     const data = {
       slug: d.slug,
       categoryId: catId[d.cat],
@@ -207,19 +212,21 @@ export async function importSampleDishes(): Promise<{ ok: true; created: number;
       description: d.description,
       price: 0, // narx yo'q — saytda ko'rinmaydi
       discountPrice: null,
-      imageUrl: sampleImage(d.slug),
+      imageUrl: img,
       spicyLevel: d.spicy,
       isVegetarian: d.veg ?? false,
-      isHalal: true,
+      isHalal: d.halal ?? true,
       isFeatured: d.featured ?? false,
       isAvailable: true,
       sortOrder: i,
     };
     // Oldingi namuna taomi bo'lsa — shu yozuv yangisiga aylanadi (id saqlanadi)
-    const legacyId = found.get(LEGACY_SAMPLE_SLUGS[i]);
-    if (legacyId) await prisma.menuItem.update({ where: { id: legacyId }, data });
+    const legacy = i < LEGACY_SAMPLE_SLUGS.length ? found.get(LEGACY_SAMPLE_SLUGS[i]) : undefined;
+    if (legacy) await prisma.menuItem.update({ where: { id: legacy.id }, data });
     else await prisma.menuItem.create({ data });
     created++;
   }
-  return { ok: true, created, skipped: SAMPLE_DISHES.length - created };
+  revalidateMenu();
+  revalidatePath("/[locale]", "page");
+  return { ok: true, created, skipped: ALL_DISHES.length - created };
 }
