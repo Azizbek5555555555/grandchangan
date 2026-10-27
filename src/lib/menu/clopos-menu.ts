@@ -3,9 +3,10 @@ import type { SampleDish } from "./sample-dishes";
 
 /**
  * Clopos menyusining qolgan pozitsiyalari (Aziz, 2026-10-27: "barcha ovqatlarni saytga kiritish kerak") — Clopos
- * eksportidan (2026-10-25, 152 pozitsiya). SAMPLE_DISHES'dagi 30 taomdan tashqari hammasi. Kiritilmaganlar:
+ * eksporti va API'si bo'yicha (2026-10-27, 154 pozitsiya, ID bo'yicha solishtirilgan). SAMPLE_DISHES'dagi 30 taomdan
+ * tashqari hammasi. Kiritilmaganlar:
  * set-menyular ("Меню 8$" va h.k. — tarkibi yo'q), "Штраф", "Караоке". Bir taomning o'lchamlari (yarim/butun,
- * 0,5/1,5 l, kichik/katta) bitta pozitsiyaga birlashtirilgan. Narx qo'yilmaydi. Rasm hozircha yo'q (tarelka zaxirasi).
+ * 0,5/1,5 l, kichik/katta) bitta pozitsiyaga birlashtirilgan. Narx qo'yilmaydi. Rasmlar — sample-dishes.ts → dishImage.
  * Format: [uz, ru, en, zh].
  */
 
@@ -253,6 +254,7 @@ export const CLOPOS_REST: SampleDish[] = [
   drink("beer", ["Pivo", "Пиво", "Beer", "啤酒"]),
   drink("draft-beer", ["Quyma pivo", "Разливное пиво", "Draft beer", "生啤"]),
   drink("zatecky-gus-beer", ["«Žatecký Gus» pivosi", "Пиво «Жатецкий Гусь»", "Žatecký Gus beer", "扎特茨跨啤酒（蓝色）"]),
+  drink("wine", ["Vino", "Вино", "Wine", "葡萄酒"]),
   drink("guojiao-1573", ["Guojiao 1573 (xitoy aroqi)", "Гоцзяо 1573 (байцзю)", "Guojiao 1573 baijiu", "国窖1573"]),
   drink("luzhou-laojiao-zisha-daqu", ["Lujou Laojiao «Zisha Daqu» (xitoy aroqi)", "Лучжоу Лаоцзяо «Цзыша Дацюй» (байцзю)", "Luzhou Laojiao Zisha Daqu baijiu", "泸州老窖紫砂大曲"]),
   drink("vodka-new-uzbekistan", ["«New Uzbekistan» arog'i", "Водка «New Uzbekistan»", "New Uzbekistan vodka", "白酒「New Uzbekistan」"]),

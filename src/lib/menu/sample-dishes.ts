@@ -3,10 +3,9 @@ import { CLOPOS_REST } from "./clopos-menu";
 
 /**
  * Clopos menyusidagi 30 ta taom, rasmlari bilan (Aziz: 2026-10-26 — ro'yxat boshidagi 15 tasi, 2026-10-27 — yana 15 tasi).
- * Qolgan Clopos pozitsiyalari — clopos-menu.ts (rasmsiz). Hammasi (ALL_DISHES) admin → Menyu → "Clopos menyusi"
+ * Qolgan Clopos pozitsiyalari — clopos-menu.ts. Hammasi (ALL_DISHES) admin → Menyu → "Clopos menyusi"
  * tugmasi bilan bazaga qo'shiladi (bor taomlar o'tkazib yuboriladi). Narx QO'YILMAYDI (0 = saytda narx ko'rinmaydi;
- * admin xohlasa keyin o'zi qo'yadi). Rasmlar — Clopos'dagi rasmlar, Real-ESRGAN bilan 4x kattalashtirilgan,
- * kvadrat qilib kesilgan (burchakdagi Clopos raqami olib tashlangan): public/photos/dishes/<slug>.webp.
+ * admin xohlasa keyin o'zi qo'yadi). Rasmlar: public/photos/dishes/<slug>.webp (fayl oxiridagi dishImage).
  */
 
 type L = { uz: string; ru: string; en: string; zh: string };
@@ -360,6 +359,9 @@ export const SAMPLE_DISHES: SampleDish[] = [
 /** Clopos menyusining hammasi: rasmli 30 taom + qolganlari */
 export const ALL_DISHES: SampleDish[] = [...SAMPLE_DISHES, ...CLOPOS_REST];
 
-/** Rasmi bor taomlar (public/photos/dishes/<slug>.webp); qolganlarida tarelka zaxirasi */
-const WITH_PHOTO = new Set(SAMPLE_DISHES.map((d) => d.slug));
-export const dishImage = (slug: string) => (WITH_PHOTO.has(slug) ? sampleImage(slug) : null);
+/**
+ * Rasmlar — Clopos'dagi asl rasmlar (2026-10-27, Clopos API): kvadrat, 800px, Clopos raqam belgisi kesilgan;
+ * kichiklari Real-ESRGAN bilan kattalashtirilgan. Clopos'da rasmi yo'q pozitsiyalar — tarelka zaxirasi.
+ */
+const NO_PHOTO = new Set(["borjomi", "chinese-black-tea", "draft-beer", "wine"]);
+export const dishImage = (slug: string) => (NO_PHOTO.has(slug) ? null : sampleImage(slug));
