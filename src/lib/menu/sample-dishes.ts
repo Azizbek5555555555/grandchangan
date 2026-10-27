@@ -1,8 +1,10 @@
 import type { SpicyLevel } from "@prisma/client";
+import { CLOPOS_REST } from "./clopos-menu";
 
 /**
- * Clopos menyusidagi 30 ta taom, rasmlari bilan (Aziz: 2026-10-26 — ro'yxat boshidagi 15 tasi, 2026-10-27 — yana 15 tasi) —
- * admin → Menyu → "Namuna taomlar (30)" tugmasi bazaga qo'shadi (bor taomlar o'tkazib yuboriladi). Narx QO'YILMAYDI (0 = saytda narx ko'rinmaydi;
+ * Clopos menyusidagi 30 ta taom, rasmlari bilan (Aziz: 2026-10-26 — ro'yxat boshidagi 15 tasi, 2026-10-27 — yana 15 tasi).
+ * Qolgan Clopos pozitsiyalari — clopos-menu.ts (rasmsiz). Hammasi (ALL_DISHES) admin → Menyu → "Clopos menyusi"
+ * tugmasi bilan bazaga qo'shiladi (bor taomlar o'tkazib yuboriladi). Narx QO'YILMAYDI (0 = saytda narx ko'rinmaydi;
  * admin xohlasa keyin o'zi qo'yadi). Rasmlar — Clopos'dagi rasmlar, Real-ESRGAN bilan 4x kattalashtirilgan,
  * kvadrat qilib kesilgan (burchakdagi Clopos raqami olib tashlangan): public/photos/dishes/<slug>.webp.
  */
@@ -15,9 +17,11 @@ export type SampleDish = {
   slug: string;
   cat: string;
   name: L;
-  description: L;
+  description?: L;
   spicy: SpicyLevel;
   veg?: boolean;
+  /** Halol belgisi (berilmasa — ha; ichimliklarda yo'q) */
+  halal?: boolean;
   featured?: boolean;
 };
 
@@ -28,6 +32,13 @@ export const SAMPLE_CATEGORIES: SampleCategory[] = [
   { slug: "signature", name: { uz: "Firma taomlari", ru: "Фирменные блюда", en: "Signature dishes", zh: "招牌菜" } },
   { slug: "cold", name: { uz: "Sovuq taomlar", ru: "Холодные блюда", en: "Cold dishes", zh: "凉菜" } },
   { slug: "hot", name: { uz: "Issiq taomlar", ru: "Горячие блюда", en: "Hot dishes", zh: "热菜" } },
+  { slug: "seafood", name: { uz: "Dengiz mahsulotlari", ru: "Морепродукты", en: "Seafood", zh: "海鲜" } },
+  { slug: "noodles", name: { uz: "Lag'mon va noodle", ru: "Лапша", en: "Noodles", zh: "面食" } },
+  { slug: "dimsum", name: { uz: "Dim sum", ru: "Дим сам", en: "Dim sum", zh: "点心" } },
+  { slug: "rice", name: { uz: "Guruch taomlari", ru: "Рис", en: "Rice", zh: "米饭" } },
+  { slug: "soup", name: { uz: "Sho'rvalar", ru: "Супы", en: "Soups", zh: "汤类" } },
+  { slug: "sushi", name: { uz: "Sushi", ru: "Суши", en: "Sushi", zh: "寿司" } },
+  { slug: "drinks", name: { uz: "Ichimliklar", ru: "Напитки", en: "Drinks", zh: "饮料" } },
 ];
 
 /**
@@ -345,3 +356,10 @@ export const SAMPLE_DISHES: SampleDish[] = [
     },
   },
 ];
+
+/** Clopos menyusining hammasi: rasmli 30 taom + qolganlari */
+export const ALL_DISHES: SampleDish[] = [...SAMPLE_DISHES, ...CLOPOS_REST];
+
+/** Rasmi bor taomlar (public/photos/dishes/<slug>.webp); qolganlarida tarelka zaxirasi */
+const WITH_PHOTO = new Set(SAMPLE_DISHES.map((d) => d.slug));
+export const dishImage = (slug: string) => (WITH_PHOTO.has(slug) ? sampleImage(slug) : null);
