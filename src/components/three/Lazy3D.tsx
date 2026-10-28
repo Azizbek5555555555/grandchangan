@@ -90,7 +90,14 @@ export default function Lazy3D({
   const live = show && ready;
 
   return (
-    <div ref={ref} aria-hidden="true" className={className} style={{ touchAction: "pan-y", pointerEvents: "none" }}>
+    // data-3d — 3D holati (avtomatik tekshiruvlar uchun): loading → ready (chizildi) yoki off (WebGL yo'q / yiqildi)
+    <div
+      ref={ref}
+      aria-hidden="true"
+      data-3d={live ? "ready" : env && (!env.ok || failed) ? "off" : "loading"}
+      className={className}
+      style={{ touchAction: "pan-y", pointerEvents: "none" }}
+    >
       <div style={{ position: "relative", width: "100%", height: "100%" }}>
         {poster && (
           // eslint-disable-next-line @next/next/no-img-element

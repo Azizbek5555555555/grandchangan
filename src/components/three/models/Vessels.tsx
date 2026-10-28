@@ -154,7 +154,8 @@ function useVessel(kind: ReturnType<typeof vesselKey>, mobile: boolean, accent: 
     } else if (kind === "glass") {
       // transmission yo'q (qo'shimcha render o'tishi) — oddiy shaffof shisha, muhit aksi bilan
       const glass = new THREE.MeshPhysicalMaterial({
-        color: P.glass, roughness: 0.04, metalness: 0, transparent: true, opacity: 0.3, clearcoat: 1, side: THREE.DoubleSide, depthWrite: false,
+        // ichidagi ichimlik rangi o'chmasin — shisha juda yupqa shaffof
+        color: P.glass, roughness: 0.04, metalness: 0, transparent: true, opacity: 0.16, clearcoat: 1, side: THREE.DoubleSide, depthWrite: false,
       });
       extra.push(glass);
       const outer: [number, number][] = [[0, 0], [0.5, 0], [0.54, 0.03], [0.56, 0.14], [0.65, 1.7], [0.63, 1.72], [0.61, 1.7]];
