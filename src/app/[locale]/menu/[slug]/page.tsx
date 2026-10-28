@@ -6,8 +6,9 @@ import SiteFooter from "@/components/site/Footer";
 import DishHero from "@/components/site/dish/DishHero";
 import DishMore, { type PagerDish } from "@/components/site/dish/DishMore";
 import type { CellDish } from "@/components/site/menu/DishCell";
-import { SPICY_KEYS, usable } from "@/components/site/home/data";
+import { SPICY_KEYS, cnShort, usable } from "@/components/site/home/data";
 import { cleanSlug, getDish, getMenuOrder, type MenuOrderItem } from "@/lib/menu/dish";
+import { pickHighlights } from "@/lib/menu/highlights";
 import { currencyOf, t } from "@/lib/utils";
 import { labelsOf, recipeFor, sceneOf } from "@/lib/menu/recipes";
 import ExplodeStage from "@/components/site/explode/ExplodeStage";
@@ -21,7 +22,7 @@ export const dynamic = "force-dynamic";
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || "https://www.grandchangan.uz";
 const SPICY: Record<string, number> = { NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 };
 const HAN = /\p{Script=Han}/u;
-const zhOf = (v: unknown) => (v && typeof v === "object" ? String((v as Record<string, string>).zh || "").trim() : "");
+const zhOf = (v: unknown) => (v && typeof v === "object" ? cnShort(String((v as Record<string, string>).zh || "")) : "");
 const firstHan = (s: string) => Array.from(s).find((c) => HAN.test(c)) ?? "";
 
 type Params = { params: Promise<{ locale: string; slug: string }> };
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   };
 }
 
-function toCell(it: MenuOrderItem, locale: string): CellDish {
+function toCell(it: MenuOrderItem, locale: string, featured: boolean): CellDish {
   const price = Number(it.price);
   const disc = it.discountPrice != null ? Number(it.discountPrice) : null;
   const hasDisc = disc != null && disc > 0 && disc < price;
@@ -63,7 +64,7 @@ function toCell(it: MenuOrderItem, locale: string): CellDish {
     grams: it.weightGrams,
     mins: it.prepTimeMin,
     isNew: it.isNew,
-    featured: it.isFeatured,
+    featured,
   };
 }
 
@@ -103,7 +104,8 @@ export default async function DishPage({ params }: Params) {
     .filter((o) => o.categoryId === item.categoryId && o.id !== item.id)
     .sort((a, b) => Number(!!usable(b.imageUrl)) - Number(!!usable(a.imageUrl)));
   const take = same.length >= 6 ? 6 : same.length >= 3 ? 3 : same.length;
-  const related = same.slice(0, take).map((o) => toCell(o, locale));
+  const hl = new Set(pickHighlights(order).map((o) => o.id));
+  const related = same.slice(0, take).map((o) => toCell(o, locale, hl.has(o.id)));
 
   // Qatlamli 3D bo'lim — taomning retsepti (recipes.ts), nomlar sahifa tilida
   const recipe = recipeFor(item.slug, item.category.slug);

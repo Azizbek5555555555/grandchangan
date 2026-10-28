@@ -9,7 +9,7 @@ import { cn, t, currencyOf, formatMoney, hasPrice, type Localized } from "@/lib/
 import Reveal from "@/components/motion/Reveal";
 import SectionHead from "@/components/site/kit/SectionHead";
 import Wave from "@/components/site/kit/Wave";
-import { usable } from "@/components/site/home/data";
+import { cnShort, usable } from "@/components/site/home/data";
 import { PorcelainPlate } from "@/components/site/home/ShowcaseArt";
 import DishCell, { type CellDish } from "@/components/site/menu/DishCell";
 import { FillerCell, type FillKind } from "@/components/site/menu/Cells";
@@ -28,7 +28,7 @@ type Item = {
 const SPICY: Record<string, number> = { NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 };
 const HAN = /\p{Script=Han}/u;
 /** JSON nomdan xitoycha variant (bezak uchun) */
-const zhOf = (v: unknown) => (v && typeof v === "object" ? (v as Localized).zh?.trim() || "" : "");
+const zhOf = (v: unknown) => (v && typeof v === "object" ? cnShort((v as Localized).zh ?? "") : "");
 const firstHan = (s: string) => Array.from(s).find((c) => HAN.test(c)) ?? "";
 const OTHER = "__other";
 /** Bo'sh kataklar o'rnidagi bezaklar navbat bilan almashadi */

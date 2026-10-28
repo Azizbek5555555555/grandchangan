@@ -7,6 +7,7 @@ import Wave from "@/components/site/kit/Wave";
 import Reveal from "@/components/motion/Reveal";
 import Parallax from "@/components/motion/Parallax";
 import { Seal } from "@/components/site/home/Decor";
+import { cnShort } from "@/components/site/home/data";
 import { PlatedDish } from "@/components/site/menu/Plated";
 import DishCell, { type CellDish } from "@/components/site/menu/DishCell";
 import { FillerCell } from "@/components/site/menu/Cells";
@@ -31,7 +32,7 @@ export type SpecialItem = {
 };
 
 const usable = (u?: string | null) => (u && (u.startsWith("/uploads") || u.startsWith("/photos/") || u.startsWith("http")) ? u : null);
-const zh = (v: unknown) => (v && typeof v === "object" ? String((v as Record<string, string>).zh || "") : "");
+const zh = (v: unknown) => (v && typeof v === "object" ? cnShort(String((v as Record<string, string>).zh || "")) : "");
 const firstHan = (s: string) => Array.from(s).find((c) => /\p{Script=Han}/u.test(c)) ?? "";
 const SPICY: Record<string, number> = { NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3, EXTRA_HOT: 4 };
 
