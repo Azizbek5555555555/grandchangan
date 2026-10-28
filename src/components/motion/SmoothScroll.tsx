@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect } from "react";
 import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { gsap } from "gsap";
@@ -15,7 +15,9 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const isAdmin = pathname?.includes("/admin");
 
-  useEffect(() => {
+  // useLayoutEffect: sahifa almashganda eski Lenis yangi sahifa chizilishidan OLDIN to'xtatiladi — aks holda
+  // davom etayotgan silliq scroll animatsiyasi Next'ning "tepaga qaytish"ini bekor qilib, sahifani pastga tortadi
+  useLayoutEffect(() => {
     // Admin panelda tabiiy scroll (formalar, kanban) — Lenis o'chiriladi
     if (isAdmin) return;
 

@@ -46,7 +46,10 @@ export default function Lazy3D({
    * bo'lgach silliq almashadi; WebGL yo'q bo'lsa — zaxira bo'lib qoladi. Birinchi ekrandagi sahnalar uchun.
    */
   poster?: string;
-  /** WebGL yo'q yoki sahna yiqilsa — o'rniga ko'rsatiladi (masalan taom rasmi) */
+  /**
+   * 3D tayyor bo'lguncha (shader'lar kompilyatsiyasi, chunk yuklanishi) ko'rsatiladigan element — masalan taom rasmi;
+   * 3D chizilgach silliq yo'qoladi, WebGL yo'q yoki sahna yiqilsa — qolib ketadi. Bo'lim hech qachon bo'sh turmaydi.
+   */
   fallback?: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -107,7 +110,18 @@ export default function Lazy3D({
             }}
           />
         )}
-        {fallback && env && (!env.ok || failed) && fallback}
+        {fallback && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              opacity: live ? 0 : 1,
+              transition: env?.reduced ? "none" : "opacity 0.6s ease 0.1s",
+            }}
+          >
+            {fallback}
+          </div>
+        )}
         {show && env && (
           <div
             style={{

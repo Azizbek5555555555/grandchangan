@@ -34,7 +34,7 @@ export type ExplodeStageProps = {
   view?: ExplodeView;
   /** Tepadagi to'lqin rangi (oldingi bo'lim rangi) */
   waveTop: string;
-  /** WebGL bo'lmasa — 3D o'rniga */
+  /** 3D tayyor bo'lguncha va WebGL bo'lmasa — 3D o'rniga (taom rasmi) */
   fallback?: ReactNode;
 };
 

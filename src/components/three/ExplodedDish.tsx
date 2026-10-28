@@ -14,7 +14,7 @@ const Scene = dynamic(load, { ssr: false, loading: () => null });
 /**
  * Taomning qatlamli ("exploded") ko'rinishi: idish + retsept qatlamlari. labels — yuqoridan pastga
  * (oxirgisi — idish). Progress: eng yaqin [data-explode-track] ota bo'limning scroll'idan (sticky bo'lim ichiga qo'ying).
- * fallback — WebGL bo'lmasa ko'rsatiladi.
+ * fallback — 3D tayyor bo'lguncha (va WebGL bo'lmasa) ko'rsatiladi.
  */
 export default function ExplodedDish({
   className, recipe, labels, view, fallback,

@@ -152,9 +152,9 @@ function useVessel(kind: ReturnType<typeof vesselKey>, mobile: boolean, accent: 
       // taxta oyoqchalari
       [-1, 1].forEach((s) => out.push({ geo: new RoundedBoxGeometry(0.22, 0.1, 1.6, 2, 0.03), mat: wood, pos: [s * 1.2, -0.04, 0] }));
     } else if (kind === "glass") {
+      // transmission yo'q (qo'shimcha render o'tishi) — oddiy shaffof shisha, muhit aksi bilan
       const glass = new THREE.MeshPhysicalMaterial({
-        color: P.glass, roughness: 0.05, metalness: 0, transparent: true, opacity: mobile ? 0.28 : 1,
-        transmission: mobile ? 0 : 1, thickness: 0.15, ior: 1.5, clearcoat: 1, side: THREE.DoubleSide, depthWrite: false,
+        color: P.glass, roughness: 0.04, metalness: 0, transparent: true, opacity: 0.3, clearcoat: 1, side: THREE.DoubleSide, depthWrite: false,
       });
       extra.push(glass);
       const outer: [number, number][] = [[0, 0], [0.5, 0], [0.54, 0.03], [0.56, 0.14], [0.65, 1.7], [0.63, 1.72], [0.61, 1.7]];

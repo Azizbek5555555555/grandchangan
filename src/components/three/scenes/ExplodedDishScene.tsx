@@ -16,7 +16,7 @@ import { useFitCamera } from "../lib/useFitCamera";
 import Bowl, { BOWL, innerRadiusAt } from "../models/Bowl";
 import BowlToppings, { type ToppingPart } from "../models/BowlToppings";
 import { kindDef, kindExtent, placeKind, type KindDef, type Region } from "../models/DishKit";
-import { useFoodKit, type FoodKit } from "../models/Ingredients";
+import { useOptionalFoodKit, type FoodKit } from "../models/Ingredients";
 import Noodles, { type NoodleLayout } from "../models/Noodles";
 import VesselModel, { surfaceY, vesselKey, vesselSpec, type VesselSpec } from "../models/Vessels";
 import { P } from "../palette";
@@ -103,8 +103,8 @@ function Liquid({ spec, tint, mobile }: { spec: VesselSpec; tint: Tint; mobile: 
     const geo = new THREE.LatheGeometry(pts, mobile ? 36 : 64);
     geo.computeVertexNormals();
     const mat = new THREE.MeshPhysicalMaterial({
-      color: P[tint], roughness: 0.06, clearcoat: 1, transmission: mobile ? 0 : 0.45, thickness: 1, ior: 1.33,
-      transparent: true, opacity: mobile ? 0.9 : 1,
+      // transmission o'rniga oddiy shaffoflik — har kadr qo'shimcha render o'tishi va og'ir shader yo'q
+      color: P[tint], roughness: 0.06, clearcoat: 1, transparent: true, opacity: 0.88,
     });
     return { geo, mat };
   }, [spec, tint, mobile]);
@@ -197,14 +197,15 @@ type Ctx = {
   spec: VesselSpec;
   region: Region;
   mobile: boolean;
-  kit: FoodKit;
+  /** Faqat bowl* qatlamlari bo'lsa (bosh sahifa lag'moni) */
+  kit: FoodKit | null;
   layout: NoodleLayout;
   timeRef: React.RefObject<{ t: number; lift: number }>;
 };
 
 function KindNode({ kind, tint, count, k, seed, c }: { kind: Kind; tint?: Tint; count?: number; k: number; seed: number; c: Ctx }) {
   const { spec, region, mobile, kit, layout, timeRef, recipe } = c;
-  const toppings = (parts: ToppingPart[]) => <BowlToppings kit={kit} layout={layout} mobile={mobile} parts={parts} />;
+  const toppings = (parts: ToppingPart[]) => (kit ? <BowlToppings kit={kit} layout={layout} mobile={mobile} parts={parts} /> : null);
   switch (kind) {
     case "bowlBroth":
       return <Bowl mobile={mobile} part="broth" />;
@@ -215,6 +216,7 @@ function KindNode({ kind, tint, count, k, seed, c }: { kind: Kind; tint?: Tint; 
     case "bowlGreens":
       return toppings(["chok", "leaves"]);
     case "bowlGarnish":
+      if (!kit) return null;
       return (
         <>
           {toppings(["rings", "seeds"])}
@@ -288,7 +290,9 @@ function ExplodedContent({ reduced, mobile, trackRef, recipe, labels, view }: Pi
     return { rx: spec.rx, rz: spec.rz, rect: spec.shape === "rect", surf: (x, z) => surfaceY(s, x, z), fillY: spec.fillY, top: spec.top, half: spec.half, innerAt: spec.innerAt };
   }, [spec, heap]);
 
-  const kit = useFoodKit(mobile);
+  // Lag'mon kosasining asl bezaklari faqat kerak bo'lsa quriladi (boshqa taomlarda ortiqcha ish yo'q)
+  const needsKit = recipe.layers.some((l) => l.kind === "bowlBeef" || l.kind === "bowlGreens" || l.kind === "bowlGarnish");
+  const kit = useOptionalFoodKit(needsKit, mobile);
   const layout = useMemo<NoodleLayout>(
     () => ({
       brothY: spec.fillY,
@@ -383,12 +387,12 @@ function ExplodedContent({ reduced, mobile, trackRef, recipe, labels, view }: Pi
                     className="flex items-center gap-3 whitespace-nowrap"
                     style={{ transform: "translate(-100%, -50%)", opacity: reduced ? 1 : 0 }}
                   >
-                    {/* Bosh sahifa lag'moni — asl ko'rinish; taom sahifalarida uzun nomlar 2 qatorga o'tadi (canvas chetida kesilmasin) */}
+                    {/* Bosh sahifa lag'moni — asl ko'rinish; taom sahifalarida nom o'z kengligida (w-max), faqat 11.5rem dan uzuni 2 qatorga o'tadi */}
                     <span
                       className={
                         view
                           ? "max-w-[8.5rem] whitespace-normal text-right font-display text-[13px] italic leading-tight text-brand-cream sm:max-w-none sm:whitespace-nowrap sm:text-lg"
-                          : "max-w-[8.5rem] whitespace-normal text-right font-display text-[13px] italic leading-tight text-brand-cream sm:max-w-[11.5rem] sm:text-[17px]"
+                          : "w-max max-w-[8.5rem] whitespace-normal text-right font-display text-[13px] italic leading-tight text-brand-cream sm:max-w-[11.5rem] sm:text-[17px]"
                       }
                     >
                       {label}
