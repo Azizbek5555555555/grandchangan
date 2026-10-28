@@ -47,7 +47,7 @@ export type DishHeroLabels = {
  * xitoycha nom, tavsif, belgilar va CTA; o'ngda lak patnis ustida katta tarelka — ortida ulkan konturli ieroglif,
  * aylanuvchi oltin halqalar va vertikal qizil xitoycha yorliq (Oshpaz tanlovi uslubida).
  */
-export default function DishHero({ d, l, waveClass }: { d: DishHeroData; l: DishHeroLabels; waveClass: string }) {
+export default function DishHero({ d, l, waveClass }: { d: DishHeroData; l: DishHeroLabels; waveClass?: string }) {
   const chips = [
     d.spicy > 0 ? { key: "s", icon: Flame, label: l.spicy, hot: true } : null,
     d.veg ? { key: "v", icon: Leaf, label: l.veg } : null,
@@ -57,7 +57,7 @@ export default function DishHero({ d, l, waveClass }: { d: DishHeroData; l: Dish
   ].filter(Boolean) as { key: string; icon: typeof Flame; label: string; hot?: boolean }[];
 
   return (
-    <section className="relative isolate overflow-hidden bg-night pb-28 pt-28 text-brand-cream sm:pb-36 lg:pt-32">
+    <section className={cn("relative isolate overflow-hidden bg-night pt-28 text-brand-cream lg:pt-32", waveClass ? "pb-28 sm:pb-36" : "pb-16 sm:pb-20")}>
       <span aria-hidden="true" className="lattice-bg pointer-events-none absolute inset-0 -z-10 text-brand-gold/[0.035]" />
       <span aria-hidden="true" className="pointer-events-none absolute -right-40 top-0 -z-10 size-[46rem] rounded-full bg-fire-deep/30 blur-[120px]" />
       <span aria-hidden="true" className="pointer-events-none absolute -left-48 bottom-0 -z-10 size-[30rem] rounded-full bg-saffron/[0.06] blur-[110px]" />
@@ -159,7 +159,7 @@ export default function DishHero({ d, l, waveClass }: { d: DishHeroData; l: Dish
           </div>
         </div>
       </div>
-      <Wave className={waveClass} />
+      {waveClass ? <Wave className={waveClass} /> : <span aria-hidden="true" className="hairline-gold absolute inset-x-[8%] bottom-0" />}
     </section>
   );
 }

@@ -1459,6 +1459,12 @@
     "relAccent": "также",
     "prev": "Предыдущее блюдо",
     "next": "Следующее блюдо",
-    "metaSuffix": "меню GrandChangan, Самарканд"
+    "metaSuffix": "меню GrandChangan, Самарканд",
+    "layersTitle": "В каждом слое —",
+    "layersAccent": "свой вкус",
+    "layersSub": "Прокрутите вниз — «{name}» раскроется по слоям: из чего состоит, видно с одного взгляда.",
+    "layersN": "{n, plural, one {# слой} few {# слоя} many {# слоёв} other {# слоя}}",
+    "factCrafted": "Каждое готовится вручную",
+    "factFresh": "Свежие продукты каждый день"
   }
 }

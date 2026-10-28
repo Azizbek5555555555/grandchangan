@@ -49,3 +49,12 @@ export function rng(seed: number) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+
+/**
+ * Qatlamli sahna nomlarining jadvali (n ta qatlam): i-nom (pastdan) progress `start + i·step` da chiqa boshlaydi,
+ * `fade` davomida to'liq ko'rinadi. 6 qatlamda — bosh sahifa lag'monidagi asl jadval (0.2 / 0.11 / 0.15).
+ * Sahna (ExplodedDishScene) va HUD (ExplodeHud) bir xil jadvaldan foydalanadi.
+ */
+export function labelSchedule(n: number) {
+  return { start: 0.2, step: n > 1 ? Math.min(0.11, 0.55 / (n - 1)) : 0, fade: 0.15 };
+}

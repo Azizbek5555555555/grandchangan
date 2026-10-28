@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import SectionHead from "@/components/site/kit/SectionHead";
 import ButtonLink from "@/components/site/kit/ButtonLink";
+import Wave from "@/components/site/kit/Wave";
 import Reveal from "@/components/motion/Reveal";
 import SafeImg from "@/components/site/home/SafeImg";
 import { PorcelainPlate } from "@/components/site/home/ShowcaseArt";
@@ -17,17 +18,20 @@ export type PagerDish = { slug: string; name: string; img: string | null; glyph:
  * oldingi/keyingi taom kartalari va "Menyuga qaytish".
  */
 export default function DishMore({
-  related, prev, next, l,
+  related, prev, next, l, waveTop,
 }: {
   related: CellDish[];
   prev: PagerDish | null;
   next: PagerDish | null;
   l: { eyebrow: string; title: string; accent: string; prev: string; next: string; back: string };
+  /** Oldingi bo'lim rangi — tepada to'lqin */
+  waveTop?: string;
 }) {
   const fill = rowFill(related.length);
   return (
-    <section className="relative isolate bg-paper px-4 pb-28 pt-6 text-content sm:px-8 sm:pb-36">
+    <section className={cn("relative isolate bg-paper px-4 pb-28 text-content sm:px-8 sm:pb-36", waveTop ? "pt-28 sm:pt-32" : "pt-6")}>
       <span aria-hidden="true" className="lattice-bg absolute inset-0 -z-10 text-fire/[0.03]" />
+      {waveTop && <Wave top className={waveTop} variant="c" />}
       <div className="mx-auto max-w-7xl">
         {related.length > 0 && (
           <>

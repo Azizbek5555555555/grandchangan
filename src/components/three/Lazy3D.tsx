@@ -32,6 +32,7 @@ export default function Lazy3D({
   mountMargin = "150% 0px",
   load,
   poster,
+  fallback,
 }: {
   className?: string;
   Scene: ComponentType<SceneProps>;
@@ -45,6 +46,8 @@ export default function Lazy3D({
    * bo'lgach silliq almashadi; WebGL yo'q bo'lsa — zaxira bo'lib qoladi. Birinchi ekrandagi sahnalar uchun.
    */
   poster?: string;
+  /** WebGL yo'q yoki sahna yiqilsa — o'rniga ko'rsatiladi (masalan taom rasmi) */
+  fallback?: ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { near, seen } = useNearViewport(ref, rootMargin, mountMargin);
@@ -104,6 +107,7 @@ export default function Lazy3D({
             }}
           />
         )}
+        {fallback && env && (!env.ok || failed) && fallback}
         {show && env && (
           <div
             style={{

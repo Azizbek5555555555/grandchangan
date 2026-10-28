@@ -1459,6 +1459,12 @@
     "relAccent": "ko'ring",
     "prev": "Oldingi taom",
     "next": "Keyingi taom",
-    "metaSuffix": "GrandChangan menyusi, Samarqand"
+    "metaSuffix": "GrandChangan menyusi, Samarqand",
+    "layersTitle": "Har qatlamda —",
+    "layersAccent": "o'z ta'mi",
+    "layersSub": "Pastga suring — «{name}» qatlamlarga ajraladi: nima nimadan iborat, bir qarashda.",
+    "layersN": "{n} ta qatlam",
+    "factCrafted": "Har biri qo'lda tayyorlanadi",
+    "factFresh": "Har kuni yangi masalliqlar"
   }
 }

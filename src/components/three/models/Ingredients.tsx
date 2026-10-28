@@ -11,7 +11,7 @@ import { P } from "../palette";
    Sichuan qalampiri, bok-choy bargi, kashnich, mol go'shti bo'lagi). Hammasi protsedural. */
 
 /* ---------- Qalampir: o'zgaruvchan radiusli egilgan naycha + yashil kosacha va band ---------- */
-function chili(mobile: boolean, bend = 1) {
+export function chili(mobile: boolean, bend = 1) {
   const R = 0.085;
   const curve = new THREE.CatmullRomCurve3(
     [
@@ -60,7 +60,7 @@ function chili(mobile: boolean, bend = 1) {
 }
 
 /* ---------- Yulduz-anis: 8 ta qayiqsimon meva bargi + urug'lar ---------- */
-function starAnise(mobile: boolean) {
+export function starAnise(mobile: boolean) {
   const L = 0.42;
   const pods: THREE.BufferGeometry[] = [];
   const seeds: THREE.BufferGeometry[] = [];
@@ -99,7 +99,7 @@ function starAnise(mobile: boolean) {
 }
 
 /* ---------- Ko'k piyoz halqasi: kesimli lathe halqa, ichi och, tashqi to'q yashil ---------- */
-function scallionRing(mobile: boolean) {
+export function scallionRing(mobile: boolean) {
   const ri = 0.075;
   const ro = 0.093;
   const h = 0.045;
@@ -132,7 +132,7 @@ function scallionRing(mobile: boolean) {
 }
 
 /* ---------- Kunjut urug'i ---------- */
-function sesame() {
+export function sesame() {
   const g = new THREE.SphereGeometry(1, 8, 6);
   const p = g.getAttribute("position") as THREE.BufferAttribute;
   for (let i = 0; i < p.count; i++) {
@@ -145,7 +145,7 @@ function sesame() {
 }
 
 /* ---------- Sichuan qalampiri — g'adir-budur sharcha ---------- */
-function peppercorn() {
+export function peppercorn() {
   const g = new THREE.SphereGeometry(0.042, 12, 9);
   const p = g.getAttribute("position") as THREE.BufferAttribute;
   const v = new THREE.Vector3();
@@ -196,7 +196,7 @@ export function chokLeaf(nu: number, nv: number, L = 1) {
 }
 
 /* ---------- Kashnich bargi: uch bo'lakli yelpig'ich ---------- */
-function cilantro() {
+export function cilantro() {
   const M = 42;
   const pos: number[] = [0, 0.012, 0];
   const idx: number[] = [];

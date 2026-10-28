@@ -9,6 +9,11 @@ import type { CellDish } from "@/components/site/menu/DishCell";
 import { SPICY_KEYS, usable } from "@/components/site/home/data";
 import { cleanSlug, getDish, getMenuOrder, type MenuOrderItem } from "@/lib/menu/dish";
 import { currencyOf, t } from "@/lib/utils";
+import { labelsOf, recipeFor, sceneOf } from "@/lib/menu/recipes";
+import ExplodeStage from "@/components/site/explode/ExplodeStage";
+import SafeImg from "@/components/site/home/SafeImg";
+import { PorcelainPlate } from "@/components/site/home/ShowcaseArt";
+import { Hand, Layers, Leaf, ShieldCheck, Sprout } from "lucide-react";
 
 // Har so'rovda bazadan (Railway build paytida baza yo'q — statik prerender qilinmaydi)
 export const dynamic = "force-dynamic";
@@ -99,19 +104,25 @@ export default async function DishPage({ params }: Params) {
   const take = same.length >= 6 ? 6 : same.length >= 3 ? 3 : same.length;
   const related = same.slice(0, take).map((o) => toCell(o, locale));
 
+  // Qatlamli 3D bo'lim — taomning retsepti (recipes.ts), nomlar sahifa tilida
+  const recipe = recipeFor(item.slug, item.category.slug);
+  const labels = labelsOf(recipe, locale);
+  const name = t(item.name, locale);
+  const glyph = firstHan(zh) || firstHan(catZh) || "菜";
+  const img = usable(item.imageUrl);
+
   return (
     <>
       <SiteHeader />
       <main id="main">
         <DishHero
-          waveClass="text-paper"
           d={{
-            name: t(item.name, locale),
+            name,
             zh: locale === "zh" ? null : zh || null,
             desc: t(item.description, locale),
             composition: t(item.ingredients, locale),
-            img: usable(item.imageUrl),
-            glyph: firstHan(zh) || firstHan(catZh) || "菜",
+            img,
+            glyph,
             catName: t(item.category.name, locale),
             catZh: locale === "zh" ? null : catZh || null,
             catHref: `/menu#cat-${item.categoryId}`,
@@ -139,7 +150,36 @@ export default async function DishPage({ params }: Params) {
             mins: item.prepTimeMin ? p2("minutes", { n: item.prepTimeMin }) : "",
           }}
         />
+        <ExplodeStage
+          cn="层层"
+          eyebrow={h2("explodeEyebrow")}
+          title={tr("layersTitle")}
+          accent={tr("layersAccent")}
+          sub={tr("layersSub", { name })}
+          labels={labels}
+          facts={[
+            { icon: Layers, label: tr("layersN", { n: labels.length }) },
+            item.isHalal
+              ? { icon: ShieldCheck, label: h2("explodeFact3") }
+              : item.isVegetarian
+                ? { icon: Leaf, label: p2("veg") }
+                : { icon: Hand, label: tr("factCrafted") },
+            { icon: Sprout, label: tr("factFresh") },
+          ]}
+          fig={name}
+          figCn="一品一味"
+          glyph={glyph}
+          poem="一菜一味 · 层层入味"
+          recipe={sceneOf(recipe)}
+          waveTop="text-night"
+          fallback={
+            <div className="flex h-full items-center justify-center">
+              <SafeImg src={img} alt="" className="aspect-square h-[80%] max-h-full rounded-full ring-1 ring-brand-gold/30" imgClassName="rounded-full" fallback={<PorcelainPlate char={glyph} glyph="text-8xl" />} />
+            </div>
+          }
+        />
         <DishMore
+          waveTop="text-night"
           related={related}
           prev={toPager(prev, locale)}
           next={toPager(next, locale)}

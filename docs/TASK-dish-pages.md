@@ -108,3 +108,20 @@ bitta umumiy sahna + har taom uchun kichik ma'lumot (retsept qatlamlari).
   "Clopos menyusi (130)" tugmasi (lokal admin: admin@grandchangan.uz / admin12345 — faqat lokal seed).
   WebGL skrinshot: `chromium.launch({ args: ['--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader'] })`.
 - Prod sayt: https://www.grandchangan.uz (konteynerdan ochiladi — natijani curl/Playwright bilan tekshirsa bo'ladi).
+
+---
+
+## 4. Holat (2026-10-28)
+
+- ✅ **1-bosqich** — `src/app/[locale]/menu/[slug]/page.tsx` (dinamik), `src/lib/menu/dish.ts`, `site/dish/{DishHero,DishMore}.tsx`.
+  Menyu kartalari (`DishCell` — butun katakcha havola), "招牌菜" qatori, bosh sahifa (Showcase, SignatureGrid, MenuPreview),
+  Oshpaz tanlovi — `/menu/<slug>` ga. Header: `/menu/<slug>` — qorong'i hero (`chrome/nav.ts`).
+- ✅ **2-bosqich** — umumiy sahna `three/scenes/ExplodedDishScene.tsx` + `three/ExplodedDish.tsx` (eski `ExplodedBowl*` o'chirildi);
+  idishlar `three/models/Vessels.tsx` (kosa, chuqur/yassi tarelka, baliq lagani, sopol xumcha, tosh hovoncha, bambuk savat,
+  yog'och taxta, stakan, piyola); masalliqlar `three/models/DishKit.tsx` (~50 tur, InstancedMesh). Bo'lim kompozitsiyasi —
+  `site/explode/ExplodeStage.tsx` + `ExplodeHud.tsx` (qatlamlar soni 2–6, jadval `labelSchedule`). Bosh sahifa lag'moni
+  shu sahnada (`HOME_LAGMAN`, asl modellar va kadr — ko'rinish o'zgarmagan). WebGL bo'lmasa — taom rasmi (`Lazy3D fallback`).
+- ✅ **3-bosqich** — `src/lib/menu/recipes.ts`: 130 taomning hammasi (ichimliklar ham) rasmga qarab; qatlam nomlari lug'ati
+  4 tilda; ro'yxatda yo'q (admin keyin qo'shgan) taom — kategoriyasi bo'yicha umumiy retsept. Turlar — `recipe-types.ts`,
+  ranglar — `three/palette.ts`.
+- Yangi taom qo'shilsa: `RECIPES` ga slug bilan bitta qator (`R(idish, l(tur, nom, rang, {count, with}) …)`).
