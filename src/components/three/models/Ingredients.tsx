@@ -287,56 +287,63 @@ export function beefSlice(seed: number, mobile: boolean) {
 
 /** Barcha masalliq geometriyalari + materiallari (bitta joyda, unmount'da bo'shatiladi) */
 export function useFoodKit(mobile: boolean) {
-  return useDisposable(() => {
-    const chiliA = chili(mobile, 1);
-    const chiliB = chili(mobile, -0.6);
-    const anise = starAnise(mobile);
-    const aniseBump = noiseTexture(128, 8, 3, 1.6, 23);
-    const chokMap = chokTexture(mobile ? 128 : 256, mobile ? 256 : 512);
-    const beefMap = beefTexture(mobile ? 256 : 512);
-    const geo = {
-      chiliA: chiliA.body,
-      chiliAGreen: chiliA.green,
-      chiliB: chiliB.body,
-      chiliBGreen: chiliB.green,
-      anise: anise.pods,
-      aniseSeeds: anise.seeds,
-      ring: scallionRing(mobile),
-      sesame: sesame(),
-      pepper: peppercorn(),
-      leaf: chokLeaf(mobile ? 8 : 12, mobile ? 18 : 26),
-      cilantro: cilantro(),
-      beef: [0, 1, 2, 3].map((i) => beefSlice(31 + i * 7, mobile)),
-    };
-    const glossy = (color: string) =>
-      new THREE.MeshPhysicalMaterial({ color, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06 });
-    const mat = {
-      chiliRed: glossy(P.chiliRed),
-      chiliDeep: glossy(P.chiliDeep),
-      chiliOrange: glossy(P.chiliOrange),
-      stem: new THREE.MeshStandardMaterial({ color: P.chiliStem, roughness: 0.55 }),
-      anise: new THREE.MeshStandardMaterial({ color: P.anise, roughness: 0.78, bumpMap: aniseBump, bumpScale: 3 }),
-      aniseSeed: new THREE.MeshPhysicalMaterial({ color: P.aniseSeed, roughness: 0.25, clearcoat: 0.8 }),
-      ring: new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.32, clearcoat: 0.5, clearcoatRoughness: 0.2 }),
-      sesame: new THREE.MeshStandardMaterial({ color: P.sesame, roughness: 0.5 }),
-      pepper: new THREE.MeshStandardMaterial({ color: P.pepper, roughness: 0.62 }),
-      leaf: new THREE.MeshPhysicalMaterial({
-        map: chokMap,
-        side: THREE.DoubleSide,
-        roughness: 0.42,
-        clearcoat: 0.4,
-        clearcoatRoughness: 0.25,
-      }),
-      cilantro: new THREE.MeshPhysicalMaterial({
-        color: P.cilantro,
-        side: THREE.DoubleSide,
-        roughness: 0.45,
-        clearcoat: 0.3,
-      }),
-      beef: new THREE.MeshPhysicalMaterial({ map: beefMap, roughness: 0.5, clearcoat: 0.35, clearcoatRoughness: 0.3 }),
-    };
-    return { geo, mat, tex: { aniseBump, chokMap, beefMap } };
-  }, [mobile]);
+  return useDisposable(() => buildFoodKit(mobile), [mobile]);
 }
 
-export type FoodKit = ReturnType<typeof useFoodKit>;
+/** Faqat kerak bo'lsa quriladi (qatlamli sahnada — lag'mon kosasi qatlamlari bo'lsagina) */
+export function useOptionalFoodKit(enabled: boolean, mobile: boolean) {
+  return useDisposable(() => (enabled ? buildFoodKit(mobile) : null), [enabled, mobile]);
+}
+
+function buildFoodKit(mobile: boolean) {
+  const chiliA = chili(mobile, 1);
+  const chiliB = chili(mobile, -0.6);
+  const anise = starAnise(mobile);
+  const aniseBump = noiseTexture(128, 8, 3, 1.6, 23);
+  const chokMap = chokTexture(mobile ? 128 : 256, mobile ? 256 : 512);
+  const beefMap = beefTexture(mobile ? 256 : 512);
+  const geo = {
+    chiliA: chiliA.body,
+    chiliAGreen: chiliA.green,
+    chiliB: chiliB.body,
+    chiliBGreen: chiliB.green,
+    anise: anise.pods,
+    aniseSeeds: anise.seeds,
+    ring: scallionRing(mobile),
+    sesame: sesame(),
+    pepper: peppercorn(),
+    leaf: chokLeaf(mobile ? 8 : 12, mobile ? 18 : 26),
+    cilantro: cilantro(),
+    beef: [0, 1, 2, 3].map((i) => beefSlice(31 + i * 7, mobile)),
+  };
+  const glossy = (color: string) =>
+    new THREE.MeshPhysicalMaterial({ color, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06 });
+  const mat = {
+    chiliRed: glossy(P.chiliRed),
+    chiliDeep: glossy(P.chiliDeep),
+    chiliOrange: glossy(P.chiliOrange),
+    stem: new THREE.MeshStandardMaterial({ color: P.chiliStem, roughness: 0.55 }),
+    anise: new THREE.MeshStandardMaterial({ color: P.anise, roughness: 0.78, bumpMap: aniseBump, bumpScale: 3 }),
+    aniseSeed: new THREE.MeshPhysicalMaterial({ color: P.aniseSeed, roughness: 0.25, clearcoat: 0.8 }),
+    ring: new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.32, clearcoat: 0.5, clearcoatRoughness: 0.2 }),
+    sesame: new THREE.MeshStandardMaterial({ color: P.sesame, roughness: 0.5 }),
+    pepper: new THREE.MeshStandardMaterial({ color: P.pepper, roughness: 0.62 }),
+    leaf: new THREE.MeshPhysicalMaterial({
+      map: chokMap,
+      side: THREE.DoubleSide,
+      roughness: 0.42,
+      clearcoat: 0.4,
+      clearcoatRoughness: 0.25,
+    }),
+    cilantro: new THREE.MeshPhysicalMaterial({
+      color: P.cilantro,
+      side: THREE.DoubleSide,
+      roughness: 0.45,
+      clearcoat: 0.3,
+    }),
+    beef: new THREE.MeshPhysicalMaterial({ map: beefMap, roughness: 0.5, clearcoat: 0.35, clearcoatRoughness: 0.3 }),
+  };
+  return { geo, mat, tex: { aniseBump, chokMap, beefMap } };
+}
+
+export type FoodKit = ReturnType<typeof buildFoodKit>;

@@ -378,7 +378,7 @@ const KINDS: Partial<Record<Kind, KindDef>> = {
   }),
   caviar: D({
     place: "pile", count: [70, 40], h: 0.14, tilt: 3, lift: 0.26, spread: 0.7, scale: [0.9, 1.1], gap: 0.04,
-    build: (m, tint) => [{ geos: [new THREE.SphereGeometry(0.03, 8, 6)], mat: new THREE.MeshPhysicalMaterial({ color: pick(tint, "caviar"), roughness: 0.08, clearcoat: 1, transmission: m ? 0 : 0.3, thickness: 0.05 }) }],
+    build: (_m, tint) => [{ geos: [new THREE.SphereGeometry(0.03, 8, 6)], mat: glossy(pick(tint, "caviar"), 0.08, 1) }],
   }),
 
   /* ---- sabzavot ---- */
@@ -541,7 +541,7 @@ const KINDS: Partial<Record<Kind, KindDef>> = {
     build: (m) => [{
       geos: [0, 1].map((k) => bump(new RoundedBoxGeometry(0.24, 0.22, 0.24, 2, 0.035), 0.008, 12, k)),
       mat: new THREE.MeshPhysicalMaterial({
-        color: P.ice, roughness: 0.12, transmission: m ? 0 : 1, thickness: 0.3, ior: 1.31, transparent: true, opacity: m ? 0.55 : 1, clearcoat: 1,
+        color: P.ice, roughness: 0.1, transparent: true, opacity: 0.62, clearcoat: 1, depthWrite: false,
       }),
     }],
   }),
@@ -591,7 +591,7 @@ const KINDS: Partial<Record<Kind, KindDef>> = {
       const label = paintBy(new THREE.CylinderGeometry(0.395, 0.395, 0.52, m ? 32 : 48, 1, true).translate(0, 0.72, 0), (v) =>
         v.y > 0.92 || v.y < 0.52 ? col("labelRed") : Math.abs(v.y - 0.72) < 0.03 ? col("labelGold") : col("labelCream"));
       return [
-        { geos: [body], mat: new THREE.MeshPhysicalMaterial({ color: base, roughness: 0.08, transmission: m ? 0 : 0.55, thickness: 0.6, transparent: true, opacity: m ? 0.88 : 1, clearcoat: 1, ior: 1.5 }) },
+        { geos: [body], mat: new THREE.MeshPhysicalMaterial({ color: base, roughness: 0.08, transparent: true, opacity: 0.9, clearcoat: 1 }) },
         { geos: [label], mat: vcMat(0.45, 0.4, THREE.DoubleSide) },
         { geos: [new THREE.CylinderGeometry(0.16, 0.16, 0.1, 20).translate(0, 2.17, 0)], mat: new THREE.MeshStandardMaterial({ color: P.gold, roughness: 0.3, metalness: 0.85 }) },
       ];

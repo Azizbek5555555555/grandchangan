@@ -173,9 +173,13 @@ export default async function DishPage({ params }: Params) {
           poem="一菜一味 · 层层入味"
           recipe={sceneOf(recipe)}
           waveTop="text-night"
+          // 3D tayyorlanguncha (va WebGL bo'lmasa) — taom rasmi oltin halqa ichida
           fallback={
-            <div className="flex h-full items-center justify-center">
-              <SafeImg src={img} alt="" className="aspect-square h-[80%] max-h-full rounded-full ring-1 ring-brand-gold/30" imgClassName="rounded-full" fallback={<PorcelainPlate char={glyph} glyph="text-8xl" />} />
+            <div className="flex h-full items-center justify-center lg:pl-[18%]">
+              <div className="relative aspect-square h-[62%] max-h-full">
+                <span aria-hidden="true" className="absolute -inset-[7%] animate-spin-slow rounded-full border border-dashed border-brand-gold/40" />
+                <SafeImg src={img} alt="" className="h-full w-full rounded-full shadow-2xl shadow-night ring-1 ring-brand-gold/30" imgClassName="rounded-full" fallback={<PorcelainPlate char={glyph} glyph="text-8xl" />} />
+              </div>
             </div>
           }
         />

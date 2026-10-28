@@ -3,17 +3,17 @@
 let webgl: boolean | null = null;
 
 /**
- * WebGL2 haqiqatda ishlaydimi (three r163+ faqat WebGL2). Natija keshlanadi, sinov konteksti darhol bo'shatiladi.
+ * WebGL2 haqiqatda ishlaydimi (three r163+ faqat WebGL2). Natija keshlanadi (sessiyada bir marta).
  * Faqat API borligini tekshirish yetmaydi: GPU o'chirilgan qurilmada Canvas ushlanmaydigan xato otardi.
- * Birinchi ekrandagi sahnalarda kechikishni poster yashiradi.
+ * Sinov konteksti majburan yo'q qilinmaydi (loseContext sinxron — sekin qurilmalarda sahifani soniyalab qotiradi),
+ * 1×1 canvas bilan birga GC'da bo'shaydi.
  */
 export function supportsWebGL(): boolean {
   if (webgl !== null) return webgl;
   try {
     const c = document.createElement("canvas");
-    const gl = c.getContext("webgl2");
-    webgl = !!gl;
-    gl?.getExtension("WEBGL_lose_context")?.loseContext();
+    c.width = c.height = 1;
+    webgl = !!c.getContext("webgl2");
   } catch {
     webgl = false;
   }
