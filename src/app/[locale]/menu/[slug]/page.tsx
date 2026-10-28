@@ -96,7 +96,8 @@ export default async function DishPage({ params }: Params) {
 
   // Oldingi/keyingi — menyu tartibida (aylanma); o'xshashlar — shu kategoriyadan, avval rasmlilari
   const idx = order.findIndex((o) => o.id === item.id);
-  const prev = idx >= 0 && order.length > 1 ? order[(idx - 1 + order.length) % order.length] : undefined;
+  // 2 ta taom bo'lsa oldingi va keyingi bir xil — faqat "keyingi" qoladi
+  const prev = idx >= 0 && order.length > 2 ? order[(idx - 1 + order.length) % order.length] : undefined;
   const next = idx >= 0 && order.length > 1 ? order[(idx + 1) % order.length] : undefined;
   const same = order
     .filter((o) => o.categoryId === item.categoryId && o.id !== item.id)

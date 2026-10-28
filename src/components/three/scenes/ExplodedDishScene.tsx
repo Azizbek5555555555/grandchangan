@@ -172,8 +172,11 @@ function Inst({ geo, mat, list }: { geo: THREE.BufferGeometry; mat: THREE.Materi
 function Pieces({ kind, def, region, n, seed, k, tint, mobile }: { kind: Kind; def: KindDef; region: Region; n: number; seed: number; k: number; tint?: Tint; mobile: boolean }) {
   const res = useDisposable(() => {
     const parts = def.build(mobile, tint ? new THREE.Color(P[tint]) : null, tint);
+    // disposeDeep chuqurligi cheklangan — geometriya, material va teksturalar tekis ro'yxatda (unmount'da bo'shatiladi)
+    const geos = parts.flatMap((p) => p.geos);
+    const mats = parts.map((p) => p.mat);
     const maps = parts.map((p) => (p.mat as THREE.MeshStandardMaterial).map).filter(Boolean);
-    return { parts, maps };
+    return { parts, geos, mats, maps };
   }, [kind, mobile, tint]);
   const mats = useMemo(() => placeKind(def, region, n, seed, k), [def, region, n, seed, k]);
   return (
