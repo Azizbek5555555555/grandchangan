@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { ArrowRight, Flame, Leaf as LeafIcon, ShieldCheck } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import ButtonLink from "@/components/site/kit/ButtonLink";
 import SectionHead from "@/components/site/kit/SectionHead";
 import Parallax from "@/components/motion/Parallax";
@@ -131,7 +132,9 @@ export default async function Showcase({ locale, dishes }: { locale: string; dis
 
                   <div className="mt-6 border-l border-brand-gold/60 pl-6 sm:pl-8">
                     {d.zh && <p lang="zh" className="font-cn text-4xl leading-none text-fire-ink sm:text-5xl">{d.zh}</p>}
-                    <h3 className="mt-4 text-balance break-words hyphens-auto font-display text-[2.6rem] leading-[1.06] text-content sm:text-6xl">{d.name}</h3>
+                    <h3 className="mt-4 text-balance break-words hyphens-auto font-display text-[2.6rem] leading-[1.06] text-content sm:text-6xl">
+                      <Link href={`/menu/${d.slug}`} className="transition-colors hover:text-fire-ink">{d.name}</Link>
+                    </h3>
                     <p className="mt-3 font-display text-lg italic text-muted">{d.catName}</p>
                     {d.desc && <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-muted">{d.desc}</p>}
 

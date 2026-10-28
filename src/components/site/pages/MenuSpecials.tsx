@@ -14,6 +14,7 @@ import { rowFill } from "@/components/site/menu/grid";
 
 export type SpecialItem = {
   id: string;
+  slug: string;
   name: unknown;
   description: unknown;
   ingredients: unknown;
@@ -40,6 +41,7 @@ function toCell(it: SpecialItem, locale: string, fallbackGlyph: string): CellDis
   const hasDisc = it.discountPrice != null && it.discountPrice > 0 && it.discountPrice < it.price;
   return {
     id: it.id,
+    slug: it.slug,
     name: t(it.name, locale),
     zh: locale === "zh" ? null : cnName || null,
     desc: t(it.description, locale),
@@ -116,7 +118,9 @@ export async function ChefSignature({ items, locale }: { items: SpecialItem[]; l
                     <span className="font-display text-5xl italic leading-none text-fire-ink/30">0{i + 1}</span>
                     <span aria-hidden="true" className="h-px w-16 bg-brand-gold/60" />
                   </p>
-                  <h3 className="mt-4 font-display text-4xl leading-[1.08] sm:text-5xl">{name}</h3>
+                  <h3 className="mt-4 font-display text-4xl leading-[1.08] sm:text-5xl">
+                    <Link href={`/menu/${it.slug}`} className="transition-colors hover:text-fire-ink">{name}</Link>
+                  </h3>
                   {it.description ? <p className="mt-4 max-w-md text-lg leading-relaxed text-muted">{t(it.description, locale)}</p> : null}
                   {feats.length > 0 && (
                     <>

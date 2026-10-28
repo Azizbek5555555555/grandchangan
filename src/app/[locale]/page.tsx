@@ -55,8 +55,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const [heroBanners, featuredRaw, latestRaw, catsRaw, reviewsRaw, reviewAgg, gallery, workingHours, generalSetting, menuCount] = await Promise.all([
     prisma.banner.findMany({ where: { position: "HERO", isActive: true }, orderBy: { sortOrder: "asc" }, take: 5 }),
-    prisma.menuItem.findMany({ where: { isFeatured: true, isAvailable: true }, take: 6, orderBy: { sortOrder: "asc" }, select: DISH_SELECT }),
-    prisma.menuItem.findMany({ where: { isAvailable: true }, take: 6, orderBy: { createdAt: "desc" }, select: DISH_SELECT }),
+    prisma.menuItem.findMany({ where: { isFeatured: true, isAvailable: true, category: { isActive: true } }, take: 6, orderBy: { sortOrder: "asc" }, select: DISH_SELECT }),
+    prisma.menuItem.findMany({ where: { isAvailable: true, category: { isActive: true } }, take: 6, orderBy: { createdAt: "desc" }, select: DISH_SELECT }),
     // Menyu bo'limi: mavjud taomi bor faol kategoriyalar (8 tagacha), har biridan 6 tagacha taom
     prisma.menuCategory.findMany({
       where: { isActive: true, items: { some: { isAvailable: true } } },

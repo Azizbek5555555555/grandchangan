@@ -1449,5 +1449,22 @@
       "cannotRemoveSelf": "You can't remove yourself",
       "noPermissionRemoveStaff": "You don't have permission to remove this staff member"
     }
+  },
+  "Dish": {
+    "back": "Back to menu",
+    "preorder": "Pre-order",
+    "dineIn": "Served in the restaurant only — pre-order and it will be ready when you arrive.",
+    "relEyebrow": "From the same section",
+    "relTitle": "Also",
+    "relAccent": "worth tasting",
+    "prev": "Previous dish",
+    "next": "Next dish",
+    "metaSuffix": "GrandChangan menu, Samarkand",
+    "layersTitle": "In every layer —",
+    "layersAccent": "its own flavour",
+    "layersSub": "Scroll down — “{name}” opens up layer by layer: everything inside at a glance.",
+    "layersN": "{n, plural, one {# layer} other {# layers}}",
+    "factCrafted": "Each one made by hand",
+    "factFresh": "Fresh ingredients daily"
   }
 }

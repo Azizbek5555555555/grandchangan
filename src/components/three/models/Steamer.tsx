@@ -33,7 +33,8 @@ function useBambooMats(mobile: boolean) {
   }, [mobile]);
 }
 
-export function SteamerBasket({ mobile }: { mobile: boolean }) {
+/** empty — chuchvarasiz (qatlamli sahnada chuchvaralar alohida qatlam) */
+export function SteamerBasket({ mobile, empty = false }: { mobile: boolean; empty?: boolean }) {
   const m = useBambooMats(mobile);
   const res = useDisposable(() => {
     const seg = mobile ? 48 : 72;
@@ -56,7 +57,7 @@ export function SteamerBasket({ mobile }: { mobile: boolean }) {
       <mesh geometry={res.bandGeo} material={m.bandMat} position={[0, 0.06, 0]} />
       <mesh geometry={res.floorGeo} material={res.floorMat} position={[0, 0.1, 0]} />
       <mesh geometry={res.paperGeo} material={res.paperMat} position={[0, 0.115, 0]} />
-      {SPOTS.map((s, i) => (
+      {!empty && SPOTS.map((s, i) => (
         <mesh
           key={i}
           geometry={res.dGeo}

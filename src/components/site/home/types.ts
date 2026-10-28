@@ -5,6 +5,8 @@
 
 export type HomeDish = {
   id: string;
+  /** Taom sahifasi: /menu/<slug> */
+  slug: string;
   /** Sahifa tilidagi nom */
   name: string;
   /** Xitoycha nom (bezak uchun) — sahifa tili zh bo'lsa yoki nom bo'lmasa null */

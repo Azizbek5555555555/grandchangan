@@ -123,17 +123,20 @@ export default function Noodles({
   mobile,
   timeRef,
   nestOnly = false,
+  tint,
 }: {
   layout: NoodleLayout;
   mobile: boolean;
   /** true — faqat kosadagi uya (palochka ko'targan tutamsiz) */
   nestOnly?: boolean;
+  /** Rang (berilmasa — bug'doy lag'moni) */
+  tint?: string;
   /** {t, lift} — sahna har kadr yangilaydi */
   timeRef: RefObject<{ t: number; lift: number }>;
 }) {
   const res = useDisposable(() => {
     const r = rng(3);
-    const shade = new THREE.Color(P.noodle);
+    const shade = new THREE.Color(tint ?? P.noodle);
     const nestN = mobile ? 22 : 34;
     const liftN = mobile ? 12 : 18;
     const nest = nestCurves(nestN, layout, 101).map((c) =>
@@ -180,7 +183,7 @@ export default function Noodles({
       clearcoat: 0.55,
       clearcoatRoughness: 0.22,
       sheen: 0.4,
-      sheenColor: new THREE.Color(P.noodle),
+      sheenColor: new THREE.Color(tint ?? P.noodle),
       sheenRoughness: 0.5,
     };
     const nestMat = new THREE.MeshPhysicalMaterial(matProps);
@@ -195,7 +198,7 @@ export default function Noodles({
     };
     liftMat.customProgramCacheKey = () => "noodle-sway";
     return { nestGeo, liftGeo, nestMat, liftMat, uniforms };
-  }, [mobile, layout]);
+  }, [mobile, layout, tint]);
 
   useFrame(() => {
     const v = timeRef.current;

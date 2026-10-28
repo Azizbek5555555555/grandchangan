@@ -155,7 +155,7 @@ function FeatureStage({ dish, index }: { dish: HomeDish; index: number }) {
         <div aria-hidden="true" className="hairline-gold mt-8 max-w-md" />
         <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-5">
           <Price price={dish.price} oldPrice={dish.oldPrice} className="font-display text-4xl text-saffron" oldClassName="text-brand-cream/60" />
-          <ButtonLink href="/menu" variant="gold-outline" size="md" className="group">
+          <ButtonLink href={`/menu/${dish.slug}`} variant="gold-outline" size="md" className="group">
             {t("viewInMenu")}
             <ArrowRight size={16} className="transition group-hover:translate-x-1" />
           </ButtonLink>
@@ -271,7 +271,7 @@ function ColumnCell({ dish, index }: { dish: HomeDish; index: number }) {
       <div className="relative mx-auto -mt-1 w-[82%] max-w-[250px]">
         <SlatePlate src={dish.img} alt={dish.name} glyph={dish.glyph} glyphSize="text-5xl" tilt={index % 2 ? 7 : -7} />
         <Link
-          href="/menu"
+          href={`/menu/${dish.slug}`}
           aria-label={`${t("viewInMenu")}: ${dish.name}`}
           className="absolute -bottom-1 right-0 flex size-12 items-center justify-center rounded-full bg-fire text-brand-cream shadow-lg shadow-night ring-1 ring-brand-cream/20 transition duration-300 hover:rotate-90 hover:bg-fire-deep active:scale-95"
         >

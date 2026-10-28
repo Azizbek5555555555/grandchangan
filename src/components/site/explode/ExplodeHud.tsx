@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { smooth } from "@/components/three/lib/motion";
+import { labelSchedule, smooth } from "@/components/three/lib/motion";
 import { cn } from "@/lib/utils";
 
 /**
- * "Bir kosada" bo'limining jonli ko'rsatkichi: 3D kosa qatlamlarga ajralgan sari hozirgi qatlam raqami
- * (01/06), nomi va 6 bo'lakli progress chizig'i. Progress — ExplodedBowlScene bilan bir xil formula
+ * Qatlamli bo'limning jonli ko'rsatkichi: 3D taom qatlamlarga ajralgan sari hozirgi qatlam raqami
+ * (01/06), nomi va n bo'lakli progress chizig'i. Progress — ExplodedDishScene bilan bir xil formula
  * ([data-explode-track] bo'limi yopishgan paytdagi scroll ulushi, smoothstep; reduced-motion'da — 1). labels — yuqoridan pastga
  * (ziravorlar … kosa); ko'rsatkich pastdan yuqoriga (kosa → ziravorlar) yuradi.
  */
@@ -29,9 +29,10 @@ export default function ExplodeHud({ labels, className }: { labels: string[]; cl
         ? 1
         : smooth((-r.top / travel - 0.1) / 0.7);
       if (barRef.current) barRef.current.style.transform = `scaleX(${p})`;
-      // ExplodedBowlScene'dagi nomlar jadvali: li-nom (pastdan) p ≥ 0.2 + li·0.11 da chiqa boshlaydi
+      // ExplodedDishScene'dagi nomlar jadvali: li-nom (pastdan) p ≥ start + li·step da chiqa boshlaydi
+      const s = labelSchedule(n);
       let shown = 0;
-      for (let li = 0; li < n; li++) if (p >= 0.2 + li * 0.11 + 0.075) shown = li + 1;
+      for (let li = 0; li < n; li++) if (p >= s.start + li * s.step + s.fade / 2) shown = li + 1;
       setStep(Math.max(0, shown - 1));
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
@@ -59,7 +60,7 @@ export default function ExplodeHud({ labels, className }: { labels: string[]; cl
       <div className="relative mt-3 h-8">
         {labels.map((l, i) => (
           <span
-            key={l}
+            key={i}
             className={cn(
               "absolute inset-x-0 top-0 truncate font-display text-2xl italic text-brand-cream transition duration-500 ease-out-expo",
               i === idx ? "translate-y-0 opacity-100" : i < idx ? "translate-y-3 opacity-0" : "-translate-y-3 opacity-0"
@@ -69,7 +70,7 @@ export default function ExplodeHud({ labels, className }: { labels: string[]; cl
           </span>
         ))}
       </div>
-      {/* 6 bo'lakli progress */}
+      {/* n bo'lakli progress */}
       <div className="relative mt-5 h-[3px] w-full overflow-hidden rounded-full bg-brand-cream/10">
         <span ref={barRef} className="absolute inset-0 origin-left bg-gradient-to-r from-fire to-saffron" style={{ transform: "scaleX(0)" }} />
         {Array.from({ length: n - 1 }).map((_, i) => (
