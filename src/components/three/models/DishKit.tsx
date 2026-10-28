@@ -200,7 +200,7 @@ const KINDS: Partial<Record<Kind, KindDef>> = {
     },
   }),
   fish: D({
-    place: "center", count: [1, 1], h: 0.5, tilt: 0, lift: 0.2, scale: [1.35, 1.35],
+    place: "center", count: [1, 1], h: 0.5, tilt: 0, lift: 0.2, scale: [1.25, 1.25],
     build: (m, tint) => {
       // yonboshlab yotgan baliq: profil XZ tekisligida (+z — orqa suzgich tomoni), qalinligi — Y
       const body = new THREE.SphereGeometry(1, m ? 32 : 48, m ? 14 : 20);
@@ -498,10 +498,13 @@ const KINDS: Partial<Record<Kind, KindDef>> = {
 
   /* ---- ziravor va ko'kat ---- */
   chili: D({
-    count: [10, 7], h: 0.24, tilt: 1.2, lift: 0.06, scale: [0.5, 0.65], gap: 0.12,
+    count: [10, 7], h: 0.12, tilt: 0.3, lift: 0.06, scale: [0.5, 0.65], gap: 0.22,
     build: (m, tint) => {
+      // qalampir model'i tik (bandi tepada) — yonboshlatib, markazga keltiriladi (tarelkada yotadi)
+      const lay = (g: THREE.BufferGeometry) => g.rotateZ(Math.PI / 2).translate(-0.32, 0, 0);
       const a = chili(m, 1);
       const b = chili(m, -0.6);
+      [a.body, a.green, b.body, b.green].forEach(lay);
       return [
         { geos: [a.body, b.body], mat: glossy(pick(tint, "chiliRed"), 0.2, 1) },
         { geos: [a.green, b.green], mat: matte(P.chiliStem, 0.55) },
@@ -644,41 +647,84 @@ export type Region = {
   innerAt?: (y: number) => number;
 };
 
-/** Qatlam bo'laklarining matritsalari (idish koordinatasida) */
-export function placeKind(def: KindDef, R: Region, n: number, seed: number, k: number): THREE.Matrix4[] {
+/** Masalliq qismlarining umumiy chegarasi (masshtab 1) — joylashuvda yuzaga aniq o'tqazish va chetdan chiqarmaslik uchun */
+export function partsBounds(parts: Part[]): THREE.Box3 {
+  const b = new THREE.Box3();
+  parts.forEach((p) =>
+    p.geos.forEach((g) => {
+      if (!g.boundingBox) g.computeBoundingBox();
+      b.union(g.boundingBox!);
+    }),
+  );
+  return b;
+}
+
+const CORNERS = Array.from({ length: 8 }, () => new THREE.Vector3());
+
+/**
+ * Qatlam bo'laklarining matritsalari (idish koordinatasida). bounds berilsa — har bo'lak burilgandan keyingi
+ * eng past nuqtasi aynan yuzaga tushadi (tarelka/taxtaga kirib ketmaydi, havoda osilmaydi) va bo'lak o'lchamiga
+ * qarab idish chetidan chiqmaydigan joyga qo'yiladi.
+ */
+export function placeKind(def: KindDef, R: Region, n: number, seed: number, k: number, bounds?: THREE.Box3): THREE.Matrix4[] {
   const r = rng(seed);
   const out: THREE.Matrix4[] = [];
   const q = new THREE.Quaternion();
   const e = new THREE.Euler();
   const v = new THREE.Vector3();
   const s = new THREE.Vector3();
-  const add = (x: number, y: number, z: number, rx: number, ry: number, rz: number, sc: number) => {
+  const m = new THREE.Matrix4();
+  /** bottom berilsa — bo'lakning eng past nuqtasi shu balandlikka tushiriladi (y e'tiborsiz) */
+  const add = (x: number, y: number, z: number, rx: number, ry: number, rz: number, sc: number, bottom?: number) => {
     e.set(rx, ry, rz);
     q.setFromEuler(e);
-    v.set(x, y, z);
     s.setScalar(sc);
+    v.set(x, 0, z);
+    m.compose(v, q, s);
+    if (bottom !== undefined && bounds && !bounds.isEmpty()) {
+      let minY = Infinity;
+      CORNERS.forEach((c, i) => {
+        c.set(i & 1 ? bounds.max.x : bounds.min.x, i & 2 ? bounds.max.y : bounds.min.y, i & 4 ? bounds.max.z : bounds.min.z).applyMatrix4(m);
+        minY = Math.min(minY, c.y);
+      });
+      v.y = bottom - minY;
+    } else {
+      v.y = y;
+    }
     out.push(new THREE.Matrix4().compose(v, q, s));
   };
   const sc = () => def.scale[0] + r() * (def.scale[1] - def.scale[0]);
   const tilt = () => (r() - 0.5) * 2 * def.tilt;
   // har keyingi qatlam biroz balandroq (yig'iq holatda bir-biriga kirmasin)
   const layerLift = k * 0.03;
+  // bo'lak yuzaga biroz botadi (qayla/tepalikka yotgandek)
+  const SINK = 0.015;
+  // bo'lakning gorizontal "radiusi" (eng katta masshtabda) — idish chetidan chiqmasligi uchun
+  const itemR = bounds && !bounds.isEmpty()
+    ? Math.hypot(Math.max(Math.abs(bounds.min.x), Math.abs(bounds.max.x)), Math.max(Math.abs(bounds.min.z), Math.abs(bounds.max.z))) * def.scale[1]
+    : 0;
+  const fitX = Math.max(0.05, R.rx * def.spread - itemR * 0.7);
+  const fitZ = Math.max(0.05, R.rz * def.spread - itemR * 0.7);
   // stakan/piyolaga xos joylashuvlar boshqa idishda — oddiy sochish
   const place = !R.innerAt && ["volume", "rim", "lean", "float"].includes(def.place) ? "scatter" : def.place;
 
   switch (place) {
     case "center": {
-      add(0, R.surf(0, 0) + def.lift + layerLift, 0, 0, 0.35, 0, sc());
+      add(0, R.surf(0, 0) + def.lift + layerLift, 0, 0, 0.35, 0, sc(), R.surf(0, 0) - SINK + layerLift);
       break;
     }
     case "stack": {
-      for (let i = 0; i < n; i++) add((r() - 0.5) * 0.12, R.surf(0, 0) + def.lift + i * 0.045 + layerLift, (r() - 0.5) * 0.12, tilt(), i * 0.7, tilt(), sc());
+      for (let i = 0; i < n; i++) {
+        const base = R.surf(0, 0) + layerLift + i * 0.045;
+        add((r() - 0.5) * 0.12, base + def.lift, (r() - 0.5) * 0.12, tilt(), i * 0.7, tilt(), sc(), base - SINK);
+      }
       break;
     }
     case "rows": {
       for (let i = 0; i < n; i++) {
         const z = (i / Math.max(1, n - 1) - 0.5) * R.rz * 1.5;
-        add((r() - 0.5) * 0.15, R.surf(0, z) + def.lift + layerLift, z, 0, (r() - 0.5) * 0.12, r() * Math.PI, sc());
+        // six o'z o'qi (x) atrofida aylanadi — go'sht bo'laklari har xil ko'rinsin, six esa taxtaga parallel yotadi
+        add((r() - 0.5) * 0.15, R.surf(0, z) + def.lift + layerLift, z, r() * Math.PI * 2, (r() - 0.5) * 0.12, 0, sc(), R.surf(0, z) - SINK + layerLift);
       }
       break;
     }
@@ -689,17 +735,20 @@ export function placeKind(def: KindDef, R: Region, n: number, seed: number, k: n
         for (let i = 0; i < n; i++) {
           const cx = ((i % cols) + 0.5) / cols - 0.5;
           const cz = (Math.floor(i / cols) + 0.5) / rows - 0.5;
-          add(cx * R.rx * 1.6, R.surf(0, 0) + def.lift + layerLift, cz * R.rz * 1.5, 0, 0, 0, sc());
+          const y = R.surf(0, 0) + layerLift;
+          add(cx * R.rx * 1.6, y + def.lift, cz * R.rz * 1.5, 0, 0, 0, sc(), y - SINK);
         }
       } else {
         const center = n >= 7;
         const ringN = center ? n - 1 : n;
-        if (center) add(0, R.surf(0, 0) + def.lift + layerLift, 0, 0, 0, 0, sc());
+        const ringX = Math.min(R.rx * 0.6, Math.max(0.1, R.rx - itemR));
+        const ringZ = Math.min(R.rz * 0.6, Math.max(0.1, R.rz - itemR));
+        if (center) add(0, R.surf(0, 0) + def.lift + layerLift, 0, 0, 0, 0, sc(), R.surf(0, 0) - SINK + layerLift);
         for (let i = 0; i < ringN; i++) {
           const a = (i / ringN) * Math.PI * 2 + 0.3;
-          const x = Math.cos(a) * R.rx * 0.6;
-          const z = Math.sin(a) * R.rz * 0.6;
-          add(x, R.surf(x, z) + def.lift + layerLift, z, tilt(), -a + Math.PI / 2, tilt(), sc());
+          const x = Math.cos(a) * ringX;
+          const z = Math.sin(a) * ringZ;
+          add(x, R.surf(x, z) + def.lift + layerLift, z, tilt(), -a + Math.PI / 2, tilt(), sc(), R.surf(x, z) - SINK + layerLift);
         }
       }
       break;
@@ -718,7 +767,7 @@ export function placeKind(def: KindDef, R: Region, n: number, seed: number, k: n
       const inner = R.innerAt ? R.innerAt(R.fillY) : R.rx;
       for (let i = 0; i < n; i++) {
         const a = r() * Math.PI * 2;
-        const d = n === 1 ? 0 : (0.3 + r() * 0.5) * inner;
+        const d = n === 1 ? 0 : (0.3 + r() * 0.5) * Math.max(0.05, inner - itemR * 0.6);
         add(Math.cos(a) * d, R.fillY + def.lift, Math.sin(a) * d, tilt(), r() * Math.PI * 2, tilt(), sc());
       }
       break;
@@ -734,11 +783,12 @@ export function placeKind(def: KindDef, R: Region, n: number, seed: number, k: n
       break;
     }
     case "beside": {
-      add(R.half + 0.62, 0, -0.25, 0, 0.5, 0, sc());
+      // stakan yonida, biroz orqaroqda (kadrdan chiqmasin, stakanni to'smasin)
+      add(R.half + 0.42, 0, -0.55, 0, 0.5, 0, sc());
       break;
     }
     default: {
-      // scatter / pile — tasodifiy, bir-biridan uzoqroq nuqtalar
+      // scatter / pile — tasodifiy, bir-biridan uzoqroq nuqtalar (bo'lak o'lchamiga qarab idish ichida)
       const pile = place === "pile";
       const gap = def.gap ?? 0.18;
       const pts: [number, number][] = [];
@@ -747,20 +797,21 @@ export function placeKind(def: KindDef, R: Region, n: number, seed: number, k: n
         let x: number;
         let z: number;
         if (R.rect) {
-          x = (r() - 0.5) * 2 * R.rx * def.spread;
-          z = (r() - 0.5) * 2 * R.rz * def.spread;
+          x = (r() - 0.5) * 2 * fitX;
+          z = (r() - 0.5) * 2 * fitZ;
         } else {
           const a = r() * Math.PI * 2;
-          const d = Math.pow(r(), pile ? 0.75 : 0.5) * def.spread;
-          x = Math.cos(a) * d * R.rx;
-          z = Math.sin(a) * d * R.rz;
+          const d = Math.pow(r(), pile ? 0.75 : 0.5);
+          x = Math.cos(a) * d * fitX;
+          z = Math.sin(a) * d * fitZ;
         }
         const relax = guard > n * 30 ? 0.5 : 1;
         if (pts.some(([px, pz]) => Math.hypot(px - x, pz - z) < gap * relax)) continue;
         pts.push([x, z]);
         const rr = Math.min(1, Math.hypot(x / R.rx, z / R.rz));
         const heap = pile ? (1 - rr) * 0.22 * r() : 0;
-        add(x, R.surf(x, z) + def.lift + heap + layerLift, z, tilt(), r() * Math.PI * 2, tilt(), sc());
+        const y = R.surf(x, z) + heap + layerLift;
+        add(x, y + def.lift, z, tilt(), r() * Math.PI * 2, tilt(), sc(), y - SINK);
       }
     }
   }

@@ -15,7 +15,7 @@ import type { SceneProps } from "../lib/types";
 import { useFitCamera } from "../lib/useFitCamera";
 import Bowl, { BOWL, innerRadiusAt } from "../models/Bowl";
 import BowlToppings, { type ToppingPart } from "../models/BowlToppings";
-import { kindDef, kindExtent, placeKind, type KindDef, type Region } from "../models/DishKit";
+import { kindDef, kindExtent, partsBounds, placeKind, type KindDef, type Region } from "../models/DishKit";
 import { useOptionalFoodKit, type FoodKit } from "../models/Ingredients";
 import Noodles, { type NoodleLayout } from "../models/Noodles";
 import VesselModel, { surfaceY, vesselKey, vesselSpec, type VesselSpec } from "../models/Vessels";
@@ -104,7 +104,7 @@ function Liquid({ spec, tint, mobile }: { spec: VesselSpec; tint: Tint; mobile: 
     geo.computeVertexNormals();
     const mat = new THREE.MeshPhysicalMaterial({
       // transmission o'rniga oddiy shaffoflik — har kadr qo'shimcha render o'tishi va og'ir shader yo'q
-      color: P[tint], roughness: 0.06, clearcoat: 1, transparent: true, opacity: 0.88,
+      color: P[tint], roughness: 0.1, clearcoat: 1, transparent: true, opacity: 0.95,
     });
     return { geo, mat };
   }, [spec, tint, mobile]);
@@ -178,7 +178,7 @@ function Pieces({ kind, def, region, n, seed, k, tint, mobile }: { kind: Kind; d
     const maps = parts.map((p) => (p.mat as THREE.MeshStandardMaterial).map).filter(Boolean);
     return { parts, geos, mats, maps };
   }, [kind, mobile, tint]);
-  const mats = useMemo(() => placeKind(def, region, n, seed, k), [def, region, n, seed, k]);
+  const mats = useMemo(() => placeKind(def, region, n, seed, k, partsBounds(res.parts)), [def, region, n, seed, k, res]);
   return (
     <group>
       {res.parts.map((p, pi) =>
@@ -315,9 +315,11 @@ function ExplodedContent({ reduced, mobile, trackRef, recipe, labels, view }: Pi
   // Qatlamlar kam yoki yassi bo'lsa — oraliq kattaroq: ajralgan ustun kadrni to'ldiradi (bosh sahifa lag'moni — asl 0.78)
   const gap = view ? spec.gap : THREE.MathUtils.clamp((4.6 - ext[N - 1].top) / Math.max(1, N - 1), spec.gap, 1.4);
   const H = Math.max(...ext.map((e, i) => i * gap + e.top));
+  const hasBeside = layers.some((l) => l.kind === "bottle" || l.kind === "can");
   const v: ExplodeView = view ?? {
     target: H * 0.48,
-    fitW: THREE.MathUtils.clamp(spec.half * 2 + 3, 5, 6.8),
+    // stakan yonidagi shisha/banka ham kadrga sig'sin
+    fitW: THREE.MathUtils.clamp(spec.half * 2 + 3, 5, 6.8) + (hasBeside ? 1.6 : 0),
     fitWm: Math.max(4.2, spec.half * 2 + 1.4),
     fitH: H + 1.5,
     lift: H * 0.357,
