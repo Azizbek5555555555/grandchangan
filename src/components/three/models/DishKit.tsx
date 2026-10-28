@@ -202,31 +202,46 @@ const KINDS: Partial<Record<Kind, KindDef>> = {
   fish: D({
     place: "center", count: [1, 1], h: 0.5, tilt: 0, lift: 0.2, scale: [1.5, 1.5],
     build: (m, tint) => {
-      // yonboshlab yotgan baliq: profil XZ tekisligida, qalinligi — Y
-      const body = new THREE.SphereGeometry(1, m ? 28 : 44, m ? 12 : 18);
+      // yonboshlab yotgan baliq: profil XZ tekisligida (+z — orqa suzgich tomoni), qalinligi — Y
+      const body = new THREE.SphereGeometry(1, m ? 32 : 48, m ? 14 : 20);
       const p = body.getAttribute("position") as THREE.BufferAttribute;
       for (let i = 0; i < p.count; i++) {
         const x = p.getX(i);
         const u = (x + 1) / 2; // 0 — dum, 1 — bosh
-        const prof = Math.pow(Math.sin(Math.PI * Math.min(1, 0.08 + u * 0.95)), 0.75);
-        p.setXYZ(i, x * 1.0, p.getY(i) * 0.15 * (0.35 + prof * 0.65), p.getZ(i) * 0.36 * (0.18 + prof * 0.82));
+        const prof = Math.pow(Math.sin(Math.PI * (0.06 + 0.9 * u)), 0.65) * (u < 0.15 ? 0.35 + 0.65 * (u / 0.15) : 1);
+        p.setXYZ(i, x, p.getY(i) * 0.17 * prof, p.getZ(i) * 0.38 * prof + 0.03 * Math.sin(u * Math.PI));
       }
       body.computeVertexNormals();
       const base = pick(tint, "fishGold");
+      const back = darken(base, 0.32);
+      const belly = lighten(base, 0.4);
       paintBy(body, (v) => {
-        const top = THREE.MathUtils.smoothstep(v.y, -0.02, 0.12);
-        const c = lighten(base, 0.35).lerp(darken(base, 0.25), top);
-        // qobiq tangachalari / kesik chiziqlari
-        return Math.sin(v.x * 26) > 0.82 && v.y > 0.04 ? darken(c, 0.25) : c;
+        const u = (v.x + 1) / 2;
+        const c = belly.clone().lerp(back, THREE.MathUtils.smoothstep(v.z, -0.2, 0.25));
+        // jabra chizig'i va tangacha naqshi
+        if (Math.abs(u - 0.8) < 0.012 && v.y > 0) return darken(c, 0.35);
+        return c.multiplyScalar(0.94 + 0.08 * Math.sin(v.x * 40 + Math.sin(v.z * 30) * 2));
       });
-      const tail = new THREE.CircleGeometry(0.34, 12, Math.PI * 0.72, Math.PI * 0.56).rotateX(-Math.PI / 2).translate(-0.72, 0.01, 0);
-      const fin = new THREE.CircleGeometry(0.42, 12, Math.PI * 0.12, Math.PI * 0.62).rotateX(-Math.PI / 2).scale(1, 1, 0.55).translate(-0.12, 0.02, 0.18);
+      const tailShape = new THREE.Shape();
+      tailShape.moveTo(-0.92, 0);
+      tailShape.lineTo(-1.42, 0.38);
+      tailShape.quadraticCurveTo(-1.24, 0, -1.42, -0.38);
+      tailShape.closePath();
+      const finShape = new THREE.Shape();
+      finShape.moveTo(-0.55, 0.26);
+      finShape.quadraticCurveTo(-0.15, 0.56, 0.32, 0.33);
+      finShape.lineTo(0.3, 0.28);
+      finShape.closePath();
+      const tail = new THREE.ShapeGeometry(tailShape, 8).rotateX(-Math.PI / 2).scale(1, 1, -1);
+      const fin = new THREE.ShapeGeometry(finShape, 8).rotateX(-Math.PI / 2).scale(1, 1, -1);
       const fins = mergeGeometries([tail, fin]);
       [tail, fin].forEach((x) => x.dispose());
-      const eye = new THREE.SphereGeometry(0.045, 12, 8).scale(1, 0.5, 1).translate(0.74, 0.07, 0.12);
+      const eyeWhite = new THREE.TorusGeometry(0.05, 0.018, 8, 18).rotateX(Math.PI / 2).translate(0.8, 0.075, 0.07);
+      const eye = new THREE.SphereGeometry(0.045, 12, 8).scale(1, 0.6, 1).translate(0.8, 0.072, 0.07);
       return [
-        { geos: [body], mat: vcMat(0.24, 1) },
-        { geos: [fins], mat: new THREE.MeshPhysicalMaterial({ color: darken(base, 0.1), roughness: 0.35, clearcoat: 0.8, side: THREE.DoubleSide, transparent: true, opacity: 0.92 }) },
+        { geos: [body], mat: vcMat(0.22, 1) },
+        { geos: [fins], mat: new THREE.MeshPhysicalMaterial({ color: back, roughness: 0.35, clearcoat: 0.8, side: THREE.DoubleSide, transparent: true, opacity: 0.9 }) },
+        { geos: [eyeWhite], mat: glossy(P.cream, 0.2, 1) },
         { geos: [eye], mat: glossy(P.night, 0.1, 1) },
       ];
     },

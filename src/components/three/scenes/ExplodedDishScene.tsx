@@ -378,8 +378,17 @@ function ExplodedContent({ reduced, mobile, trackRef, recipe, labels, view }: Pi
                     className="flex items-center gap-3 whitespace-nowrap"
                     style={{ transform: "translate(-100%, -50%)", opacity: reduced ? 1 : 0 }}
                   >
-                    <span className="max-w-[8.5rem] whitespace-normal text-right font-display text-[13px] italic leading-tight text-brand-cream sm:max-w-none sm:whitespace-nowrap sm:text-lg">{label}</span>
-                    <span className="h-px w-8 bg-brand-gold/70 sm:w-16" />
+                    {/* Bosh sahifa lag'moni — asl ko'rinish; taom sahifalarida uzun nomlar 2 qatorga o'tadi (canvas chetida kesilmasin) */}
+                    <span
+                      className={
+                        view
+                          ? "max-w-[8.5rem] whitespace-normal text-right font-display text-[13px] italic leading-tight text-brand-cream sm:max-w-none sm:whitespace-nowrap sm:text-lg"
+                          : "max-w-[8.5rem] whitespace-normal text-right font-display text-[13px] italic leading-tight text-brand-cream sm:max-w-[11.5rem] sm:text-[17px]"
+                      }
+                    >
+                      {label}
+                    </span>
+                    <span className={view ? "h-px w-8 bg-brand-gold/70 sm:w-16" : "h-px w-8 shrink-0 bg-brand-gold/70 sm:w-10"} />
                     <span className="size-1.5 rounded-full bg-saffron" />
                   </div>
                 </Html>
