@@ -318,6 +318,7 @@ function ExplodedContent({ reduced, mobile, trackRef, recipe, labels, view }: Pi
   const target = useMemo<[number, number, number]>(() => [0, v.target, 0], [v.target]);
   useFitCamera(target, VIEW_DIR, mobile ? v.fitWm : v.fitW, v.fitH);
 
+  const shiftX = 1.3 - Math.max(0, spec.half - 1.64) * 0.6;
   const sched = labelSchedule(N);
   const stack = useRef<THREE.Group>(null);
   const groups = useRef<(THREE.Group | null)[]>([]);
@@ -332,7 +333,7 @@ function ExplodedContent({ reduced, mobile, trackRef, recipe, labels, view }: Pi
     const p = prog.current;
     // yig'iq holatda idish kadr markazida, ajralganda butun ustun ko'rinadi
     if (stack.current) {
-      stack.current.position.set(mobile ? 0 : 1.3, (1 - p) * v.lift, 0);
+      stack.current.position.set(mobile ? 0 : shiftX, (1 - p) * v.lift, 0);
       stack.current.rotation.y = Math.sin(t * 0.3) * 0.12 + p * 0.35;
     }
     groups.current.forEach((g, i) => {
@@ -350,7 +351,8 @@ function ExplodedContent({ reduced, mobile, trackRef, recipe, labels, view }: Pi
     });
   });
 
-  const labelX = -(spec.half + 0.17);
+  // Keng idish (baliq lagani) — ustun chaproqqa, nomlar idish chetiga kirib turadi (canvas chetida kesilmasin)
+  const labelX = -(Math.min(spec.half, 1.75) + 0.17);
   return (
     <>
       <StudioLights variant="night" keyIntensity={2.4} />

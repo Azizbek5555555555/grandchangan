@@ -200,7 +200,7 @@ const KINDS: Partial<Record<Kind, KindDef>> = {
     },
   }),
   fish: D({
-    place: "center", count: [1, 1], h: 0.5, tilt: 0, lift: 0.2, scale: [1.5, 1.5],
+    place: "center", count: [1, 1], h: 0.5, tilt: 0, lift: 0.2, scale: [1.35, 1.35],
     build: (m, tint) => {
       // yonboshlab yotgan baliq: profil XZ tekisligida (+z — orqa suzgich tomoni), qalinligi — Y
       const body = new THREE.SphereGeometry(1, m ? 32 : 48, m ? 14 : 20);
@@ -546,7 +546,7 @@ const KINDS: Partial<Record<Kind, KindDef>> = {
     }],
   }),
   citrus: D({
-    place: "rim", count: [1, 1], h: 0.45, tilt: 0, lift: 0, scale: [1, 1],
+    place: "rim", count: [1, 1], h: 0.6, tilt: 0, lift: 0, scale: [1.6, 1.6],
     build: (m, tint) => {
       const rind = pick(tint, "lemon");
       const flesh = lighten(rind, 0.25);
@@ -724,8 +724,9 @@ export function placeKind(def: KindDef, R: Region, n: number, seed: number, k: n
       break;
     }
     case "rim": {
-      const x = (R.innerAt ? R.innerAt(R.top) : R.rx) + 0.06;
-      add(x, R.top - 0.05, 0.05, Math.PI / 2, 0, 0.25, sc());
+      // tilim stakan labiga kiydirilgan: markazi labdan biroz tashqarida, kameraga qaragan
+      const x = (R.innerAt ? R.innerAt(R.top) : R.rx) + 0.12;
+      add(x, R.top - 0.02, 0.05, Math.PI / 2 - 0.15, 0, 0.3, sc());
       break;
     }
     case "lean": {

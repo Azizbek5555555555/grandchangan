@@ -32,7 +32,7 @@ export type VesselSpec = {
   gap: number;
   /** Sho'rva/qayla yuzasi radiusi (fillY balandligida) */
   fillR: number;
-  /** Idishni kameraga nisbatan burish (uzun baliq lagani — qiya turadi) */
+  /** Idishni burish: ajralgan holatda (ustun +0.35 rad buriladi) uzun baliq lagani yon tomoni bilan ko'rinsin */
   yaw?: number;
   /** Ichimlik idishi: suyuqlik profili (y → ichki radius) */
   innerAt?: (y: number) => number;
@@ -46,7 +46,7 @@ const SPECS: Record<Exclude<Vessel, "bottle" | "skewers">, VesselSpec> = {
   bowl: { fillY: BOWL.brothY, rx: BOWL_R, rz: BOWL_R, shape: "round", mound: 0.21, top: 1.0, half: 1.33, labelY: 0.55, fillR: BOWL_R + 0.004, gap: 0.78 },
   deepPlate: { fillY: 0.16, rx: 1.12, rz: 1.12, shape: "round", mound: 0.3, top: 0.36, half: 1.58, labelY: 0.2, fillR: 1.02, gap: 0.72 },
   plate: { fillY: 0.08, rx: 1.15, rz: 1.15, shape: "round", mound: 0.3, top: 0.16, half: 1.64, labelY: 0.1, fillR: 1.08, gap: 0.7 },
-  fishPlatter: { yaw: 0.85, fillY: 0.08, rx: 1.7, rz: 0.98, shape: "round", mound: 0.22, top: 0.16, half: 1.75, labelY: 0.1, fillR: 1.08, gap: 0.7 },
+  fishPlatter: { yaw: -0.3, fillY: 0.08, rx: 1.5, rz: 0.98, shape: "round", mound: 0.22, top: 0.16, half: 2.05, labelY: 0.1, fillR: 1.08, gap: 0.7 },
   clayPot: { fillY: 0.8, rx: 0.86, rz: 0.86, shape: "round", mound: 0.16, top: 1.06, half: 1.22, labelY: 0.5, fillR: 0.99, gap: 0.78 },
   mortar: { fillY: 0.56, rx: 0.86, rz: 0.86, shape: "round", mound: 0.22, top: 0.78, half: 1.3, labelY: 0.4, fillR: 0.99, gap: 0.76 },
   steamer: { fillY: 0.12, rx: 1.2, rz: 1.2, shape: "round", mound: 0.02, top: 0.62, half: 1.55, labelY: 0.32, fillR: 1.3, gap: 0.8 },
@@ -123,7 +123,7 @@ function useVessel(kind: ReturnType<typeof vesselKey>, mobile: boolean, accent: 
       ring(1.545, 0.022, 0.352, rim);
       ring(1.22, 0.006, 0.215, gold);
     } else if (kind === "plate" || kind === "fishPlatter") {
-      const sx = kind === "fishPlatter" ? 1.45 : 1;
+      const sx = kind === "fishPlatter" ? 1.25 : 1;
       const sz = kind === "fishPlatter" ? 0.95 : 1;
       out.push({ geo: lathe([[0, 0.025], [0.7, 0.025], [0.76, 0], [0.86, 0.015], [1.3, 0.06], [1.55, 0.12], [1.64, 0.15], [1.6, 0.158], [1.42, 0.112], [1.08, 0.072], [0, 0.066]], seg), mat: glaze, scale: [sx, 1, sz] });
       ring(1.625, 0.016, 0.152, rim, sx, sz);
