@@ -38,11 +38,13 @@ Google akkaunt boshqa bo'lishi muammo emas: Claude'ga **GitHub akkauntingiz** ul
 ### Birinchi xabar (yangi Claude'ga nusxa qilib yuboring)
 ```
 Sen GrandChangan loyihasida ishlayapsan (Samarqanddagi xitoy restorani sayti + CRM).
-Avval docs/HANDOFF.md, CLAUDE.md, docs/ROADMAP.md, docs/DESIGN.md fayllarini o'qi.
-Keyin HANDOFF.md dagi "Navbatdagi ishlar" ro'yxatini tartib bilan bajar.
-Ish branchi: claude/pensive-gauss-fqg6hx (main'ga to'g'ridan-to'g'ri push qilma).
-Har bir tugagan ishdan keyin: npx tsc --noEmit, npm run build, commit, push.
-Men bilan o'zbek tilida gaplash. Namuna rasmlar: docs/references/ (README.md da izohlar).
+Avval CLAUDE.md, docs/HANDOFF.md, docs/DESIGN.md va docs/TASK-dish-pages.md ni to'liq o'qi.
+Vazifa — docs/TASK-dish-pages.md: menyudagi har bir taomning o'z sahifasi (/menu/[slug], bitta dinamik
+shablon) va bosh sahifadagi "В одной пиале — целая история" kabi qatlamli 3D animatsiya — har taomga,
+uning ingredientlariga moslab (130 pozitsiya, ichimliklar ham). Bosqichlar va qoidalar shu faylda.
+Ish branchi — sessiya belgilagan branch (main'ga push qilma, PR'ni men ochaman).
+Har bosqichdan keyin: npx tsc --noEmit, bazasiz build (TASK faylidagi buyruq), commit, push.
+Men bilan o'zbek tilida, qisqa gaplash. Mid-task tasdiq so'rama. Sifat birinchi o'rinda.
 ```
 
 ### Ish tartibi (har doim shunday)
@@ -54,7 +56,7 @@ Men bilan o'zbek tilida gaplash. Namuna rasmlar: docs/references/ (README.md da 
 
 ---
 
-## 2. Yangi Claude uchun: loyiha holati (2026-10-25)
+## 2. Yangi Claude uchun: loyiha holati (2026-10-25, yangilangan 2026-10-28 — pastdagi "4-xabaridan keyin")
 
 - Stack: Next.js 15.5 App Router · TS · Tailwind v4 (tokenlar `src/app/globals.css` @theme) · Prisma 6 · PostgreSQL (Railway)
   · next-intl v4 (uz default prefixsiz, ru, en, zh) · GSAP + ScrollTrigger + Lenis · three.js + @react-three/fiber 9 + drei 10.
@@ -89,7 +91,12 @@ Men bilan o'zbek tilida gaplash. Namuna rasmlar: docs/references/ (README.md da 
 
 ---
 
-## 3. Navbatdagi ishlar (Aziz, 2026-10-25) — tartib bilan
+## 3. Navbatdagi ishlar
+
+> **HOZIRGI VAZIFA (2026-10-28): `docs/TASK-dish-pages.md`** — har taomning o'z sahifasi (`/menu/[slug]`) va taomga
+> moslangan qatlamli 3D animatsiya. Pastdagi 1–7 — eski (bajarilgan) ro'yxat.
+
+### Aziz, 2026-10-25 — tartib bilan (hammasi bajarilgan)
 
 Aziz fikri: "sayt yosh bolaga o'xshab qolgan, juda oddiy va detskiy; yaxshi joylari ham ko'p". Premium bo'lishi kerak.
 Namuna rasmlar repo ichida: **`docs/references/`** (README.md da har birining izohi). Qayta yuklash shart emas.
@@ -139,6 +146,27 @@ Namuna rasmlar repo ichida: **`docs/references/`** (README.md da har birining iz
   **Prod'da admin → Zallar va stollar → "Xaritadan stollarni yaratish" bir marta bosilishi kerak.**
 - Telefon +998 77 507 06 43 (`src/lib/contact.ts` zaxira), ish vaqti 10:00–23:00 — prod'da admin → Sozlamalar.
 - Xarita bo'limni to'ldiradi + xona rasmlari; admin inventar soddalashtirildi ("Holat" yorlig'i, yo'riqnoma).
+
+### Aziz 4-xabaridan keyin (2026-10-26…28) — bajarildi, prod'da
+- **Admin panel** sayt uslubida qayta qilindi va to'liq 4 tilda: `src/components/admin/ui/*` (PageHeader, Dialog, Pill,
+  FilterChips, EmptyState, Field, ImageField), matnlar `AdminUi.*`; sidebar'da til almashtirgich. Server action'lar
+  xato KODini qaytaradi, klient tarjima qiladi.
+- **Til almashtirish xatosi**: `src/i18n/routing.ts` → `localeDetection: false` (NEXT_LOCALE cookie "/" ni qaytarib yuborardi).
+- **Narx ixtiyoriy**: `price` 0 = saytda narx ko'rinmaydi (`hasPrice()`, `currencyOf(locale)` — `src/lib/utils.ts`).
+  Aziz: hozircha hech qayerda narx ko'rsatilmasin.
+- **404**: `src/app/[locale]/[...rest]/page.tsx` (`notFound()`) + dizaynli `[locale]/not-found.tsx`.
+  ⚠️ Railway build'ida baza YO'Q: statik prerender bo'ladigan joyda (not-found, layout, statik sahifalar)
+  bazaga murojaat qilmang — build yiqiladi. Tekshiruv: `DATABASE_URL="postgresql://u:p@nohost.invalid:5432/gc" AUTH_SECRET=x npm run build`.
+- **Menyu — Clopos'dagi hamma taom (130)**: `src/lib/menu/sample-dishes.ts` (30 + `ALL_DISHES`, `dishImage`),
+  `src/lib/menu/clopos-menu.ts` (100), `docs/clopos-map.json` (Clopos ID → slug). Admin → Menyu →
+  "Clopos menyusi (130)" (`importSampleDishes`, idempotent; bor taomga faqat rasmi yo'q bo'lsa rasm qo'yadi).
+  Rasmlar: `public/photos/dishes/<slug>.webp` — Clopos asl rasmlari (Clopos raqami kesilgan), 4 ta ichimlik rasmi
+  Aziz tomonidan admin'dan yuklangan. Saytdagi `usable()` filtri `/photos/` ni ham o'tkazadi.
+- **Clopos**: kirish client.clopos.com (brand `grandchangan`; login/parolni Aziz beradi, repoga yozilmaydi),
+  API `https://grandchangan.clopos.com/api/product?...` (Bearer token — brauzer sessiyasidan). Environment tarmoq
+  ro'yxatida `*.clopos.com` va `*.grandchangan.uz` ruxsat etilgan.
+- **Blog**: test postlar o'rniga restoran haqida 3 ta post (`src/lib/blog/sample-posts.ts`, admin → Blog tugmasi) — prod'da.
+- Prod: https://www.grandchangan.uz (apex `grandchangan.uz` faqat bosh sahifani www'ga yo'naltiradi).
 
 ### Ma'lum muammolar / eslatmalar
 - Aziz saytni `/en` da Chrome avto-tarjimasi bilan ko'rgan — "21" "двадцать один" ga, "GrandChangan" "Отель ..." ga tarjima bo'lgan.
