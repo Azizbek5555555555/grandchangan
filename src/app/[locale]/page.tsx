@@ -19,6 +19,7 @@ import Reviews from "@/components/site/home/Reviews";
 import ExplodeSection from "@/components/site/home/ExplodeSection";
 import PanelShowcase from "@/components/site/home/PanelShowcase";
 import { DISH_SELECT, glyphOf, splitHeadline, toDish, usable, zhOf } from "@/components/site/home/data";
+import { HIGHLIGHTS, pickHighlights } from "@/lib/menu/highlights";
 import type { HomeCategory, HomeDish } from "@/components/site/home/types";
 import { ROOMS, floorTotals } from "@/lib/floorplan/layout";
 import { dayOfWeekOf, hoursFor, sameEveryDay } from "@/lib/hours";
@@ -55,7 +56,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
   const [heroBanners, featuredRaw, latestRaw, catsRaw, reviewsRaw, reviewAgg, gallery, workingHours, generalSetting, menuCount] = await Promise.all([
     prisma.banner.findMany({ where: { position: "HERO", isActive: true }, orderBy: { sortOrder: "asc" }, take: 5 }),
-    prisma.menuItem.findMany({ where: { isFeatured: true, isAvailable: true, category: { isActive: true } }, take: 6, orderBy: { sortOrder: "asc" }, select: DISH_SELECT }),
+    // Ajratilgan taomlar (highlights.ts ro'yxati, bo'lmasa — TOP belgisi)
+    prisma.menuItem.findMany({
+      where: { isAvailable: true, category: { isActive: true }, OR: [{ slug: { in: HIGHLIGHTS } }, { isFeatured: true }] },
+      orderBy: { sortOrder: "asc" },
+      select: { ...DISH_SELECT, isFeatured: true },
+    }),
     prisma.menuItem.findMany({ where: { isAvailable: true, category: { isActive: true } }, take: 6, orderBy: { createdAt: "desc" }, select: DISH_SELECT }),
     // Menyu bo'limi: mavjud taomi bor faol kategoriyalar (8 tagacha), har biridan 6 tagacha taom
     prisma.menuCategory.findMany({
@@ -112,7 +118,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const hoursLabel = every ? st("fOpen") : h2("today");
 
   // ---------- Taomlar ----------
-  const featured = featuredRaw.map((d) => toDish(d, locale));
+  const featured = pickHighlights(featuredRaw, 6).map((d) => toDish(d, locale));
   const latest = latestRaw.map((d) => toDish(d, locale));
   // Mashhur taomlar bo'lmasa — eng yangi mavjud taomlar; ular ham bo'lmasa bo'lim yashiriladi
   const signature = featured.length ? featured : latest;

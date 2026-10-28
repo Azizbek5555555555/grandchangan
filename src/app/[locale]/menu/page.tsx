@@ -1,6 +1,7 @@
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import MenuBrowser from "@/components/site/MenuBrowser";
+import { pickHighlights } from "@/lib/menu/highlights";
 import SiteHeader from "@/components/site/Header";
 import SiteFooter from "@/components/site/Footer";
 import MenuHero from "@/components/site/heroes/MenuHero";
@@ -23,17 +24,17 @@ export default async function MenuPage({ params }: { params: Promise<{ locale: s
   ]);
   const plainCats = JSON.parse(JSON.stringify(categories));
   // Decimal → number. Admin'da "TOP" belgilangan taomlar (isFeatured) MenuBrowser tepasida "招牌菜" qatorida chiqadi
+  // "Tavsiya" — ajratilgan taomlar (highlights.ts; bo'lmasa admin TOP belgisi)
+  const hl = new Set(pickHighlights(items.filter((i) => categories.some((c) => c.id === i.categoryId))).map((i) => i.id));
   const plainItems = JSON.parse(JSON.stringify(items)).map((i: Record<string, unknown>) => ({
     ...i, price: Number(i.price),
     discountPrice: i.discountPrice != null ? Number(i.discountPrice) : null,
+    isFeatured: hl.has(i.id as string),
   }));
 
   // Oshpaz tanlovi (TOP taomlar, avval rasmlilari) va "Choy marosimi" (choy, ichimlik, shirinlik)
   const specials = plainItems as SpecialItem[];
-  const signature = specials
-    .filter((i) => (i as unknown as { isFeatured: boolean }).isFeatured)
-    .sort((a, b) => Number(!!b.imageUrl) - Number(!!a.imageUrl))
-    .slice(0, 3);
+  const signature = pickHighlights(specials.map((i) => ({ ...i, isFeatured: hl.has(i.id) })), 3);
   const teaCats = categories.filter((c) => ["tea", "drinks", "dessert"].includes(c.slug));
   const tea = specials.filter((i) => teaCats.some((c) => c.id === i.categoryId)).slice(0, 6);
 

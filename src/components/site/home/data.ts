@@ -10,8 +10,13 @@ export const SPICY_KEYS = ["", "MILD", "MEDIUM", "HOT", "EXTRA_HOT"] as const;
 /** Json maydondan aynan xitoycha qiymat (boshqa tilga qaytmaydi) */
 export function zhOf(value: unknown): string | null {
   if (!value || typeof value !== "object") return null;
-  const zh = (value as Localized).zh;
-  return zh && zh.trim() ? zh.trim() : null;
+  const zh = cnShort((value as Localized).zh ?? "");
+  return zh || null;
+}
+
+/** Bezak uchun xitoycha nom: qavs ichidagi porsiya/o'lcham olib tashlanadi — "北京烤鸭（整只 / 半只）" → "北京烤鸭" */
+export function cnShort(s: string): string {
+  return s.replace(/\s*[（(][^）)]*[）)]/g, "").trim();
 }
 
 /** Zaxira belgi: kategoriya xitoycha nomining birinchi ieroglifi (面, 点, 汤 …), bo'lmasa 菜 */
