@@ -40,7 +40,8 @@ const HERO_ROUTES = new Set(["/", "/menu", "/gallery", "/events", "/contact"]);
 
 export function hasDarkHero(pathname: string) {
   const p = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-  return HERO_ROUTES.has(p);
+  // Taom sahifasi (/menu/<slug>) — qorong'i hero
+  return HERO_ROUTES.has(p) || /^\/menu\/[^/]+$/.test(p);
 }
 
 /** Havola faolmi: aniq mos yoki bo'lim ichidagi sahifa (/blog/maqola -> /blog) */

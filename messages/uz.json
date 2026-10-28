@@ -1449,5 +1449,16 @@
       "cannotRemoveSelf": "O'zingizni o'chira olmaysiz",
       "noPermissionRemoveStaff": "Bu xodimni o'chirishga ruxsatingiz yo'q"
     }
+  },
+  "Dish": {
+    "back": "Menyuga qaytish",
+    "preorder": "Oldindan buyurtma",
+    "dineIn": "Faqat restoranda tortiladi — oldindan buyurtma bersangiz, kelishingizga tayyor bo'ladi.",
+    "relEyebrow": "Shu bo'limdan",
+    "relTitle": "Yana tatib",
+    "relAccent": "ko'ring",
+    "prev": "Oldingi taom",
+    "next": "Keyingi taom",
+    "metaSuffix": "GrandChangan menyusi, Samarqand"
   }
 }

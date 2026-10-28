@@ -23,6 +23,7 @@ export function glyphOf(catName: unknown): string {
 
 type DbDish = {
   id: string;
+  slug: string;
   name: unknown;
   description: unknown;
   price: unknown;
@@ -44,6 +45,7 @@ export function toDish(it: DbDish, locale: string): HomeDish {
   const hasDisc = disc != null && disc > 0 && disc < price;
   return {
     id: it.id,
+    slug: it.slug,
     name: t(it.name, locale),
     zh: locale === "zh" ? null : zhOf(it.name),
     desc: t(it.description, locale),
@@ -64,6 +66,7 @@ export function toDish(it: DbDish, locale: string): HomeDish {
 /** Prisma select — toDish uchun kerakli maydonlar */
 export const DISH_SELECT = {
   id: true,
+  slug: true,
   name: true,
   description: true,
   price: true,

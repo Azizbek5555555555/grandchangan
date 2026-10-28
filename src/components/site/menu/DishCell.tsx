@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { Clock, Flame, Leaf, Scale } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { cn, currencyOf, formatMoney, hasPrice } from "@/lib/utils";
 import { SPICY_KEYS } from "@/components/site/home/data";
 import { PlatedDish } from "./Plated";
@@ -9,6 +10,8 @@ import { PlatedDish } from "./Plated";
 /** Menyu katakchasi uchun normallashtirilgan taom (menyu sahifasi, bosh sahifa va choy bloki bir xil ishlatadi) */
 export type CellDish = {
   id: string;
+  /** Taom sahifasi (/menu/<slug>) — berilsa butun katakcha shu sahifaga olib boradi */
+  slug?: string;
   name: string;
   /** Xitoycha nom (bezak) — sahifa tili zh bo'lsa null */
   zh: string | null;
@@ -126,7 +129,22 @@ export default function DishCell({
 
         <div className="mt-5 flex min-w-0 flex-1 flex-col max-sm:mt-0 @lg:mt-0">
           {chips && <div className="mb-2 flex flex-wrap gap-1.5 sm:hidden">{chips}</div>}
-          <H className={cn("font-display text-[1.6rem] leading-[1.12] max-sm:text-[1.35rem]", c.title, "@lg:text-[2rem]")}>{d.name}</H>
+          <H className={cn("font-display text-[1.6rem] leading-[1.12] max-sm:text-[1.35rem]", c.title, "@lg:text-[2rem]")}>
+            {d.slug ? (
+              // Butun katakcha bosiladi (after: qatlami); amal tugmalari (action) undan yuqorida turadi
+              <Link
+                href={`/menu/${d.slug}`}
+                className={cn(
+                  "outline-none transition-colors after:absolute after:inset-0 after:z-[1] after:content-[''] focus-visible:after:ring-2 focus-visible:after:ring-inset",
+                  tone === "night" ? "group-hover:text-saffron focus-visible:after:ring-saffron" : "group-hover:text-fire-ink focus-visible:after:ring-fire"
+                )}
+              >
+                {d.name}
+              </Link>
+            ) : (
+              d.name
+            )}
+          </H>
           {d.zh && <p lang="zh" className={cn("font-cn mt-1.5 text-lg leading-tight", c.zh)}>{d.zh}</p>}
           <span aria-hidden="true" className={cn("mt-4 block h-px w-12 max-sm:hidden", c.rule)} />
           {d.desc && <p className={cn("mt-4 line-clamp-3 text-sm leading-relaxed max-sm:mt-3 max-sm:line-clamp-2", c.desc)}>{d.desc}</p>}
@@ -165,7 +183,7 @@ export default function DishCell({
                 {d.oldPrice != null && <s className={cn("whitespace-nowrap text-sm tabular-nums", c.old)}>{formatMoney(d.oldPrice, cur)}</s>}
               </p>
             ) : <span />}
-            {action}
+            {action && <div className="relative z-[2]">{action}</div>}
           </div>
         </div>
       </div>

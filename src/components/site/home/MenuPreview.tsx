@@ -134,7 +134,7 @@ export default function MenuPreview({ cats }: { cats: HomeCategory[] }) {
                 className={i === active.dishes.length - 1 ? fill.last : undefined}
                 action={
                   <Link
-                    href={`/menu#dish-${d.id}`}
+                    href={`/menu/${d.slug}`}
                     aria-label={`${t("viewInMenu")}: ${d.name}`}
                     className="flex size-11 shrink-0 items-center justify-center rounded-full border border-brand-gold/30 text-brand-cream transition duration-300 hover:border-saffron hover:bg-saffron hover:text-brand-ink"
                   >

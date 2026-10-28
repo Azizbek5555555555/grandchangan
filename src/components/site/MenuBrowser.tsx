@@ -19,7 +19,7 @@ import { useCellReveal } from "@/components/site/menu/useCellReveal";
 
 type Cat = { id: string; name: unknown; slug: string };
 type Item = {
-  id: string; categoryId: string; name: unknown; description?: unknown;
+  id: string; slug: string; categoryId: string; name: unknown; description?: unknown;
   price: number; discountPrice?: number | null; imageUrl?: string | null;
   spicyLevel: string; isVegetarian: boolean; isHalal: boolean; isNew: boolean;
   isFeatured?: boolean; weightGrams?: number | null; prepTimeMin?: number | null;
@@ -58,7 +58,6 @@ export default function MenuBrowser({
   const [q, setQ] = useState("");
   const [vegOnly, setVegOnly] = useState(false);
   const [active, setActive] = useState<string | null>(null);
-  const [flash, setFlash] = useState<string | null>(null);
   const chipsRef = useRef<HTMLDivElement | null>(null);
   const rootRef = useRef<HTMLElement | null>(null);
   useCellReveal(rootRef);
@@ -72,6 +71,7 @@ export default function MenuBrowser({
       const hasDisc = disc != null && disc > 0 && disc < it.price;
       return {
         id: it.id,
+        slug: it.slug,
         name: t(it.name, locale),
         zh: locale === "zh" ? null : zh || null,
         desc: t(it.description, locale),
@@ -168,17 +168,6 @@ export default function MenuBrowser({
     scrollToId(`cat-${id}`);
   }
 
-  function goDish(id: string) {
-    setQ("");
-    setVegOnly(false);
-    // Filtr olib tashlangach karta joyiga tushsin
-    requestAnimationFrame(() => {
-      scrollToId(`dish-${id}`, 20);
-      setFlash(id);
-      window.setTimeout(() => setFlash((f) => (f === id ? null : f)), 2200);
-    });
-  }
-
   const reset = () => { setQ(""); setVegOnly(false); };
   let fillN = 0;
 
@@ -221,17 +210,16 @@ export default function MenuBrowser({
               {featured.map((it) => {
                 const d = toCell(it);
                 return (
-                  <button
+                  <Link
                     key={it.id}
-                    type="button"
-                    onClick={() => goDish(it.id)}
+                    href={`/menu/${it.slug}`}
                     className="group flex w-44 shrink-0 snap-start flex-col items-center rounded-2xl p-2 text-center outline-none transition hover:bg-night-2 focus-visible:ring-2 focus-visible:ring-saffron sm:w-52"
                   >
                     <PlatedDish img={d.img} alt="" glyph={d.glyph} variant="lacquer" glyphClass="text-5xl" />
                     <span className="mt-3 font-display text-lg leading-tight text-brand-cream transition group-hover:text-saffron">{d.name}</span>
                     {d.zh && <span lang="zh" className="font-cn text-base text-brand-gold-light">{d.zh}</span>}
                     {hasPrice(d.price) && <span className="mt-1 text-sm font-semibold tabular-nums text-saffron">{formatMoney(d.price, currencyOf(locale))}</span>}
-                  </button>
+                  </Link>
                 );
               })}
             </div>
@@ -416,7 +404,6 @@ export default function MenuBrowser({
                         domId={`dish-${it.id}`}
                         d={toCell(it)}
                         as="h4"
-                        flash={flash === it.id}
                         className={cn("scroll-mt-36 lg:scroll-mt-28", i === g.items.length - 1 && fill.last)}
                       />
                     ))}
