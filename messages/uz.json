@@ -1423,7 +1423,9 @@
         "d4": "Payshanba",
         "d5": "Juma",
         "d6": "Shanba"
-      }
+      },
+      "bookingPhones": "Yangi bron SMS'i (menejer telefoni)",
+      "bookingPhonesHint": "Saytdan yangi bron tushganda shu raqam(lar)ga SMS boradi. Bir nechta bo'lsa — vergul bilan."
     },
     "errors": {
       "loginInvalid": "Login yoki parol noto'g'ri",
@@ -1447,7 +1449,39 @@
       "emailOrPhoneTaken": "Bu email yoki telefon boshqa foydalanuvchida band",
       "noPermissionBlockStaff": "Bu xodimni bloklashga ruxsatingiz yo'q",
       "cannotRemoveSelf": "O'zingizni o'chira olmaysiz",
-      "noPermissionRemoveStaff": "Bu xodimni o'chirishga ruxsatingiz yo'q"
+      "noPermissionRemoveStaff": "Bu xodimni o'chirishga ruxsatingiz yo'q",
+      "holdNoTable": "Kamida bitta stol tanlang.",
+      "holdBadTime": "Vaqt noto'g'ri: tugash vaqti boshlanishidan keyin bo'lishi kerak.",
+      "holdPast": "Bu vaqt o'tib ketgan.",
+      "holdTooLong": "Bir martada ko'pi bilan 31 kunga band qilish mumkin.",
+      "holdNameRequired": "Mehmon ismini kiriting.",
+      "holdPartyInvalid": "Kishi soni noto'g'ri.",
+      "holdConflict": "Bu vaqtda tanlangan stollarda faol bron bor. Avval ularni bekor qiling:",
+      "holdBlockedName": "Admin bloki"
+    },
+    "hold": {
+      "open": "Stolni band qilish",
+      "eyebrow": "Admin bloki",
+      "title": "Stolni band qilish",
+      "modeGuest": "Mehmon uchun bron",
+      "modeGuestHint": "Telefon orqali yoki joyida kelishilgan bron",
+      "modeBlock": "Stolni yopish",
+      "modeBlockHint": "Mehmonsiz: ta'mir, tadbir, xodimlar uchun",
+      "from": "Boshlanishi",
+      "to": "Tugashi",
+      "hours": "{count} soat",
+      "untilClose": "Kun oxirigacha",
+      "tables": "Stollar (bir nechtasini tanlash mumkin)",
+      "party": "Kishi",
+      "note": "Izoh",
+      "reason": "Sabab",
+      "reasonHint": "Ro'yxatda mehmon ismi o'rnida ko'rinadi.",
+      "reasonPh": "Masalan: ta'mir, banket, VIP mehmon",
+      "smsGuest": "Mehmonga tasdiq SMS'i yuborish",
+      "submit": "{count, plural, =0 {Stol tanlang} other {# ta stolni band qilish}}",
+      "done": "Tayyor: {count} ta stol band qilindi ({codes}). Saytda bu vaqtda ular band ko'rinadi.",
+      "unlock": "Stolni ochish",
+      "blockedBadge": "Admin yopgan stol"
     }
   },
   "Dish": {

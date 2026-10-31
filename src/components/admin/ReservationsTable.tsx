@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { CalendarX2, Search, Trash2, UtensilsCrossed } from "lucide-react";
+import { CalendarPlus, CalendarX2, Lock, LockOpen, Search, Trash2, UtensilsCrossed } from "lucide-react";
 import { t, formatMoney, currencyOf, cn } from "@/lib/utils";
 import { deleteReservation, updateReservationStatus } from "@/lib/reservation/actions";
 import PageHeader from "@/components/admin/ui/PageHeader";
@@ -12,18 +12,24 @@ import EmptyState from "@/components/admin/ui/EmptyState";
 import Dialog from "@/components/admin/ui/Dialog";
 import { ui } from "@/components/admin/ui/styles";
 import { fmtDate } from "@/components/admin/ui/format";
+import TableHoldDialog, { type HoldZone } from "@/components/admin/TableHoldDialog";
 
 type PreOrderItem = { name: unknown; quantity: number; unitPrice: number };
 type PreOrder = { code: string; status: string; total: number; items: PreOrderItem[] };
 type Res = {
   id: string; code: string; guestName: string; guestPhone: string; partySize: number;
-  date: string; startTime: string; status: string; tableNumber?: string | null;
+  date: string; startTime: string; endTime: string; status: string; tableNumber?: string | null;
   occasion?: string | null; preOrder?: PreOrder | null;
+  /** ADMIN — admin yopgan stol (mehmonsiz), PHONE — admin kiritgan telefon bron */
+  source: string;
 };
+
+const isBlock = (r: Res) => r.source === "ADMIN";
+const ACTIVE = ["PENDING", "CONFIRMED", "SEATED"];
 
 const STATUSES = ["PENDING", "CONFIRMED", "SEATED", "COMPLETED", "CANCELLED", "NO_SHOW"] as const;
 
-export default function ReservationsTable({ reservations, canDelete = false }: { reservations: Res[]; canDelete?: boolean }) {
+export default function ReservationsTable({ reservations, zones, canDelete = false }: { reservations: Res[]; zones: HoldZone[]; canDelete?: boolean }) {
   const ta = useTranslations("Admin");
   const tr = useTranslations("AdminUi.reservations");
   const ts = useTranslations("AdminUi.resStatus");
@@ -34,6 +40,8 @@ export default function ReservationsTable({ reservations, canDelete = false }: {
   const [q, setQ] = useState("");
   const [pending, startTransition] = useTransition();
   const [detail, setDetail] = useState<Res | null>(null);
+  const [holdOpen, setHoldOpen] = useState(false);
+  const th = useTranslations("AdminUi.hold");
 
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -88,6 +96,39 @@ export default function ReservationsTable({ reservations, canDelete = false }: {
       <span className="text-xs text-muted">—</span>
     );
 
+  // Yopiq stolni muddatidan oldin ochish — bron bekor qilinadi, stol saytda yana bo'sh ko'rinadi
+  const unlockBtn = (r: Res) =>
+    isBlock(r) && ACTIVE.includes(r.status) ? (
+      <button type="button" onClick={() => setStatus(r, "CANCELLED")} disabled={pending} title={th("unlock")} aria-label={`${th("unlock")} ${r.code}`} className={ui.iconBtn}>
+        <LockOpen size={16} aria-hidden />
+      </button>
+    ) : null;
+
+  /** Mehmon katagi: yopiq stolda — qulf belgisi va sabab */
+  const guestCell = (r: Res) =>
+    isBlock(r) ? (
+      <div className="flex items-center gap-2">
+        <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-lg bg-fire/10 text-fire-ink"><Lock size={14} aria-hidden /></span>
+        <div className="min-w-0">
+          <div className="truncate font-medium">{r.guestName}</div>
+          <div className="text-xs text-muted">{th("blockedBadge")}</div>
+        </div>
+      </div>
+    ) : (
+      <>
+        <div className="font-medium">{r.guestName}</div>
+        <a href={`tel:+${r.guestPhone.replace(/\D/g, "")}`} className="text-xs text-muted hover:text-content">{r.guestPhone}</a>
+      </>
+    );
+
+  /** Vaqt: yopiq stolda — oraliq (dan — gacha) */
+  const timeCell = (r: Res) =>
+    isBlock(r) ? (
+      <span className="whitespace-nowrap">{fmtDate(r.startTime, locale)} — {fmtDate(r.endTime, locale)}</span>
+    ) : (
+      fmtDate(r.startTime, locale)
+    );
+
   const deleteBtn = (r: Res) =>
     canDelete && (
       <button type="button" onClick={() => remove(r)} disabled={pending} title={ta("delete")} aria-label={`${ta("delete")} ${r.code}`} className={ui.iconBtnDanger}>
@@ -97,7 +138,16 @@ export default function ReservationsTable({ reservations, canDelete = false }: {
 
   return (
     <div className={ui.page}>
-      <PageHeader section="reservations" title={ta("reservations")} description={tr("subtitle")} />
+      <PageHeader
+        section="reservations"
+        title={ta("reservations")}
+        description={tr("subtitle")}
+        actions={
+          <button type="button" onClick={() => setHoldOpen(true)} className={ui.btnPrimary}>
+            <CalendarPlus size={16} aria-hidden /> {th("open")}
+          </button>
+        }
+      />
 
       <div className="mb-5 flex flex-col gap-3 2xl:flex-row 2xl:items-center 2xl:justify-between">
         <FilterChips
@@ -141,17 +191,15 @@ export default function ReservationsTable({ reservations, canDelete = false }: {
                 {shown.map((r) => (
                   <tr key={r.id} className={ui.tr}>
                     <td className={cn(ui.td, "font-mono text-xs text-muted")}>{r.code}</td>
-                    <td className={ui.td}>
-                      <div className="font-medium">{r.guestName}</div>
-                      <a href={`tel:+${r.guestPhone.replace(/\D/g, "")}`} className="text-xs text-muted hover:text-content">{r.guestPhone}</a>
-                    </td>
-                    <td className={cn(ui.td, "tabular-nums")}>{r.partySize}</td>
-                    <td className={cn(ui.td, "whitespace-nowrap text-sm")}>{fmtDate(r.startTime, locale)}</td>
+                    <td className={ui.td}>{guestCell(r)}</td>
+                    <td className={cn(ui.td, "tabular-nums")}>{isBlock(r) ? "—" : r.partySize}</td>
+                    <td className={cn(ui.td, "whitespace-nowrap text-sm")}>{timeCell(r)}</td>
                     <td className={ui.td}>{r.tableNumber || "—"}</td>
                     <td className={ui.td}>{preorderBtn(r)}</td>
                     <td className={ui.td}><Pill tone={STATUS_TONE[r.status]}>{ts(r.status)}</Pill></td>
                     <td className={ui.td}>
                       <div className="flex items-center justify-end gap-1">
+                        {unlockBtn(r)}
                         {statusSelect(r)}
                         {deleteBtn(r)}
                       </div>
@@ -167,20 +215,17 @@ export default function ReservationsTable({ reservations, canDelete = false }: {
             {shown.map((r) => (
               <li key={r.id} className={cn(ui.card, "p-4")}>
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate font-medium text-content">{r.guestName}</p>
-                    <a href={`tel:+${r.guestPhone.replace(/\D/g, "")}`} className="text-xs text-muted">{r.guestPhone}</a>
-                  </div>
+                  <div className="min-w-0">{guestCell(r)}</div>
                   <Pill tone={STATUS_TONE[r.status]}>{ts(r.status)}</Pill>
                 </div>
                 <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
                   <div>
                     <dt className="text-muted">{tr("colTime")}</dt>
-                    <dd className="mt-0.5 text-content">{fmtDate(r.startTime, locale)}</dd>
+                    <dd className="mt-0.5 text-content">{timeCell(r)}</dd>
                   </div>
                   <div>
                     <dt className="text-muted">{tr("colParty")}</dt>
-                    <dd className="mt-0.5 text-content tabular-nums">{r.partySize}</dd>
+                    <dd className="mt-0.5 text-content tabular-nums">{isBlock(r) ? "—" : r.partySize}</dd>
                   </div>
                   <div>
                     <dt className="text-muted">{tr("colTable")}</dt>
@@ -190,6 +235,7 @@ export default function ReservationsTable({ reservations, canDelete = false }: {
                 {r.preOrder && <div className="mt-3">{preorderBtn(r)}</div>}
                 <div className="mt-3 flex items-center gap-2 border-t border-line pt-3">
                   <span className="mr-auto font-mono text-[11px] text-muted">{r.code}</span>
+                  {unlockBtn(r)}
                   {statusSelect(r)}
                   {deleteBtn(r)}
                 </div>
@@ -198,6 +244,8 @@ export default function ReservationsTable({ reservations, canDelete = false }: {
           </ul>
         </>
       )}
+
+      {holdOpen && <TableHoldDialog zones={zones} onClose={() => setHoldOpen(false)} />}
 
       {detail?.preOrder && (
         <Dialog onClose={() => setDetail(null)} eyebrow={tr("preorder")} title={detail.code}>
