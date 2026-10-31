@@ -9,7 +9,7 @@ import PageHeader from "@/components/admin/ui/PageHeader";
 import { Field, Notice } from "@/components/admin/ui/Field";
 import { ui } from "@/components/admin/ui/styles";
 
-type General = { name?: string; email?: string; phones?: string[]; address?: string | LocalizedValue; instagram?: string; telegram?: string; mapQuery?: string; mapLink?: string };
+type General = { name?: string; email?: string; phones?: string[]; bookingPhones?: string[]; address?: string | LocalizedValue; instagram?: string; telegram?: string; mapQuery?: string; mapLink?: string };
 type Hour = { dayOfWeek: number; openTime: string | null; closeTime: string | null; isClosed: boolean };
 /** Ko'rsatish tartibi: dushanbadan yakshanbagacha (dayOfWeek: 0 — yakshanba) */
 const ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -22,6 +22,8 @@ export default function SettingsForm({ general, hours }: { general: General; hou
   const tc = useTranslations("AdminUi.common");
   const [g, setG] = useState<General>(general);
   const [phones, setPhones] = useState((general.phones || []).join(", "));
+  // Yangi bron SMS'i boradigan menejer telefon(lar)i
+  const [bookingPhones, setBookingPhones] = useState((general.bookingPhones || []).join(", "));
   // Manzil 4 tilda saqlanadi (seed shunday yozadi); eski oddiy matn bo'lsa — UZ sifatida ochiladi
   const [address, setAddress] = useState<LocalizedValue>(() =>
     typeof general.address === "string" ? { uz: general.address } : general.address || {}
@@ -39,7 +41,8 @@ export default function SettingsForm({ general, hours }: { general: General; hou
   async function saveGeneral() {
     setSaving("general"); setMsgGeneral(null);
     try {
-      await saveSetting("general", { ...g, address, phones: phones.split(",").map((s) => s.trim()).filter(Boolean) });
+      const split = (v: string) => v.split(",").map((s) => s.trim()).filter(Boolean);
+      await saveSetting("general", { ...g, address, phones: split(phones), bookingPhones: split(bookingPhones) });
       setMsgGeneral({ ok: true, text: tc("saved") });
     } catch {
       setMsgGeneral({ ok: false, text: tc("error") });
@@ -91,6 +94,9 @@ export default function SettingsForm({ general, hours }: { general: General; hou
             </div>
             <Field label={ts("phones")} hint={ts("phonesHint")}>
               <input value={phones} onChange={(e) => setPhones(e.target.value)} placeholder="+998 90 123 45 67, +998 66 …" className={ui.input} />
+            </Field>
+            <Field label={ts("bookingPhones")} hint={ts("bookingPhonesHint")}>
+              <input value={bookingPhones} onChange={(e) => setBookingPhones(e.target.value)} placeholder="+998 90 123 45 67" className={ui.input} />
             </Field>
             <LocalizedInput label={ts("address")} value={address} onChange={setAddress} />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -1423,7 +1423,9 @@
         "d4": "Thursday",
         "d5": "Friday",
         "d6": "Saturday"
-      }
+      },
+      "bookingPhones": "New booking SMS (manager phone)",
+      "bookingPhonesHint": "An SMS is sent to these number(s) when a new booking comes from the site. Separate several with commas."
     },
     "errors": {
       "loginInvalid": "Incorrect email or password",
@@ -1447,7 +1449,39 @@
       "emailOrPhoneTaken": "This email or phone is already used by another user",
       "noPermissionBlockStaff": "You don't have permission to block this staff member",
       "cannotRemoveSelf": "You can't remove yourself",
-      "noPermissionRemoveStaff": "You don't have permission to remove this staff member"
+      "noPermissionRemoveStaff": "You don't have permission to remove this staff member",
+      "holdNoTable": "Pick at least one table.",
+      "holdBadTime": "Invalid time: the end must be after the start.",
+      "holdPast": "This time has already passed.",
+      "holdTooLong": "You can reserve for at most 31 days at once.",
+      "holdNameRequired": "Enter the guest's name.",
+      "holdPartyInvalid": "Invalid number of guests.",
+      "holdConflict": "The selected tables have active bookings at this time. Cancel them first:",
+      "holdBlockedName": "Admin hold"
+    },
+    "hold": {
+      "open": "Reserve a table",
+      "eyebrow": "Admin hold",
+      "title": "Reserve a table",
+      "modeGuest": "Booking for a guest",
+      "modeGuestHint": "Arranged by phone or in person",
+      "modeBlock": "Close a table",
+      "modeBlockHint": "No guest: repairs, an event, staff use",
+      "from": "Starts",
+      "to": "Ends",
+      "hours": "{count, plural, one {# hour} other {# hours}}",
+      "untilClose": "Until end of day",
+      "tables": "Tables (you can pick several)",
+      "party": "Guests",
+      "note": "Note",
+      "reason": "Reason",
+      "reasonHint": "Shown in the list instead of the guest name.",
+      "reasonPh": "E.g. repairs, banquet, VIP guest",
+      "smsGuest": "Send the guest an SMS confirmation",
+      "submit": "{count, plural, =0 {Pick a table} one {Reserve # table} other {Reserve # tables}}",
+      "done": "Done: {count} table(s) reserved ({codes}). They will show as busy on the site at that time.",
+      "unlock": "Reopen table",
+      "blockedBadge": "Closed by admin"
     }
   },
   "Dish": {

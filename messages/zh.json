@@ -1423,7 +1423,9 @@
         "d4": "星期四",
         "d5": "星期五",
         "d6": "星期六"
-      }
+      },
+      "bookingPhones": "新预订短信（经理电话）",
+      "bookingPhonesHint": "网站有新预订时向这些号码发送短信。多个号码用逗号分隔。"
     },
     "errors": {
       "loginInvalid": "账号或密码错误",
@@ -1447,7 +1449,39 @@
       "emailOrPhoneTaken": "该邮箱或电话已被其他用户使用",
       "noPermissionBlockStaff": "您无权封禁此员工",
       "cannotRemoveSelf": "不能移除自己",
-      "noPermissionRemoveStaff": "您无权移除此员工"
+      "noPermissionRemoveStaff": "您无权移除此员工",
+      "holdNoTable": "请至少选择一张餐桌。",
+      "holdBadTime": "时间无效：结束时间必须晚于开始时间。",
+      "holdPast": "该时间已过。",
+      "holdTooLong": "一次最多可预留 31 天。",
+      "holdNameRequired": "请输入客人姓名。",
+      "holdPartyInvalid": "人数无效。",
+      "holdConflict": "所选餐桌在该时段有有效预订，请先取消：",
+      "holdBlockedName": "管理员预留"
+    },
+    "hold": {
+      "open": "预留餐桌",
+      "eyebrow": "管理员预留",
+      "title": "预留餐桌",
+      "modeGuest": "为客人预订",
+      "modeGuestHint": "电话或现场确定的预订",
+      "modeBlock": "关闭餐桌",
+      "modeBlockHint": "无客人：维修、活动、员工使用",
+      "from": "开始",
+      "to": "结束",
+      "hours": "{count} 小时",
+      "untilClose": "至当天结束",
+      "tables": "餐桌（可多选）",
+      "party": "人数",
+      "note": "备注",
+      "reason": "原因",
+      "reasonHint": "在列表中代替客人姓名显示。",
+      "reasonPh": "例如：维修、宴会、VIP 客人",
+      "smsGuest": "向客人发送确认短信",
+      "submit": "{count, plural, =0 {请选择餐桌} other {预留 # 张餐桌}}",
+      "done": "完成：已预留 {count} 张餐桌（{codes}）。该时段网站上将显示为已占用。",
+      "unlock": "重新开放餐桌",
+      "blockedBadge": "管理员已关闭"
     }
   },
   "Dish": {

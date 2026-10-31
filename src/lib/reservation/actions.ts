@@ -206,12 +206,132 @@ export async function createReservation(input: {
   const code = reservation.code;
 
   await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${code}. ${input.dateStr} ${input.timeStr}`);
+  await notifyManagersSms(
+    `GrandChangan: yangi bron ${code}. ${input.dateStr} ${input.timeStr}, ${input.partySize} kishi, stol ${table.number}. ${guestName} +${phone}`
+  );
   await notifyTelegram(
     `🍽 <b>Yangi bron</b>\nKod: ${code}\nStol: ${escapeHtml(table.number)}\nMehmon: ${escapeHtml(guestName)} (${phone})\nKishi: ${input.partySize}\nVaqt: ${input.dateStr} ${input.timeStr}`
   );
 
   revalidatePath("/[locale]/admin/reservations", "page");
   return { ok: true, code, reservationId: reservation.id };
+}
+
+// ---------- MENEJERGA SMS (yangi bron) ----------
+/**
+ * Admin → Sozlamalar → "Yangi bron SMS'i" dagi telefon(lar)ga SMS. Har yuborish NotificationLog'ga yoziladi
+ * (SMS kelmasa — sababini admin ko'ra oladi). Hech qachon xato otmaydi: bron baribir saqlanadi.
+ */
+async function notifyManagersSms(message: string) {
+  try {
+    const general = await prisma.siteSetting.findUnique({ where: { key: "general" } });
+    const raw = (general?.value as { bookingPhones?: unknown } | null)?.bookingPhones;
+    const list = Array.isArray(raw) ? raw : [];
+    const phones = [...new Set(list.map((p) => normalizePhone(String(p))).filter((p) => p.length >= 12))].slice(0, 5);
+    for (const to of phones) {
+      const res = await sendSms(to, message);
+      await prisma.notificationLog
+        .create({ data: { channel: "sms", target: to, template: "booking-manager", payload: { message }, status: res.ok ? "SENT" : "FAILED" } })
+        .catch(() => null);
+    }
+  } catch (err) {
+    console.error("[SMS] menejerga yuborilmadi:", err);
+  }
+}
+
+// ---------- ADMIN: stolni band qilish / yopish ----------
+const TIME_RE = /^\d{2}:\d{2}$/;
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export type AdminHoldInput = {
+  tableIds: string[];
+  fromDate: string;
+  fromTime: string;
+  toDate: string;
+  toTime: string;
+  /** guest — telefon/joyida kelishilgan bron; block — stol shu vaqtga yopiladi (mehmonsiz) */
+  kind: "guest" | "block";
+  guestName?: string;
+  guestPhone?: string;
+  partySize?: number;
+  note?: string;
+  /** Mehmonga tasdiq SMS'i yuborilsinmi (faqat guest) */
+  smsGuest?: boolean;
+};
+
+/**
+ * Admin stol(lar)ni ma'lum vaqtga band qiladi: har stolga tasdiqlangan bron yoziladi (source: PHONE — mehmon uchun,
+ * ADMIN — yopiq stol). Saytda shu vaqt oralig'ida stol "band" ko'rinadi. Ustma-ust tushgan faol bron bo'lsa — rad
+ * etiladi va o'sha bronlar ro'yxati qaytariladi (avval ularni bekor qilish kerak).
+ */
+export async function adminHoldTables(input: AdminHoldInput): Promise<{ ok: true; codes: string[] } | { ok: false; error: string; conflicts?: string[] }> {
+  await ensureSection("reservations");
+  const ea = await getTranslations("AdminUi.errors");
+  const ids = [...new Set((input.tableIds || []).filter(Boolean))].slice(0, 60);
+  if (!ids.length) return { ok: false, error: ea("holdNoTable") };
+  if (![input.fromDate, input.toDate].every((d) => DATE_RE.test(d)) || ![input.fromTime, input.toTime].every((x) => TIME_RE.test(x))) {
+    return { ok: false, error: ea("holdBadTime") };
+  }
+  const start = restaurantDateTime(input.fromDate, input.fromTime);
+  const end = restaurantDateTime(input.toDate, input.toTime);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || end <= start) return { ok: false, error: ea("holdBadTime") };
+  if (end.getTime() <= Date.now()) return { ok: false, error: ea("holdPast") };
+  if (end.getTime() - start.getTime() > 31 * 24 * 60 * 60 * 1000) return { ok: false, error: ea("holdTooLong") };
+
+  const guest = input.kind === "guest";
+  const note = (input.note || "").trim().slice(0, 300);
+  let guestName = "";
+  let phone = "";
+  let partySize = 0;
+  if (guest) {
+    guestName = (input.guestName || "").trim().slice(0, 80);
+    phone = normalizePhone(input.guestPhone || "");
+    partySize = Number(input.partySize);
+    if (!guestName) return { ok: false, error: ea("holdNameRequired") };
+    if (phone.length < 12) return { ok: false, error: ea("phoneInvalid") };
+    if (!Number.isInteger(partySize) || partySize < 1 || partySize > 200) return { ok: false, error: ea("holdPartyInvalid") };
+  } else {
+    // Yopiq stol: ro'yxatda sabab ko'rinadi (mehmon ismi o'rnida)
+    guestName = note.slice(0, 80) || ea("holdBlockedName");
+  }
+
+  const tables = await prisma.table.findMany({ where: { id: { in: ids } }, select: { id: true, number: true } });
+  if (tables.length !== ids.length) return { ok: false, error: ea("holdNoTable") };
+
+  const clashes = await prisma.reservation.findMany({
+    where: { tableId: { in: ids }, status: { in: ACTIVE }, startTime: { lt: end }, endTime: { gt: start } },
+    select: { code: true, guestName: true, table: { select: { number: true } } },
+    take: 20,
+  });
+  if (clashes.length) {
+    return {
+      ok: false,
+      error: ea("holdConflict"),
+      conflicts: clashes.map((c) => `${c.code} · ${c.table?.number ?? "—"} · ${c.guestName}`),
+    };
+  }
+
+  const date = calendarDate(input.fromDate);
+  const codes: string[] = [];
+  for (const tb of tables) {
+    const r = await createWithCode("reservation", "GC", (code) =>
+      prisma.reservation.create({
+        data: {
+          code, tableId: tb.id, guestName, guestPhone: phone, partySize, date, startTime: start, endTime: end,
+          status: "CONFIRMED", source: guest ? "PHONE" : "ADMIN",
+          specialRequest: guest ? note || null : null,
+        },
+      })
+    );
+    codes.push(r.code);
+  }
+  if (guest && input.smsGuest) {
+    await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${codes[0]}. ${input.fromDate} ${input.fromTime}`);
+  }
+
+  revalidatePath("/[locale]/admin/reservations", "page");
+  revalidatePath("/[locale]/admin/dashboard", "page");
+  return { ok: true, codes };
 }
 
 // ---------- STATUS (admin) ----------

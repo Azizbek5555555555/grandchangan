@@ -106,14 +106,15 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
     getTranslations("AdminUi.resStatus"),
   ]);
   const [reservationsToday, ordersToday, customers, paidAgg, pendingReviews, pendingReservations, weekOrders, recentReservations, inventory] = await Promise.all([
-    prisma.reservation.count({ where: { startTime: { gte: today, lt: tomorrow } } }),
+    // Admin yopgan stollar (source: ADMIN) — bron emas, hisobga kirmaydi
+    prisma.reservation.count({ where: { startTime: { gte: today, lt: tomorrow }, source: { not: "ADMIN" } } }),
     prisma.order.count({ where: { createdAt: { gte: today } } }),
     prisma.user.count({ where: { role: "CUSTOMER" } }),
     prisma.payment.aggregate({ _sum: { amount: true }, where: { status: "PAID", paidAt: { gte: today } } }),
     prisma.review.count({ where: { status: "PENDING" } }),
     prisma.reservation.count({ where: { status: "PENDING" } }),
     prisma.order.findMany({ where: { createdAt: { gte: weekAgo } }, select: { total: true, createdAt: true } }),
-    prisma.reservation.findMany({ orderBy: { createdAt: "desc" }, take: 6, include: { table: { select: { number: true } } } }),
+    prisma.reservation.findMany({ where: { source: { not: "ADMIN" } }, orderBy: { createdAt: "desc" }, take: 6, include: { table: { select: { number: true } } } }),
     safeInventoryStats(),
   ]);
 
