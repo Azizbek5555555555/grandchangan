@@ -1440,7 +1440,18 @@
         "d6": "星期六"
       },
       "bookingPhones": "新预订短信（经理电话）",
-      "bookingPhonesHint": "网站有新预订时向这些号码发送短信。多个号码用逗号分隔。"
+      "bookingPhonesHint": "网站有新预订时向这些号码发送短信。多个号码用逗号分隔。",
+      "smsTitle": "短信 (Eskiz)",
+      "smsHint": "新预订通知经理和客人确认短信均通过它发送。",
+      "smsIdle": "点击按钮检查 Eskiz 连接并向经理发送测试短信。",
+      "smsNotConfigured": "Eskiz 未连接：Railway 中缺少 ESKIZ_EMAIL 和 ESKIZ_PASSWORD。",
+      "smsAuthFailed": "无法登录 Eskiz：{error}",
+      "smsConnected": "Eskiz 已连接。",
+      "smsConnectedBalance": "Eskiz 已连接。余额：{balance} 苏姆。",
+      "smsNoPhones": "未填写经理号码（上方“新预订短信”字段）。",
+      "smsSentTo": "测试短信已发送至 {phone}。",
+      "smsFailedTo": "未发送至 {phone}：{error}",
+      "smsTest": "检查并发送测试短信"
     },
     "errors": {
       "loginInvalid": "账号或密码错误",

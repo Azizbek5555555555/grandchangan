@@ -9,6 +9,7 @@ import { createWithCode } from "../codes";
 import { restaurantDateTime, calendarDate } from "../time";
 import { SLOT_MINUTES, dayOfWeekOf, hoursFor, slotsForDay, type DayHours } from "../hours";
 import { sendSms } from "../sms/eskiz";
+import { notifyManagersSms } from "../sms/managers";
 import { rateLimit, clientIp, HOUR } from "../security/rate-limit";
 import { notifyTelegram, escapeHtml } from "../telegram/notify";
 import { Prisma, type ReservationStatus, type TableShape } from "@prisma/client";
@@ -225,29 +226,6 @@ export async function createReservation(input: {
 
   revalidatePath("/[locale]/admin/reservations", "page");
   return { ok: true, code, reservationId: reservation.id };
-}
-
-// ---------- MENEJERGA SMS (yangi bron) ----------
-/**
- * Admin → Sozlamalar → "Yangi bron SMS'i" dagi va BOOKING_SMS_PHONES (env) telefon(lar)ga SMS. Har yuborish NotificationLog'ga yoziladi
- * (SMS kelmasa — sababini admin ko'ra oladi). Hech qachon xato otmaydi: bron baribir saqlanadi.
- */
-async function notifyManagersSms(message: string) {
-  try {
-    const general = await prisma.siteSetting.findUnique({ where: { key: "general" } });
-    const raw = (general?.value as { bookingPhones?: unknown } | null)?.bookingPhones;
-    // Admin → Sozlamalar'dagi raqamlar + Railway'dagi BOOKING_SMS_PHONES (vergul bilan)
-    const list = [...(Array.isArray(raw) ? raw : []), ...(process.env.BOOKING_SMS_PHONES || "").split(",")];
-    const phones = [...new Set(list.map((p) => parseUzPhone(String(p))).filter((p): p is string => !!p))].slice(0, 5);
-    for (const to of phones) {
-      const res = await sendSms(to, message);
-      await prisma.notificationLog
-        .create({ data: { channel: "sms", target: to, template: "booking-manager", payload: { message }, status: res.ok ? "SENT" : "FAILED" } })
-        .catch(() => null);
-    }
-  } catch (err) {
-    console.error("[SMS] menejerga yuborilmadi:", err);
-  }
 }
 
 // ---------- ADMIN: stolni band qilish / yopish ----------

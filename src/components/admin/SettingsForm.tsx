@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Building2, Clock, Save } from "lucide-react";
+import { Building2, Clock, MessageSquareText, Save, Send } from "lucide-react";
 import { LocalizedInput, type LocalizedValue } from "@/components/ui/LocalizedInput";
-import { saveSetting, saveWorkingHours } from "@/lib/settings/actions";
+import { saveSetting, saveWorkingHours, smsCheck } from "@/lib/settings/actions";
 import { cn } from "@/lib/utils";
 import PageHeader from "@/components/admin/ui/PageHeader";
 import { Field, Notice } from "@/components/admin/ui/Field";
@@ -35,6 +35,17 @@ export default function SettingsForm({ general, hours }: { general: General; hou
   const [msgGeneral, setMsgGeneral] = useState<Msg>(null);
   const [msgHours, setMsgHours] = useState<Msg>(null);
   const [saving, setSaving] = useState<"general" | "hours" | null>(null);
+  const [sms, setSms] = useState<Awaited<ReturnType<typeof smsCheck>> | null>(null);
+  const [smsBusy, setSmsBusy] = useState(false);
+
+  async function runSmsCheck() {
+    setSmsBusy(true); setSms(null);
+    try {
+      setSms(await smsCheck());
+    } finally {
+      setSmsBusy(false);
+    }
+  }
 
   const setDay = (dow: number, patch: Partial<Hour>) => setH((list) => list.map((d) => (d.dayOfWeek === dow ? { ...d, ...patch } : d)));
 
@@ -79,7 +90,7 @@ export default function SettingsForm({ general, hours }: { general: General; hou
       <PageHeader section="settings" title={ta("settings")} description={ts("subtitle")} />
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
-        <section aria-labelledby="set-general" className={cn(ui.card, "self-start xl:col-span-3")}>
+        <section aria-labelledby="set-general" className={cn(ui.card, "self-start xl:col-span-3 xl:row-span-2")}>
           <div className="flex items-center gap-3 border-b border-line px-4 py-4 sm:px-5">
             <span className="inline-flex size-9 items-center justify-center rounded-xl bg-fire/10 text-fire-ink"><Building2 size={18} aria-hidden /></span>
             <div>
@@ -149,6 +160,36 @@ export default function SettingsForm({ general, hours }: { general: General; hou
             {msgHours && <Notice ok={msgHours.ok} className="mr-auto">{msgHours.text}</Notice>}
             <button type="button" onClick={saveHours} disabled={saving === "hours"} className={cn(ui.btnPrimary, "ml-auto")}>
               <Save size={16} aria-hidden /> {saving === "hours" ? tc("saving") : tc("save")}
+            </button>
+          </div>
+        </section>
+
+        {/* SMS (Eskiz): ulanish holati, balans va menejerga sinov SMS */}
+        <section aria-labelledby="set-sms" className={cn(ui.card, "self-start xl:col-span-2 xl:col-start-4")}>
+          <div className="flex items-center gap-3 border-b border-line px-4 py-4 sm:px-5">
+            <span className="inline-flex size-9 items-center justify-center rounded-xl bg-fire/10 text-fire-ink"><MessageSquareText size={18} aria-hidden /></span>
+            <div>
+              <h2 id="set-sms" className={ui.cardTitle}>{ts("smsTitle")}</h2>
+              <p className="text-xs text-muted">{ts("smsHint")}</p>
+            </div>
+          </div>
+          <div className="space-y-2 p-4 text-sm sm:p-5">
+            {!sms && <p className="text-muted">{ts("smsIdle")}</p>}
+            {sms && !sms.configured && <Notice ok={false}>{ts("smsNotConfigured")}</Notice>}
+            {sms && sms.configured && !sms.auth && <Notice ok={false}>{ts("smsAuthFailed", { error: sms.error || "—" })}</Notice>}
+            {sms?.auth && (
+              <Notice ok>{sms.balance != null ? ts("smsConnectedBalance", { balance: sms.balance.toLocaleString("ru-RU") }) : ts("smsConnected")}</Notice>
+            )}
+            {sms?.auth && !sms.phones.length && <Notice ok={false}>{ts("smsNoPhones")}</Notice>}
+            {sms?.results.map((r) => (
+              <Notice key={r.phone} ok={r.ok}>
+                {r.ok ? ts("smsSentTo", { phone: `+${r.phone}` }) : ts("smsFailedTo", { phone: `+${r.phone}`, error: r.error || "—" })}
+              </Notice>
+            ))}
+          </div>
+          <div className="flex border-t border-line px-4 py-3 sm:px-5">
+            <button type="button" onClick={runSmsCheck} disabled={smsBusy} className={cn(ui.btnSecondary, "ml-auto")}>
+              <Send size={16} aria-hidden /> {smsBusy ? tc("saving") : ts("smsTest")}
             </button>
           </div>
         </section>
