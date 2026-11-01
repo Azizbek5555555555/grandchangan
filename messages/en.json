@@ -1451,7 +1451,8 @@
       "smsNoPhones": "No manager number set (the “New booking SMS” field above).",
       "smsSentTo": "Test SMS sent to {phone}.",
       "smsFailedTo": "Not sent to {phone}: {error}",
-      "smsTest": "Check & send test SMS"
+      "smsTest": "Check & send test SMS",
+      "smsTestOnly": "The connection works: Eskiz's test text («Bu Eskiz dan test») was sent. Booking SMS doesn't go through yet — the account is in test mode or the template isn't approved (Eskiz: request a contract and add the text under “My texts”)."
     },
     "errors": {
       "loginInvalid": "Incorrect email or password",
