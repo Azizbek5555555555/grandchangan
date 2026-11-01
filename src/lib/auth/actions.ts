@@ -21,6 +21,8 @@ const DUMMY_HASH = "$2a$10$pEchvsPHKvqjNiJQ2zFh/OjilShzacn5L/bmzoLkpHHROaoq9iGae
 /** Mijoz: telefonga OTP kod yuborish */
 export async function requestOtpAction(phoneRaw: string): Promise<Result> {
   const e = await getTranslations("Errors");
+  // Mijoz kabineti o'chirilgan ([locale]/account/layout.tsx) — SMS kod yuborilmaydi (balans behuda sarflanmasin)
+  if (!process.env.CUSTOMER_LOGIN_ENABLED) return { ok: false, error: e("smsFailed") };
   // Faqat O'zbekiston mobil raqami (operator kodi bilan) — SMS boshqa raqamga ketmaydi
   const phone = parseUzPhone(phoneRaw);
   if (!phone) return { ok: false, error: e("phoneUz") };
