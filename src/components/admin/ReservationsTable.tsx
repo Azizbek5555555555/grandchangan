@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { CalendarPlus, CalendarX2, Lock, LockOpen, Search, Trash2, UtensilsCrossed } from "lucide-react";
+import { CalendarPlus, CalendarX2, Lock, LockOpen, MessageCircle, Search, Send, Trash2, UtensilsCrossed } from "lucide-react";
 import { t, formatMoney, currencyOf, cn } from "@/lib/utils";
 import { deleteReservation, updateReservationStatus } from "@/lib/reservation/actions";
 import PageHeader from "@/components/admin/ui/PageHeader";
@@ -13,6 +13,7 @@ import Dialog from "@/components/admin/ui/Dialog";
 import { ui } from "@/components/admin/ui/styles";
 import { fmtDate } from "@/components/admin/ui/format";
 import TableHoldDialog, { type HoldZone } from "@/components/admin/TableHoldDialog";
+import { guestContact } from "@/lib/phone";
 
 type PreOrderItem = { name: unknown; quantity: number; unitPrice: number };
 type PreOrder = { code: string; status: string; total: number; items: PreOrderItem[] };
@@ -25,6 +26,25 @@ type Res = {
 };
 
 const isBlock = (r: Res) => r.source === "ADMIN";
+
+/** Mehmon aloqasi: O'zbek raqami — qo'ng'iroq, chet ellik — WhatsApp/Telegram tugmasi (menejer shu orqali bog'lanadi) */
+function ContactLink({ stored }: { stored: string }) {
+  const c = guestContact(stored);
+  if (c.kind === "whatsapp" || c.kind === "telegram") {
+    const Icon = c.kind === "whatsapp" ? MessageCircle : Send;
+    return (
+      <a
+        href={c.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-0.5 inline-flex items-center gap-1.5 rounded-full border border-jade/30 bg-jade/10 px-2 py-0.5 text-xs font-medium text-jade transition hover:bg-jade/15"
+      >
+        <Icon size={12} aria-hidden /> {c.kind === "whatsapp" ? "WhatsApp" : "Telegram"} · {c.display}
+      </a>
+    );
+  }
+  return <a href={c.href} className="text-xs text-muted tabular-nums hover:text-content">{c.display}</a>;
+}
 const ACTIVE = ["PENDING", "CONFIRMED", "SEATED"];
 
 const STATUSES = ["PENDING", "CONFIRMED", "SEATED", "COMPLETED", "CANCELLED", "NO_SHOW"] as const;
@@ -117,7 +137,7 @@ export default function ReservationsTable({ reservations, zones, canDelete = fal
     ) : (
       <>
         <div className="font-medium">{r.guestName}</div>
-        <a href={`tel:+${r.guestPhone.replace(/\D/g, "")}`} className="text-xs text-muted hover:text-content">{r.guestPhone}</a>
+        <ContactLink stored={r.guestPhone} />
       </>
     );
 
@@ -250,7 +270,7 @@ export default function ReservationsTable({ reservations, zones, canDelete = fal
       {detail?.preOrder && (
         <Dialog onClose={() => setDetail(null)} eyebrow={tr("preorder")} title={detail.code}>
           <dl className="mb-4 grid grid-cols-1 gap-2 rounded-xl bg-surface-2 p-3 text-sm sm:grid-cols-2">
-            <div><dt className="text-xs text-muted">{tr("colGuest")}</dt><dd>{detail.guestName} · {detail.guestPhone}</dd></div>
+            <div><dt className="text-xs text-muted">{tr("colGuest")}</dt><dd>{detail.guestName} · {guestContact(detail.guestPhone).display}</dd></div>
             <div><dt className="text-xs text-muted">{tr("colTime")}</dt><dd>{fmtDate(detail.startTime, locale, { year: true })}</dd></div>
             <div><dt className="text-xs text-muted">{tr("colTable")}</dt><dd>{detail.tableNumber || "—"}</dd></div>
             <div><dt className="text-xs text-muted">{tr("orderCode")}</dt><dd className="font-mono">{detail.preOrder.code}</dd></div>

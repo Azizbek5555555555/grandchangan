@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "../prisma";
 import { ensureAdmin, ensureSection } from "../auth/guard";
-import { normalizePhone } from "../utils";
+import { encodeGuestContact, guestContact, parseIntlPhone, parseUzPhone, type Messenger, type Residency } from "../phone";
 import { createWithCode } from "../codes";
 import { restaurantDateTime, calendarDate } from "../time";
 import { SLOT_MINUTES, dayOfWeekOf, hoursFor, slotsForDay, type DayHours } from "../hours";
@@ -150,12 +150,20 @@ export async function getAvailability(dateStr: string, timeStr: string, partySiz
 export async function createReservation(input: {
   tableId: string; guestName: string; guestPhone: string; partySize: number;
   dateStr: string; timeStr: string; specialRequest?: string; occasion?: string;
+  /** local — O'zbekiston raqami (SMS), foreign — chet ellik: WhatsApp yoki Telegram orqali aloqa */
+  residency?: Residency; messenger?: Messenger;
 }) {
   const e = await getTranslations("Errors");
-  const phone = normalizePhone(input.guestPhone || "");
+  const residency: Residency = input.residency === "foreign" ? "foreign" : "local";
+  const messenger: Messenger = input.messenger === "telegram" ? "telegram" : "whatsapp";
   const guestName = (input.guestName || "").trim().slice(0, 80);
   if (!guestName) return { ok: false, error: e("nameRequired") };
-  if (phone.length < 12) return { ok: false, error: e("phoneInvalid") };
+  // Mahalliy — faqat operator kodi to'g'ri O'zbekiston mobil raqami; chet ellik — xalqaro raqam yoki Telegram @username
+  const phone = encodeGuestContact(residency, messenger, input.guestPhone || "");
+  if (!phone) {
+    return { ok: false, error: residency === "local" ? e("phoneUz") : messenger === "telegram" ? e("phoneTelegram") : e("phoneIntl") };
+  }
+  const contact = guestContact(phone);
   if (!Number.isInteger(input.partySize) || input.partySize < 1 || input.partySize > 50) {
     return { ok: false, error: e("guestsInvalid") };
   }
@@ -205,12 +213,14 @@ export async function createReservation(input: {
   );
   const code = reservation.code;
 
-  await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${code}. ${input.dateStr} ${input.timeStr}`);
+  // Mehmonga SMS — faqat O'zbekiston raqamiga (Eskiz chet el raqamlariga yubora olmaydi)
+  if (contact.sms) await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${code}. ${input.dateStr} ${input.timeStr}`);
+  const via = contact.kind === "whatsapp" ? "WhatsApp " : contact.kind === "telegram" ? "Telegram " : "";
   await notifyManagersSms(
-    `GrandChangan: yangi bron ${code}. ${input.dateStr} ${input.timeStr}, ${input.partySize} kishi, stol ${table.number}. ${guestName} +${phone}`
+    `GrandChangan: yangi bron ${code}. ${input.dateStr} ${input.timeStr}, ${input.partySize} kishi, stol ${table.number}. ${guestName} ${via}${contact.display}`
   );
   await notifyTelegram(
-    `🍽 <b>Yangi bron</b>\nKod: ${code}\nStol: ${escapeHtml(table.number)}\nMehmon: ${escapeHtml(guestName)} (${phone})\nKishi: ${input.partySize}\nVaqt: ${input.dateStr} ${input.timeStr}`
+    `🍽 <b>Yangi bron</b>\nKod: ${code}\nStol: ${escapeHtml(table.number)}\nMehmon: ${escapeHtml(guestName)} (${via}${escapeHtml(contact.display)})${residency === "foreign" ? "\n🌍 Chet ellik mehmon — SMS yuborilmadi" : ""}\nKishi: ${input.partySize}\nVaqt: ${input.dateStr} ${input.timeStr}`
   );
 
   revalidatePath("/[locale]/admin/reservations", "page");
@@ -219,15 +229,16 @@ export async function createReservation(input: {
 
 // ---------- MENEJERGA SMS (yangi bron) ----------
 /**
- * Admin → Sozlamalar → "Yangi bron SMS'i" dagi telefon(lar)ga SMS. Har yuborish NotificationLog'ga yoziladi
+ * Admin → Sozlamalar → "Yangi bron SMS'i" dagi va BOOKING_SMS_PHONES (env) telefon(lar)ga SMS. Har yuborish NotificationLog'ga yoziladi
  * (SMS kelmasa — sababini admin ko'ra oladi). Hech qachon xato otmaydi: bron baribir saqlanadi.
  */
 async function notifyManagersSms(message: string) {
   try {
     const general = await prisma.siteSetting.findUnique({ where: { key: "general" } });
     const raw = (general?.value as { bookingPhones?: unknown } | null)?.bookingPhones;
-    const list = Array.isArray(raw) ? raw : [];
-    const phones = [...new Set(list.map((p) => normalizePhone(String(p))).filter((p) => p.length >= 12))].slice(0, 5);
+    // Admin → Sozlamalar'dagi raqamlar + Railway'dagi BOOKING_SMS_PHONES (vergul bilan)
+    const list = [...(Array.isArray(raw) ? raw : []), ...(process.env.BOOKING_SMS_PHONES || "").split(",")];
+    const phones = [...new Set(list.map((p) => parseUzPhone(String(p))).filter((p): p is string => !!p))].slice(0, 5);
     for (const to of phones) {
       const res = await sendSms(to, message);
       await prisma.notificationLog
@@ -285,10 +296,13 @@ export async function adminHoldTables(input: AdminHoldInput): Promise<{ ok: true
   let partySize = 0;
   if (guest) {
     guestName = (input.guestName || "").trim().slice(0, 80);
-    phone = normalizePhone(input.guestPhone || "");
+    // O'zbekiston raqami (operator kodi bilan) yoki xalqaro raqam (+ davlat kodi)
+    const raw = input.guestPhone || "";
+    const intl = raw.trim().startsWith("+") && !raw.replace(/\D/g, "").startsWith("998") ? parseIntlPhone(raw) : null;
+    phone = parseUzPhone(raw) ?? intl ?? "";
     partySize = Number(input.partySize);
     if (!guestName) return { ok: false, error: ea("holdNameRequired") };
-    if (phone.length < 12) return { ok: false, error: ea("phoneInvalid") };
+    if (!phone) return { ok: false, error: ea("phoneInvalid") };
     if (!Number.isInteger(partySize) || partySize < 1 || partySize > 200) return { ok: false, error: ea("holdPartyInvalid") };
   } else {
     // Yopiq stol: ro'yxatda sabab ko'rinadi (mehmon ismi o'rnida)
@@ -325,7 +339,7 @@ export async function adminHoldTables(input: AdminHoldInput): Promise<{ ok: true
     );
     codes.push(r.code);
   }
-  if (guest && input.smsGuest) {
+  if (guest && input.smsGuest && guestContact(phone).sms) {
     await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${codes[0]}. ${input.fromDate} ${input.fromTime}`);
   }
 

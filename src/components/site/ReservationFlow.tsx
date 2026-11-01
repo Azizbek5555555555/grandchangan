@@ -6,8 +6,9 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import {
   Check, Search, Plus, Minus, UtensilsCrossed, ChevronLeft, ChevronRight, ChevronDown, Loader2,
-  Users, CalendarDays, Clock, Armchair, Phone, ArrowRight, ArrowLeft, Sun, Moon,
+  Users, CalendarDays, Clock, Armchair, Phone, ArrowRight, ArrowLeft, Sun, Moon, Globe2, MapPin, MessageCircle, Send,
 } from "lucide-react";
+import { encodeGuestContact, type Messenger, type Residency } from "@/lib/phone";
 import { cn, t, currencyOf, formatMoney, hasPrice } from "@/lib/utils";
 import { getAvailability, createReservation } from "@/lib/reservation/actions";
 import { createPreorderForReservation } from "@/lib/order/actions";
@@ -122,6 +123,11 @@ export default function ReservationFlow({
 
   const [name, setName] = useState("");
   const [phoneInput, setPhoneInput] = useState("");
+  // Fuqarolik: mahalliy — O'zbekiston raqami (SMS), chet ellik — WhatsApp/Telegram orqali aloqa
+  const [residency, setResidency] = useState<Residency>("local");
+  const [messenger, setMessenger] = useState<Messenger>("whatsapp");
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const contactOk = encodeGuestContact(residency, messenger, phoneInput) !== null;
   const [request, setRequest] = useState("");
   const [error, setError] = useState<string | null>(null);
 
@@ -211,7 +217,10 @@ export default function ReservationFlow({
   async function submit() {
     if (!selectedTable) return;
     setError(null); setLoading(true);
-    const res = await createReservation({ tableId: selectedTable.id, guestName: name, guestPhone: phoneInput, partySize: party, dateStr: date, timeStr: time, specialRequest: request });
+    const res = await createReservation({
+      tableId: selectedTable.id, guestName: name, guestPhone: phoneInput, partySize: party, dateStr: date, timeStr: time,
+      specialRequest: request, residency, messenger,
+    });
     setLoading(false);
     if (res.ok) { setCode(res.code!); setReservationId(res.reservationId!); setPhase("prompt"); return; }
     // Stol shu orada band bo'lib qolgan bo'lsa — xaritani yangilab, 4-qadamga qaytamiz
@@ -355,7 +364,9 @@ export default function ReservationFlow({
                 <p className="mt-1 text-xs text-brand-cream/60">{T("rPayAtRest")}</p>
               </div>
             )}
-            <p className="mt-6 text-sm text-brand-cream/75">{T("rContactSoon")}</p>
+            <p className="mt-6 text-sm text-brand-cream/75">
+              {residency === "foreign" ? P("contactSoonForeign", { app: messenger === "telegram" ? "Telegram" : "WhatsApp" }) : T("rContactSoon")}
+            </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <ButtonLink href="/" variant="saffron" blob>{TC("home")}</ButtonLink>
               <ButtonLink href="/menu" variant="ghost-light">{TC("menu")}</ButtonLink>
@@ -601,9 +612,73 @@ export default function ReservationFlow({
                     <span className={labelCls}>{T("rNamePh")}</span>
                     <input value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" enterKeyHint="next" placeholder={T("rNamePh")} className={fieldCls} />
                   </label>
+                  {/* Fuqarolik: chet el raqamlariga SMS ketmaydi — turist WhatsApp yoki Telegram'ini qoldiradi */}
+                  <fieldset>
+                    <legend className={labelCls}>{P("residencyTitle")}</legend>
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      {([
+                        ["local", MapPin, P("resLocal"), P("resLocalHint")],
+                        ["foreign", Globe2, P("resForeign"), P("resForeignHint")],
+                      ] as const).map(([val, Icon, title, hint]) => (
+                        <button
+                          key={val}
+                          type="button"
+                          aria-pressed={residency === val}
+                          onClick={() => { setResidency(val); setPhoneTouched(false); setPhoneInput(""); }}
+                          className={cn(
+                            "flex min-h-14 items-start gap-3 rounded-2xl border px-4 py-3 text-left transition",
+                            residency === val ? "border-fire bg-fire/5 ring-2 ring-fire/15" : "border-line bg-paper hover:border-fire/40"
+                          )}
+                        >
+                          <Icon size={18} aria-hidden className={cn("mt-0.5 shrink-0", residency === val ? "text-fire-ink" : "text-muted")} />
+                          <span>
+                            <span className="block text-sm font-semibold text-content">{title}</span>
+                            <span className="block text-xs text-muted">{hint}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+                  {residency === "foreign" && (
+                    <div role="radiogroup" aria-label={P("contactVia")} className="flex gap-2">
+                      {([["whatsapp", MessageCircle, "WhatsApp"], ["telegram", Send, "Telegram"]] as const).map(([val, Icon, label]) => (
+                        <button
+                          key={val}
+                          type="button"
+                          role="radio"
+                          aria-checked={messenger === val}
+                          onClick={() => { setMessenger(val); setPhoneTouched(false); }}
+                          className={cn(
+                            "inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-full border text-sm font-semibold transition",
+                            messenger === val ? "border-fire bg-fire text-brand-cream" : "border-line bg-paper text-content hover:border-fire/40"
+                          )}
+                        >
+                          <Icon size={16} aria-hidden /> {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <label className="block">
-                    <span className={labelCls}>{T("cPhone")}</span>
-                    <input value={phoneInput} onChange={(e) => setPhoneInput(e.target.value)} type="tel" inputMode="tel" autoComplete="tel" enterKeyHint="next" placeholder={T("rPhonePh")} className={fieldCls} />
+                    <span className={labelCls}>
+                      {residency === "local" ? T("cPhone") : messenger === "telegram" ? P("phoneTelegram") : P("phoneWhatsapp")}
+                    </span>
+                    <input
+                      value={phoneInput}
+                      onChange={(e) => setPhoneInput(e.target.value)}
+                      onBlur={() => setPhoneTouched(true)}
+                      type={residency === "foreign" && messenger === "telegram" ? "text" : "tel"}
+                      inputMode={residency === "foreign" && messenger === "telegram" ? "text" : "tel"}
+                      autoComplete="tel"
+                      enterKeyHint="next"
+                      aria-invalid={phoneTouched && !contactOk}
+                      placeholder={residency === "local" ? T("rPhonePh") : messenger === "telegram" ? P("tgPh") : "+44 7700 900123"}
+                      className={cn(fieldCls, phoneTouched && !contactOk && "border-fire")}
+                    />
+                    <span className={cn("mt-1.5 block text-xs", phoneTouched && !contactOk ? "text-fire-ink" : "text-muted")}>
+                      {phoneTouched && !contactOk
+                        ? residency === "local" ? TE("phoneUz") : messenger === "telegram" ? TE("phoneTelegram") : TE("phoneIntl")
+                        : residency === "local" ? P("phoneLocalHint") : P("phoneForeignHint", { app: messenger === "telegram" ? "Telegram" : "WhatsApp" })}
+                    </span>
                   </label>
                   <label className="block">
                     <span className={labelCls}>{T("rNotePh")}</span>
@@ -613,7 +688,7 @@ export default function ReservationFlow({
                 {error && <p className={cn(errorCls, "mt-4")}>{error}</p>}
                 <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <button type="button" onClick={() => { setError(null); setStep(4); }} className={backCls}><ArrowLeft size={16} /> {T("rBack")}</button>
-                  <button type="button" onClick={submit} disabled={loading || !name || phoneInput.length < 7} className={cn(btnClass("fire", "lg", true), "w-full disabled:pointer-events-none disabled:opacity-40 sm:w-auto")}>
+                  <button type="button" onClick={submit} disabled={loading || !name || !contactOk} className={cn(btnClass("fire", "lg", true), "w-full disabled:pointer-events-none disabled:opacity-40 sm:w-auto")}>
                     {loading ? <Loader2 size={18} className="animate-spin" /> : <><Check size={18} /> {T("rConfirm")}</>}
                   </button>
                 </div>
