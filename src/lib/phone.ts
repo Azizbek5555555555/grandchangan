@@ -10,11 +10,11 @@
  */
 
 /**
- * O'zbekiston mobil operatorlari kodlari (+998 dan keyingi 2 raqam):
- * Beeline 90, 91 · Ucell 93, 94, 50 · Mobiuz 97, 88, 87 · Uzmobile 99, 95, 77, 55 · Humans 33 · OQ 20 · Perfectum 98, 80.
+ * O'zbekiston mobil operatorlari kodlari (+998 dan keyingi 2 raqam) — Eskiz narxlar jadvali bo'yicha (my.eskiz.uz/sms/prices):
+ * Beeline 90, 91, 92 · Uzmobile 99, 77, 70, 95 · Mobiuz 97, 88, 87 · Ucell 93, 94, 50 · Humans 33 · OQ 20 · Perfectum 98, 80.
  * Yangi kod paydo bo'lsa — shu ro'yxatga qo'shing.
  */
-export const UZ_MOBILE_CODES = ["20", "33", "50", "55", "77", "80", "87", "88", "90", "91", "93", "94", "95", "97", "98", "99"];
+export const UZ_MOBILE_CODES = ["20", "33", "50", "70", "77", "80", "87", "88", "90", "91", "92", "93", "94", "95", "97", "98", "99"];
 
 /** O'zbekiston mobil raqami → "998XXXXXXXXX" yoki null (operator kodi noma'lum / uzunligi noto'g'ri) */
 export function parseUzPhone(input: string): string | null {
@@ -84,4 +84,16 @@ export function guestContact(stored: string): GuestContact {
   }
   const d = s.replace(/\D/g, "");
   return { kind: "sms", display: d.length === 12 ? fmtUz(d) : s, href: `tel:+${d}`, sms: d.length === 12 && d.startsWith("998") };
+}
+
+/**
+ * SMS matni uchun bitta "so'z" (bo'shliqsiz) aloqa: "+998901234567", "WhatsApp:+447700900123", "Telegram:@user".
+ * Eskiz shablonidagi o'zgaruvchi (%w) bitta so'zga mos keladi.
+ */
+export function contactToken(stored: string): string {
+  const c = guestContact(stored);
+  if (c.kind === "whatsapp") return `WhatsApp:${c.display}`;
+  if (c.kind === "telegram") return `Telegram:${c.display}`;
+  if (c.kind === "intl") return c.display.replace(/\s+/g, "");
+  return `+${stored.replace(/\D/g, "")}`;
 }
