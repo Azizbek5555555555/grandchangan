@@ -1451,7 +1451,8 @@
       "smsNoPhones": "Menejer raqami kiritilmagan (yuqoridagi «Yangi bron SMS'i» maydoni).",
       "smsSentTo": "{phone} raqamiga sinov SMS yuborildi.",
       "smsFailedTo": "{phone} raqamiga yuborilmadi: {error}",
-      "smsTest": "Tekshirish va sinov SMS"
+      "smsTest": "Tekshirish va sinov SMS",
+      "smsTestOnly": "Ulanish ishlayapti: Eskiz'ning sinov matni («Bu Eskiz dan test») yuborildi. Bron SMS'i esa hali o'tmaydi — akkaunt test rejimida yoki shablon tasdiqlanmagan (Eskiz: «Shartnoma so'rash» va «Mening matnlarim»)."
     },
     "errors": {
       "loginInvalid": "Login yoki parol noto'g'ri",

@@ -47,12 +47,18 @@ export async function smsCheck() {
   const status = await eskizStatus();
   const phones = await managerPhones();
   let results: { phone: string; ok: boolean; error?: string }[] = [];
+  // Bron shabloni hali tasdiqlanmagan / akkaunt test rejimida bo'lsa — Eskiz'ning sinov matni bilan ulanish tekshiriladi
+  let testOnly = false;
   if (status.auth && phones.length) {
     const sent = await notifyManagersSms(
       `GrandChangan: yangi bron GC-TEST. ${restaurantDay()} 19:00, 2 kishi, stol 1. Sinov xabari +${phones[0]}`,
       "sms-test"
     );
     results = sent.map((s) => ({ phone: s.phone, ok: s.result.ok, error: s.result.error }));
+    if (results.length && results.every((r) => !r.ok)) {
+      const fallback = await notifyManagersSms("Bu Eskiz dan test", "sms-test-eskiz");
+      if (fallback.some((f) => f.result.ok)) testOnly = true;
+    }
   }
-  return { ...status, phones, results };
+  return { ...status, phones, results, testOnly };
 }

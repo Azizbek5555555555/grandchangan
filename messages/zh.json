@@ -1451,7 +1451,8 @@
       "smsNoPhones": "未填写经理号码（上方“新预订短信”字段）。",
       "smsSentTo": "测试短信已发送至 {phone}。",
       "smsFailedTo": "未发送至 {phone}：{error}",
-      "smsTest": "检查并发送测试短信"
+      "smsTest": "检查并发送测试短信",
+      "smsTestOnly": "连接正常：已发送 Eskiz 测试文本（«Bu Eskiz dan test»）。预订短信尚无法发送——账户处于测试模式或模板未获批准（在 Eskiz 申请合同并在“我的文本”中添加模板）。"
     },
     "errors": {
       "loginInvalid": "账号或密码错误",

@@ -181,6 +181,7 @@ export default function SettingsForm({ general, hours }: { general: General; hou
               <Notice ok>{sms.balance != null ? ts("smsConnectedBalance", { balance: sms.balance.toLocaleString("ru-RU") }) : ts("smsConnected")}</Notice>
             )}
             {sms?.auth && !sms.phones.length && <Notice ok={false}>{ts("smsNoPhones")}</Notice>}
+            {sms?.testOnly && <Notice ok={false}>{ts("smsTestOnly")}</Notice>}
             {sms?.results.map((r) => (
               <Notice key={r.phone} ok={r.ok}>
                 {r.ok ? ts("smsSentTo", { phone: `+${r.phone}` }) : ts("smsFailedTo", { phone: `+${r.phone}`, error: r.error || "—" })}
