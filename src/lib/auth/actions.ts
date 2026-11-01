@@ -7,6 +7,7 @@ import { createOtp, verifyOtp, invalidateOtps } from "./otp";
 import { createSession, destroySession } from "./session";
 import { sendSms } from "../sms/eskiz";
 import { normalizePhone } from "../utils";
+import { parseUzPhone } from "../phone";
 import { STAFF_ROLES, ensureRoles } from "./guard";
 import { rateLimit, clearLimit, clientIp, MINUTE, HOUR } from "../security/rate-limit";
 import type { UserRole } from "@prisma/client";
@@ -19,8 +20,9 @@ const DUMMY_HASH = "$2a$10$pEchvsPHKvqjNiJQ2zFh/OjilShzacn5L/bmzoLkpHHROaoq9iGae
 /** Mijoz: telefonga OTP kod yuborish */
 export async function requestOtpAction(phoneRaw: string): Promise<Result> {
   const e = await getTranslations("Errors");
-  const phone = normalizePhone(phoneRaw);
-  if (phone.length < 12) return { ok: false, error: e("phoneInvalid") };
+  // Faqat O'zbekiston mobil raqami (operator kodi bilan) — SMS boshqa raqamga ketmaydi
+  const phone = parseUzPhone(phoneRaw);
+  if (!phone) return { ok: false, error: e("phoneUz") };
   // SMS bombardimon va pul isrofiga qarshi: raqamga 1 daqiqada 1 ta, 10 daqiqada 3 ta kod
   if (!rateLimit(`otp-cd:${phone}`, 1, MINUTE)) {
     return { ok: false, error: e("otpCooldown") };

@@ -3,7 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
-import { normalizePhone } from "../utils";
+import { parseIntlPhone, parseUzPhone } from "../phone";
 import { notifyTelegram, escapeHtml } from "../telegram/notify";
 import { rateLimit, clientIp, HOUR } from "../security/rate-limit";
 
@@ -12,11 +12,16 @@ export async function submitInquiry(input: {
 }) {
   const e = await getTranslations("Errors");
   const name = (input.name || "").trim().slice(0, 80);
-  const phone = normalizePhone(input.phone || "");
+  // O'zbekiston raqami (operator kodi bilan) yoki xalqaro raqam (+ davlat kodi — chet ellik mijoz)
+  const rawPhone = (input.phone || "").trim();
+  const phone =
+    parseUzPhone(rawPhone) ??
+    (rawPhone.startsWith("+") && !rawPhone.replace(/\D/g, "").startsWith("998") ? parseIntlPhone(rawPhone) : null) ??
+    "";
   const eventType = (input.eventType || "").trim().slice(0, 60);
   const guestCount = Number(input.guestCount);
   if (!name) return { ok: false, error: e("nameRequired") };
-  if (phone.length < 12) return { ok: false, error: e("phoneInvalid") };
+  if (!phone) return { ok: false, error: e("phoneInvalid") };
   if (!Number.isInteger(guestCount) || guestCount < 1 || guestCount > 2000) return { ok: false, error: e("guestsInvalid") };
   const preferredDate = input.preferredDate && /^\d{4}-\d{2}-\d{2}$/.test(input.preferredDate) ? new Date(`${input.preferredDate}T00:00:00Z`) : null;
   if (!rateLimit(`event-ip:${await clientIp()}`, 5, HOUR)) return { ok: false, error: e("tooMany") };

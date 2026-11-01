@@ -599,7 +599,10 @@
     "ratingInvalid": "Choose a rating (1–5)",
     "otpCooldown": "Code sent. You can request a new one in 1 minute.",
     "smsFailed": "Couldn't send the SMS. Please try again later.",
-    "codeInvalid": "Invalid or expired code"
+    "codeInvalid": "Invalid or expired code",
+    "phoneUz": "Enter a valid Uzbek mobile number, e.g. +998 90 123 45 67",
+    "phoneIntl": "Enter the number with your country code, e.g. +44 7700 900123",
+    "phoneTelegram": "Enter a Telegram number (with country code) or @username"
   },
   "Meta": {
     "title": "GrandChangan — Chinese restaurant · Samarkand",
@@ -878,7 +881,19 @@
     "floorCall": "Prefer to book by phone? We'll find you the best table — or a whole room for your celebration.",
     "floorPhotoN": "Photo {n}",
     "findTitle": "How to find us",
-    "findHint": "From the street you'll see the large “GRAND CHANG'AN” sign, and at the entrance a Chinese gate with red lanterns welcomes you — take the steps up and come right in."
+    "findHint": "From the street you'll see the large “GRAND CHANG'AN” sign, and at the entrance a Chinese gate with red lanterns welcomes you — take the steps up and come right in.",
+    "residencyTitle": "Citizenship",
+    "resLocal": "Uzbekistan citizen",
+    "resLocalHint": "Confirmation by SMS to an Uzbek number",
+    "resForeign": "Foreign guest",
+    "resForeignHint": "We'll reach you on WhatsApp or Telegram",
+    "contactVia": "How should we contact you",
+    "phoneWhatsapp": "WhatsApp number",
+    "phoneTelegram": "Telegram number or @username",
+    "tgPh": "+44 7700 900123 or @username",
+    "phoneLocalHint": "Uzbek mobile numbers only (90, 91, 93, 94, 95, 97, 98, 99, 88, 77, 33, 20, 50…) — you'll get an SMS confirmation.",
+    "phoneForeignHint": "Include your country code. Our manager will contact you on {app}.",
+    "contactSoonForeign": "We'll contact you on {app} shortly."
   },
   "About2": {
     "storyEyebrow": "Our story",

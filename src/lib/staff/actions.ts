@@ -6,7 +6,7 @@ import { getTranslations } from "next-intl/server";
 import { prisma } from "../prisma";
 import { ensureSection } from "../auth/guard";
 import { ROLE_RANK, STAFF_ROLE_LIST } from "../auth/permissions";
-import { normalizePhone } from "../utils";
+import { parseUzPhone } from "../phone";
 
 type Result = { ok: boolean; error?: string };
 
@@ -22,12 +22,12 @@ export async function saveStaff(input: {
   const ea = await getTranslations("AdminUi.errors");
   const name = (input.name || "").trim().slice(0, 80);
   const email = (input.email || "").trim().toLowerCase();
-  const phone = normalizePhone(input.phone || "");
+  const phone = parseUzPhone(input.phone || "") ?? "";
   const password = input.password || "";
 
   if (!name) return { ok: false, error: ea("staffNameRequired") };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: ea("emailInvalid") };
-  if (phone.length < 12) return { ok: false, error: ea("phoneInvalid") };
+  if (!phone) return { ok: false, error: ea("phoneInvalid") };
   if (!STAFF_ROLE_LIST.includes(input.role) || ROLE_RANK[input.role] >= ROLE_RANK[me.role]) {
     return { ok: false, error: ea("roleForbidden") };
   }

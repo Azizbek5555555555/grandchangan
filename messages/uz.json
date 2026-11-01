@@ -599,7 +599,10 @@
     "ratingInvalid": "Reytingni tanlang (1–5)",
     "otpCooldown": "Kod yuborildi. Yangi kodni 1 daqiqadan keyin so'rashingiz mumkin.",
     "smsFailed": "SMS yuborilmadi. Birozdan keyin qayta urinib ko'ring.",
-    "codeInvalid": "Kod noto'g'ri yoki muddati o'tgan"
+    "codeInvalid": "Kod noto'g'ri yoki muddati o'tgan",
+    "phoneUz": "O'zbekiston mobil raqamini to'g'ri kiriting, masalan: +998 90 123 45 67",
+    "phoneIntl": "Raqamni davlat kodi bilan kiriting, masalan: +44 7700 900123",
+    "phoneTelegram": "Telegram raqami (davlat kodi bilan) yoki @username kiriting"
   },
   "Meta": {
     "title": "GrandChangan — Xitoy restorani · Samarqand",
@@ -878,7 +881,19 @@
     "floorCall": "Telefon orqali bron qilish qulayroqmi? Eng yaxshi stolni — yoki bayramingiz uchun butun xonani tanlab beramiz.",
     "floorPhotoN": "{n}-rasm",
     "findTitle": "Bizni qanday topasiz",
-    "findHint": "Ko'chadan katta «GRAND CHANG'AN» yozuvini ko'rasiz, kirishda esa qizil fonarli xitoycha darvoza kutib oladi — zinapoyadan ko'tarilib, to'g'ri ichkariga."
+    "findHint": "Ko'chadan katta «GRAND CHANG'AN» yozuvini ko'rasiz, kirishda esa qizil fonarli xitoycha darvoza kutib oladi — zinapoyadan ko'tarilib, to'g'ri ichkariga.",
+    "residencyTitle": "Fuqaroligingiz",
+    "resLocal": "O'zbekiston fuqarosi",
+    "resLocalHint": "O'zbek raqamiga SMS orqali tasdiq",
+    "resForeign": "Chet el fuqarosi",
+    "resForeignHint": "WhatsApp yoki Telegram orqali aloqa",
+    "contactVia": "Qaysi messenjer orqali bog'lanamiz",
+    "phoneWhatsapp": "WhatsApp raqami",
+    "phoneTelegram": "Telegram raqami yoki @username",
+    "tgPh": "+44 7700 900123 yoki @username",
+    "phoneLocalHint": "Faqat O'zbekiston mobil raqami (90, 91, 93, 94, 95, 97, 98, 99, 88, 77, 33, 20, 50…) — tasdiq SMS'i keladi.",
+    "phoneForeignHint": "Davlat kodi bilan kiriting. Menejer siz bilan {app} orqali bog'lanadi.",
+    "contactSoonForeign": "Tez orada siz bilan {app} orqali bog'lanamiz."
   },
   "About2": {
     "storyEyebrow": "Bizning hikoya",
