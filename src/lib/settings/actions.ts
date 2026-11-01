@@ -5,6 +5,7 @@ import { prisma } from "../prisma";
 import { ensureAdmin } from "../auth/guard";
 import { eskizStatus } from "../sms/eskiz";
 import { managerPhones, notifyManagersSms } from "../sms/managers";
+import { smsText } from "../sms/templates";
 import { restaurantDay } from "../time";
 
 export async function saveSetting(key: string, value: Record<string, unknown>) {
@@ -51,7 +52,7 @@ export async function smsCheck() {
   let testOnly = false;
   if (status.auth && phones.length) {
     const sent = await notifyManagersSms(
-      `GrandChangan: yangi bron GC-TEST. ${restaurantDay()} 19:00, 2 kishi, stol 1. Sinov xabari +${phones[0]}`,
+      smsText.managerBooking({ code: "GC-TEST", date: restaurantDay(), time: "19:00", party: 2, table: "1", contact: `+${phones[0]}`, name: "Sinov" }),
       "sms-test"
     );
     results = sent.map((s) => ({ phone: s.phone, ok: s.result.ok, error: s.result.error }));

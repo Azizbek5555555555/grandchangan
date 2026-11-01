@@ -6,6 +6,7 @@ import { prisma } from "../prisma";
 import { createOtp, verifyOtp, invalidateOtps } from "./otp";
 import { createSession, destroySession } from "./session";
 import { sendSms } from "../sms/eskiz";
+import { smsText } from "../sms/templates";
 import { normalizePhone } from "../utils";
 import { parseUzPhone } from "../phone";
 import { STAFF_ROLES, ensureRoles } from "./guard";
@@ -31,7 +32,7 @@ export async function requestOtpAction(phoneRaw: string): Promise<Result> {
     return { ok: false, error: e("tooMany") };
   }
   const code = await createOtp(phone, "login");
-  const sent = await sendSms(phone, `GrandChangan. Tasdiqlash kodi: ${code}`);
+  const sent = await sendSms(phone, smsText.otp(code));
   if (!sent.ok) return { ok: false, error: e("smsFailed") };
   return { ok: true };
 }

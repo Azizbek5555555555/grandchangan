@@ -4,12 +4,13 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "../prisma";
 import { ensureAdmin, ensureSection } from "../auth/guard";
-import { encodeGuestContact, guestContact, parseIntlPhone, parseUzPhone, type Messenger, type Residency } from "../phone";
+import { contactToken, encodeGuestContact, guestContact, parseIntlPhone, parseUzPhone, type Messenger, type Residency } from "../phone";
 import { createWithCode } from "../codes";
 import { restaurantDateTime, calendarDate } from "../time";
 import { SLOT_MINUTES, dayOfWeekOf, hoursFor, slotsForDay, type DayHours } from "../hours";
 import { sendSms } from "../sms/eskiz";
 import { notifyManagersSms } from "../sms/managers";
+import { smsText } from "../sms/templates";
 import { rateLimit, clientIp, HOUR } from "../security/rate-limit";
 import { notifyTelegram, escapeHtml } from "../telegram/notify";
 import { Prisma, type ReservationStatus, type TableShape } from "@prisma/client";
@@ -215,10 +216,12 @@ export async function createReservation(input: {
   const code = reservation.code;
 
   // Mehmonga SMS — faqat O'zbekiston raqamiga (Eskiz chet el raqamlariga yubora olmaydi)
-  if (contact.sms) await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${code}. ${input.dateStr} ${input.timeStr}`);
+  if (contact.sms) await sendSms(phone, smsText.guestBooking({ code, date: input.dateStr, time: input.timeStr }));
   const via = contact.kind === "whatsapp" ? "WhatsApp " : contact.kind === "telegram" ? "Telegram " : "";
   await notifyManagersSms(
-    `GrandChangan: yangi bron ${code}. ${input.dateStr} ${input.timeStr}, ${input.partySize} kishi, stol ${table.number}. ${guestName} ${via}${contact.display}`
+    smsText.managerBooking({
+      code, date: input.dateStr, time: input.timeStr, party: input.partySize, table: table.number, contact: contactToken(phone), name: guestName,
+    })
   );
   await notifyTelegram(
     `🍽 <b>Yangi bron</b>\nKod: ${code}\nStol: ${escapeHtml(table.number)}\nMehmon: ${escapeHtml(guestName)} (${via}${escapeHtml(contact.display)})${residency === "foreign" ? "\n🌍 Chet ellik mehmon — SMS yuborilmadi" : ""}\nKishi: ${input.partySize}\nVaqt: ${input.dateStr} ${input.timeStr}`
@@ -318,7 +321,7 @@ export async function adminHoldTables(input: AdminHoldInput): Promise<{ ok: true
     codes.push(r.code);
   }
   if (guest && input.smsGuest && guestContact(phone).sms) {
-    await sendSms(phone, `GrandChangan: bron qabul qilindi. Kod: ${codes[0]}. ${input.fromDate} ${input.fromTime}`);
+    await sendSms(phone, smsText.guestBooking({ code: codes[0], date: input.fromDate, time: input.fromTime }));
   }
 
   revalidatePath("/[locale]/admin/reservations", "page");
