@@ -1440,7 +1440,18 @@
         "d6": "Суббота"
       },
       "bookingPhones": "SMS о новой брони (телефон менеджера)",
-      "bookingPhonesHint": "При новой брони с сайта на эти номера придёт SMS. Несколько — через запятую."
+      "bookingPhonesHint": "При новой брони с сайта на эти номера придёт SMS. Несколько — через запятую.",
+      "smsTitle": "SMS (Eskiz)",
+      "smsHint": "Через него менеджеру уходит SMS о новой брони, а гостю — подтверждение.",
+      "smsIdle": "Нажмите кнопку, чтобы проверить подключение Eskiz и отправить тестовое SMS менеджеру.",
+      "smsNotConfigured": "Eskiz не подключён: в Railway нет переменных ESKIZ_EMAIL и ESKIZ_PASSWORD.",
+      "smsAuthFailed": "Не удалось войти в Eskiz: {error}",
+      "smsConnected": "Eskiz подключён.",
+      "smsConnectedBalance": "Eskiz подключён. Баланс: {balance} сум.",
+      "smsNoPhones": "Номер менеджера не указан (поле «SMS о новой брони» выше).",
+      "smsSentTo": "Тестовое SMS отправлено на {phone}.",
+      "smsFailedTo": "Не отправлено на {phone}: {error}",
+      "smsTest": "Проверить и отправить тест"
     },
     "errors": {
       "loginInvalid": "Неверный логин или пароль",
