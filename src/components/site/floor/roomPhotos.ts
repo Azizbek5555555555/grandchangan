@@ -23,12 +23,13 @@ export const ZONE_COVER: Record<string, Photo> = {
 };
 
 // VIP xonalar: katta (12–13 o'rinli) xonalarga — katta stolli rasmlar, 10 o'rinlilarga — kichikroq xona
+// (raqamlar 2026-11-04 da qayta qo'yildi — rasmlar o'sha jismoniy xonada qoldi)
 const VIP_LEAD: Record<number, Photo> = {
-  1: PHOTOS.vipGrand,
+  1: PHOTOS.vipLounge,
   2: PHOTOS.vipTableTop,
-  3: PHOTOS.vipLounge,
-  4: PHOTOS.vipChandelier,
-  5: PHOTOS.vipTable,
+  3: PHOTOS.vipGrand,
+  5: PHOTOS.vipChandelier,
+  6: PHOTOS.vipTable,
 };
 
 // Kabinalar (deraza yonida) — har biriga boshqa rakurs
@@ -36,8 +37,8 @@ const BOOTH_LEAD: Record<number, Photo> = {
   1: PHOTOS.boothWindow,
   2: PHOTOS.boothWindow2,
   3: PHOTOS.boothSofa,
-  4: PHOTOS.boothWindow,
-  5: PHOTOS.boothRoundWindow,
+  5: PHOTOS.boothWindow,
+  6: PHOTOS.boothRoundWindow,
 };
 
 /** Katta zal: stol turiga mos rasm (dumaloq / uzun / kichik to'rtburchak) */

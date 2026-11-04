@@ -5,9 +5,12 @@
  * Tuzatish (Aziz): rasmdagi qizil joydagi hojatxonalar yashil joyga ko'chirildi, qizil joy — yo'lak.
  * Shu sababli katta zaldagi stollar biroz o'ngga surilgan.
  *
- * O'rinlar soni Aziz belgilagan rasm bo'yicha (2026-10-25): VIP-1/2 — 12, VIP-3 — 13, VIP-4/5 — 10, katta zalda
+ * O'rinlar soni Aziz belgilagan rasm bo'yicha (2026-10-25): VIP-1 — 13, VIP-2/3 — 12, VIP-5/6 — 10, katta zalda
  * 8 ta 10 kishilik dumaloq stol + 14 kishilik uzun stol + o'ng devor yonida 2 ta 6 kishilik stol, kabinalar — 5 ta,
- * har biri 6 kishilik (6-kabina yo'q). Xona 1/2 va alohida stol — hali aniqlanmagan (o'zgarmagan).
+ * har biri 6 kishilik. Xona 1/2 va alohida stol — hali aniqlanmagan (o'zgarmagan).
+ *
+ * Raqamlash (Aziz, 2026-11-04): xitoy an'anasida 4 (四) raqami ishlatilmaydi — 1, 2, 3, 5, 6 … VIP xonalar
+ * raqami ham qayta qo'yildi (yuqori o'ngdagi — VIP 1, chapdagi — VIP 3). Bazadagi eski raqamlar ./renumber.ts da.
  * Faqat ma'lumot (React yo'q) — server va klientda ishlatsa bo'ladi.
  */
 
@@ -69,45 +72,54 @@ export const VIEWBOX: Rect = { x: 40, y: 60, w: 1450, h: 880 };
 /** Bino tashqi devori */
 export const BUILDING: Rect = { x: 150, y: 120, w: 1315, h: 800 };
 
+/** n-raqam, 4 raqami qatnashganlar (4, 14, 24 …) tashlab o'tiladi: 1, 2, 3, 5, 6 … */
+export function noFour(n: number): number {
+  let v = 0;
+  for (let k = 0; k < n; ) if (!String(++v).includes("4")) k++;
+  return v;
+}
+
 const round = (id: string, code: string, cx: number, cy: number, r: number, seats: number): FloorTable =>
   ({ id, code, shape: "round", cx, cy, r, seats });
 
 const rect = (id: string, code: string, cx: number, cy: number, w: number, h: number, chairs: ChairSides): FloorTable =>
   ({ id, code, shape: "rect", cx, cy, w, h, chairs, seats: chairs.top + chairs.right + chairs.bottom + chairs.left });
 
-// Katta zal: 2 qator × 4 ta dumaloq stol (10 kishilik) + uzun stol (14 kishilik) + o'ng devor yonida 2 ta 6 kishilik stol
+// Katta zal: 2 qator × 4 ta dumaloq stol (10 kishilik) + uzun stol (14 kishilik) + o'ng devor yonida 2 ta 6 kishilik stol.
+// Raqamlar chapdan o'ngga, yuqori qatordan pastga: Z-1, Z-2, Z-3, Z-5 / Z-6 … Z-9, uzun stol Z-10, yon stollar Z-11, Z-12.
 const HALL_COLS = [578, 698, 818, 938];
 const HALL_ROWS = [445, 585];
 const hallTables: FloorTable[] = [
-  ...HALL_ROWS.flatMap((cy, r) => HALL_COLS.map((cx, c) => round(`hall-${r * 4 + c + 1}`, `Z-${r * 4 + c + 1}`, cx, cy, 38, 10))),
-  rect("hall-long", "Z-9", 1058, 517, 48, 205, { top: 1, right: 6, bottom: 1, left: 6 }),
-  rect("hall-side-1", "Z-10", 1172, 439, 44, 72, { top: 1, right: 2, bottom: 1, left: 2 }),
-  rect("hall-side-2", "Z-11", 1172, 584, 44, 72, { top: 1, right: 2, bottom: 1, left: 2 }),
+  ...HALL_ROWS.flatMap((cy, r) => HALL_COLS.map((cx, c) => round(`hall-${r * 4 + c + 1}`, `Z-${noFour(r * 4 + c + 1)}`, cx, cy, 38, 10))),
+  rect("hall-long", "Z-10", 1058, 517, 48, 205, { top: 1, right: 6, bottom: 1, left: 6 }),
+  rect("hall-side-1", "Z-11", 1172, 439, 44, 72, { top: 1, right: 2, bottom: 1, left: 2 }),
+  rect("hall-side-2", "Z-12", 1172, 584, 44, 72, { top: 1, right: 2, bottom: 1, left: 2 }),
 ];
 
-// Kabinachalar: 5 ta kabina, har birida 2 ta o'rindiq (yuqori va pastki) — 6 kishilik
+// Kabinachalar: 5 ta kabina (1, 2, 3, 5, 6 — 4 yo'q), har birida 2 ta o'rindiq (yuqori va pastki) — 6 kishilik
 const BOOTH_W = 80;
 const booths: FloorRoom[] = Array.from({ length: 5 }, (_, i) => {
   const x = 751 + i * 92;
+  const n = noFour(i + 1);
   return {
-    id: `booth-${i + 1}`,
+    id: `booth-${n}`,
     kind: "booth" as const,
-    num: i + 1,
+    num: n,
     rect: { x, y: 778, w: BOOTH_W, h: 130 },
-    short: String(i + 1),
-    tables: [{ id: `booth-${i + 1}-t`, code: `K-${i + 1}`, shape: "booth" as const, cx: x + BOOTH_W / 2, cy: 843, w: BOOTH_W - 16, h: 40, seats: 6 }],
+    short: String(n),
+    tables: [{ id: `booth-${n}-t`, code: `K-${n}`, shape: "booth" as const, cx: x + BOOTH_W / 2, cy: 843, w: BOOTH_W - 16, h: 40, seats: 6 }],
     bookable: true,
   };
 });
 
 export const ROOMS: FloorRoom[] = [
-  // ---- Yuqori qator: 3 ta VIP + oshxona ----
-  { id: "vip-1", kind: "vip", num: 1, rect: { x: 160, y: 128, w: 272, h: 200 }, label: { x: 297, y: 230 },
-    tables: [round("vip-1-t", "VIP-1", 297, 230, 60, 12)], bookable: true },
+  // ---- Yuqori qator: 3 ta VIP (o'ngdan chapga: VIP 1, 2, 3) + oshxona ----
+  { id: "vip-1", kind: "vip", num: 1, rect: { x: 640, y: 128, w: 225, h: 200 }, label: { x: 752, y: 228 },
+    tables: [round("vip-1-t", "VIP-1", 752, 228, 58, 13)], bookable: true },
   { id: "vip-2", kind: "vip", num: 2, rect: { x: 445, y: 128, w: 185, h: 200 }, label: { x: 537, y: 228 },
     tables: [round("vip-2-t", "VIP-2", 537, 228, 54, 12)], bookable: true },
-  { id: "vip-3", kind: "vip", num: 3, rect: { x: 640, y: 128, w: 225, h: 200 }, label: { x: 752, y: 228 },
-    tables: [round("vip-3-t", "VIP-3", 752, 228, 58, 13)], bookable: true },
+  { id: "vip-3", kind: "vip", num: 3, rect: { x: 160, y: 128, w: 272, h: 200 }, label: { x: 297, y: 230 },
+    tables: [round("vip-3-t", "VIP-3", 297, 230, 60, 12)], bookable: true },
   { id: "kitchen", kind: "kitchen", rect: { x: 878, y: 128, w: 578, h: 200 }, label: { x: 1167, y: 230 },
     tables: [], bookable: false,
     decor: [
@@ -117,11 +129,11 @@ export const ROOMS: FloorRoom[] = [
       { type: "rect", x: 965, y: 300, w: 400, h: 20, rx: 3 }, { type: "rect", x: 1410, y: 228, w: 32, h: 92, rx: 3 },
     ] },
 
-  // ---- Chap ustun: 2 ta VIP (to'rtburchak stol) + bar ----
-  { id: "vip-4", kind: "vip", num: 4, rect: { x: 160, y: 345, w: 172, h: 180 }, label: { x: 247, y: 440 },
-    tables: [rect("vip-4-t", "VIP-4", 247, 440, 80, 112, { top: 1, right: 4, bottom: 1, left: 4 })], bookable: true },
-  { id: "vip-5", kind: "vip", num: 5, rect: { x: 160, y: 542, w: 172, h: 182 }, label: { x: 247, y: 636 },
-    tables: [rect("vip-5-t", "VIP-5", 247, 636, 80, 112, { top: 1, right: 4, bottom: 1, left: 4 })], bookable: true },
+  // ---- Chap ustun: 2 ta VIP (to'rtburchak stol, VIP 5 va 6 — 4 yo'q) + bar ----
+  { id: "vip-5", kind: "vip", num: 5, rect: { x: 160, y: 345, w: 172, h: 180 }, label: { x: 247, y: 440 },
+    tables: [rect("vip-5-t", "VIP-5", 247, 440, 80, 112, { top: 1, right: 4, bottom: 1, left: 4 })], bookable: true },
+  { id: "vip-6", kind: "vip", num: 6, rect: { x: 160, y: 542, w: 172, h: 182 }, label: { x: 247, y: 636 },
+    tables: [rect("vip-6-t", "VIP-6", 247, 636, 80, 112, { top: 1, right: 4, bottom: 1, left: 4 })], bookable: true },
   { id: "bar", kind: "bar", rect: { x: 160, y: 745, w: 280, h: 170 }, label: { x: 297, y: 832 },
     tables: [{ id: "bar-t", shape: "bar", cx: 297, cy: 824, w: 210, h: 46, seats: 5 }], bookable: false,
     decor: [
