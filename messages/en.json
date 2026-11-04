@@ -1452,7 +1452,22 @@
       "smsSentTo": "Test SMS sent to {phone}.",
       "smsFailedTo": "Not sent to {phone}: {error}",
       "smsTest": "Check & send test SMS",
-      "smsTestOnly": "The connection works: Eskiz's test text («Bu Eskiz dan test») was sent. Booking SMS doesn't go through yet — the account is in test mode or the template isn't approved (Eskiz: request a contract and add the text under “My texts”)."
+      "smsTestOnly": "The connection works: Eskiz's test text («Bu Eskiz dan test») was sent. Booking SMS doesn't go through yet — the account is in test mode or the template isn't approved (Eskiz: request a contract and add the text under “My texts”).",
+      "smsTplTitle": "GrandChangan texts in Eskiz",
+      "smsTplApproved": "Approved",
+      "smsTplModeration": "In moderation",
+      "smsTplRejected": "Rejected",
+      "smsTplNone": "No text starting with “GrandChangan” in the Eskiz account — add it under “My texts”.",
+      "smsLogTitle": "Recent SMS",
+      "smsLogEmpty": "No SMS sent yet.",
+      "smsLogSent": "Sent",
+      "smsLogFailed": "Failed",
+      "smsLogDev": "Eskiz not connected",
+      "smsLogKind": {
+        "manager": "booking to manager",
+        "guest": "booking to guest",
+        "test": "test"
+      }
     },
     "errors": {
       "loginInvalid": "Incorrect email or password",

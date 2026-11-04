@@ -1452,7 +1452,22 @@
       "smsSentTo": "{phone} raqamiga sinov SMS yuborildi.",
       "smsFailedTo": "{phone} raqamiga yuborilmadi: {error}",
       "smsTest": "Tekshirish va sinov SMS",
-      "smsTestOnly": "Ulanish ishlayapti: Eskiz'ning sinov matni («Bu Eskiz dan test») yuborildi. Bron SMS'i esa hali o'tmaydi — akkaunt test rejimida yoki shablon tasdiqlanmagan (Eskiz: «Shartnoma so'rash» va «Mening matnlarim»)."
+      "smsTestOnly": "Ulanish ishlayapti: Eskiz'ning sinov matni («Bu Eskiz dan test») yuborildi. Bron SMS'i esa hali o'tmaydi — akkaunt test rejimida yoki shablon tasdiqlanmagan (Eskiz: «Shartnoma so'rash» va «Mening matnlarim»).",
+      "smsTplTitle": "Eskiz'dagi GrandChangan matnlari",
+      "smsTplApproved": "Tasdiqlangan",
+      "smsTplModeration": "Moderatsiyada",
+      "smsTplRejected": "Rad etilgan",
+      "smsTplNone": "Eskiz kabinetida «GrandChangan» bilan boshlanadigan matn topilmadi — «Mening matnlarim»ga qo'shilishi kerak.",
+      "smsLogTitle": "Oxirgi SMS'lar",
+      "smsLogEmpty": "Hali SMS yuborilmagan.",
+      "smsLogSent": "Yuborildi",
+      "smsLogFailed": "Ketmadi",
+      "smsLogDev": "Eskiz ulanmagan",
+      "smsLogKind": {
+        "manager": "menejerga bron",
+        "guest": "mehmonga bron",
+        "test": "sinov"
+      }
     },
     "errors": {
       "loginInvalid": "Login yoki parol noto'g'ri",

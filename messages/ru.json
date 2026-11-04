@@ -1452,7 +1452,22 @@
       "smsSentTo": "Тестовое SMS отправлено на {phone}.",
       "smsFailedTo": "Не отправлено на {phone}: {error}",
       "smsTest": "Проверить и отправить тест",
-      "smsTestOnly": "Подключение работает: тестовый текст Eskiz («Bu Eskiz dan test») отправлен. SMS о брони пока не проходит — аккаунт в тестовом режиме или шаблон не одобрен (Eskiz: «Запросить договор» и «Мои тексты»)."
+      "smsTestOnly": "Подключение работает: тестовый текст Eskiz («Bu Eskiz dan test») отправлен. SMS о брони пока не проходит — аккаунт в тестовом режиме или шаблон не одобрен (Eskiz: «Запросить договор» и «Мои тексты»).",
+      "smsTplTitle": "Тексты GrandChangan в Eskiz",
+      "smsTplApproved": "Одобрен",
+      "smsTplModeration": "На модерации",
+      "smsTplRejected": "Отклонён",
+      "smsTplNone": "В кабинете Eskiz нет текста, начинающегося с «GrandChangan» — его нужно добавить в «Мои тексты».",
+      "smsLogTitle": "Последние SMS",
+      "smsLogEmpty": "SMS ещё не отправлялись.",
+      "smsLogSent": "Отправлено",
+      "smsLogFailed": "Не ушло",
+      "smsLogDev": "Eskiz не подключён",
+      "smsLogKind": {
+        "manager": "бронь менеджеру",
+        "guest": "бронь гостю",
+        "test": "тест"
+      }
     },
     "errors": {
       "loginInvalid": "Неверный логин или пароль",

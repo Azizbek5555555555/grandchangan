@@ -8,8 +8,7 @@ import { contactToken, encodeGuestContact, guestContact, parseIntlPhone, parseUz
 import { createWithCode } from "../codes";
 import { restaurantDateTime, calendarDate } from "../time";
 import { SLOT_MINUTES, dayOfWeekOf, hoursFor, slotsForDay, type DayHours } from "../hours";
-import { sendSms } from "../sms/eskiz";
-import { notifyManagersSms } from "../sms/managers";
+import { notifyManagersSms, sendSmsLogged } from "../sms/managers";
 import { smsText } from "../sms/templates";
 import { rateLimit, clientIp, HOUR } from "../security/rate-limit";
 import { notifyTelegram, escapeHtml } from "../telegram/notify";
@@ -216,7 +215,7 @@ export async function createReservation(input: {
   const code = reservation.code;
 
   // Mehmonga SMS — faqat O'zbekiston raqamiga (Eskiz chet el raqamlariga yubora olmaydi)
-  if (contact.sms) await sendSms(phone, smsText.guestBooking({ code, date: input.dateStr, time: input.timeStr }));
+  if (contact.sms) await sendSmsLogged(phone, smsText.guestBooking({ code, date: input.dateStr, time: input.timeStr }), "booking-guest");
   const via = contact.kind === "whatsapp" ? "WhatsApp " : contact.kind === "telegram" ? "Telegram " : "";
   await notifyManagersSms(
     smsText.managerBooking({
@@ -321,7 +320,7 @@ export async function adminHoldTables(input: AdminHoldInput): Promise<{ ok: true
     codes.push(r.code);
   }
   if (guest && input.smsGuest && guestContact(phone).sms) {
-    await sendSms(phone, smsText.guestBooking({ code: codes[0], date: input.fromDate, time: input.fromTime }));
+    await sendSmsLogged(phone, smsText.guestBooking({ code: codes[0], date: input.fromDate, time: input.fromTime }), "booking-guest");
   }
 
   revalidatePath("/[locale]/admin/reservations", "page");

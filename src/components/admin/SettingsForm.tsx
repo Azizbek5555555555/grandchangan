@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Building2, Clock, MessageSquareText, Save, Send } from "lucide-react";
 import { LocalizedInput, type LocalizedValue } from "@/components/ui/LocalizedInput";
@@ -15,8 +16,22 @@ type Hour = { dayOfWeek: number; openTime: string | null; closeTime: string | nu
 const ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 type Msg = { ok: boolean; text: string } | null;
+export type SmsLogRow = { id: string; target: string; template: string | null; status: string; error: string | null; createdAt: string };
 
-export default function SettingsForm({ general, hours }: { general: General; hours: Hour[] }) {
+/** Jurnal vaqti — restoran vaqti (Samarqand, UTC+5): "04.11 19:05" */
+const fmtTime = (iso: string) => {
+  const d = new Date(new Date(iso).getTime() + 5 * 3600 * 1000).toISOString();
+  return `${d.slice(8, 10)}.${d.slice(5, 7)} ${d.slice(11, 16)}`;
+};
+const SMS_KIND: Record<string, "manager" | "guest" | "test"> = {
+  "booking-manager": "manager", "booking-guest": "guest", "sms-test": "test", "sms-test-eskiz": "test",
+};
+/** Eskiz shablon holati → tasdiqlangan / moderatsiyada / rad etilgan */
+const tplState = (status: string) =>
+  /service|reklama|approv|active/i.test(status) ? "ok" : /reject|declin|cancel/i.test(status) ? "rejected" : "wait";
+
+export default function SettingsForm({ general, hours, smsLog }: { general: General; hours: Hour[]; smsLog: SmsLogRow[] }) {
+  const router = useRouter();
   const ta = useTranslations("Admin");
   const ts = useTranslations("AdminUi.settings");
   const tc = useTranslations("AdminUi.common");
@@ -42,6 +57,7 @@ export default function SettingsForm({ general, hours }: { general: General; hou
     setSmsBusy(true); setSms(null);
     try {
       setSms(await smsCheck());
+      router.refresh(); // jurnalda yangi sinov SMS'lari ko'rinsin
     } finally {
       setSmsBusy(false);
     }
@@ -187,6 +203,54 @@ export default function SettingsForm({ general, hours }: { general: General; hou
                 {r.ok ? ts("smsSentTo", { phone: `+${r.phone}` }) : ts("smsFailedTo", { phone: `+${r.phone}`, error: r.error || "—" })}
               </Notice>
             ))}
+            {/* GrandChangan matnlari Eskiz kabinetida ("Mening matnlarim") — moderatsiya holati */}
+            {sms?.auth && sms.templates && (
+              <div className="pt-1">
+                <p className={ui.label}>{ts("smsTplTitle")}</p>
+                {sms.templates.length ? (
+                  <ul className="space-y-1.5">
+                    {sms.templates.map((tp, i) => {
+                      const st = tplState(tp.status);
+                      return (
+                        <li key={i} className="rounded-xl border border-line px-3 py-2">
+                          <span className={cn("mb-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-medium",
+                            st === "ok" ? "bg-success-soft text-success" : st === "rejected" ? "bg-fire/10 text-fire-ink" : "bg-brand-gold/15 text-content")}>
+                            {ts(st === "ok" ? "smsTplApproved" : st === "rejected" ? "smsTplRejected" : "smsTplModeration")}
+                          </span>
+                          <span className="block break-words text-xs text-muted">{tp.text}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : (
+                  <p className="text-xs text-muted">{ts("smsTplNone")}</p>
+                )}
+              </div>
+            )}
+          </div>
+          {/* Oxirgi SMS'lar: bron SMS'i menejerga/mehmonga ketdimi yoki Eskiz qanday xato qaytardi */}
+          <div className="border-t border-line px-4 py-3 sm:px-5">
+            <p className={ui.label}>{ts("smsLogTitle")}</p>
+            {smsLog.length ? (
+              <ul className="divide-y divide-line text-xs">
+                {smsLog.map((l) => (
+                  <li key={l.id} className="py-1.5">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                      <span className="tabular-nums text-muted">{fmtTime(l.createdAt)}</span>
+                      <span className="tabular-nums text-content">+{l.target}</span>
+                      <span className="text-muted">· {ts(`smsLogKind.${SMS_KIND[l.template ?? ""] ?? "test"}`)}</span>
+                      <span className={cn("ml-auto rounded-full px-2 py-0.5 font-medium",
+                        l.status === "SENT" ? "bg-success-soft text-success" : l.status === "FAILED" ? "bg-fire/10 text-fire-ink" : "bg-brand-gold/15 text-content")}>
+                        {ts(l.status === "SENT" ? "smsLogSent" : l.status === "FAILED" ? "smsLogFailed" : "smsLogDev")}
+                      </span>
+                    </div>
+                    {l.error && <p className="mt-0.5 break-words text-fire-ink">{l.error}</p>}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-muted">{ts("smsLogEmpty")}</p>
+            )}
           </div>
           <div className="flex border-t border-line px-4 py-3 sm:px-5">
             <button type="button" onClick={runSmsCheck} disabled={smsBusy} className={cn(ui.btnSecondary, "ml-auto")}>

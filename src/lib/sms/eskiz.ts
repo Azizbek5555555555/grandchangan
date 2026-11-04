@@ -84,17 +84,38 @@ export async function sendSms(phone: string, message: string): Promise<SmsResult
   return { ok: r.ok, error: r.error, id: r.id };
 }
 
-/** Admin uchun: Eskiz ulanganmi, kirish ishlayaptimi, balans */
-export async function eskizStatus(): Promise<{ configured: boolean; auth: boolean; balance: number | null; error?: string }> {
+export type EskizTemplate = { text: string; status: string };
+
+/** Kabinetdagi matn shablonlari ("Mening matnlarim") va moderatsiya holati; olib bo'lmasa — null */
+async function eskizTemplates(token: string): Promise<EskizTemplate[] | null> {
+  try {
+    const res = await fetch(`${BASE}/user/templates`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(8000) });
+    const d = await res.json().catch(() => null);
+    const raw = [d?.result, d?.data?.result, d?.data, d].find(Array.isArray) as Record<string, unknown>[] | undefined;
+    if (!res.ok || !raw) return null;
+    return raw
+      .map((x) => ({ text: String(x.original_text ?? x.template ?? x.text ?? ""), status: String(x.status ?? "") }))
+      .filter((x) => x.text);
+  } catch {
+    return null;
+  }
+}
+
+/** Admin uchun: Eskiz ulanganmi, kirish ishlayaptimi, balans va GrandChangan shablonlari holati */
+export async function eskizStatus(): Promise<{
+  configured: boolean; auth: boolean; balance: number | null; error?: string; templates?: EskizTemplate[] | null;
+}> {
   if (!eskizConfigured()) return { configured: false, auth: false, balance: null };
   const { token, error } = await getToken(true);
   if (!token) return { configured: true, auth: false, balance: null, error };
-  try {
-    const res = await fetch(`${BASE}/user/get-limit`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(8000) });
-    const data = await res.json().catch(() => null);
-    const balance = Number(data?.data?.balance);
-    return { configured: true, auth: true, balance: Number.isFinite(balance) ? balance : null };
-  } catch {
-    return { configured: true, auth: true, balance: null };
-  }
+  const [balance, templates] = await Promise.all([
+    fetch(`${BASE}/user/get-limit`, { headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(8000) })
+      .then((r) => r.json())
+      .then((d) => Number(d?.data?.balance))
+      .catch(() => NaN),
+    eskizTemplates(token),
+  ]);
+  // Akkaunt umumiy (boshqa tashkilot matnlari ham bor) — faqat bizniki
+  const ours = templates?.filter((t) => /grandchangan/i.test(t.text)) ?? null;
+  return { configured: true, auth: true, balance: Number.isFinite(balance) ? balance : null, templates: ours };
 }
