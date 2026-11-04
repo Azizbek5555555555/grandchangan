@@ -1,6 +1,7 @@
 import "server-only";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { MAP_ZONES } from "./layout";
+import { renumberTables } from "./renumber";
 import {
   DEFAULT_CANVAS, mapTableIndex, mergeZoneName, planZone, zoneUzName, type PlannedTable,
 } from "./sync-plan";
@@ -120,6 +121,8 @@ export async function applyFloorSync(db: PrismaClient, { force = false }: { forc
     async (tx: Tx) => {
       // Bir vaqtda ikki admin bossa — ikkinchisi birinchisi tugashini kutadi (takroriy zallar bo'lmasin)
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('floor-sync'))`;
+      // Eski raqamlar (4 bilan) bo'lsa — avval joyida yangisiga (aks holda bronlar boshqa stolga o'tib qoladi)
+      await renumberTables(tx);
       const res: FloorSyncResult = { created: 0, updated: 0, deactivated: 0, zonesCreated: 0, zonesDeactivated: 0 };
 
       // ---- 1. Zallar ----
